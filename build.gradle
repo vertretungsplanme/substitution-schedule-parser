@@ -1,8 +1,22 @@
-group 'me.vertretungsplan'
-version '1.0-SNAPSHOT'
-
 allprojects {
     repositories {
         jcenter()
+    }
+}
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
+    }
+}
+
+// turn off Java 8's doclint (causes problems with HTML5 markup in Javadoc)
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
     }
 }

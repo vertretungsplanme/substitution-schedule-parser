@@ -1,3 +1,6 @@
+group 'me.vertretungsplan'
+version '1.0.0-beta1'
+
 apply plugin: 'java'
 
 sourceCompatibility = 1.7
@@ -12,3 +15,28 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
+
+task javadoc(overwrite: true, type: Javadoc) {
+    source 'src/main/java/me/vertretungsplan'
+    classpath = sourceSets.main.output + sourceSets.main.compileClasspath
+}
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'substitution-schedule-parser'
+
+    publishedGroupId = 'me.vertretungsplan'
+    libraryName = 'Substitution schedule parser library'
+    artifact = 'parser'
+
+    libraryDescription = "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
+
+    siteUrl = 'https://github.com/johan12345/substitution-schedule-parser'
+    gitUrl = 'https://github.com/johan12345/substitution-schedule-parser.git'
+
+    libraryVersion = version
+
+    allLicenses = ["GPL-3.0"]
+}
+
+apply from: 'bintray.gradle'

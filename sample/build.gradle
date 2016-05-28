@@ -4,6 +4,11 @@ sourceCompatibility = 1.7
 
 mainClassName = "me.vertretungsplan.sample.Sample"
 
+repositories {
+    maven {
+        url "http://dl.bintray.com/johan12345/maven"
+    }
+}
 dependencies {
-    compile project(':parser')
+    compile 'me.vertretungsplan:parser:1.0.0-beta1'
 }
