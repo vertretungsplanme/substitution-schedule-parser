@@ -1,4 +1,4 @@
-# substitution-schedule-parser [ ![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg) ](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)
+# substitution-schedule-parser [![Build Status](https://travis-ci.org/johan12345/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/johan12345/substitution-schedule-parser)[ ![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg) ](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)
 Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries.
 
 The library is used by the Android App [vertretungsplan.me](https://vertretungsplpan.me), which supports more than 100 schools. An [older version](https://github.com/johan12345/vertretungsplan) of the app is open source.
