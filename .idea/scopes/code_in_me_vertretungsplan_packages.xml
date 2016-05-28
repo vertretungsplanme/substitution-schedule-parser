@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="code in me.vertretungsplan packages" pattern="src[parser]:me.vertretungsplan..*||src[sample]:me.vertretungsplan..*||test[parser]:me.vertretungsplan..*" />
+</component>
