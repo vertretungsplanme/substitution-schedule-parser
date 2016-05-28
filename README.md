@@ -8,7 +8,7 @@ The `sample` directory contains [a simple example](https://github.com/johan12345
 
 Builds are available through JCenter, you can find instructions how to use it with different build systems [here](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion).
 
-## Supported substitution schedule softwares
+## Supported substitution schedule software systems
 Below you find the currently supported substitution schedule softwares and the corresponding values for `SubstitutionScheduleData.setApi()`:
 
 * Untis (*not* WebUntis)
