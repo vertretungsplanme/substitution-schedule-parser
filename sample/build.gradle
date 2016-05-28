@@ -1,0 +1,9 @@
+apply plugin: 'application'
+
+sourceCompatibility = 1.7
+
+mainClassName = "me.vertretungsplan.sample.Sample"
+
+dependencies {
+    compile project(':parser')
+}
