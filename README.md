@@ -8,6 +8,14 @@ The `sample` directory contains [a simple example](https://github.com/johan12345
 
 Builds are available through JCenter, you can find instructions how to use it with different build systems [here](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion).
 
+When you use the library in your own project or do any modifications to it, please take note of the
+[License](#license) it is distributed under. I would also appreciate it if you'd tell me what exciting projects you
+are using the library in, just drop me a mail at info@vertretungsplan.me!
+
+If you run into problems using this library, you can simply
+[report an issue](https://github.com/johan12345/substitution-schedule-parser/issues/new) and I will try to help you
+as soon as possible.
+
 ## Supported substitution schedule software systems
 Below you find the currently supported substitution schedule softwares and the corresponding values for `SubstitutionScheduleData.setApi()`:
 
@@ -29,4 +37,14 @@ Depending on the type of software, different options need to be supplied in `Sub
 ## How to build the project
 When you clone the git repository, you should directly be able to run `./gradlew sample:run` to run the sample application. All dependencies will be downloaded automatically. You can also use IDEs such as IntelliJ IDEA that support the Gradle build system.
 
-If you run into any problems building the project, you can email me at info@vertretungsplan.me.
+If you run into any problems building the project, you can email me at info@vertretungsplan.me or
+[report an issue](https://github.com/johan12345/substitution-schedule-parser/issues/new).
+
+## License
+This library is licensed under the [Mozilla Public License, Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+
+I would like to strongly encourage people that create and use modified versions of this library, for example by fixing
+bugs or adding support for a new substitution schedule software, to publish the changed source code no matter if the
+resulting product is released in executable form or not (e.g. by only being run on a web server or your own computer)
+, even though this is only required by the terms of the license in the first case. Submitting Pull requests to
+contribute your changes back to the original project is also welcome.
