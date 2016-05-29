@@ -45,6 +45,6 @@ This library is licensed under the [Mozilla Public License, Version 2.0](https:/
 
 I would like to strongly encourage people that create and use modified versions of this library, for example by fixing
 bugs or adding support for a new substitution schedule software, to publish the changed source code no matter if the
-resulting product is released in executable form or not (e.g. by only being run on a web server or your own computer)
-, even though this is only required by the terms of the license in the first case. Submitting Pull requests to
+resulting product is released in executable form or not (e.g. by only being run on a web server or your own computer),
+even though this is only required by the terms of the license in the first case. Submitting Pull requests to
 contribute your changes back to the original project is also welcome.
