@@ -6,7 +6,10 @@ The Android App [vertretungsplan.me](https://vertretungsplan.me) is powered by t
 ## Usage
 The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. More documentation will follow shortly, see issues #1 and #2.
 
-Builds are available through JCenter, you can find instructions how to use it with different build systems [here](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion).
+Builds of the library are available through both the JCenter and Maven Central repositories. You can find instructions
+how to use them with different build systems (such as Gradle and Maven)
+[at the Bintray website](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion). It is
+also possible to download the library as a JAR file from that website.
 
 When you use the library in your own project or do any modifications to it, please take note of the
 [License](#license) it is distributed under. I would also appreciate it if you'd tell me what exciting projects you
