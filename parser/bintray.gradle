@@ -29,6 +29,34 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             from components.java
+
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name bintrayName
+                    description libraryDescription
+                    url siteUrl
+                    scm {
+                        url gitHubUrl
+                        connection gitUrl
+                        developerConnection gitSshUrl
+                    }
+                    licenses {
+                        license {
+                            name licenseName
+                            url licenseUrl
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id developerId
+                            name developerName
+                            email developerEmail
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -51,6 +79,15 @@ bintray {
         version {
             desc = libraryDescription
             name = libraryVersion
+            gpg {
+                sign = true
+            }
+            mavenCentralSync {
+                sync = true
+                user = properties.getProperty("mavenCentral.user")
+                password = properties.getProperty("mavenCentral.apikey")
+                close = '1'
+            }
         }
     }
 }
