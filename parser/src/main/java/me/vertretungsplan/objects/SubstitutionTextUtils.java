@@ -8,12 +8,18 @@
 
 package me.vertretungsplan.objects;
 
+import com.paour.comparator.NaturalOrderComparator;
 import me.vertretungsplan.objects.diff.SubstitutionDiff;
 import name.fraser.neil.plaintext.DiffMatchPatch;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jetbrains.annotations.Contract;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SubstitutionTextUtils {
     public static String getText(Substitution substitution) {
@@ -21,6 +27,26 @@ public class SubstitutionTextUtils {
         String room = room(substitution);
         String desc = hasData(substitution.getDesc()) ? substitution.getDesc() : "";
         return formatOutput(subjectAndTeacher, room, desc);
+    }
+
+    public static String getTeacherText(Substitution substitution) {
+        String subjectAndClass = subjectAndClass(substitution);
+        String room = room(substitution);
+        String desc = hasData(substitution.getDesc()) ? substitution.getDesc() : "";
+        return formatOutput(subjectAndClass, room, desc);
+    }
+
+    public static String getTeachers(Substitution substitution) {
+        if (hasData(substitution.getTeacher()) && hasData(substitution.getPreviousTeacher()) && !substitution
+                .getTeacher().equals(substitution.getPreviousTeacher())) {
+            return substitution.getTeacher() + " statt " + substitution.getPreviousTeacher();
+        } else if (hasData(substitution.getTeacher())) {
+            return substitution.getTeacher();
+        } else if (hasData(substitution.getPreviousTeacher())) {
+            return substitution.getPreviousTeacher();
+        } else {
+            return "";
+        }
     }
 
     public static String getText(SubstitutionDiff diff) {
@@ -63,6 +89,59 @@ public class SubstitutionTextUtils {
             return subjectAndTeacher(teacher, previousTeacher);
         }
         throw new MissingCaseException();
+    }
+
+    private static String subjectAndClass(Substitution substitution) {
+        String subject = substitution.getSubject();
+        String previousSubject = substitution.getPreviousSubject();
+        String klasse = joinClasses(substitution.getClasses());
+        if (hasData(subject) && hasData(previousSubject) && !subject.equals(previousSubject)) {
+            return subjectAndTeacher(subject, previousSubject, klasse, klasse);
+        } else if (hasData(subject) && hasData(previousSubject) && subject.equals(previousSubject) ||
+                hasData(subject) && !hasData(previousSubject)) {
+            return subjectAndTeacher(subject, klasse, klasse);
+        } else if (!hasData(subject) && hasData(previousSubject)) {
+            return subjectAndTeacher(previousSubject, klasse, klasse);
+        } else if (!hasData(subject) && !hasData(previousSubject)) {
+            return subjectAndTeacher(klasse, klasse);
+        }
+        throw new MissingCaseException();
+    }
+
+    private static String joinClasses(Set<String> classes) {
+        List<String> list = new ArrayList<>(classes);
+        Collections.sort(list, new NaturalOrderComparator());
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        String beginning = null;
+        Pattern beginningRegex = Pattern.compile("^(.*\\d+)(\\w+)$");
+        for (String string : list) {
+            if (first) {
+                Matcher matcher = beginningRegex.matcher(string);
+                if (matcher.find()) {
+                    beginning = matcher.group(1);
+                }
+                builder.append(string);
+                first = false;
+            } else {
+                Matcher matcher = beginningRegex.matcher(string);
+                if (matcher.find()) {
+                    String newBeginning = matcher.group(1);
+                    if (newBeginning.equals(beginning)) {
+                        builder.append(matcher.group(2));
+                    } else {
+                        builder.append(", ");
+                        builder.append(string);
+                        beginning = newBeginning;
+                    }
+                } else {
+                    builder.append(", ");
+                    builder.append(string);
+                    beginning = null;
+                }
+            }
+        }
+        return builder.toString();
     }
 
     private static String subjectAndTeacher(String subject, String previousSubject, String teacher,

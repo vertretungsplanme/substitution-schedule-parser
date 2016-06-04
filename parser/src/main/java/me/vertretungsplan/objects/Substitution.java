@@ -49,10 +49,25 @@ public class Substitution {
 	}
 
 	/**
-	 * Erzeugt einen Text, der die Vertretung beschreibt (ohne die Art und die Stunde).
+	 * @return A text describing the substitution (designed to be shown together with class, type and lesson)
 	 */
 	public String getText() {
 		return SubstitutionTextUtils.getText(this);
+	}
+
+	/**
+	 * @return A text describing the substitudion (designed to be shown together with {@link #getTeachers()}, type and
+	 * lesson)
+	 */
+	public String getTeacherText() {
+		return SubstitutionTextUtils.getTeacherText(this);
+	}
+
+	/**
+	 * @return A text describing the current and previous teacher
+	 */
+	public String getTeachers() {
+		return SubstitutionTextUtils.getTeachers(this);
 	}
 
 	@SuppressWarnings({"EmptyMethod", "UnusedParameters"})
@@ -186,6 +201,17 @@ public class Substitution {
 
 	@Override
 	public String toString() {
-		return classes.toString() + " " + getType() + " " + getText();
+		return toString(SubstitutionSchedule.Type.STUDENT);
+	}
+
+	public String toString(SubstitutionSchedule.Type type) {
+		switch (type) {
+			case STUDENT:
+				return classes.toString() + " " + getType() + " " + getText();
+			case TEACHER:
+				return getTeachers() + " " + getType() + " " + getTeacherText();
+			default:
+				return null;
+		}
 	}
 }

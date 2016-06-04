@@ -150,8 +150,7 @@ public class SubstitutionScheduleDay implements Cloneable {
 		}
 	}
 
-	@Override
-	public String toString() {
+	public String toString(SubstitutionSchedule.Type type) {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getDateString()).append("\n");
@@ -159,11 +158,17 @@ public class SubstitutionScheduleDay implements Cloneable {
 
 		builder.append("last change: ").append(getLastChangeString()).append("\n\n");
 
-		for (Substitution subst:substitutions) builder.append(subst.toString()).append("\n");
+		for (Substitution subst : substitutions) builder.append(subst.toString(type)).append("\n");
 
 		builder.append("\n");
-		for (String message:messages) builder.append(message).append("\n");
+		for (String message : messages) builder.append(message).append("\n");
 
 		return builder.toString();
 	}
+
+	@Override
+	public String toString() {
+		return toString(SubstitutionSchedule.Type.STUDENT);
+	}
+
 }
