@@ -72,26 +72,28 @@ public class SVPlanParser extends BaseParser {
     }
 
     private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException {
-        if (svp.select(".svp-tabelle").size() > 0) {
+        if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
             SubstitutionScheduleDay day = new SubstitutionScheduleDay();
             String date = "Unbekanntes Datum";
-            if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen").size() > 0)
-                date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen").text();
-            else if (doc.title().startsWith("Vertretungsplan für "))
+            if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0) {
+                date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").text().trim();
+            } else if (doc.title().startsWith("Vertretungsplan für "))
                 date = doc.title().substring("Vertretungsplan für ".length());
             date = date.replaceAll("\\s+", " ");
             day.setDateString(date);
             day.setDate(ParserUtils.parseDate(date));
-            if (svp.select(".svp-uploaddatum").size() > 0) {
-                String lastChange = svp.select(".svp-uploaddatum").text().replace("Aktualisierung: ", "");
+            if (svp.select(".svp-uploaddatum, .Stand").size() > 0) {
+                String lastChange = svp.select(".svp-uploaddatum, .Stand").text().replace("Aktualisierung: ", "")
+                        .replace("Stand: ", "");
                 day.setLastChangeString(lastChange);
                 day.setLastChange(ParserUtils.parseDateTime(lastChange));
             }
 
-            Elements rows = svp.select(".svp-tabelle tr");
+            Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
             String lastLesson = "";
             for (Element row : rows) {
-                if (row.hasClass("svp-header"))
+                if (row.hasClass("svp-header") || (row.parent().select(".gerade").size() > 0 &&
+                        row.select(".ungerade").size() == 0))
                     continue;
 
                 Substitution substitution = new Substitution();
@@ -102,24 +104,23 @@ public class SVPlanParser extends BaseParser {
                         continue;
                     }
                     String type = column.className();
-                    if (type.startsWith("svp-stunde")) {
+                    if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
                         substitution.setLesson(column.text());
                         lastLesson = column.text();
-                    } else if (type.startsWith("svp-klasse"))
+                    } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse"))
                         substitution.getClasses().addAll(Arrays.asList(column.text().split(", ")));
-                    else if (type.startsWith("svp-esfehlt"))
+                    else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer"))
                         substitution.setPreviousTeacher(column.text());
-                    else if (type.startsWith("svp-esvertritt"))
+                    else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung"))
                         substitution.setTeacher(column.text());
-                    else if (type.startsWith("svp-fach"))
+                    else if (type.startsWith("svp-fach") || type.startsWith("Fach"))
                         substitution.setSubject(column.text());
-                    else if (type.startsWith("svp-bemerkung")) {
+                    else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
                         substitution.setDesc(column.text());
                         String recognizedType = recognizeType(column.text());
                         substitution.setType(recognizedType);
                         substitution.setColor(colorProvider.getColor(recognizedType));
-                    }
-                    else if (type.startsWith("svp-raum"))
+                    } else if (type.startsWith("svp-raum") || type.startsWith("Raum"))
                         substitution.setRoom(column.text());
 
                     if (substitution.getLesson() == null)
