@@ -24,6 +24,8 @@ public class Substitution {
 	private String previousRoom;
 	private String desc;
 	private String color;
+	private String substitutionFrom;
+	private String teacherTo;
 
 	public Substitution() {
 		classes = new HashSet<>();
@@ -46,6 +48,8 @@ public class Substitution {
 		this.previousRoom = substitution.previousRoom;
 		this.desc = substitution.desc;
 		this.color = substitution.color;
+		this.substitutionFrom = substitution.substitutionFrom;
+		this.teacherTo = substitution.teacherTo;
 	}
 
 	/**
@@ -68,11 +72,6 @@ public class Substitution {
 	 */
 	public String getTeachers() {
 		return SubstitutionTextUtils.getTeachers(this);
-	}
-
-	@SuppressWarnings({"EmptyMethod", "UnusedParameters"})
-	public void setText(String text) {
-		// does nothing, needs to be there for Jackson
 	}
 
 	public Set<String> getClasses() {
@@ -163,6 +162,22 @@ public class Substitution {
 		this.color = color;
 	}
 
+	public String getSubstitutionFrom() {
+		return substitutionFrom;
+	}
+
+	public void setSubstitutionFrom(String substitutionFrom) {
+		this.substitutionFrom = substitutionFrom;
+	}
+
+	public String getTeacherTo() {
+		return teacherTo;
+	}
+
+	public void setTeacherTo(String teacherTo) {
+		this.teacherTo = teacherTo;
+	}
+
 	@SuppressWarnings("NegatedConditionalExpression")
 	public boolean equalsExcludingClasses(Object o) {
 		if (this == o) return true;
@@ -181,8 +196,13 @@ public class Substitution {
 		if (room != null ? !room.equals(that.room) : that.room != null) return false;
 		if (previousRoom != null ? !previousRoom.equals(that.previousRoom) : that.previousRoom != null) return false;
 		if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
-		return !(color != null ? !color.equals(that.color) : that.color != null);
-
+		if (color != null ? !color.equals(that.color) : that.color != null) return false;
+		if (substitutionFrom != null ? !substitutionFrom.equals(that.substitutionFrom) :
+				that.substitutionFrom != null) {
+			return false;
+		}
+		if (teacherTo != null ? !teacherTo.equals(that.teacherTo) : that.teacherTo != null) return false;
+		return true;
 	}
 
 	public int hashCodeExcludingClasses() {
@@ -196,6 +216,8 @@ public class Substitution {
 		result = 31 * result + (previousRoom != null ? previousRoom.hashCode() : 0);
 		result = 31 * result + (desc != null ? desc.hashCode() : 0);
 		result = 31 * result + (color != null ? color.hashCode() : 0);
+		result = 31 * result + (substitutionFrom != null ? substitutionFrom.hashCode() : 0);
+		result = 31 * result + (teacherTo != null ? teacherTo.hashCode() : 0);
 		return result;
 	}
 
@@ -209,7 +231,8 @@ public class Substitution {
 			case STUDENT:
 				return classes.toString() + " " + getType() + " " + getText();
 			case TEACHER:
-				return getTeachers() + " " + getType() + " " + getTeacherText();
+				return getTeachers() + " " + getType() + " " + getTeacherText() + " (" + (substitutionFrom != null ?
+						substitutionFrom : "") + "/" + (teacherTo != null ? teacherTo : "") + ")";
 			default:
 				return null;
 		}

@@ -199,6 +199,12 @@ public abstract class UntisCommonParser extends BaseParser {
 									case "previousRoom":
 										v.setPreviousRoom(text);
 										break;
+									case "substitutionFrom":
+										v.setSubstitutionFrom(text);
+										break;
+									case "teacherTo":
+										v.setTeacherTo(text);
+										break;
 								}
 								i++;
 							}
@@ -316,6 +322,12 @@ public abstract class UntisCommonParser extends BaseParser {
 							break;
 						case "previousTeacher":
 							v.setPreviousTeacher(text);
+							break;
+						case "substitutionFrom":
+							v.setSubstitutionFrom(text);
+							break;
+						case "teacherTo":
+							v.setTeacherTo(text);
 							break;
 						case "class":
 							klassen = getClassName(text, data);
