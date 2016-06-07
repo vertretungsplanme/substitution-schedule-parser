@@ -107,10 +107,10 @@ public class SubstitutionScheduleDiff implements Cloneable {
         if (teacher == null) return substitutions;
         Set<SubstitutionDiff> teacherSubstitutions = new HashSet<>();
         for (SubstitutionDiff substitution : substitutions) {
-            if (substitution.getOldSubstitution().getTeacher().equals(teacher)
-                    || substitution.getOldSubstitution().getPreviousTeacher().equals(teacher)
-                    || substitution.getNewSubstitution().getTeacher().equals(teacher)
-                    || substitution.getNewSubstitution().getPreviousTeacher().equals(teacher)) {
+            if (teacher.equals(substitution.getOldSubstitution().getTeacher())
+                    || teacher.equals(substitution.getOldSubstitution().getPreviousTeacher())
+                    || teacher.equals(substitution.getNewSubstitution().getTeacher())
+                    || teacher.equals(substitution.getNewSubstitution().getPreviousTeacher())) {
                 teacherSubstitutions.add(substitution);
             }
         }

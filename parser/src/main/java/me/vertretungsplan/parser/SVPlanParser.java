@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Parser für Vertretungspläne der Software svPlan
- * z.B: http://www.ratsschule.de/Vplan/PH_heute.htm
+ * Parser for svPlan substitution schedules.
+ * Example: <a href="http://www.ratsschule.de/Vplan/PH_heute.htm">Ratsschule Melle</a>
  */
 public class SVPlanParser extends BaseParser {
 

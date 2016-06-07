@@ -22,6 +22,7 @@ task javadoc(overwrite: true, type: Javadoc) {
         exclude 'utils/**'
         exclude 'networking/**'
     }
+    options.encoding = 'UTF-8'
     classpath = sourceSets.main.output + sourceSets.main.compileClasspath
 }
 

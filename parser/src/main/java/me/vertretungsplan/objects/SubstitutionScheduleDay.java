@@ -8,172 +8,302 @@
 
 package me.vertretungsplan.objects;
 
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
 import java.util.*;
 
+/**
+ * Represents one day on the the {@link SubstitutionSchedule} and contains the corresponding substitutions and messages.
+ */
 public class SubstitutionScheduleDay implements Cloneable {
 
-	private LocalDate date;
-	private String dateString;
-	private LocalDateTime lastChange;
-	private String lastChangeString;
-	private Set<Substitution> substitutions;
-	private List<String> messages;
+    private LocalDate date;
+    private String dateString;
+    private LocalDateTime lastChange;
+    private String lastChangeString;
+    private Set<Substitution> substitutions;
+    private List<String> messages;
 
-	public SubstitutionScheduleDay() {
-		substitutions = new HashSet<>();
-		messages = new ArrayList<>();
-	}
+    public SubstitutionScheduleDay() {
+        substitutions = new HashSet<>();
+        messages = new ArrayList<>();
+    }
 
-	public LocalDate getDate() {
-		return date;
-	}
+    /**
+     * Get the date of this day. If the date could not be parsed, there is only a
+     * string representation available using {@link #getDateString()}.
+     *
+     * @return the date
+     */
+    public LocalDate getDate() {
+        return date;
+    }
 
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
+    /**
+     * Set the date of this day. If the date could not be parsed,
+     * use {@link #setDateString(String)} to specify a string representation.
+     *
+     * @param date the date
+     */
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
-	public String getDateString() {
-		if (date != null) {
-			return SubstitutionSchedule.DAY_DATE_FORMAT.print(date);
-		} else if (dateString != null) {
-			return dateString;
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Get the date of this day, as a string representation
+     *
+     * @return the date of this day, as a string representation
+     */
+    public String getDateString() {
+        if (date != null) {
+            return SubstitutionSchedule.DAY_DATE_FORMAT.print(date);
+        } else if (dateString != null) {
+            return dateString;
+        } else {
+            return null;
+        }
+    }
 
-	public void setDateString(String textDate) {
-		this.dateString = textDate;
-	}
+    /**
+     * Set the date of this day a string representation. If you used {@link #setDate(LocalDate)}, you do
+     * not need to add this.
+     *
+     * @param dateString the date of this day, as a string representation
+     */
+    public void setDateString(String dateString) {
+        this.dateString = dateString;
+    }
 
-	public LocalDateTime getLastChange() {
-		return lastChange;
-	}
+    /**
+     * Get the date and time where this day on the schedule was last updated. If the date could not be parsed, there is
+     * only a string representation available using {@link #getLastChangeString()}. May be {@code null} if the last
+     * change date is only set for the whole schedule ({@link SubstitutionSchedule#getLastChange()}).
+     *
+     * @return the date and time where this day was last updated
+     */
+    @Nullable
+    public LocalDateTime getLastChange() {
+        return lastChange;
+    }
 
-	public void setLastChange(LocalDateTime lastChange) {
-		this.lastChange = lastChange;
-	}
+    /**
+     * Set the date and time where this day on the schedule was last updated. If the date could not be parsed,
+     * use {@link #setLastChangeString(String)} to specify a string representation. If the last change date is only
+     * available for the whole schedule, use {@link SubstitutionSchedule#setLastChange(LocalDateTime)}
+     *
+     * @param lastChange the date and time where this day was last updated.
+     */
+    public void setLastChange(LocalDateTime lastChange) {
+        this.lastChange = lastChange;
+    }
 
-	public String getLastChangeString() {
-		if (lastChange != null) {
-			return SubstitutionSchedule.LAST_CHANGE_DATE_FORMAT.print(lastChange);
-		} else if (lastChangeString != null) {
-			return lastChangeString;
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Get the date and time where this day on the schedule was last updated as a string representation. May be
+     * {@code null} if the last change date is only set for the whole schedule
+     * ({@link SubstitutionSchedule#getLastChangeString()}).
+     *
+     * @return the date and time where this day was last updated, as a string representation
+     */
+    @Nullable
+    public String getLastChangeString() {
+        if (lastChange != null) {
+            return SubstitutionSchedule.LAST_CHANGE_DATE_FORMAT.print(lastChange);
+        } else if (lastChangeString != null) {
+            return lastChangeString;
+        } else {
+            return null;
+        }
+    }
 
-	public void setLastChangeString(String lastChangeString) {
-		this.lastChangeString = lastChangeString;
-	}
+    /**
+     * Set the date and time where this day on the schedule was last updated as a string representation. If you can
+     * parse the date, you should use {@link #setLastChange(LocalDateTime)} instead. If the last change date is only
+     * available for the whole schedule, use {@link SubstitutionSchedule#setLastChangeString(String)}
+     *
+     * @param lastChangeString the date and time where this day was last updated, as a string representation
+     */
+    public void setLastChangeString(String lastChangeString) {
+        this.lastChangeString = lastChangeString;
+    }
 
-	public Set<Substitution> getSubstitutions() {
-		return substitutions;
-	}
+    /**
+     * Get all substitutions for this day
+     *
+     * @return all substitutions for this day
+     */
+    public Set<Substitution> getSubstitutions() {
+        return substitutions;
+    }
 
-	public void setSubstitutions(Set<Substitution> substitutions) {
-		this.substitutions = substitutions;
-	}
+    /**
+     * Set the substitutions for this day
+     *
+     * @param substitutions the set of substitutions for this day
+     */
+    public void setSubstitutions(Set<Substitution> substitutions) {
+        this.substitutions = substitutions;
+    }
 
-	public Set<Substitution> getSubstitutionsByClass(String theClass) {
-		return SubstitutionSchedule.filterByClass(theClass, substitutions);
-	}
+    public Set<Substitution> getSubstitutionsByClass(String theClass) {
+        return SubstitutionSchedule.filterByClass(theClass, substitutions);
+    }
 
-	public List<String> getMessages() {
-		return messages;
-	}
+    /**
+     * Get all messages for this day. May include simple HTML markup (only a subset of the tags is supported, such as
+     * {@code <b>bold</b>} and {@code <i>italic</i>}.
+     *
+     * @return the list of messages for this day
+     */
+    public List<String> getMessages() {
+        return messages;
+    }
 
-	public void addMessage(String message) {
-		messages.add(message);
-	}
+    /**
+     * Add a message for this day. May include simple HTML markup (only a subset of the tags is supported, such as
+     * {@code <b>bold</b>} and {@code <i>italic</i>}.
+     *
+     * @param message the message to add
+     */
+    public void addMessage(String message) {
+        messages.add(message);
+    }
 
-	public void addSubstitution(Substitution s) {
-		// Look for equal substitutions for different classes and merge them to make dataset as small as possible
-		for (Substitution substitution : getSubstitutions()) {
-			if (substitution.equalsExcludingClasses(s)) {
-				substitution.getClasses().addAll(s.getClasses());
-				return;
-			}
-		}
-		getSubstitutions().add(s);
-	}
+    /**
+     * Add a substitution for this day
+     *
+     * @param substitution the substitution to add
+     */
+    public void addSubstitution(Substitution substitution) {
+        // Look for equal substitutions for different classes and merge them to make dataset as small as possible
+        for (Substitution s : getSubstitutions()) {
+            if (s.equalsExcludingClasses(substitution)) {
+                s.getClasses().addAll(substitution.getClasses());
+                return;
+            }
+        }
+        getSubstitutions().add(substitution);
+    }
 
-	public void addAllSubstitutions(Substitution... substitutions) {
-		for (Substitution s : substitutions) addSubstitution(s);
-	}
+    /**
+     * Add multiple substitutions for this day
+     *
+     * @param substitutions the substitutions to add
+     */
+    public void addAllSubstitutions(Substitution... substitutions) {
+        for (Substitution s : substitutions) addSubstitution(s);
+    }
 
-	public void addAllSubstitutions(Collection<? extends Substitution> substitutions) {
-		for (Substitution s : substitutions) addSubstitution(s);
-	}
+    /**
+     * Add multiple substitutions for this day
+     *
+     * @param substitutions the substitutions to add
+     */
+    public void addAllSubstitutions(Collection<? extends Substitution> substitutions) {
+        for (Substitution s : substitutions) addSubstitution(s);
+    }
 
-	public void merge(SubstitutionScheduleDay day) {
-		if (day.getDate() != null && !day.getDate().equals(getDate())
-				|| day.getDateString() != null && !day.getDateString().equals(getDateString())) {
-			throw new IllegalArgumentException("Cannot merge days with different dates");
-		}
+    /**
+     * Merge substitutions from this day with those from another {@link SubstitutionScheduleDay}. Both must have the
+     * same date.
+     *
+     * @param day the day to merge with this day
+     */
+    public void merge(SubstitutionScheduleDay day) {
+        if (day.getDate() != null && !day.getDate().equals(getDate())
+                || day.getDateString() != null && !day.getDateString().equals(getDateString())) {
+            throw new IllegalArgumentException("Cannot merge days with different dates");
+        }
 
-		addAllSubstitutions(day.getSubstitutions());
-		for (String message : day.getMessages()) {
-			if (!messages.contains(message)) messages.add(message);
-		}
+        addAllSubstitutions(day.getSubstitutions());
+        for (String message : day.getMessages()) {
+            if (!messages.contains(message)) messages.add(message);
+        }
 
-		if (day.getLastChange() != null && getLastChange() != null && day.getLastChange().isAfter(getLastChange())) {
-			setLastChange(day.getLastChange());
-		}
-	}
+        if (day.getLastChange() != null && getLastChange() != null && day.getLastChange().isAfter(getLastChange())) {
+            setLastChange(day.getLastChange());
+        }
+    }
 
-	public boolean equalsByDate(SubstitutionScheduleDay other) {
-		if (getDate() != null) {
-			return getDate().equals(other.getDate());
-		} else if (getDateString() != null) {
-			return getDateString().equals(other.getDateString());
-		} else {
-			return other.getDate() == null && other.getDateString() == null;
-		}
-	}
 
-	public Set<Substitution> getSubstitutionsByClassAndExcludedSubject(String theClass,
-																	   Set<String> excludedSubjects) {
-		return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
-				.filterByClass(theClass, substitutions));
-	}
+    /**
+     * Check if this day's date is equal to the one of another {@link SubstitutionScheduleDay}. Also works if only
+     * the string representation is specified ({@link #setDateString(String)}).
+     *
+     * @param other the day to compare with this one
+     * @return boolean indicating if the dates are equal
+     */
+    public boolean equalsByDate(SubstitutionScheduleDay other) {
+        if (getDate() != null) {
+            return getDate().equals(other.getDate());
+        } else if (getDateString() != null) {
+            return getDateString().equals(other.getDateString());
+        } else {
+            return other.getDate() == null && other.getDateString() == null;
+        }
+    }
 
-	public Set<Substitution> getSubstitutionsByTeacherAndExcludedSubject(String teacher, Set<String>
-			excludedSubjects) {
-		return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
-				.filterByTeacher(teacher, substitutions));
-	}
+    /**
+     * Get only the substitutions that apply to the given class and that are not for one of the given subjects.
+     *
+     * @param theClass         the class to find substitutions for
+     * @param excludedSubjects the subjects to exclude
+     * @return a set of filtered substitutions
+     */
+    public Set<Substitution> getSubstitutionsByClassAndExcludedSubject(String theClass,
+                                                                       Set<String> excludedSubjects) {
+        return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
+                .filterByClass(theClass, substitutions));
+    }
 
-	public SubstitutionScheduleDay clone() {
-		try {
-			return (SubstitutionScheduleDay) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    /**
+     * Get only the substitutions that apply to the given teacher and that are not for one of the given subjects.
+     *
+     * @param teacher          the teacher to find substitutions for
+     * @param excludedSubjects the subjects to exclude
+     * @return a set of filtered substitutions
+     */
+    public Set<Substitution> getSubstitutionsByTeacherAndExcludedSubject(String teacher, Set<String>
+            excludedSubjects) {
+        return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
+                .filterByTeacher(teacher, substitutions));
+    }
 
-	public String toString(SubstitutionSchedule.Type type) {
-		StringBuilder builder = new StringBuilder();
+    public SubstitutionScheduleDay clone() {
+        try {
+            return (SubstitutionScheduleDay) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		builder.append(getDateString()).append("\n");
-		builder.append("----------------------\n\n");
+    /**
+     * Get a string representation of the day, using different wording depending on the type. Useful for debugging
+     * (console output).
+     *
+     * @param type the type of the {@link SubstitutionSchedule}. Affects the format in which the single
+     *             {@link Substitution}s are output
+     * @return a string representation of this day
+     */
+    public String toString(SubstitutionSchedule.Type type) {
+        StringBuilder builder = new StringBuilder();
 
-		builder.append("last change: ").append(getLastChangeString()).append("\n\n");
+        builder.append(getDateString()).append("\n");
+        builder.append("----------------------\n\n");
 
-		for (Substitution subst : substitutions) builder.append(subst.toString(type)).append("\n");
+        builder.append("last change: ").append(getLastChangeString()).append("\n\n");
 
-		builder.append("\n");
-		for (String message : messages) builder.append(message).append("\n");
+        for (Substitution subst : substitutions) builder.append(subst.toString(type)).append("\n");
 
-		return builder.toString();
-	}
+        builder.append("\n");
+        for (String message : messages) builder.append(message).append("\n");
 
-	@Override
-	public String toString() {
-		return toString(SubstitutionSchedule.Type.STUDENT);
-	}
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toString(SubstitutionSchedule.Type.STUDENT);
+    }
 }

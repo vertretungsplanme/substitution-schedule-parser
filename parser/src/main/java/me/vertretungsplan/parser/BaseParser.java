@@ -48,9 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Ein Parser für einen Vertretungsplan. Er erhält Informationen aus der
- * JSON-Datei für eine Schule und liefert den abgerufenen und geparsten
- * Vertretungsplan zurück.
+ * Base class for {@link SubstitutionScheduleParser} implementations.
  */
 public abstract class BaseParser implements SubstitutionScheduleParser {
     protected SubstitutionScheduleData scheduleData;
@@ -92,12 +90,11 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     /**
-     * Erstelle einen neuen Parser für eine Schule. Liefert automatisch eine
-     * passende Unterklasse.
+     * Create an appropriate parser for a given school. Automatically uses the appropriate subclass depending on
+     * {@link SubstitutionScheduleData#getApi()}.
      *
-     * @param data die Schule, für die ein Parser erstellt werden soll
-     * @return Eine Unterklasse von {@link BaseParser}, die zur übergebenen
-     * Schule passt
+     * @param data a {@link SubstitutionScheduleData} object containing information about the substitution schedule
+     * @return a {@link BaseParser} subclass able to parse the given schedule.
      */
     public static BaseParser getInstance(SubstitutionScheduleData data, @Nullable CookieProvider cookieProvider) {
         BaseParser parser = null;

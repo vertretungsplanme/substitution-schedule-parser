@@ -9,234 +9,399 @@
 package me.vertretungsplan.objects;
 
 import me.vertretungsplan.utils.SubstitutionTextUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents one substitution on a {@link SubstitutionSchedule}
+ */
 public class Substitution {
 
-	private Set<String> classes;
-	private String lesson;
-	private String type;
-	private String subject;
-	private String previousSubject;
-	private String teacher;
-	private String previousTeacher;
-	private String room;
-	private String previousRoom;
-	private String desc;
-	private String color;
-	private String substitutionFrom;
-	private String teacherTo;
+    private Set<String> classes;
+    private String lesson;
+    private String type;
+    private String subject;
+    private String previousSubject;
+    private String teacher;
+    private String previousTeacher;
+    private String room;
+    private String previousRoom;
+    private String desc;
+    private String color;
+    private String substitutionFrom;
+    private String teacherTo;
 
-	public Substitution() {
-		classes = new HashSet<>();
-	}
+    public Substitution() {
+        classes = new HashSet<>();
+    }
 
-	/**
-	 * Creates a copy of a substitution with a different set of classes
-	 * @param substitution the substitution to copy
-	 * @param classes the set of classes to use
-	 */
-	public Substitution(Substitution substitution, Set<String> classes) {
-		this.classes = classes;
-		this.lesson = substitution.lesson;
-		this.type = substitution.type;
-		this.subject = substitution.type;
-		this.previousSubject = substitution.previousSubject;
-		this.teacher = substitution.teacher;
-		this.previousTeacher = substitution.previousTeacher;
-		this.room = substitution.room;
-		this.previousRoom = substitution.previousRoom;
-		this.desc = substitution.desc;
-		this.color = substitution.color;
-		this.substitutionFrom = substitution.substitutionFrom;
-		this.teacherTo = substitution.teacherTo;
-	}
+    /**
+     * Creates a copy of a substitution with a different set of classes
+     *
+     * @param substitution the substitution to copy
+     * @param classes      the set of classes to use
+     */
+    public Substitution(Substitution substitution, Set<String> classes) {
+        this.classes = classes;
+        this.lesson = substitution.lesson;
+        this.type = substitution.type;
+        this.subject = substitution.type;
+        this.previousSubject = substitution.previousSubject;
+        this.teacher = substitution.teacher;
+        this.previousTeacher = substitution.previousTeacher;
+        this.room = substitution.room;
+        this.previousRoom = substitution.previousRoom;
+        this.desc = substitution.desc;
+        this.color = substitution.color;
+        this.substitutionFrom = substitution.substitutionFrom;
+        this.teacherTo = substitution.teacherTo;
+    }
 
-	/**
-	 * @return A text describing the substitution (designed to be shown together with class, type and lesson)
-	 */
-	public String getText() {
-		return SubstitutionTextUtils.getText(this);
-	}
+    /**
+     * @return A text describing the substitution (designed to be shown together with class, type and lesson)
+     */
+    public String getText() {
+        return SubstitutionTextUtils.getText(this);
+    }
 
-	/**
-	 * @return A text describing the substitudion (designed to be shown together with {@link #getTeachers()}, type and
-	 * lesson)
-	 */
-	public String getTeacherText() {
-		return SubstitutionTextUtils.getTeacherText(this);
-	}
+    /**
+     * @return A text describing the substitution (designed to be shown together with {@link #getTeachers()}, type and
+     * lesson)
+     */
+    public String getTeacherText() {
+        return SubstitutionTextUtils.getTeacherText(this);
+    }
 
-	/**
-	 * @return A text describing the current and previous teacher
-	 */
-	public String getTeachers() {
-		return SubstitutionTextUtils.getTeachers(this);
-	}
+    /**
+     * @return A text describing the current and previous teacher
+     */
+    public String getTeachers() {
+        return SubstitutionTextUtils.getTeachers(this);
+    }
 
-	public Set<String> getClasses() {
-		return classes;
-	}
+    /**
+     * Get the classes this substitution applies for
+     *
+     * @return the classes
+     */
+    @NotNull
+    public Set<String> getClasses() {
+        return classes;
+    }
 
-	public void setClasses(Set<String> classes) {
-		this.classes = classes;
-	}
+    /**
+     * Set the classes this substitution applies for. Required.
+     *
+     * @param classes the classes to set
+     */
+    public void setClasses(@NotNull Set<String> classes) {
+        this.classes = classes;
+    }
 
-	public String getLesson() {
-		return lesson;
-	}
+    /**
+     * Get the lesson which this substitution is for. In most cases, these are numbers like "1" or "5 - 6", but some
+     * schools use different ways to name their lessons.
+     *
+     * @return the lesson
+     */
+    @NotNull
+    public String getLesson() {
+        return lesson;
+    }
 
-	public void setLesson(String lesson) {
-		this.lesson = lesson;
-	}
+    /**
+     * Set the lesson which this substitution is for. In most cases, these are numbers like "1" or "5 - 6", but some
+     * schools use different ways to name their lessons. Required.
+     *
+     * @param lesson the lesson
+     */
+    public void setLesson(@NotNull String lesson) {
+        this.lesson = lesson;
+    }
 
-	public String getType() {
-		return type;
-	}
+    /**
+     * Get the type of this substitution. Something like "substitution",
+     * "sancellation", "different room" ("Vertretung", "Entfall", "anderer Raum") etc.
+     *
+     * @return the type
+     */
+    @NotNull
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * Set the type of this substitution. Something like "substitution", "cancellation", "different room"
+     * ("Vertretung", "Entfall", "anderer Raum") etc. Required.
+     *
+     * @param type the type to set
+     */
+    public void setType(@NotNull String type) {
+        this.type = type;
+    }
 
-	public String getSubject() {
-		return subject;
-	}
+    /**
+     * Get the subject that will be taught in this lesson.
+     *
+     * @return the subject
+     */
+    @Nullable
+    public String getSubject() {
+        return subject;
+    }
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    /**
+     * Set the subject that will be taught in this lesson.
+     *
+     * @param subject the subject to set
+     */
+    public void setSubject(@Nullable String subject) {
+        this.subject = subject;
+    }
 
-	public String getPreviousSubject() {
-		return previousSubject;
-	}
+    /**
+     * Get the subject that would have been taught in this lesson according to the regular schedule.
+     *
+     * @return the previous subject
+     */
+    @Nullable
+    public String getPreviousSubject() {
+        return previousSubject;
+    }
 
-	public void setPreviousSubject(String previousSubject) {
-		this.previousSubject = previousSubject;
-	}
+    /**
+     * Set the subject that would have been taught in this lesson according to the regular schedule.
+     *
+     * @param previousSubject the previous subject to set
+     */
+    public void setPreviousSubject(@Nullable String previousSubject) {
+        this.previousSubject = previousSubject;
+    }
 
-	public String getTeacher() {
-		return teacher;
-	}
+    /**
+     * Get the teacher giving this lesson. Is an abbreviation in most cases.
+     *
+     * @return the teacher
+     */
+    @Nullable
+    public String getTeacher() {
+        return teacher;
+    }
 
-	public void setTeacher(String teacher) {
-		this.teacher = teacher;
-	}
+    /**
+     * Set the teacher giving this lesson. Is an abbreviation in most cases.
+     *
+     * @param teacher the teacher to set
+     */
+    public void setTeacher(@Nullable String teacher) {
+        this.teacher = teacher;
+    }
 
-	public String getPreviousTeacher() {
-		return previousTeacher;
-	}
+    /**
+     * Get the teacher who would have given this lesson according to the regular schedule. Is an abbreviation in most
+     * cases.
+     *
+     * @return the previous teacher
+     */
+    @Nullable
+    public String getPreviousTeacher() {
+        return previousTeacher;
+    }
 
-	public void setPreviousTeacher(String previousTeacher) {
-		this.previousTeacher = previousTeacher;
-	}
+    /**
+     * Set the teacher who would have given this lesson according to the regular schedule. Is an abbreviation in most
+     * cases.
+     *
+     * @param previousTeacher the previous teacher to set
+     */
+    public void setPreviousTeacher(@Nullable String previousTeacher) {
+        this.previousTeacher = previousTeacher;
+    }
 
-	public String getRoom() {
-		return room;
-	}
+    /**
+     * Get the room in which this lesson will be taught.
+     *
+     * @return the room
+     */
+    @Nullable
+    public String getRoom() {
+        return room;
+    }
 
-	public void setRoom(String room) {
-		this.room = room;
-	}
+    /**
+     * Set the room in which this lesson will be taught.
+     *
+     * @param room the room to set
+     */
+    public void setRoom(@Nullable String room) {
+        this.room = room;
+    }
 
-	public String getPreviousRoom() {
-		return previousRoom;
-	}
+    /**
+     * Get the room in which this lesson would have been taught according to the regular schedule.
+     *
+     * @return the previous room
+     */
+    @Nullable
+    public String getPreviousRoom() {
+        return previousRoom;
+    }
 
-	public void setPreviousRoom(String previousRoom) {
-		this.previousRoom = previousRoom;
-	}
+    /**
+     * Set the room in which this lesson would have been taught according to the regular schedule.
+     *
+     * @param previousRoom the previous room to set
+     */
+    public void setPreviousRoom(@Nullable String previousRoom) {
+        this.previousRoom = previousRoom;
+    }
 
-	public String getDesc() {
-		return desc;
-	}
+    /**
+     * Get an additional description of this substitution, such as "tasks on page 42" or "moved to 6th lesson."
+     *
+     * @return the description
+     */
+    @Nullable
+    public String getDesc() {
+        return desc;
+    }
 
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
+    /**
+     * Set an additional description of this substitution, such as "tasks on page 42" or "moved to 6th lesson."
+     *
+     * @param desc the description to set
+     */
+    public void setDesc(@Nullable String desc) {
+        this.desc = desc;
+    }
 
-	public String getColor() {
-		return color;
-	}
+    /**
+     * Get the color in which this substitution should be shown on the schedule as hexadecimal representation (such
+     * as {@code #FF0000} for red).
+     *
+     * @return the color to set
+     */
+    @NotNull
+    public String getColor() {
+        return color;
+    }
 
-	public void setColor(String color) {
-		this.color = color;
-	}
+    /**
+     * Set the color in which this substitution should be shown on the schedule as hexadecimal representation (such
+     * as {@code #FF0000} for red). Normally, this should only be done by
+     * {@link me.vertretungsplan.parser.ColorProvider}.
+     * Required.
+     *
+     * @param color the color to set
+     */
+    public void setColor(@NotNull String color) {
+        this.color = color;
+    }
 
-	public String getSubstitutionFrom() {
-		return substitutionFrom;
-	}
+    /**
+     * Get the "substitution from" ("Vertr. von") value. This can be found on some Untis schedules when a lesson was
+     * moved to another lesson or day and determines the date and lesson where this lesson would have been taught
+     * according to the normal schedule.
+     *
+     * @return the substitution from
+     */
+    @Nullable
+    public String getSubstitutionFrom() {
+        return substitutionFrom;
+    }
 
-	public void setSubstitutionFrom(String substitutionFrom) {
-		this.substitutionFrom = substitutionFrom;
-	}
+    /**
+     * Set the "substitution from" ("Vertr. von") value. This can be found on some Untis schedules when a lesson was
+     * moved to another lesson or day and determines the date and lesson where this lesson would have been taught
+     * according to the normal schedule.
+     *
+     * @param substitutionFrom the substitution from to set
+     */
+    public void setSubstitutionFrom(@Nullable String substitutionFrom) {
+        this.substitutionFrom = substitutionFrom;
+    }
 
-	public String getTeacherTo() {
-		return teacherTo;
-	}
+    /**
+     * Get the "teacher to" ("(Le.) nach") value. This can be found on some Untis schedules when a lesson was
+     * moved to another lesson or day and determines the date and lesson where this lesson will be taught instead.
+     *
+     * @return the teacher to
+     */
+    @Nullable
+    public String getTeacherTo() {
+        return teacherTo;
+    }
 
-	public void setTeacherTo(String teacherTo) {
-		this.teacherTo = teacherTo;
-	}
+    /**
+     * Set the "teacher to" ("(Le.) nach") value. This can be found on some Untis schedules when a lesson was
+     * moved to another lesson or day and determines the date and lesson where this lesson will be taught instead.
+     *
+     * @param teacherTo the teacher to to set
+     */
+    public void setTeacherTo(@Nullable String teacherTo) {
+        this.teacherTo = teacherTo;
+    }
 
-	@SuppressWarnings("NegatedConditionalExpression")
-	public boolean equalsExcludingClasses(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    /**
+     * Check if this substitution equals another one, but excluding the classes. This is used to merge two
+     * substitutions with the same data and different classes automatically.
+     *
+     * @param o the substitution (or other object) to compare
+     * @return boolean indicating whether all fields of the two substitutions, excluding the classes, are equal
+     */
+    @SuppressWarnings("NegatedConditionalExpression")
+    public boolean equalsExcludingClasses(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		Substitution that = (Substitution) o;
+        Substitution that = (Substitution) o;
 
-		if (lesson != null ? !lesson.equals(that.lesson) : that.lesson != null) return false;
-		if (type != null ? !type.equals(that.type) : that.type != null) return false;
-		if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
-		if (previousSubject != null ? !previousSubject.equals(that.previousSubject) : that.previousSubject != null)
-			return false;
-		if (teacher != null ? !teacher.equals(that.teacher) : that.teacher != null) return false;
-		if (previousTeacher != null ? !previousTeacher.equals(that.previousTeacher) : that.previousTeacher != null)
-			return false;
-		if (room != null ? !room.equals(that.room) : that.room != null) return false;
-		if (previousRoom != null ? !previousRoom.equals(that.previousRoom) : that.previousRoom != null) return false;
-		if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
-		if (color != null ? !color.equals(that.color) : that.color != null) return false;
-		if (substitutionFrom != null ? !substitutionFrom.equals(that.substitutionFrom) :
-				that.substitutionFrom != null) {
-			return false;
-		}
-		if (teacherTo != null ? !teacherTo.equals(that.teacherTo) : that.teacherTo != null) return false;
-		return true;
-	}
+        if (lesson != null ? !lesson.equals(that.lesson) : that.lesson != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+        if (previousSubject != null ? !previousSubject.equals(that.previousSubject) : that.previousSubject != null) {
+            return false;
+        }
+        if (teacher != null ? !teacher.equals(that.teacher) : that.teacher != null) return false;
+        if (previousTeacher != null ? !previousTeacher.equals(that.previousTeacher) : that.previousTeacher != null) {
+            return false;
+        }
+        if (room != null ? !room.equals(that.room) : that.room != null) return false;
+        if (previousRoom != null ? !previousRoom.equals(that.previousRoom) : that.previousRoom != null) return false;
+        if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
+        if (color != null ? !color.equals(that.color) : that.color != null) return false;
+        if (substitutionFrom != null ? !substitutionFrom.equals(that.substitutionFrom) :
+                that.substitutionFrom != null) {
+            return false;
+        }
+        if (teacherTo != null ? !teacherTo.equals(that.teacherTo) : that.teacherTo != null) return false;
+        return true;
+    }
 
-	public int hashCodeExcludingClasses() {
-		int result = lesson != null ? lesson.hashCode() : 0;
-		result = 31 * result + (type != null ? type.hashCode() : 0);
-		result = 31 * result + (subject != null ? subject.hashCode() : 0);
-		result = 31 * result + (previousSubject != null ? previousSubject.hashCode() : 0);
-		result = 31 * result + (teacher != null ? teacher.hashCode() : 0);
-		result = 31 * result + (previousTeacher != null ? previousTeacher.hashCode() : 0);
-		result = 31 * result + (room != null ? room.hashCode() : 0);
-		result = 31 * result + (previousRoom != null ? previousRoom.hashCode() : 0);
-		result = 31 * result + (desc != null ? desc.hashCode() : 0);
-		result = 31 * result + (color != null ? color.hashCode() : 0);
-		result = 31 * result + (substitutionFrom != null ? substitutionFrom.hashCode() : 0);
-		result = 31 * result + (teacherTo != null ? teacherTo.hashCode() : 0);
-		return result;
-	}
+    @Override
+    public String toString() {
+        return toString(SubstitutionSchedule.Type.STUDENT);
+    }
 
-	@Override
-	public String toString() {
-		return toString(SubstitutionSchedule.Type.STUDENT);
-	}
-
-	public String toString(SubstitutionSchedule.Type type) {
-		switch (type) {
-			case STUDENT:
-				return classes.toString() + " " + getType() + " " + getText();
-			case TEACHER:
-				return getTeachers() + " " + getType() + " " + getTeacherText() + " (" + (substitutionFrom != null ?
-						substitutionFrom : "") + "/" + (teacherTo != null ? teacherTo : "") + ")";
-			default:
-				return null;
-		}
-	}
+    /**
+     * Get a string representation of the substitution, using different wording depending on the type. Useful for
+     * debugging (console output).
+     *
+     * @param type the type of the {@link SubstitutionSchedule}. Affects the format in which the fields are output
+     * @return a string representation of this substitution
+     */
+    public String toString(SubstitutionSchedule.Type type) {
+        switch (type) {
+            case STUDENT:
+                return classes.toString() + " " + getType() + " " + getText();
+            case TEACHER:
+                return getTeachers() + " " + getType() + " " + getTeacherText() + " (" + (substitutionFrom != null ?
+                        substitutionFrom : "") + "/" + (teacherTo != null ? teacherTo : "") + ")";
+            default:
+                return null;
+        }
+    }
 }

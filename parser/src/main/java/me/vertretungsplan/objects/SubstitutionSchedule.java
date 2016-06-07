@@ -15,6 +15,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.*;
 
+/**
+ * Represents a school's substitution schedule
+ */
 public class SubstitutionSchedule implements Cloneable {
     static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormat.forPattern("EEEE, dd.MM.yyyy").withLocale(
             Locale.GERMAN);
@@ -37,6 +40,11 @@ public class SubstitutionSchedule implements Cloneable {
         teachers = new ArrayList<>();
     }
 
+    /**
+     * Creates a new SubstitutionSchedule containing the same data as the given one
+     *
+     * @param other the SubstitutionSchedule whose data to use
+     */
     public SubstitutionSchedule(SubstitutionSchedule other) {
         this.type = other.type;
         this.lastChange = other.lastChange;
@@ -48,12 +56,26 @@ public class SubstitutionSchedule implements Cloneable {
         this.teachers = other.teachers;
     }
 
+
+    /**
+     * Initialize a SubstitutionSchedule with the correct type taken from a {@link SubstitutionScheduleData}
+     *
+     * @param scheduleData a SubstitutionScheduleData to create a schedule for
+     * @return a schedule initialized with the correct type
+     */
     public static SubstitutionSchedule fromData(SubstitutionScheduleData scheduleData) {
         SubstitutionSchedule schedule = new SubstitutionSchedule();
         schedule.setType(scheduleData.getType());
         return schedule;
     }
 
+    /**
+     * Filter a set of substitutions by class
+     *
+     * @param theClass      the name of a class
+     * @param substitutions a set of {@link Substitution}s
+     * @return the substitutions from the set that apply to the specified class
+     */
     public static Set<Substitution> filterByClass(String theClass, Set<Substitution> substitutions) {
         if (theClass == null) return substitutions;
         Set<Substitution> classSubstitutions = new HashSet<>();
@@ -63,6 +85,13 @@ public class SubstitutionSchedule implements Cloneable {
         return classSubstitutions;
     }
 
+    /**
+     * Filter a set of substitutions by excluding a set of subjects
+     *
+     * @param excludedSubjects a set of subjects to exclude
+     * @param substitutions    a set of {@link Substitution}s
+     * @return the substitutions from the set that are not for one of the specified subjects
+     */
     public static Set<Substitution> filterBySubject(Set<String> excludedSubjects, Set<Substitution> substitutions) {
         if (excludedSubjects == null || excludedSubjects.isEmpty()) return substitutions;
         Set<Substitution> filteredSubstitutions = new HashSet<>();
@@ -74,33 +103,70 @@ public class SubstitutionSchedule implements Cloneable {
         return filteredSubstitutions;
     }
 
+    /**
+     * Filter a set of substitutions by teacher
+     *
+     * @param teacher       a teacher's name/abbreviation
+     * @param substitutions a set of {@link Substitution}s
+     * @return the substitutions from the set that apply to the specified teacher
+     */
     public static Set<Substitution> filterByTeacher(String teacher, Set<Substitution> substitutions) {
         if (teacher == null) return substitutions;
         Set<Substitution> teacherSubstitutions = new HashSet<>();
         for (Substitution substitution : substitutions) {
-            if (substitution.getTeacher().equals(teacher) || substitution.getPreviousTeacher().equals(teacher)) {
+            if (teacher.equals(substitution.getTeacher())
+                    || teacher.equals(substitution.getPreviousTeacher())) {
                 teacherSubstitutions.add(substitution);
             }
         }
         return teacherSubstitutions;
     }
 
+    /**
+     * Get the type of this schedule
+     *
+     * @return the type of this schedule
+     */
     public Type getType() {
         return type;
     }
 
+    /**
+     * Set the type of this schedule
+     *
+     * @param type the type of this schedule
+     */
     public void setType(Type type) {
         this.type = type;
     }
 
+    /**
+     * Get the date and time where this schedule was last updated. If the date could not be parsed, there is only a
+     * string representation available using {@link #getLastChangeString()}.
+     *
+     * @return the date and time where this schedule was last updated
+     */
     public LocalDateTime getLastChange() {
         return lastChange;
     }
 
+    /**
+     * Set the date and time where this schedule was last updated. If the date could not be parsed,
+     * use {@link #setLastChangeString(String)} to specify a string representation. If you used
+     * {@link SubstitutionScheduleDay#setLastChange(LocalDateTime)}, this will automatically be set
+     * to the newest date of all the days.
+     *
+     * @param lastChange the date and time where this schedule was last updated.
+     */
     public void setLastChange(LocalDateTime lastChange) {
         this.lastChange = lastChange;
     }
 
+    /**
+     * Get the date and time where this schedule was last updated as a string representation
+     *
+     * @return the date and time where this schedule was last updated, as a string representation
+     */
     public String getLastChangeString() {
         if (lastChangeString != null) {
             return lastChangeString;
@@ -111,22 +177,48 @@ public class SubstitutionSchedule implements Cloneable {
         }
     }
 
+    /**
+     * Set the date and time where this schedule was last updated as a string representation. If you can parse the
+     * date, you should use {@link #setLastChange(LocalDateTime)} instead.
+     *
+     * @param lastChangeString the date and time where this schedule was last updated, as a string representation
+     */
     public void setLastChangeString(String lastChangeString) {
         this.lastChangeString = lastChangeString;
     }
 
+    /**
+     * Get the website where this schedule can be found online
+     *
+     * @return the website URL
+     */
     public String getWebsite() {
         return website;
     }
 
+    /**
+     * Set the website where this schedule can be found online
+     *
+     * @param website the website URl
+     */
     public void setWebsite(String website) {
         this.website = website;
     }
 
+    /**
+     * Get the list of days included in this schedule
+     *
+     * @return the list of days
+     */
     public List<SubstitutionScheduleDay> getDays() {
         return days;
     }
 
+    /**
+     * Add a day to this substitution schedule
+     *
+     * @param newDay the day to add
+     */
     public void addDay(SubstitutionScheduleDay newDay) {
         if (lastChange == null && lastChangeString == null) {
             // Read lastChange or lastChangeString from day
@@ -170,26 +262,58 @@ public class SubstitutionSchedule implements Cloneable {
         days.add(newDay);
     }
 
+    /**
+     * Get the list of additional infos on this schedule
+     *
+     * @return the list of additional infos on this schedule
+     */
     public List<AdditionalInfo> getAdditionalInfos() {
         return additionalInfos;
     }
 
+    /**
+     * Add an additional info to this schedule
+     *
+     * @param info the additional info to add
+     */
     public void addAdditionalInfo(AdditionalInfo info) {
         additionalInfos.add(info);
     }
 
+    /**
+     * Get the list of classes that can appear on this schedule. May only be empty if this is a {@link Type#TEACHER}
+     * schedule
+     *
+     * @return the list of classes
+     */
     public List<String> getClasses() {
         return classes;
     }
 
+    /**
+     * Set the list of classes. Not required if this is a {@link Type#TEACHER} schedule.
+     *
+     * @param classes the list of classes to set.
+     */
     public void setClasses(List<String> classes) {
         this.classes = classes;
     }
 
+    /**
+     * Get the list of teachers that can appear on this schedule. May be empty even if this is a {@link Type#TEACHER}
+     * schedule.
+     *
+     * @return the list of teachers
+     */
     public List<String> getTeachers() {
         return teachers;
     }
 
+    /**
+     * Set the list of teachers. Not required even if this is a {@link Type#TEACHER} schedule.
+     *
+     * @param teachers the list of teachers to set.
+     */
     public void setTeachers(List<String> teachers) {
         this.teachers = teachers;
     }
@@ -202,6 +326,14 @@ public class SubstitutionSchedule implements Cloneable {
         }
     }
 
+    /**
+     * Get a new schedule that only contains the data that applies to the specified class, excluding substitutions
+     * for the specified subjects.
+     *
+     * @param theClass         the class whose substitutions should be included
+     * @param excludedSubjects the subjects that should be excluded
+     * @return a new SubstitutionSchedule containing the filtered data
+     */
     public SubstitutionSchedule filteredByClassAndExcludedSubject(String theClass, Set<String> excludedSubjects) {
         SubstitutionSchedule filteredSchedule = this.clone();
         filterByClassAndExcludedSubject(filteredSchedule, theClass, excludedSubjects);
@@ -223,6 +355,14 @@ public class SubstitutionSchedule implements Cloneable {
         }
     }
 
+    /**
+     * Get a new schedule that only contains the data that applies to the specified teacher, excluding substitutions
+     * for the specified subjects.
+     *
+     * @param teacher          the teacher whose substitutions should be included
+     * @param excludedSubjects the subjects that should be excluded
+     * @return a new SubstitutionSchedule containing the filtered data
+     */
     public SubstitutionSchedule filteredByTeacherAndExcludedSubject(String teacher, Set<String> excludedSubjects) {
         SubstitutionSchedule filteredSchedule = this.clone();
         filterByTeacherAndExcludedSubject(filteredSchedule, teacher, excludedSubjects);
@@ -244,8 +384,21 @@ public class SubstitutionSchedule implements Cloneable {
         }
     }
 
+
+    /**
+     * Represents the type of a substitution schedule
+     */
     public enum Type {
-        STUDENT, TEACHER
+        /**
+         * Schedules with this type are primarily intended for students. They should contain a list of classes and
+         * the substitutions may not contain information about the teachers.
+         */
+        STUDENT,
+        /**
+         * Schedules with this type are primarily intended for teachers. The substitutions should contain information
+         * about the teachers.
+         */
+        TEACHER
     }
 
     @Override

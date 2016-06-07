@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,33 +16,41 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 
+/**
+ * Utility class used by the {@link SubstitutionScheduleParser} implementations to set suitable colors depending on
+ * the type of substitution.
+ * <ul>
+ * <li>Red: Lesson is cancelled or the students are supposed to work without a teacher ("EVA" =
+ * Eigenverantwortliches Arbeiten)</li>
+ * <li>Blue: Lesson will be given by a different teacher and/or with a different subject</li>
+ * <li>Yellow: Lesson will take place at another time or swapped with another lesson</li>
+ * <li>Green: Lesson will take place in another room</li>
+ * <li>Brown: A special event will replace the lesson</li>
+ * <li>Orange: Exam will be taken in this lesson</li>
+ * <li>Gray: Break supervision (teacher)</li>
+ * <li>Purple: Unknown</li>
+ * </ul>
+ * Colors from the <a href="https://material.google.com/style/color.html#color-color-palette">Material design</a>
+ * color palette are used.
+ */
 public class ColorProvider {
 
-    // Material Design colors
     private static final HashMap<String, String> colorNames = new HashMap<>();
     // *** Default color values ***
-    // Red: Lesson is cancelled or the students are supposed to work without a teacher ("EVA" = Eigenverantwortliches
-    // Arbeiten)
     private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Fällt aus!", "Fällt " +
             "aus", "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb."};
-    // Blue: Lesson will be given by a different teacher and/or with a different subject
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Statt-Vertretung",
             "Betreuung", "V"};
-    // Yellow: Lesson will take place at another time or swapped with another lesson
     private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",
             "Unterricht geändert", "Unterrichtstausch", "geändert", "statt"};
-    // Green: Lesson will take place in another room
     private static final String[] GREEN_VALUES =
             {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung"};
-    // Brown: A special event will replace the lesson
     private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung"};
-    // Orange: Exam will be taken in this lesson
     private static final String[] ORANGE_VALUES = {"Klausur"};
-    // Gray: Break supervision (teacher)
     private static final String[] GRAY_VALUES = {"Pausenaufsicht"};
     private static final HashMap<String, String> defaultColorMap = new HashMap<>();
-    // Purple: Unknown
 
+    // Material Design colors
     static {
         // These colors are used for the substitutions recognized by default and should also be used for other
         // substitutions if possible. For description of their meanings, see below
@@ -104,6 +113,12 @@ public class ColorProvider {
         }
     }
 
+    /**
+     * Get an appropriate color for a substitution based on its type
+     *
+     * @param type the type of the substitution ({@link Substitution#getType()})
+     * @return an appropriate color in hexadecimal format
+     */
     public String getColor(String type) {
         if (type == null) {
             return null;

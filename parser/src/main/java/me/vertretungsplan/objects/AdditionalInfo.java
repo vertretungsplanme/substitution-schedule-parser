@@ -8,33 +8,76 @@
 
 package me.vertretungsplan.objects;
 
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Represents an additional information on the substitution schedule. AdditionalInfos are not related to a
+ * specific day on the schedule (such as miscellaneous news the school might provide in DSBmobile and similar
+ * systems) and/or come from an independent source (such as information about cancellation of classes caused by snow
+ * or other extreme weather conditions provided by the Ministry of Education). For messages that don't satisfy one of
+ * these conditions, using {@link SubstitutionScheduleDay#addMessage(String)} might be more appropriate.
+ */
 public class AdditionalInfo {
 
 	private String title;
 	private String text;
 	private boolean hasInformation;
 
-	public String getTitle() {
-		return title;
+    /**
+     * Get the title of this additional info
+     *
+     * @return the title
+     */
+    @NotNull
+    public String getTitle() {
+        return title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+    /**
+     * Set the title of this additional info. Required.
+     *
+     * @param title the title to set
+     */
+    public void setTitle(@NotNull String title) {
+        this.title = title;
 	}
 
-	public String getText() {
-		return text;
+    /**
+     * Get the content text of this additional info. May include simple HTML markup (only a subset of the tags is
+     * supported, such as {@code <b>bold</b>} and {@code <i>italic</i>}.
+     *
+     * @return the text
+     */
+    @NotNull
+    public String getText() {
+        return text;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+    /**
+     * Set the content text of this additional info. May include simple HTML markup (only a subset of the tags is
+     * supported, such as {@code <b>bold</b>} and {@code <i>italic</i>}. Required.
+     *
+     * @param text the text to set
+     */
+    public void setText(@NotNull String text) {
+        this.text = text;
 	}
 
-	public boolean hasInformation() {
-		return hasInformation;
+    /**
+     * Find out if this AdditionalInfo contains urgent information the user of an app should be notified about.
+     *
+     * @return boolean indicating if this AdditionalInfo contains urgent information
+     */
+    public boolean hasInformation() {
+        return hasInformation;
 	}
 
-	@SuppressWarnings("SameParameterValue")
+    /**
+     * Set if this AdditionalInfo contains urgent information the user of an app should be notified about.
+     *
+     * @param hasInformation boolean indicating if this AdditionalInfo contains urgent information
+     */
+    @SuppressWarnings("SameParameterValue")
 	public void setHasInformation(boolean hasInformation) {
 		this.hasInformation = hasInformation;
 	}

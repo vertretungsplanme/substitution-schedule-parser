@@ -25,6 +25,10 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Parser for Turbo-Vertretung substitution schedules. Example: <a href="http://www.goethe-schule
+ * .de/ANBgkqhkiG9w0BAQEFAAOCAQ8goethe-schuleAMIIBCgKCAQEAnkFG3NUV4779/internet1.html">Goethe-Schule Bochum</a>
+ */
 public class TurboVertretungParser extends BaseParser {
     private JSONObject data;
 
