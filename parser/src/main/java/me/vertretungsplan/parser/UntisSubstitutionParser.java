@@ -124,7 +124,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
 	@Override
 	public List<String> getAllClasses() throws JSONException, IOException {
 		JSONArray classesJson = data.getJSONArray("classes");
-		List<String> classes = new ArrayList<String>();
+		List<String> classes = new ArrayList<>();
 		for (int i = 0; i < classesJson.length(); i++) {
 			classes.add(classesJson.getString(i));
 		}

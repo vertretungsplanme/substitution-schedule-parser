@@ -8,6 +8,8 @@
 
 package me.vertretungsplan.objects;
 
+import me.vertretungsplan.utils.SubstitutionTextUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 

@@ -18,7 +18,10 @@ dependencies {
 }
 
 task javadoc(overwrite: true, type: Javadoc) {
-    source 'src/main/java/me/vertretungsplan'
+    source fileTree(dir: 'src/main/java/me/vertretungsplan').matching {
+        exclude 'utils/**'
+        exclude 'networking/**'
+    }
     classpath = sourceSets.main.output + sourceSets.main.compileClasspath
 }
 

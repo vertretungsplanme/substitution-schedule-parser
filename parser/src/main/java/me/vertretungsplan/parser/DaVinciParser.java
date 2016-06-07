@@ -16,7 +16,6 @@ import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -240,20 +239,13 @@ public class DaVinciParser extends BaseParser {
     public List<String> getAllClasses() throws IOException, JSONException {
         if (scheduleData.getData().has("classesSource")) {
             Document doc = Jsoup.parse(httpGet(scheduleData.getData().getString("classesSource"), ENCODING));
-            List<String> classes = new ArrayList<String>();
+            List<String> classes = new ArrayList<>();
             for (Element li : doc.select("li.Class")) {
                 classes.add(li.text());
             }
             return classes;
-        } else if (scheduleData.getData().has("classes")) {
-            JSONArray classesJson = scheduleData.getData().getJSONArray("classes");
-            List<String> classes = new ArrayList<String>();
-            for (int i = 0; i < classesJson.length(); i++) {
-                classes.add(classesJson.getString(i));
-            }
-            return classes;
         } else {
-            return null;
+            return getClassesFromJson();
         }
     }
 

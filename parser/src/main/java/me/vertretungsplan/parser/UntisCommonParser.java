@@ -359,7 +359,7 @@ public abstract class UntisCommonParser extends BaseParser {
 				Pattern pattern = Pattern.compile("(\\d+) ?- ?(\\d+)");
 				Matcher matcher = pattern.matcher(klassen);
 				if (matcher.find()) {
-					affectedClasses = new ArrayList<String>();
+					affectedClasses = new ArrayList<>();
 					int min = Integer.parseInt(matcher.group(1));
 					int max = Integer.parseInt(matcher.group(2));
 					try {
@@ -379,7 +379,7 @@ public abstract class UntisCommonParser extends BaseParser {
 					if (data.optBoolean("classes_separated", true)) {
 						affectedClasses = Arrays.asList(klassen.split(", "));
 					} else {
-						affectedClasses = new ArrayList<String>();
+						affectedClasses = new ArrayList<>();
 						try {
 							for (String klasse : getAllClasses()) { // TODO:
 																	// Gibt es

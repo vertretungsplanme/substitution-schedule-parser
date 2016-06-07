@@ -6,9 +6,10 @@
  * If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package me.vertretungsplan.objects;
+package me.vertretungsplan.utils;
 
 import com.paour.comparator.NaturalOrderComparator;
+import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.diff.SubstitutionDiff;
 import name.fraser.neil.plaintext.DiffMatchPatch;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -213,7 +214,7 @@ public class SubstitutionTextUtils {
     }
 
     @Contract(pure = true)
-    public static boolean hasData(String string) {
+    static boolean hasData(String string) {
         if (string != null) {
             String s = string.replaceAll("\\s", "");
             return !(s.equals("") || s.equals("---"));

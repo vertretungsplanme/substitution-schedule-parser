@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ParserUtils {
+class ParserUtils {
 
     private static List<DateTimeFormatter> dateTimeFormatters = new ArrayList<>();
     private static List<DateTimeFormatter> dateFormatters = new ArrayList<>();
@@ -56,7 +56,7 @@ public class ParserUtils {
         }
     }
 
-    public static LocalDateTime parseDateTime(String string) {
+    static LocalDateTime parseDateTime(String string) {
         if (string == null) return null;
 
         string = string.replace("Stand:", "").replace("Import:", "").trim();
@@ -100,7 +100,7 @@ public class ParserUtils {
         }
     }
 
-    public static LocalDate parseDate(String string) {
+    static LocalDate parseDate(String string) {
         if (string == null) return null;
         string = string.replace("Stand:", "").replace("Import:", "").replaceAll(", Woche [A-Z]", "").trim();
         int i = 0;

@@ -32,27 +32,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class LoginHandler {
+class LoginHandler {
 	private SubstitutionScheduleData scheduleData;
 	private Credential auth;
 	private CookieProvider cookieProvider;
 
-	public LoginHandler(SubstitutionScheduleData scheduleData, Credential auth,
-						@Nullable CookieProvider cookieProvider) {
+	LoginHandler(SubstitutionScheduleData scheduleData, Credential auth,
+				 @Nullable CookieProvider cookieProvider) {
 		this.scheduleData = scheduleData;
 		this.auth = auth;
 		this.cookieProvider = cookieProvider;
 	}
 
-	public void handleLogin(Executor executor, CookieStore cookieStore) throws JSONException, IOException, CredentialInvalidException {
+	void handleLogin(Executor executor, CookieStore cookieStore)
+			throws JSONException, IOException, CredentialInvalidException {
 		handleLogin(executor, cookieStore, false);
 	}
 
-	public String handleLoginWithResponse(Executor executor, CookieStore cookieStore) throws JSONException, IOException, CredentialInvalidException {
+	String handleLoginWithResponse(Executor executor, CookieStore cookieStore)
+			throws JSONException, IOException, CredentialInvalidException {
 		return handleLogin(executor, cookieStore, true);
 	}
-	
-	public String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
+
+	private String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
 			IOException, CredentialInvalidException {
 		if (auth == null) return null;
 		if (!(auth instanceof UserPasswordCredential || auth instanceof PasswordCredential)) {

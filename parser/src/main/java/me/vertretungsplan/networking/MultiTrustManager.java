@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class MultiTrustManager implements X509TrustManager
 {
-    private final Set<X509TrustManager> trustManagers = new HashSet<X509TrustManager>();
+    private final Set<X509TrustManager> trustManagers = new HashSet<>();
 
     public void addTrustManager(final X509TrustManager trustManager)
     {
@@ -68,7 +68,7 @@ public class MultiTrustManager implements X509TrustManager
     @Override
     public X509Certificate[] getAcceptedIssuers()
     {
-        final Set<X509Certificate> certificates = new HashSet<X509Certificate>();
+        final Set<X509Certificate> certificates = new HashSet<>();
         for (X509TrustManager trustManager : trustManagers) {
             certificates.addAll(Arrays.asList(trustManager.getAcceptedIssuers()));
         }

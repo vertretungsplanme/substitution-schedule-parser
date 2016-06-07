@@ -157,8 +157,8 @@ public class UntisInfoParser extends UntisCommonParser {
             Matcher matcher = pattern.matcher(js);
             if (matcher.find()) {
                 JSONArray classesJson = new JSONArray(matcher.group(1));
-                List<String> classes = new ArrayList<String>();
-                for (int i = 0; i < classesJson.length(); i++) {
+				List<String> classes = new ArrayList<>();
+				for (int i = 0; i < classesJson.length(); i++) {
 					String className = classesJson.getString(i);
 					if (data.optString("classSelectRegex", null) != null) {
 						Pattern classNamePattern = Pattern.compile(data.getString("classSelectRegex"));

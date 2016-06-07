@@ -16,9 +16,9 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class SubstitutionSchedule implements Cloneable {
-    public static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormat.forPattern("EEEE, dd.MM.yyyy").withLocale(
+    static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormat.forPattern("EEEE, dd.MM.yyyy").withLocale(
             Locale.GERMAN);
-    public static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm").withLocale(
+    static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm").withLocale(
             Locale.GERMAN);
 
     private Type type;

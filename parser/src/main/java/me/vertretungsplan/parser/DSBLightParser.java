@@ -48,7 +48,7 @@ public class DSBLightParser extends UntisCommonParser {
         String id = data.getString("id");
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
-        Map<String, String> referer = new HashMap<String, String>();
+        Map<String, String> referer = new HashMap<>();
         referer.put("Referer", BASE_URL + "/Player.aspx?ID=" + id);
 
         String response = httpGet(BASE_URL + "/Player.aspx?ID=" + id, ENCODING, referer);
@@ -67,7 +67,7 @@ public class DSBLightParser extends UntisCommonParser {
             String username = ((UserPasswordCredential) credential).getUsername();
             String password = ((UserPasswordCredential) credential).getPassword();
 
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("__VIEWSTATE", doc.select(
                     "#__VIEWSTATE").attr("value")));
             params.add(new BasicNameValuePair("__VIEWSTATEGENERATOR", doc.select(
@@ -148,7 +148,7 @@ public class DSBLightParser extends UntisCommonParser {
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
         JSONArray classesJson = data.getJSONArray("classes");
-        List<String> classes = new ArrayList<String>();
+        List<String> classes = new ArrayList<>();
         for (int i = 0; i < classesJson.length(); i++) {
             classes.add(classesJson.getString(i));
         }

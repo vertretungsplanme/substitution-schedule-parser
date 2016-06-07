@@ -9,7 +9,7 @@
 package me.vertretungsplan.objects.diff;
 
 import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionTextUtils;
+import me.vertretungsplan.utils.SubstitutionTextUtils;
 
 import java.util.Objects;
 import java.util.Set;

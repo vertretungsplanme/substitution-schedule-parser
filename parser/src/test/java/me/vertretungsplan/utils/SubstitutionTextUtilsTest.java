@@ -6,8 +6,9 @@
  * If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package me.vertretungsplan.objects;
+package me.vertretungsplan.utils;
 
+import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.diff.SubstitutionDiff;
 import org.junit.experimental.theories.*;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static me.vertretungsplan.objects.SubstitutionTextUtils.hasData;
+import static me.vertretungsplan.utils.SubstitutionTextUtils.hasData;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assume.assumeTrue;
 

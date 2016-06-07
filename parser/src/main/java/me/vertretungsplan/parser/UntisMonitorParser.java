@@ -47,7 +47,7 @@ public class UntisMonitorParser extends UntisCommonParser {
 
         JSONArray urls = scheduleData.getData().getJSONArray("urls");
         String encoding = scheduleData.getData().getString("encoding");
-        List<Document> docs = new ArrayList<Document>();
+        List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {
             JSONObject url = urls.getJSONObject(i);
@@ -63,9 +63,8 @@ public class UntisMonitorParser extends UntisCommonParser {
                     SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(part, scheduleData.getData());
                     v.addDay(day);
                 }
-            } else {
-                //Error
             }
+            // else Error
 
             if (scheduleData.getData().has("lastChangeSelector")
                     && doc.select(scheduleData.getData().getString("lastChangeSelector")).size() > 0) {

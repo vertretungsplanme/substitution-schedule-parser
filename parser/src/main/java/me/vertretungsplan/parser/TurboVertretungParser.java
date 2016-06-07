@@ -39,7 +39,7 @@ public class TurboVertretungParser extends BaseParser {
 
         JSONArray urls = data.getJSONArray("urls");
         String encoding = data.getString("encoding");
-        List<Document> docs = new ArrayList<Document>();
+        List<Document> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
@@ -118,7 +118,7 @@ public class TurboVertretungParser extends BaseParser {
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
         JSONArray classesJson = data.getJSONArray("classes");
-        List<String> classes = new ArrayList<String>();
+        List<String> classes = new ArrayList<>();
         for (int i = 0; i < classesJson.length(); i++) {
             classes.add(classesJson.getString(i));
         }

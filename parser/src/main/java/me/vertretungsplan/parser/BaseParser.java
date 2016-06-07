@@ -17,6 +17,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -59,7 +60,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected ColorProvider colorProvider;
     protected CookieProvider cookieProvider;
 
-    public BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
+    BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
         this.cookieProvider = cookieProvider;
         this.cookieStore = new BasicCookieStore();
@@ -78,12 +79,11 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                     sslContext,
                     new String[]{"TLSv1"},
                     null,
-                    SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+                    new DefaultHostnameVerifier());
 
             CloseableHttpClient httpclient = HttpClients.custom()
                     .setSSLSocketFactory(sslsf).setRedirectStrategy(new LaxRedirectStrategy()).build();
-            this.executor = Executor.newInstance(httpclient).cookieStore(
-                    cookieStore);
+            this.executor = Executor.newInstance(httpclient).use(cookieStore);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -330,7 +330,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected List<String> getClassesFromJson() throws JSONException {
         if (scheduleData.getData().has("classes")) {
             JSONArray classesJson = scheduleData.getData().getJSONArray("classes");
-            List<String> classes = new ArrayList<String>();
+            List<String> classes = new ArrayList<>();
             for (int i = 0; i < classesJson.length(); i++) {
                 classes.add(classesJson.getString(i));
             }

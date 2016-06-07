@@ -46,7 +46,7 @@ public class SVPlanParser extends BaseParser {
 
         JSONArray urls = data.getJSONArray("urls");
         String encoding = data.getString("encoding");
-        List<Document> docs = new ArrayList<Document>();
+        List<Document> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
@@ -97,7 +97,7 @@ public class SVPlanParser extends BaseParser {
                     continue;
 
                 Substitution substitution = new Substitution();
-                List<String> affectedClasses = new ArrayList<String>();
+                List<String> affectedClasses = new ArrayList<>();
 
                 for (Element column : row.select("td")) {
                     if (!hasData(column.text())) {
