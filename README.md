@@ -1,10 +1,12 @@
-# substitution-schedule-parser [![Build Status](https://travis-ci.org/johan12345/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/johan12345/substitution-schedule-parser)[ ![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg) ](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)
+# substitution-schedule-parser
+[![Build Status](https://travis-ci.org/johan12345/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/johan12345/substitution-schedule-parser)[ ![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg) ](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)[![Javadocs](https://www.javadoc.io/badge/me.vertretungsplan/parser.svg)](https://www.javadoc.io/doc/me.vertretungsplan/parser)
+
 Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries.
 
 The Android App [vertretungsplan.me](https://vertretungsplan.me) is powered by this library and supports more than 100 schools. An [older version](https://github.com/johan12345/vertretungsplan) of the app is open source.
 
 ## Usage
-The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. More documentation will follow shortly, see issues #1 and #2.
+The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. The automatically generated Javadoc is available at [javadoc.io](https://www.javadoc.io/doc/me.vertretungsplan/parser) More and improved documentation will follow shortly, see issues [#1](https://github.com/johan12345/substitution-schedule-parser/issues/1) and [#2](https://github.com/johan12345/substitution-schedule-parser/issues/2).
 
 Builds of the library are available through both the JCenter and Maven Central repositories. You can find instructions
 how to use them with different build systems (such as Gradle and Maven)
