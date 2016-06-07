@@ -257,6 +257,24 @@ public class SubstitutionScheduleDayDiff implements Cloneable {
                 .filterByClass(theClass, editedSubstitutions));
     }
 
+    public Set<Substitution> getNewSubstitutionsByTeacherAndExcludedSubject(String teacher,
+                                                                            Set<String> excludedSubjects) {
+        return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
+                .filterByTeacher(teacher, newSubstitutions));
+    }
+
+    public Set<Substitution> getRemovedSubstitutionsByTeacherAndExcludedSubject(String teacher,
+                                                                                Set<String> excludedSubjects) {
+        return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
+                .filterByTeacher(teacher, removedSubstitutions));
+    }
+
+    public Set<SubstitutionDiff> getEditedSubstitutionsByTeacherAndExcludedSubject(String teacher,
+                                                                                   Set<String> excludedSubjects) {
+        return SubstitutionScheduleDiff.filterBySubject(excludedSubjects, SubstitutionScheduleDiff
+                .filterByTeacher(teacher, editedSubstitutions));
+    }
+
     public SubstitutionScheduleDayDiff clone() {
         try {
             return (SubstitutionScheduleDayDiff) super.clone();

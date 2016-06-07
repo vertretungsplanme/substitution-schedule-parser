@@ -142,6 +142,12 @@ public class SubstitutionScheduleDay implements Cloneable {
 				.filterByClass(theClass, substitutions));
 	}
 
+	public Set<Substitution> getSubstitutionsByTeacherAndExcludedSubject(String teacher, Set<String>
+			excludedSubjects) {
+		return SubstitutionSchedule.filterBySubject(excludedSubjects, SubstitutionSchedule
+				.filterByTeacher(teacher, substitutions));
+	}
+
 	public SubstitutionScheduleDay clone() {
 		try {
 			return (SubstitutionScheduleDay) super.clone();
@@ -170,5 +176,4 @@ public class SubstitutionScheduleDay implements Cloneable {
 	public String toString() {
 		return toString(SubstitutionSchedule.Type.STUDENT);
 	}
-
 }

@@ -103,6 +103,20 @@ public class SubstitutionScheduleDiff implements Cloneable {
         return filteredSubstitutions;
     }
 
+    public static Set<SubstitutionDiff> filterByTeacher(String teacher, Set<SubstitutionDiff> substitutions) {
+        if (teacher == null) return substitutions;
+        Set<SubstitutionDiff> teacherSubstitutions = new HashSet<>();
+        for (SubstitutionDiff substitution : substitutions) {
+            if (substitution.getOldSubstitution().getTeacher().equals(teacher)
+                    || substitution.getOldSubstitution().getPreviousTeacher().equals(teacher)
+                    || substitution.getNewSubstitution().getTeacher().equals(teacher)
+                    || substitution.getNewSubstitution().getPreviousTeacher().equals(teacher)) {
+                teacherSubstitutions.add(substitution);
+            }
+        }
+        return teacherSubstitutions;
+    }
+
     /**
      * @return The list of {@link AdditionalInfo}s that were added to the schedule
      */
@@ -181,14 +195,22 @@ public class SubstitutionScheduleDiff implements Cloneable {
 
     public SubstitutionScheduleDiff filteredByClassAndExcludedSubject(String theClass, Set<String> excludedSubjects) {
         SubstitutionScheduleDiff filteredScheduleDiff = this.clone();
-        filterDays(theClass, excludedSubjects, filteredScheduleDiff.getNewDays());
-        filterDayDiffs(theClass, excludedSubjects, filteredScheduleDiff.getEditedDays());
-        filterDays(theClass, excludedSubjects, filteredScheduleDiff.getRemovedDays());
+        filterDaysClass(theClass, excludedSubjects, filteredScheduleDiff.getNewDays());
+        filterDayDiffsClass(theClass, excludedSubjects, filteredScheduleDiff.getEditedDays());
+        filterDaysClass(theClass, excludedSubjects, filteredScheduleDiff.getRemovedDays());
         return filteredScheduleDiff;
     }
 
-    private void filterDayDiffs(String theClass, Set<String> excludedSubjects,
-                                List<SubstitutionScheduleDayDiff> dayDiffs) {
+    public SubstitutionScheduleDiff filteredByTeacherAndExcludedSubject(String teacher, Set<String> excludedSubjects) {
+        SubstitutionScheduleDiff filteredScheduleDiff = this.clone();
+        filterDaysTeacher(teacher, excludedSubjects, filteredScheduleDiff.getNewDays());
+        filterDayDiffsTeacher(teacher, excludedSubjects, filteredScheduleDiff.getEditedDays());
+        filterDaysTeacher(teacher, excludedSubjects, filteredScheduleDiff.getRemovedDays());
+        return filteredScheduleDiff;
+    }
+
+    private void filterDayDiffsClass(String theClass, Set<String> excludedSubjects,
+                                     List<SubstitutionScheduleDayDiff> dayDiffs) {
         for (int i = 0; i < dayDiffs.size(); i++) {
             SubstitutionScheduleDayDiff dayDiff = dayDiffs.get(i);
             SubstitutionScheduleDayDiff filteredDayDiff = dayDiff.clone();
@@ -202,11 +224,35 @@ public class SubstitutionScheduleDiff implements Cloneable {
         }
     }
 
-    private void filterDays(String theClass, Set<String> excludedSubjects, List<SubstitutionScheduleDay> days) {
+    private void filterDaysClass(String theClass, Set<String> excludedSubjects, List<SubstitutionScheduleDay> days) {
         for (int i = 0; i < days.size(); i++) {
             SubstitutionScheduleDay day = days.get(i);
             SubstitutionScheduleDay filteredDay = day.clone();
             filteredDay.setSubstitutions(day.getSubstitutionsByClassAndExcludedSubject(theClass, excludedSubjects));
+            days.set(i, filteredDay);
+        }
+    }
+
+    private void filterDayDiffsTeacher(String teacher, Set<String> excludedSubjects,
+                                       List<SubstitutionScheduleDayDiff> dayDiffs) {
+        for (int i = 0; i < dayDiffs.size(); i++) {
+            SubstitutionScheduleDayDiff dayDiff = dayDiffs.get(i);
+            SubstitutionScheduleDayDiff filteredDayDiff = dayDiff.clone();
+            filteredDayDiff.setNewSubstitutions(
+                    dayDiff.getNewSubstitutionsByTeacherAndExcludedSubject(teacher, excludedSubjects));
+            filteredDayDiff.setRemovedSubstitutions(
+                    dayDiff.getRemovedSubstitutionsByTeacherAndExcludedSubject(teacher, excludedSubjects));
+            filteredDayDiff.setEditedSubstitutions(
+                    dayDiff.getEditedSubstitutionsByTeacherAndExcludedSubject(teacher, excludedSubjects));
+            dayDiffs.set(i, filteredDayDiff);
+        }
+    }
+
+    private void filterDaysTeacher(String teacher, Set<String> excludedSubjects, List<SubstitutionScheduleDay> days) {
+        for (int i = 0; i < days.size(); i++) {
+            SubstitutionScheduleDay day = days.get(i);
+            SubstitutionScheduleDay filteredDay = day.clone();
+            filteredDay.setSubstitutions(day.getSubstitutionsByTeacherAndExcludedSubject(teacher, excludedSubjects));
             days.set(i, filteredDay);
         }
     }

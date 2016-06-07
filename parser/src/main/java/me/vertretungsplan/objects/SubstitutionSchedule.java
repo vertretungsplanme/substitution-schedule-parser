@@ -74,6 +74,17 @@ public class SubstitutionSchedule implements Cloneable {
         return filteredSubstitutions;
     }
 
+    public static Set<Substitution> filterByTeacher(String teacher, Set<Substitution> substitutions) {
+        if (teacher == null) return substitutions;
+        Set<Substitution> teacherSubstitutions = new HashSet<>();
+        for (Substitution substitution : substitutions) {
+            if (substitution.getTeacher().equals(teacher) || substitution.getPreviousTeacher().equals(teacher)) {
+                teacherSubstitutions.add(substitution);
+            }
+        }
+        return teacherSubstitutions;
+    }
+
     public Type getType() {
         return type;
     }
@@ -197,8 +208,8 @@ public class SubstitutionSchedule implements Cloneable {
         return filteredSchedule;
     }
 
-    protected void filterByClassAndExcludedSubject(SubstitutionSchedule filteredSchedule, String theClass,
-                                                   Set<String> excludedSubjects) {
+    private void filterByClassAndExcludedSubject(SubstitutionSchedule filteredSchedule, String theClass,
+                                                 Set<String> excludedSubjects) {
         for (int i = 0; i < filteredSchedule.getDays().size(); i++) {
             SubstitutionScheduleDay day = filteredSchedule.getDays().get(i);
             SubstitutionScheduleDay filteredDay = day.clone();
@@ -209,6 +220,27 @@ public class SubstitutionSchedule implements Cloneable {
             List<String> classes = new ArrayList<>();
             classes.add(theClass);
             filteredSchedule.setClasses(classes);
+        }
+    }
+
+    public SubstitutionSchedule filteredByTeacherAndExcludedSubject(String teacher, Set<String> excludedSubjects) {
+        SubstitutionSchedule filteredSchedule = this.clone();
+        filterByTeacherAndExcludedSubject(filteredSchedule, teacher, excludedSubjects);
+        return filteredSchedule;
+    }
+
+    private void filterByTeacherAndExcludedSubject(SubstitutionSchedule filteredSchedule, String teacher,
+                                                   Set<String> excludedSubjects) {
+        for (int i = 0; i < filteredSchedule.getDays().size(); i++) {
+            SubstitutionScheduleDay day = filteredSchedule.getDays().get(i);
+            SubstitutionScheduleDay filteredDay = day.clone();
+            filteredDay.setSubstitutions(day.getSubstitutionsByTeacherAndExcludedSubject(teacher, excludedSubjects));
+            filteredSchedule.getDays().set(i, filteredDay);
+        }
+        if (teacher != null) {
+            List<String> teachers = new ArrayList<>();
+            teachers.add(teacher);
+            filteredSchedule.setTeachers(teachers);
         }
     }
 
