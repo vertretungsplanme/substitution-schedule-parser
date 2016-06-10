@@ -340,8 +340,8 @@ public class SubstitutionSchedule implements Cloneable {
         return filteredSchedule;
     }
 
-    private void filterByClassAndExcludedSubject(SubstitutionSchedule filteredSchedule, String theClass,
-                                                 Set<String> excludedSubjects) {
+    protected void filterByClassAndExcludedSubject(SubstitutionSchedule filteredSchedule, String theClass,
+                                                   Set<String> excludedSubjects) {
         for (int i = 0; i < filteredSchedule.getDays().size(); i++) {
             SubstitutionScheduleDay day = filteredSchedule.getDays().get(i);
             SubstitutionScheduleDay filteredDay = day.clone();
@@ -369,8 +369,8 @@ public class SubstitutionSchedule implements Cloneable {
         return filteredSchedule;
     }
 
-    private void filterByTeacherAndExcludedSubject(SubstitutionSchedule filteredSchedule, String teacher,
-                                                   Set<String> excludedSubjects) {
+    protected void filterByTeacherAndExcludedSubject(SubstitutionSchedule filteredSchedule, String teacher,
+                                                     Set<String> excludedSubjects) {
         for (int i = 0; i < filteredSchedule.getDays().size(); i++) {
             SubstitutionScheduleDay day = filteredSchedule.getDays().get(i);
             SubstitutionScheduleDay filteredDay = day.clone();
