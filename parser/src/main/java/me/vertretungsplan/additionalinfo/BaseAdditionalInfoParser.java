@@ -24,14 +24,14 @@ public abstract class BaseAdditionalInfoParser {
 	/**
 	 * Create an additional info parser. Uses the supplied {@code type} string to create an appropriate subclass.
 	 *
-	 * @param type die Art der Zusatzinformation (ein Element von <code>Schule.getAdditionalInfos()</code>)
-	 * @return Eine Unterklasse von {@link BaseAdditionalInfoParser}, die zum übergebenen Typ passt
+	 * @param type the type of additional info
+	 * @return A {@link BaseAdditionalInfoParser} subclass
 	 */
 	public static BaseAdditionalInfoParser getInstance(String type) {
 		BaseAdditionalInfoParser parser = null;
 		if (type.equals("winter-sh")) {
 			parser = new WinterShParser();
-		} //else if ... (andere Parser)
+		} //else if ... (other parsers)
 		return parser;
 	}
 

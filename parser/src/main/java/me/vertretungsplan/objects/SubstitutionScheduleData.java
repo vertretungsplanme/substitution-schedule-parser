@@ -81,29 +81,70 @@ public class SubstitutionScheduleData {
     }
 
     /**
-     * Get the types of {@link Addition}
-     * @return the set of additional infos
+     * Get the types of {@link AdditionalInfo} this schedule should contain. Used by
+     * {@link me.vertretungsplan.additionalinfo.BaseAdditionalInfoParser#getInstance(String)} to create a suitable
+     * parser instance.
+     *
+     * @return the set of additional info types
      */
     public Set<String> getAdditionalInfos() {
         return additionalInfos;
     }
 
+    /**
+     * Set the types of {@link AdditionalInfo} this schedule should contain. Used by
+     * {@link me.vertretungsplan.additionalinfo.BaseAdditionalInfoParser#getInstance(String)} to create a suitable
+     * parser instance. Currently supported values are:
+     * <ul>
+     *     <li>{@code "winter-sh"}</li>
+     * </ul>
+     *
+     * @param additionalInfos the additional info types to set
+     */
     public void setAdditionalInfos(Set<String> additionalInfos) {
         this.additionalInfos = additionalInfos;
     }
 
+    /**
+     * Get additional data about this substitution schedule in form of a JSON object. What data is needed here
+     * depends on the parser type, see their own documentation in the {@link me.vertretungsplan.parser} package.
+     *
+     * @return additional data about this substitution schedule
+     */
     public JSONObject getData() {
         return data;
     }
 
+    /**
+     * Set additional data about this substitution schedule in form of a JSON object. What data is needed here
+     * depends on the parser type, see their own documentation in the {@link me.vertretungsplan.parser} package.
+     *
+     * @param data additional data about this substitution schedule
+     */
     public void setData(JSONObject data) {
         this.data = data;
     }
 
+    /**
+     * Get information about what kind of {@link me.vertretungsplan.objects.credential.Credential} is needed to parse
+     * this schedule and if there are additional parameters for authentication (such as a pre-set school number with
+     * only the password needing to be filled in). If no credential is needed, this should return a
+     * {@link me.vertretungsplan.objects.authentication.NoAuthenticationData} instance.
+     *
+     * @return the authentication data
+     */
     public AuthenticationData getAuthenticationData() {
         return authenticationData;
     }
 
+    /**
+     * Set information about what kind of {@link me.vertretungsplan.objects.credential.Credential} is needed to parse
+     * this schedule and if there are additional parameters for authentication (such as a pre-set school number with
+     * only the password needing to be filled in). If no credential is needed, set this to a
+     * {@link me.vertretungsplan.objects.authentication.NoAuthenticationData} instance.
+     *
+     * @param authenticationData the authentication data to set
+     */
     public void setAuthenticationData(AuthenticationData authenticationData) {
         this.authenticationData = authenticationData;
     }
