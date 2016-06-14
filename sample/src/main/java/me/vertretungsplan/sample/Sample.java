@@ -8,13 +8,12 @@
 
 package me.vertretungsplan.sample;
 
+import me.vertretungsplan.ParserUtil;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.authentication.NoAuthenticationData;
 import me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
-import me.vertretungsplan.parser.BaseParser;
-import me.vertretungsplan.parser.SubstitutionScheduleParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,9 +22,9 @@ import java.io.IOException;
 public class Sample {
     public static void main(String[] args) throws JSONException, IOException, CredentialInvalidException {
         SubstitutionScheduleData data = new SubstitutionScheduleData();
-        data.setType(SubstitutionSchedule.Type.TEACHER);
+        data.setType(SubstitutionSchedule.Type.STUDENT);
         data.setApi("untis-monitor");
-        data.setAuthenticationData(new UserPasswordAuthenticationData());
+        data.setAuthenticationData(new NoAuthenticationData());
         data.setData(new JSONObject("{\n" +
                 "         \"classes\": [\n" +
                 "           \"05a\",\"05b\",\"05c\",\"05d\",\"05e\",\"05f\",\"05g\",\n" +
@@ -37,32 +36,26 @@ public class Sample {
                 "           \"Q1a\",\"Q1b\",\"Q1c\",\"Q1d\",\"Q1e\",\"Q1f\",\"Q1g\",\"Q1h\",\"Q1i\",\"Q1j\",\n" +
                 "           \"Q2a\",\"Q2b\",\"Q2c\",\"Q2d\",\"Q2e\",\"Q2f\",\"Q2g\",\"Q2h\",\"Q2i\",\"Q2j\" \n" +
                 "        ],\n" +
-                "         \"classes_separated\": false,\n" +
-                "         \"website\": \"http://vertretung.lornsenschule.de/lehrer/subst_001.htm\",\n" +
+                "         \"class_in_extra_line\": true,\n" +
+                "         \"website\": \"http://vertretung.lornsenschule.de/schueler/subst_001.htm\",\n" +
                 "         \"stand_links\": true,\n" +
                 "         \"urls\": [\n" +
                 "           {\n" +
                 "             \"following\": false,\n" +
-                "             \"url\": \"http://vertretung.lornsenschule.de/lehrer/f1/subst_001.htm\" \n" +
+                "             \"url\": \"http://vertretung.lornsenschule.de/schueler/f1/subst_001.htm\" \n" +
                 "          },\n" +
                 "           {\n" +
                 "             \"following\": false,\n" +
-                "             \"url\": \"http://vertretung.lornsenschule.de/lehrer/f2/subst_001.htm\" \n" +
+                "             \"url\": \"http://vertretung.lornsenschule.de/schueler/f2/subst_001.htm\" \n" +
                 "          } \n" +
                 "        ],\n" +
                 "         \"encoding\": \"ISO-8859-1\",\n" +
                 "         \"columns\": [\n" +
-                "           \"teacher\",\"lesson\",\"class\",\"subject\",\"room\",\"previousTeacher\"," +
-                "\"substitutionFrom\"," +
-                "\"teacherTo\",\"desc\",\"type\" \n" +
-                "        ], \n" +
-                "        \"login\": {\"type\":\"basic\"}" +
+                "           \"lesson\",\"type\",\"subject\",\"previousSubject\",\"room\",\"desc\" \n" +
+                "        ] \n" +
                 "      }"));
-        SubstitutionScheduleParser parser = BaseParser.getInstance(data, null);
-        UserPasswordCredential credential = new UserPasswordCredential();
-        credential.setUsername("lehrer.1213");
-        credential.setPassword("plan.1213");
-        parser.setCredential(credential);
-        System.out.println(parser.getSubstitutionSchedule().filteredByTeacherAndExcludedSubject("Shf", null));
+        data.getAdditionalInfos().add("winter-sh");
+        SubstitutionSchedule schedule = ParserUtil.parseSubstitutionSchedule(data);
+        System.out.println(schedule);
     }
 }

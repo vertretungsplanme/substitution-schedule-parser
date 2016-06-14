@@ -429,7 +429,9 @@ public class SubstitutionSchedule implements Cloneable {
             builder.append("Additional Infos\n");
             builder.append("----------------\n\n");
 
-            for (AdditionalInfo info : additionalInfos) builder.append(info.toString()).append("\n\n");
+            for (AdditionalInfo info : additionalInfos) {
+                builder.append(info.getTitle()).append("\n").append(info.getText()).append("\n\n");
+            }
         }
 
         return builder.toString();

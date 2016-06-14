@@ -8,5 +8,9 @@
 
 package me.vertretungsplan.exception;
 
+/**
+ * An exception that is thrown by a {@link me.vertretungsplan.parser.SubstitutionScheduleParser} when the
+ * {@link me.vertretungsplan.objects.credential.Credential} that was provided is invalid.
+ */
 public class CredentialInvalidException extends Exception {
 }
