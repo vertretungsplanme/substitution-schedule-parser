@@ -60,7 +60,7 @@ public class DaVinciParser extends BaseParser {
 
                 if (value.isEmpty()) {
                     if (header.equals("Klasse")) subst.setClasses(classes);
-                    if (header.equals("Pos")) subst.setLesson(lesson);
+                    if (header.equals("Pos") || header.equals("Stunde")) subst.setLesson(lesson);
                     if (header.equals("Art") || header.equals("Merkmal")) subst.setType("Vertretung");
                     continue;
                 }
@@ -73,6 +73,7 @@ public class DaVinciParser extends BaseParser {
                         subst.setClasses(classes);
                         break;
                     case "Pos":
+                    case "Stunde":
                         lesson = value;
                         subst.setLesson(lesson);
                         break;
@@ -125,6 +126,9 @@ public class DaVinciParser extends BaseParser {
                     case "Info":
                     case "Mitteilung":
                         subst.setDesc(value);
+                        if (!headers.contains("Art") && !headers.contains("Merkmal")) {
+
+                        }
                         break;
                 }
             }

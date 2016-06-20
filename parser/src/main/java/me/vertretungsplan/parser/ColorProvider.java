@@ -37,8 +37,8 @@ public class ColorProvider {
 
     private static final HashMap<String, String> colorNames = new HashMap<>();
     // *** Default color values ***
-    private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Fällt aus!", "Fällt " +
-            "aus", "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb."};
+    private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Fällt aus!", "Fällt aus", "entfällt",
+            "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb.", "Aufgaben"};
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Statt-Vertretung",
             "Betreuung", "V"};
     private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",

@@ -168,6 +168,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             return "Verlegung";
         } else if (text.contains("geänderter Raum")) {
             return "Raumänderung";
+        } else if (text.contains("frei")) {
+            return "Entfall";
+        } else if (text.contains("Aufgaben")) {
+            return "Aufgaben";
         } else {
             return null;
         }
