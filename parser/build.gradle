@@ -1,5 +1,5 @@
 group 'me.vertretungsplan'
-version '1.0.0-beta6'
+version '1.0.0-beta7'
 
 apply plugin: 'java'
 
