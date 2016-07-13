@@ -96,8 +96,14 @@ public class SubstitutionSchedule implements Cloneable {
         if (excludedSubjects == null || excludedSubjects.isEmpty()) return substitutions;
         Set<Substitution> filteredSubstitutions = new HashSet<>();
         for (Substitution substitution : substitutions) {
-            if (!excludedSubjects.contains(substitution.getSubject())) {
-                filteredSubstitutions.add(substitution);
+            if (substitution.getPreviousSubject() != null) {
+                if (!excludedSubjects.contains(substitution.getPreviousSubject())) {
+                    filteredSubstitutions.add(substitution);
+                }
+            } else if (substitution.getSubject() != null) {
+                if (!excludedSubjects.contains(substitution.getSubject())) {
+                    filteredSubstitutions.add(substitution);
+                }
             }
         }
         return filteredSubstitutions;

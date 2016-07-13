@@ -96,8 +96,14 @@ public class SubstitutionScheduleDiff implements Cloneable {
         if (excludedSubjects == null || excludedSubjects.isEmpty()) return substitutions;
         Set<SubstitutionDiff> filteredSubstitutions = new HashSet<>();
         for (SubstitutionDiff substitution : substitutions) {
-            if (!excludedSubjects.contains(substitution.getNewSubstitution().getSubject())) {
-                filteredSubstitutions.add(substitution);
+            if (substitution.getNewSubstitution().getPreviousSubject() != null) {
+                if (!excludedSubjects.contains(substitution.getNewSubstitution().getPreviousSubject())) {
+                    filteredSubstitutions.add(substitution);
+                }
+            } else if (substitution.getNewSubstitution().getSubject() != null) {
+                if (!excludedSubjects.contains(substitution.getNewSubstitution().getSubject())) {
+                    filteredSubstitutions.add(substitution);
+                }
             }
         }
         return filteredSubstitutions;
