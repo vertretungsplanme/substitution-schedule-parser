@@ -122,6 +122,16 @@ class LoginHandler {
 			case "basic":
 				if (login == null) throw new IOException("wrong auth type");
 				executor.auth(login, password);
+                if (data.getJSONObject("login").has("url")) {
+                    String url = data.getJSONObject("login").getString("url");
+                    if (executor.execute(Request.Get(url)).returnResponse().getStatusLine().getStatusCode() != 200) {
+                        throw new IOException("wrong login/password");
+                    }
+                }
+                break;
+            case "ntlm":
+                if (login == null) throw new IOException("wrong auth type");
+                executor.auth(login, password, null, null);
 				if (data.getJSONObject("login").has("url")) {
 					String url = data.getJSONObject("login").getString("url");
 					if (executor.execute(Request.Get(url)).returnResponse().getStatusLine().getStatusCode() != 200)
