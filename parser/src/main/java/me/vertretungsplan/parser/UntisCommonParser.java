@@ -355,21 +355,39 @@ public abstract class UntisCommonParser extends BaseParser {
 
 				List<String> affectedClasses;
 
+				// Detect things like "7"
+				Pattern singlePattern = Pattern.compile("(\\d+)");
+				Matcher singleMatcher = singlePattern.matcher(klassen);
+
 				// Detect things like "5-12"
-				Pattern pattern = Pattern.compile("(\\d+) ?- ?(\\d+)");
-				Matcher matcher = pattern.matcher(klassen);
-				if (matcher.find()) {
+				Pattern rangePattern = Pattern.compile("(\\d+) ?- ?(\\d+)");
+				Matcher rangeMatcher = rangePattern.matcher(klassen);
+
+				Pattern pattern2 = Pattern.compile("^(\\d+).*");
+
+				if (rangeMatcher.matches()) {
 					affectedClasses = new ArrayList<>();
-					int min = Integer.parseInt(matcher.group(1));
-					int max = Integer.parseInt(matcher.group(2));
+					int min = Integer.parseInt(rangeMatcher.group(1));
+					int max = Integer.parseInt(rangeMatcher.group(2));
 					try {
 						for (String klasse : getAllClasses()) {
-							Pattern pattern2 = Pattern.compile("\\d+");
 							Matcher matcher2 = pattern2.matcher(klasse);
-							if (matcher2.find()) {
-								int num = Integer.parseInt(matcher2.group());
-								if (min <= num && num <= max)
-									affectedClasses.add(klasse);
+							if (matcher2.matches()) {
+								int num = Integer.parseInt(matcher2.group(1));
+								if (min <= num && num <= max) affectedClasses.add(klasse);
+							}
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else if (singleMatcher.matches()) {
+					affectedClasses = new ArrayList<>();
+					int grade = Integer.parseInt(singleMatcher.group(1));
+					try {
+						for (String klasse : getAllClasses()) {
+							Matcher matcher2 = pattern2.matcher(klasse);
+							if (matcher2.matches() && grade == Integer.parseInt(matcher2.group(1))) {
+								affectedClasses.add(klasse);
 							}
 						}
 					} catch (IOException e) {
