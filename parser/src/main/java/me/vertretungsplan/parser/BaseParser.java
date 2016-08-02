@@ -132,6 +132,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "csv":
                 parser = new CSVParser(data, cookieProvider);
                 break;
+            case "legionboard":
+                parser = new LegionBoardParser(data, cookieProvider);
+                break;
         }
         return parser;
     }
