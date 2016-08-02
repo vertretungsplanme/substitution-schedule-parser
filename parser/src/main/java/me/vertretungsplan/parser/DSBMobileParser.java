@@ -173,7 +173,8 @@ public class DSBMobileParser extends UntisCommonParser {
         String html = httpGet(url, data.has("encoding") ? data.getString("encoding") : "UTF-8");
         Document doc = Jsoup.parse(html);
 
-        if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")) {
+        if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")
+                || data.optString("type", "").equals("untis")) {
             if (doc.select(".mon_head").size() > 1) {
                 for (int j = 0; j < doc.select(".mon_head").size(); j++) {
                     Document doc2 = Document.createShell(doc.baseUri());
@@ -196,7 +197,8 @@ public class DSBMobileParser extends UntisCommonParser {
                 SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc, data);
                 v.addDay(day);
             }
-        } else if (doc.html().toLowerCase().contains("created by davinci")) {
+        } else if (doc.html().toLowerCase().contains("created by davinci")
+                || data.optString("type", "").equals("davinci")) {
             Elements titles = doc.select("h2");
             Elements tables = doc.select("h2 + p + table");
             if (titles.size() != tables.size()) throw new IOException("Anzahl Überschriften != Anzahl Tabellen");
