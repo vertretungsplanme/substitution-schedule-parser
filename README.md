@@ -34,6 +34,7 @@ Below you find the currently supported substitution schedule softwares and the c
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
 * DSBmobile (with either Untis Monitor-Vertretungsplan or DaVinci inside) `"dsbmobile"`
 * DSBlight (with Untis Monitor-Vertretungsplan inside) `"dsblight"`
+* [LegionBoard](https://legionboard.github.io) `"legionboard"`
 
 *WebUntis* is currently not supported. It should theoretically be possible to implement a corresponding parser, but keep in mind that polling its API too often (more than once an hour) is [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
 
