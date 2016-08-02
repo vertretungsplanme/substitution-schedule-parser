@@ -46,13 +46,19 @@ class ParserUtils {
             "dd.MM.yyyy",
             "dd.MM"
     };
+    private static String[] timeFormats = new String[]{
+            " HH:mm",
+            " (HH:mm 'Uhr')"
+    };
 
     static {
-        for (String string : dateFormats) {
-            dateFormatters.add(DateTimeFormat.forPattern(string)
+        for (String date : dateFormats) {
+            dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
-            dateTimeFormatters.add(DateTimeFormat.forPattern(string + " HH:mm")
-                    .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+            for (String time : timeFormats) {
+                dateTimeFormatters.add(DateTimeFormat.forPattern(date + time)
+                        .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+            }
         }
     }
 
