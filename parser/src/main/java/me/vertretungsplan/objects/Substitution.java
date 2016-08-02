@@ -102,7 +102,9 @@ public class Substitution {
     }
 
     /**
-     * Get the lesson which this substitution is for. In most cases, these are numbers like "1" or "5 - 6", but some
+     * Get the lesson which this substitution is for.
+     *
+     * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons.
      *
      * @return the lesson
@@ -113,7 +115,9 @@ public class Substitution {
     }
 
     /**
-     * Set the lesson which this substitution is for. In most cases, these are numbers like "1" or "5 - 6", but some
+     * Set the lesson which this substitution is for. 
+     *
+     * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons. Required.
      *
      * @param lesson the lesson
