@@ -10,36 +10,21 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.credential.Credential;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.credential.Credential;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.HttpResponseException;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Parser for LegionBoard, an open source changes management system for schools.
