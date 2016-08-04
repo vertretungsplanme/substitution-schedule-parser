@@ -3,6 +3,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.7
 
 mainClassName = "me.vertretungsplan.sample.Sample"
+compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     compile project(':parser')
