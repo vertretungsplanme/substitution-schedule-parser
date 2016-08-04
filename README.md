@@ -49,6 +49,10 @@ resulting product is released in executable form or not (e.g. by only being run 
 even though this is only required by the terms of the license in the first case. Submitting Pull requests to
 contribute your changes back to the original project is also welcome.
 
+## Contributors
+I would like to thank the following people for their contributions to this open source project:
+- [Nico Alt](https://github.com/AltNico)
+
 ## Contributing
 When you clone the git repository, you should directly be able to run `./gradlew sample:run` to run the sample application. All dependencies will be downloaded automatically. You can also use IDEs such as IntelliJ IDEA that support the Gradle build system.
 
