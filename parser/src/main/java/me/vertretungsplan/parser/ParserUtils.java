@@ -50,14 +50,18 @@ class ParserUtils {
             " HH:mm",
             " (HH:mm 'Uhr')"
     };
+    private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length];
 
     static {
+        int i = 0;
         for (String date : dateFormats) {
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
             for (String time : timeFormats) {
+                dateTimeFormats[i] = date + time;
                 dateTimeFormatters.add(DateTimeFormat.forPattern(date + time)
                         .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+                i++;
             }
         }
     }
@@ -70,18 +74,18 @@ class ParserUtils {
         for (DateTimeFormatter f : dateTimeFormatters) {
             try {
                 LocalDateTime dt = f.parseLocalDateTime(string);
-                if (dateFormats[i].contains("yyyy")) {
+                if (dateTimeFormats[i].contains("yyyy")) {
                     return dt;
                 } else {
                     Duration currentYearDifference = abs(new Duration(DateTime.now(), dt.toDateTime()));
                     Duration lastYearDifference = abs(new Duration(DateTime.now(), dt.minusYears(1).toDateTime()));
                     Duration nextYearDifference = abs(new Duration(DateTime.now(), dt.plusYears(1).toDateTime()));
                     if (lastYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateFormats[i] + " HH:mm")
+                        return DateTimeFormat.forPattern(dateTimeFormats[i])
                                 .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() - 1)
                                 .parseLocalDateTime(string);
                     } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateFormats[i] + " HH:mm")
+                        return DateTimeFormat.forPattern(dateTimeFormats[i])
                                 .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() + 1)
                                 .parseLocalDateTime(string);
                     } else {
