@@ -12,6 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,7 +101,15 @@ public class UntisMonitorParser extends UntisCommonParser {
         if (url.equals("loginResponse")) {
             html = loginResponse;
         } else {
-            html = httpGet(url, encoding).replace("&nbsp;", "");
+            try {
+                html = httpGet(url, encoding).replace("&nbsp;", "");
+            } catch (HttpResponseException e) {
+                if (docs.size() == 0) {
+                    throw e;
+                } else {
+                    return; // ignore if first page was loaded and redirect didn't work
+                }
+            }
         }
         Document doc = Jsoup.parse(html);
         doc.setBaseUri(url);
@@ -118,8 +127,11 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.text().contains("registriert")) {
                 throw new CredentialInvalidException();
             } else {
-                throw new IOException("Could not find .mon-title, seems like there is no Untis " +
-                        "schedule here");
+                if (docs.size() == 0) {
+                    // ignore if first page was loaded and redirect didn't work
+                    throw new IOException("Could not find .mon-title, seems like there is no Untis " +
+                            "schedule here");
+                }
             }
         } else {
             docs.add(doc);
