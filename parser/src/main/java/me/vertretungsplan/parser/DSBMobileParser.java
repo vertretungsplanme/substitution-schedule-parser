@@ -210,6 +210,8 @@ public class DSBMobileParser extends UntisCommonParser {
                 DaVinciParser.parseDaVinciTable(tables.get(i), day, colorProvider);
                 v.addDay(day);
             }
+        } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
+            return;
         } else {
             throw new IOException("Kein Untis- oder DaVinci-Vertretungsplan?");
         }
