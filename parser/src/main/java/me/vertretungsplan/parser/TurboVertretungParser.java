@@ -76,6 +76,11 @@ public class TurboVertretungParser extends BaseParser {
         String lastChange = doc.select(".Stand").text().replace("Stand: ", "");
         day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss").withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
 
+        if (doc.text().contains("Kein Vertretungsplan")) {
+            v.addDay(day);
+            return;
+        }
+
         if (doc.select(".LehrerFrueher").size() > 0) {
             day.addMessage(doc.select(".LehrerFrueherLabel").text() + "\n" + doc.select(".LehrerFrueher").text());
         }
