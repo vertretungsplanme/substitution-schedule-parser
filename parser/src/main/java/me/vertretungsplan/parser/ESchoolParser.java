@@ -86,14 +86,17 @@ public class ESchoolParser extends BaseParser {
 
         Elements titles = doc.select("center b");
         Elements tables = doc.select("table#DATA");
-        if (titles.size() != tables.size()) throw new IOException("Anzahl Überschriften != Anzahl Tabellen");
 
-        for (int i = 0; i < titles.size(); i++) {
-            SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-            System.out.println(titles.get(i).text());
-            day.setDate(ParserUtils.parseDate(titles.get(i).text()));
-            parseTable(tables.get(i), day);
-            schedule.addDay(day);
+        if (!tables.get(0).text().contains("Keine Daten verfügbar")) {
+            if (titles.size() != tables.size()) throw new IOException("Anzahl Überschriften != Anzahl Tabellen");
+
+            for (int i = 0; i < titles.size(); i++) {
+                SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+                System.out.println(titles.get(i).text());
+                day.setDate(ParserUtils.parseDate(titles.get(i).text()));
+                parseTable(tables.get(i), day);
+                schedule.addDay(day);
+            }
         }
 
         schedule.setClasses(getAllClasses());
