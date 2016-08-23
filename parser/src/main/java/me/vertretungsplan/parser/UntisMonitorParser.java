@@ -56,14 +56,14 @@ public class UntisMonitorParser extends UntisCommonParser {
         }
 
         for (Document doc : docs) {
-            if (doc.title().contains("Untis")) {
-                SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc, scheduleData.getData());
-                v.addDay(day);
-            } else if (scheduleData.getData().has("embeddedContentSelector")) {
+            if (scheduleData.getData().has("embeddedContentSelector")) {
                 for (Element part : doc.select(scheduleData.getData().getString("embeddedContentSelector"))) {
                     SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(part, scheduleData.getData());
                     v.addDay(day);
                 }
+            } else if (doc.title().contains("Untis")) {
+                SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc, scheduleData.getData());
+                v.addDay(day);
             }
             // else Error
 
@@ -134,7 +134,8 @@ public class UntisMonitorParser extends UntisCommonParser {
                 }
             }
         } else {
-            docs.add(doc);
+            findSubDocs(docs, html, doc);
+
             if (following && doc.select("meta[http-equiv=refresh]").size() > 0) {
                 Element meta = doc.select("meta[http-equiv=refresh]").first();
                 String attr = meta.attr("content").toLowerCase();
@@ -143,6 +144,24 @@ public class UntisMonitorParser extends UntisCommonParser {
                     loadUrl(redirectUrl, encoding, true, docs, startUrl, recursionDepth + 1);
                 }
             }
+        }
+    }
+
+    static void findSubDocs(List<Document> docs, String html, Document doc) {
+        // Some schools concatenate multiple HTML files for multiple days
+        Pattern pattern = Pattern.compile("(<html>.*?</html>)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(html);
+        List<String> subHtmls = new ArrayList<>();
+        while (matcher.find()) {
+            subHtmls.add(matcher.group());
+        }
+
+        if (subHtmls.size() > 1) {
+            for (String subHtml : subHtmls) {
+                docs.add(Jsoup.parse(subHtml));
+            }
+        } else {
+            docs.add(doc);
         }
     }
 
