@@ -175,7 +175,9 @@ public class UntisInfoParser extends UntisCommonParser {
 							} else {
 								className = classNameMatcher.group();
 							}
-						}
+                        } else if (data.optBoolean("removeNonMatchingClasses", false)) {
+                            continue;
+                        }
 					}
                     classes.add(className);
                 }
