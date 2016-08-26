@@ -400,10 +400,11 @@ public class Substitution {
     public String toString(SubstitutionSchedule.Type type) {
         switch (type) {
             case STUDENT:
-                return classes.toString() + " " + getType() + " " + getText();
+                return lesson + " " + classes.toString() + " " + getType() + " " + getText();
             case TEACHER:
-                return getTeachers() + " " + getType() + " " + getTeacherText() + " (" + (substitutionFrom != null ?
-                        substitutionFrom : "") + "/" + (teacherTo != null ? teacherTo : "") + ")";
+                return lesson + " " + getTeachers() + " " + getType() + " " + getTeacherText() + " (" +
+                        (substitutionFrom != null ? substitutionFrom : "") + "/" +
+                        (teacherTo != null ? teacherTo : "") + ")";
             default:
                 return null;
         }
