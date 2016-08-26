@@ -35,11 +35,28 @@ public class IndiwareTest {
     }
 
     @Test
-    public void testCancelPattern() {
+    public void testCancelPattern1() {
         Matcher matcher = IndiwareParser.cancelPattern.matcher("FR Wen fällt aus");
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "FR");
         assertEquals(matcher.group(2), "Wen");
+    }
+
+    @Test
+    public void testCancelPattern2() {
+        Matcher matcher = IndiwareParser.cancelPattern.matcher("RE/k-st6 GAE fällt leider aus");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "RE/k-st6");
+        assertEquals(matcher.group(2), "GAE");
+    }
+
+    @Test
+    public void testDelayPattern() {
+        Matcher matcher = IndiwareParser.delayPattern.matcher("INF KNE verlegt nach St.8");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "INF");
+        assertEquals(matcher.group(2), "KNE");
+        assertEquals(matcher.group(3), "verlegt nach St.8");
     }
 
     @Test
@@ -54,5 +71,13 @@ public class IndiwareTest {
         Matcher matcher = IndiwareParser.selfPattern.matcher("selbst., Aufgaben erteilt");
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "Aufgaben erteilt");
+    }
+
+    @Test
+    public void testCoursePattern() {
+        Matcher matcher = IndiwareParser.coursePattern.matcher("07/2/ RE/k-st6");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "07/2");
+        assertEquals(matcher.group(2), "RE/k-st6");
     }
 }

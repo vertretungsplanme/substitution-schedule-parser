@@ -31,7 +31,8 @@ public class IndiwareParser extends BaseParser {
     private JSONObject data;
 
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ([^\\s]+) ?,? ?(.*)");
-    static final Pattern cancelPattern = Pattern.compile("([^\\s]+) ([^\\s]+) fällt aus");
+    static final Pattern cancelPattern = Pattern.compile("([^\\s]+) ([^\\s]+) fällt (:?leider )?aus");
+    static final Pattern delayPattern = Pattern.compile("([^\\s]+) ([^\\s]+) (verlegt nach .*)");
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
 
@@ -123,8 +124,8 @@ public class IndiwareParser extends BaseParser {
                         for (String klasse : value.split(",")) {
                             Matcher courseMatcher = coursePattern.matcher(klasse);
                             if (courseMatcher.matches()) {
-                                classes.add(courseMatcher.group(0));
-                                course = courseMatcher.group(1);
+                                classes.add(courseMatcher.group(1));
+                                course = courseMatcher.group(2);
                             } else {
                                 classes.add(klasse);
                             }
@@ -151,6 +152,7 @@ public class IndiwareParser extends BaseParser {
                     case "info":
                         Matcher substitutionMatcher = substitutionPattern.matcher(value);
                         Matcher cancelMatcher = cancelPattern.matcher(value);
+                        Matcher delayMatcher = delayPattern.matcher(value);
                         Matcher selfMatcher = selfPattern.matcher(value);
                         if (substitutionMatcher.matches()) {
                             substitution.setPreviousSubject(substitutionMatcher.group(1));
@@ -162,6 +164,11 @@ public class IndiwareParser extends BaseParser {
                             type = "Entfall";
                             substitution.setPreviousSubject(cancelMatcher.group(1));
                             substitution.setPreviousTeacher(cancelMatcher.group(2));
+                        } else if (delayMatcher.matches()) {
+                            type = "Verlegung";
+                            substitution.setPreviousSubject(delayMatcher.group(1));
+                            substitution.setPreviousTeacher(delayMatcher.group(2));
+                            substitution.setDesc(delayMatcher.group(3));
                         } else if (selfMatcher.matches()) {
                             type = "selbst.";
                             if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));

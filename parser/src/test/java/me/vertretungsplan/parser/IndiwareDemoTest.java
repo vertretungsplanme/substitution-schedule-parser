@@ -23,7 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class IndiwareDemoTest extends BaseDemoTest {
-    IndiwareParser parser;
+    private IndiwareParser parser;
     private String xml;
 
     @Before
