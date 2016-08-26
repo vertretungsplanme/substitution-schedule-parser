@@ -23,10 +23,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,10 +74,12 @@ public class IndiwareParser extends BaseParser {
         Element kopf = vp.select("kopf").first();
 
         String date = kopf.select("titel").text().replaceAll("\\(\\w-Woche\\)", "").trim();
-        day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy").parseLocalDate(date));
+        day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
+                .withLocale(Locale.GERMAN).parseLocalDate(date));
 
         String lastChange = kopf.select("datum").text();
-        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm").parseLocalDateTime(lastChange));
+        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
+                .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
 
         if (kopf.select("kopfinfo").size() > 0) {
             for (Element kopfinfo : kopf.select("kopfinfo").first().children()) {
