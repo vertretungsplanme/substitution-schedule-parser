@@ -196,7 +196,7 @@ public class LegionBoardParser extends BaseParser {
 		final Substitution substitution = new Substitution();
 		// Set class
 		final String classId = change.getString("course");
-		if (!classId.equals("0") && !change.isNull("course")) {
+		if (!classId.equals("0")) {
 			if (coursesHashMap == null) {
 				throw new IOException("Change references a course but courses are empty.");
 			}
