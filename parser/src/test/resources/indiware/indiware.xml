@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="vplank.xsl"?>
+<vp>
+    <kopf>
+        <titel>Montag, 22. August 2016 (A-Woche)</titel>
+        <schulname>Testschule Test</schulname>
+        <datum>19.08.2016, 12:50</datum>
+        <kopfinfo>
+            <aenderungk>bla</aenderungk>
+        </kopfinfo>
+    </kopf>
+    <fuss>
+        <fusszeile>
+            <fussinfo>Erste Zeile.</fussinfo>
+        </fusszeile>
+        <fusszeile>
+            <fussinfo>Zweite Zeile</fussinfo>
+        </fusszeile>
+    </fuss>
+    <haupt>
+        <aktion>
+            <klasse>5/1,5b</klasse>
+            <stunde>3</stunde>
+            <fach>Bio</fach>
+            <lehrer>Sch</lehrer>
+            <raum>1234</raum>
+            <info>für Mat Mül</info>
+        </aktion>
+    </haupt>
+</vp>
