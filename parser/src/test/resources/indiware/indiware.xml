@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
+ï»¿<?xml version="1.0" encoding="iso-8859-1" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="vplank.xsl"?>
 <vp>
     <kopf>
@@ -24,7 +24,7 @@
             <fach>Bio</fach>
             <lehrer>Sch</lehrer>
             <raum>1234</raum>
-            <info>für Mat Mül</info>
+            <info>fÃ¼r Mat MÃ¼l</info>
         </aktion>
     </haupt>
 </vp>
