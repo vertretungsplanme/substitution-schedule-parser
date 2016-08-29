@@ -147,15 +147,10 @@ public class LegionBoardParser extends BaseParser {
 			}
 		}
 		// Add changes to SubstitutionSchedule
-		LocalDate currentDate = null;
+		LocalDate currentDate = LocalDate.now();
 		SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+		substitutionScheduleDay.setDate(currentDate);
 		for (int i = 0; i < changes.length(); i++) {
-			if (currentDate == null) {
-				// Set date for the first time
-				currentDate = LocalDate.now();
-				substitutionScheduleDay = new SubstitutionScheduleDay();
-				substitutionScheduleDay.setDate(currentDate);
-			}
 			final JSONObject change = changes.getJSONObject(i);
 			final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 			final LocalDate startingDate = new LocalDate(change.getString("startingDate"));
