@@ -157,8 +157,7 @@ public class LegionBoardParser extends BaseParser {
 			final LocalDate endingDate = new LocalDate(change.getString("endingDate"));
 			// Handle multi-day changes
 			if (!startingDate.isEqual(endingDate)) {
-				// If SubstitutionScheduleDay is not empty
-				if (substitutionScheduleDay.getSubstitutions() != null) {
+				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
 				for (int k = 0; k < 7; k++) {
@@ -175,8 +174,7 @@ public class LegionBoardParser extends BaseParser {
 			}
 			// If starting date of change does not equal date of SubstitutionScheduleDay
 			if (!startingDate.isEqual(currentDate)) {
-				// If SubstitutionScheduleDay is not empty
-				if (substitutionScheduleDay.getSubstitutions() != null) {
+				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
 				substitutionScheduleDay = new SubstitutionScheduleDay();
