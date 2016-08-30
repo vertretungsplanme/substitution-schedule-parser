@@ -265,7 +265,9 @@ public class LegionBoardParser extends BaseParser {
 		}
 		for (int i = 0; i < courses.length(); i++) {
 			final JSONObject course = courses.getJSONObject(i);
-			classes.add(course.getString("name"));
+			if (!course.getBoolean("archived")) {
+				classes.add(course.getString("name"));
+			}
 		}
 		Collections.sort(classes);
 		return classes;
@@ -280,7 +282,9 @@ public class LegionBoardParser extends BaseParser {
 		}
 		for (int i = 0; i < jsonTeachers.length(); i++) {
 			final JSONObject teacher = jsonTeachers.getJSONObject(i);
-			teachers.add(teacher.getString("name"));
+			if (!teacher.getBoolean("archived")) {
+				teachers.add(teacher.getString("name"));
+			}
 		}
 		Collections.sort(teachers);
 		return teachers;
