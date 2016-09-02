@@ -124,8 +124,9 @@ public class LegionBoardParser extends BaseParser {
 		}
 	}
 
-	private void parseLegionBoard(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray courses, JSONArray teachers) throws IOException, JSONException {
-		if (changes == null) {
+    void parseLegionBoard(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray courses,
+                          JSONArray teachers) throws IOException, JSONException {
+        if (changes == null) {
 			return;
 		}
 		// Link course IDs to their names
