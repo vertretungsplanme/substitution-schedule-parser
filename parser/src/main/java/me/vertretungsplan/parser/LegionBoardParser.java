@@ -169,7 +169,8 @@ public class LegionBoardParser extends BaseParser {
 						substitutionScheduleDay.setDate(date);
 						substitutionScheduleDay.addSubstitution(substitution);
 						substitutionSchedule.addDay(substitutionScheduleDay);
-					}
+                        currentDate = date;
+                    }
 				}
 				continue;
 			}
@@ -180,7 +181,8 @@ public class LegionBoardParser extends BaseParser {
 				}
 				substitutionScheduleDay = new SubstitutionScheduleDay();
 				substitutionScheduleDay.setDate(startingDate);
-			}
+                currentDate = startingDate;
+            }
 			substitutionScheduleDay.addSubstitution(substitution);
 		}
 		substitutionSchedule.addDay(substitutionScheduleDay);
