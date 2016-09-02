@@ -148,23 +148,17 @@ public class LegionBoardParser extends BaseParser {
 			}
 		}
 		// Add changes to SubstitutionSchedule
-		LocalDate currentDate = null;
+		LocalDate currentDate = LocalDate.now();
 		SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+		substitutionScheduleDay.setDate(currentDate);
 		for (int i = 0; i < changes.length(); i++) {
-			if (currentDate == null) {
-				// Set date for the first time
-				currentDate = LocalDate.now();
-				substitutionScheduleDay = new SubstitutionScheduleDay();
-				substitutionScheduleDay.setDate(currentDate);
-			}
 			final JSONObject change = changes.getJSONObject(i);
 			final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 			final LocalDate startingDate = new LocalDate(change.getString("startingDate"));
 			final LocalDate endingDate = new LocalDate(change.getString("endingDate"));
 			// Handle multi-day changes
 			if (!startingDate.isEqual(endingDate)) {
-				// If SubstitutionScheduleDay is not empty
-				if (substitutionScheduleDay.getSubstitutions() != null) {
+				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
 				for (int k = 0; k < 7; k++) {
@@ -181,8 +175,7 @@ public class LegionBoardParser extends BaseParser {
 			}
 			// If starting date of change does not equal date of SubstitutionScheduleDay
 			if (!startingDate.isEqual(currentDate)) {
-				// If SubstitutionScheduleDay is not empty
-				if (substitutionScheduleDay.getSubstitutions() != null) {
+				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
 				substitutionScheduleDay = new SubstitutionScheduleDay();
@@ -273,7 +266,9 @@ public class LegionBoardParser extends BaseParser {
 		}
 		for (int i = 0; i < courses.length(); i++) {
 			final JSONObject course = courses.getJSONObject(i);
-			classes.add(course.getString("name"));
+			if (!course.getBoolean("archived")) {
+				classes.add(course.getString("name"));
+			}
 		}
 		Collections.sort(classes);
 		return classes;
@@ -288,7 +283,9 @@ public class LegionBoardParser extends BaseParser {
 		}
 		for (int i = 0; i < jsonTeachers.length(); i++) {
 			final JSONObject teacher = jsonTeachers.getJSONObject(i);
-			teachers.add(teacher.getString("name"));
+			if (!teacher.getBoolean("archived")) {
+				teachers.add(teacher.getString("name"));
+			}
 		}
 		Collections.sort(teachers);
 		return teachers;
