@@ -20,17 +20,27 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class DaVinciDemoTest extends BaseDemoTest {
-    private String html;
+    private static final String EXAMPLE_URL = "http://example.com";
+
+    private String htmlSingle;
+    private String htmlDayIndex;
+    private String htmlMonth;
+    private String htmlClasses;
+
     private DaVinciParser parser;
 
     @Before
     public void setUp() throws JSONException {
-        html = readResource("/davinci/davinci.html");
+        htmlSingle = readResource("/davinci/single.html");
+        htmlDayIndex = readResource("/davinci/dayIndex.html");
+        htmlMonth = readResource("/davinci/month.html");
+        htmlClasses = readResource("/davinci/classes.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new DaVinciParser(scheduleData, null);
@@ -38,7 +48,7 @@ public class DaVinciDemoTest extends BaseDemoTest {
 
     @Test
     public void demoTest() throws IOException, JSONException {
-        SubstitutionScheduleDay day = parser.parseDay(Jsoup.parse(html));
+        SubstitutionScheduleDay day = parser.parseDay(Jsoup.parse(htmlSingle));
         assertEquals(new LocalDate(2016, 9, 5), day.getDate());
         assertEquals(new LocalDateTime(2016, 9, 2, 13, 32), day.getLastChange());
         assertEquals(23, day.getSubstitutions().size());
@@ -56,5 +66,37 @@ public class DaVinciDemoTest extends BaseDemoTest {
         }
     }
 
+    @Test
+    public void testSingle() throws IOException {
+        List<String> urls = DaVinciParser.getDayUrls(EXAMPLE_URL, Jsoup.parse(htmlSingle));
+        assertEquals(1, urls.size());
+        assertEquals(EXAMPLE_URL, urls.get(0));
+    }
 
+    @Test
+    public void testDayIndex() throws IOException {
+        List<String> urls = DaVinciParser.getDayUrls(EXAMPLE_URL, Jsoup.parse(htmlDayIndex));
+        assertEquals(7, urls.size());
+        for (int i = 0; i < urls.size(); i++) {
+            assertEquals(EXAMPLE_URL + "/V_DC_00" + String.valueOf(i + 1) + ".html", urls.get(i));
+        }
+    }
+
+    @Test
+    public void testMonth() throws IOException {
+        List<String> urls = DaVinciParser.getDayUrls(EXAMPLE_URL, Jsoup.parse(htmlMonth));
+        assertEquals(1, urls.size());
+        assertEquals(EXAMPLE_URL + "/V_DC_001.html", urls.get(0));
+    }
+
+    @Test
+    public void testClasses() throws IOException {
+        List<String> urls = DaVinciParser.getDayUrls(EXAMPLE_URL, Jsoup.parse(htmlClasses));
+        assertEquals(5, urls.size());
+        assertEquals(EXAMPLE_URL + "/V_CL_58575B54-F93E-4A92-B10A-B3BF19A08F69.html", urls.get(0));
+        assertEquals(EXAMPLE_URL + "/V_CL_261DEB89-5010-44D1-90C3-1EE56337146E.html", urls.get(1));
+        assertEquals(EXAMPLE_URL + "/V_CL_09331E7C-4830-4B3F-B1F3-9F76A5735685.html", urls.get(2));
+        assertEquals(EXAMPLE_URL + "/V_CL_96110190-1050-41A6-AD43-C5F97CC664E9.html", urls.get(3));
+        assertEquals(EXAMPLE_URL + "/V_CL_FAA7DDCA-574B-4A1F-BEA8-A13CF1BC2C7C.html", urls.get(4));
+    }
 }

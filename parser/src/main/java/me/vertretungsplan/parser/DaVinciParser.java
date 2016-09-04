@@ -154,36 +154,15 @@ public class DaVinciParser extends BaseParser {
 
         String url = scheduleData.getData().getString("url");
         Document doc = Jsoup.parse(httpGet(url, ENCODING));
-
-        if (doc.select("ul.classes").size() > 0) {
-            // List of classes
-            Elements classes = doc.select("ul.classes li a");
-            for (Element klasse : classes) {
-                String classUrl = new URL(new URL(url), klasse.attr("href")).toString();
-                Document classDoc = Jsoup.parse(httpGet(classUrl, ENCODING));
-                schedule.addDay(parseDay(classDoc));
+        List<String> dayUrls = getDayUrls(url, doc);
+        for (String dayUrl : dayUrls) {
+            Document dayDoc;
+            if (dayUrl.equals(url)) {
+                dayDoc = doc;
+            } else {
+                dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
             }
-        } else if (doc.select("ul.month").size() > 0) {
-            // List of days in calendar view
-            Elements days = doc.select("ul.month li input[onclick]");
-            for (Element day : days) {
-                String urlFromOnclick = urlFromOnclick(day.attr("onclick"));
-                if (urlFromOnclick == null) continue;
-                String dayUrl = new URL(new URL(url), urlFromOnclick).toString();
-                Document dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
-                schedule.addDay(parseDay(dayDoc));
-            }
-        } else if (doc.select("ul.day-index").size() > 0) {
-            // List of days in list view
-            Elements days = doc.select("ul.day-index li a");
-            for (Element day : days) {
-                String dayUrl = new URL(new URL(url), day.attr("href")).toString();
-                Document dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
-                schedule.addDay(parseDay(dayDoc));
-            }
-        } else {
-            // Single day
-            schedule.addDay(parseDay(doc));
+            schedule.addDay(parseDay(dayDoc));
         }
 
         schedule.setWebsite(url);
@@ -193,7 +172,38 @@ public class DaVinciParser extends BaseParser {
         return schedule;
     }
 
-    private String urlFromOnclick(String onclick) {
+    @NotNull
+    static List<String> getDayUrls(String url, Document doc)
+            throws IOException {
+        List<String> dayUrls = new ArrayList<>();
+        if (doc.select("ul.classes").size() > 0) {
+            // List of classes
+            Elements classes = doc.select("ul.classes li a");
+            for (Element klasse : classes) {
+                dayUrls.add(new URL(new URL(url), klasse.attr("href")).toString());
+            }
+        } else if (doc.select("ul.month").size() > 0) {
+            // List of days in calendar view
+            Elements days = doc.select("ul.month li input[onclick]");
+            for (Element day : days) {
+                String urlFromOnclick = urlFromOnclick(day.attr("onclick"));
+                if (urlFromOnclick == null) continue;
+                dayUrls.add(new URL(new URL(url), urlFromOnclick).toString());
+            }
+        } else if (doc.select("ul.day-index").size() > 0) {
+            // List of days in list view
+            Elements days = doc.select("ul.day-index li a");
+            for (Element day : days) {
+                dayUrls.add(new URL(new URL(url), day.attr("href")).toString());
+            }
+        } else {
+            // Single day
+            dayUrls.add(url);
+        }
+        return dayUrls;
+    }
+
+    private static String urlFromOnclick(String onclick) {
         Pattern pattern = Pattern.compile("window\\.location\\.href='([^']+)'");
         Matcher matcher = pattern.matcher(onclick);
         if (matcher.find()) {
