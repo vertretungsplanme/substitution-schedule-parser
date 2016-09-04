@@ -1,6 +1,3 @@
-apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'jacoco'
-
 allprojects {
     repositories {
         jcenter()

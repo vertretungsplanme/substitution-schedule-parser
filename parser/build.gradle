@@ -3,6 +3,7 @@ version '1.0.0-beta29'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
 
 sourceCompatibility = 1.7
 compileJava.options.encoding = 'UTF-8'
