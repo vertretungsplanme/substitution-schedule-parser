@@ -35,11 +35,12 @@ public class DaVinciParser extends BaseParser {
         super(scheduleData, cookieProvider);
     }
 
-    public static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, ColorProvider colorProvider) {
+    static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, ColorProvider colorProvider) {
         parseDaVinciTable(table, day, null, colorProvider);
     }
 
-    public static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, String klasse, ColorProvider colorProvider) {
+    static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, String klasse,
+                                  ColorProvider colorProvider) {
         List<String> headers = new ArrayList<>();
         for (Element header : table.select("thead tr th, tr td[bgcolor=#9999FF]")) {
             headers.add(header.text());
@@ -203,7 +204,7 @@ public class DaVinciParser extends BaseParser {
     }
 
     @NotNull
-    private SubstitutionScheduleDay parseDay(Document doc) throws IOException {
+    SubstitutionScheduleDay parseDay(Document doc) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         String title = doc.select("h1.list-table-caption").first().text();

@@ -10,6 +10,9 @@ package me.vertretungsplan.parser;
 
 import java.io.*;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 public class BaseDemoTest {
     /**
      * Reads content from an InputStream into a string
@@ -50,5 +53,14 @@ public class BaseDemoTest {
             e.printStackTrace();
             return null;
         }
+    }
+
+    protected static void assertNullOrNotEmpty(String value) {
+        if (value != null) assertTrue(!value.isEmpty());
+    }
+
+    protected static void assertNotEmpty(String value) {
+        assertNotNull(value);
+        assertTrue(!value.isEmpty());
     }
 }
