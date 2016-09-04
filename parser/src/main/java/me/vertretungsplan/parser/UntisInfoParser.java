@@ -9,7 +9,6 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
@@ -24,9 +23,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -147,17 +144,7 @@ public class UntisInfoParser extends UntisCommonParser {
 			} else {
 				next = dayElem.parent().select("p").first().nextElementSibling();
 			}
-			parseDay(day, next, v);
-            if (klasse != null) {
-                for (Substitution subst : day.getSubstitutions()) {
-                    if (subst.getClasses().size() == 0 || subst.getClasses().size() == 1 && subst.getClasses()
-                            .iterator().next().equals("")) {
-                        Set<String> classes = new HashSet<>();
-                        classes.add(klasse);
-                        subst.setClasses(classes);
-                    }
-                }
-            }
+            parseDay(day, next, v, klasse);
         }
 	}
 

@@ -66,7 +66,7 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
 			} else {
 				next = dayElem.parent().select("p").first().nextElementSibling();
 			}
-			parseDay(day, next, v);
+			parseDay(day, next, v, null);
 		}
 		v.setClasses(getAllClasses());
 		v.setTeachers(getAllTeachers());

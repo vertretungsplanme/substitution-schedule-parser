@@ -85,6 +85,21 @@ public abstract class UntisCommonParser extends BaseParser {
 		return a == null || b == null || a.equals(b);
 	}
 
+    /**
+     * Parst eine Vertretungstabelle eines Untis-Vertretungsplans
+     *
+     * @param table das <code>table</code>-Element des HTML-Dokuments, das geparst
+     *              werden soll
+     * @param data  Daten von der Schule (aus <code>Schule.getData()</code>)
+     * @param day   der {@link SubstitutionScheduleDay} in dem die Vertretungen
+     *              gespeichert werden sollen
+     * @throws JSONException
+     */
+    protected void parseVertretungsplanTable(Element table, JSONObject data,
+                                             SubstitutionScheduleDay day) throws JSONException {
+        parseVertretungsplanTable(table, data, day, null);
+    }
+
 	/**
 	 * Parst eine Vertretungstabelle eines Untis-Vertretungsplans
 	 *
@@ -96,11 +111,13 @@ public abstract class UntisCommonParser extends BaseParser {
 	 * @param day
 	 *            der {@link SubstitutionScheduleDay} in dem die Vertretungen
 	 *            gespeichert werden sollen
-	 * @throws JSONException
-	 */
-	protected void parseVertretungsplanTable(Element table, JSONObject data,
-											 SubstitutionScheduleDay day) throws JSONException {
-		if (data.optBoolean("class_in_extra_line")) {
+     * @param defaultKlasse
+	 * 			  die Klasse, die gesetzt werden soll, wenn aus der Tabelle keine Klasse gelesen werden kann
+     * @throws JSONException
+     */
+    protected void parseVertretungsplanTable(Element table, JSONObject data,
+                                             SubstitutionScheduleDay day, String defaultKlasse) throws JSONException {
+        if (data.optBoolean("class_in_extra_line")) {
 			for (Element element : table.select("td.inline_header")) {
 				String className = getClassName(element.text(), data);
 				if (isValidClass(className)) {
@@ -247,9 +264,9 @@ public abstract class UntisCommonParser extends BaseParser {
 				}
 
 				Substitution v = new Substitution();
-				String klassen = "";
-				int i = 0;
-				for (Element spalte : zeile.select("td")) {
+                String klassen = defaultKlasse != null ? defaultKlasse : "";
+                int i = 0;
+                for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
 					if (isEmpty(text)) {
 						i++;
@@ -526,19 +543,20 @@ public abstract class UntisCommonParser extends BaseParser {
 		return getClassesFromJson();
 	}
 
-	protected void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v) throws JSONException {
-		if (next.className().equals("subst")) {
-			//Vertretungstabelle
+	protected void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
+            JSONException {
+        if (next.className().equals("subst")) {
+            //Vertretungstabelle
 			if (next.text().contains("Vertretungen sind nicht freigegeben")) {
 				return;
 			}
-			parseVertretungsplanTable(next, scheduleData.getData(), day);
-		} else {
-			//Nachrichten
-			parseMessages(next, day);
+            parseVertretungsplanTable(next, scheduleData.getData(), day, klasse);
+        } else {
+            //Nachrichten
+            parseMessages(next, day);
 			next = next.nextElementSibling().nextElementSibling();
-			parseVertretungsplanTable(next, scheduleData.getData(), day);
-		}
-		v.addDay(day);
-	}
+            parseVertretungsplanTable(next, scheduleData.getData(), day, klasse);
+        }
+        v.addDay(day);
+    }
 }
