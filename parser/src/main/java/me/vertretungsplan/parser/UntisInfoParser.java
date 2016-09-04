@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
@@ -23,7 +24,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,8 +99,8 @@ public class UntisInfoParser extends UntisCommonParser {
 
 					try {
 						Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
-						parseDays(v, lastChange, doc);
-					} catch (HttpResponseException e) {
+                        parseDays(v, lastChange, doc, klasse);
+                    } catch (HttpResponseException e) {
 						if (e.getStatusCode() == 500) {
 							// occurs in Hannover_MMBS
 							classNumber ++;
@@ -116,8 +119,8 @@ public class UntisInfoParser extends UntisCommonParser {
                 else
                     url = baseUrl + "/" + letter + "/" + week + "/" + letter + "00000.htm";
 				Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
-				parseDays(v, lastChange, doc);
-			}
+                parseDays(v, lastChange, doc, null);
+            }
 		}
 		v.setClasses(getAllClasses());
 		v.setTeachers(getAllTeachers());
@@ -125,8 +128,9 @@ public class UntisInfoParser extends UntisCommonParser {
 		return v;
 	}
 
-	private void parseDays(SubstitutionSchedule v, String lastChange, Document doc) throws JSONException {
-		Elements days = doc.select("#vertretung > p > b, #vertretung > b");
+    private void parseDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
+            throws JSONException {
+        Elements days = doc.select("#vertretung > p > b, #vertretung > b");
 		for (Element dayElem : days) {
 			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
@@ -144,7 +148,17 @@ public class UntisInfoParser extends UntisCommonParser {
 				next = dayElem.parent().select("p").first().nextElementSibling();
 			}
 			parseDay(day, next, v);
-		}
+            if (klasse != null) {
+                for (Substitution subst : day.getSubstitutions()) {
+                    if (subst.getClasses().size() == 0 || subst.getClasses().size() == 1 && subst.getClasses()
+                            .iterator().next().equals("")) {
+                        Set<String> classes = new HashSet<>();
+                        classes.add(klasse);
+                        subst.setClasses(classes);
+                    }
+                }
+            }
+        }
 	}
 
 	@Override
