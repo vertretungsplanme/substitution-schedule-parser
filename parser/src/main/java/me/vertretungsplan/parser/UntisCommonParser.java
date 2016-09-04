@@ -433,7 +433,7 @@ public abstract class UntisCommonParser extends BaseParser {
 		if (cell.select("s").size() > 0) {
 			subst.setPreviousTeacher(cell.select("s").text());
 			if (cell.ownText().length() > 0) {
-				subst.setTeacher(cell.ownText().replaceFirst("^\\?", ""));
+				subst.setTeacher(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
 			}
 		} else {
 			subst.setTeacher(cell.text());
@@ -444,7 +444,7 @@ public abstract class UntisCommonParser extends BaseParser {
 		if (cell.select("s").size() > 0) {
 			subst.setPreviousRoom(cell.select("s").text());
 			if (cell.ownText().length() > 0) {
-				subst.setRoom(cell.ownText().replaceFirst("^\\?", ""));
+				subst.setRoom(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
 			}
 		} else {
 			subst.setRoom(cell.text());
@@ -455,7 +455,7 @@ public abstract class UntisCommonParser extends BaseParser {
 		if (cell.select("s").size() > 0) {
 			subst.setPreviousSubject(cell.select("s").text());
 			if (cell.ownText().length() > 0) {
-				subst.setSubject(cell.ownText().replaceFirst("^\\?", ""));
+				subst.setSubject(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
 			}
 		} else {
 			subst.setSubject(cell.text());
