@@ -14,6 +14,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.client.fluent.Request;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +43,11 @@ public class CSVParser extends BaseParser {
         String url = data.getString("url");
         String response = executor.execute(Request.Get(url)).returnContent().asString();
 
+        return parseCSV(response);
+    }
+
+    @NotNull
+    SubstitutionSchedule parseCSV(String response) throws JSONException, IOException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
         String[] lines = response.split("\n");
