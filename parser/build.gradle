@@ -2,6 +2,7 @@ group 'me.vertretungsplan'
 version '1.0.0-beta29'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.7
 compileJava.options.encoding = 'UTF-8'
@@ -25,6 +26,18 @@ task javadoc(overwrite: true, type: Javadoc) {
     }
     options.encoding = 'UTF-8'
     classpath = sourceSets.main.output + sourceSets.main.compileClasspath
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['com/paour/comparator/**', 'name/fraser/neil/plaintext/**'])
+        })
+    }
 }
 
 ext {
