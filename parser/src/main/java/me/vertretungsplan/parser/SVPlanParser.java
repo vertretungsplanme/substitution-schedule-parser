@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,12 +49,18 @@ public class SVPlanParser extends BaseParser {
         String encoding = data.getString("encoding");
         List<Document> docs = new ArrayList<>();
 
-        SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
-
         for (int i = 0; i < urls.length(); i++) {
             JSONObject url = urls.getJSONObject(i);
             loadUrl(url.getString("url"), encoding, docs);
         }
+
+        SubstitutionSchedule v = parseSVPlanSchedule(docs);
+        return v;
+    }
+
+    @NotNull
+    SubstitutionSchedule parseSVPlanSchedule(List<Document> docs) throws IOException, JSONException {
+        SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         for (Document doc : docs) {
             if (doc.select(".svp").size() > 0) {
@@ -67,7 +74,6 @@ public class SVPlanParser extends BaseParser {
 
         v.setClasses(getAllClasses());
         v.setTeachers(getAllTeachers());
-
         return v;
     }
 
