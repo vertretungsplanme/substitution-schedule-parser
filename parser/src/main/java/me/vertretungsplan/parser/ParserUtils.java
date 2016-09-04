@@ -46,11 +46,15 @@ class ParserUtils {
             "dd.MM.yyyy",
             "dd.MM"
     };
-    private static String[] timeFormats = new String[]{
-            " HH:mm",
-            " (HH:mm 'Uhr')"
+    private static String[] separators = new String[]{
+            " ",
+            ", "
     };
-    private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length];
+    private static String[] timeFormats = new String[]{
+            "HH:mm",
+            "(HH:mm 'Uhr')"
+    };
+    private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
     static {
         int i = 0;
@@ -58,10 +62,12 @@ class ParserUtils {
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
             for (String time : timeFormats) {
-                dateTimeFormats[i] = date + time;
-                dateTimeFormatters.add(DateTimeFormat.forPattern(date + time)
-                        .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
-                i++;
+                for (String separator : separators) {
+                    dateTimeFormats[i] = date + separator + time;
+                    dateTimeFormatters.add(DateTimeFormat.forPattern(dateTimeFormats[i])
+                            .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+                    i++;
+                }
             }
         }
     }
