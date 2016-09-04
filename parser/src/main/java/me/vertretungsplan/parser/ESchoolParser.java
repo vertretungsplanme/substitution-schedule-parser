@@ -100,7 +100,6 @@ public class ESchoolParser extends BaseParser {
 
             for (int i = 0; i < titles.size(); i++) {
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-                System.out.println(titles.get(i).text());
                 day.setDate(ParserUtils.parseDate(titles.get(i).text()));
                 parseTable(tables.get(i), day);
                 schedule.addDay(day);
