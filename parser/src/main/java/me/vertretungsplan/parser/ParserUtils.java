@@ -48,10 +48,12 @@ class ParserUtils {
     };
     private static String[] separators = new String[]{
             " ",
-            ", "
+            ", ",
+            " 'um' "
     };
     private static String[] timeFormats = new String[]{
             "HH:mm",
+            "HH:mm 'Uhr'",
             "(HH:mm 'Uhr')"
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
