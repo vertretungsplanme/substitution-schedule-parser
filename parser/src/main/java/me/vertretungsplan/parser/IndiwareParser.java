@@ -35,6 +35,7 @@ public class IndiwareParser extends BaseParser {
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) ([^\\s]+) (verlegt nach .*)");
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
+    static final Pattern bracesPattern = Pattern.compile("^\\((.*)\\)$");
 
     public IndiwareParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -144,6 +145,8 @@ public class IndiwareParser extends BaseParser {
                         substitution.setSubject(subject.toString());
                         break;
                     case "lehrer":
+                        Matcher bracesMatcher = bracesPattern.matcher(value);
+                        if (bracesMatcher.matches()) value = bracesMatcher.group(1);
                         substitution.setTeacher(value);
                         break;
                     case "raum":

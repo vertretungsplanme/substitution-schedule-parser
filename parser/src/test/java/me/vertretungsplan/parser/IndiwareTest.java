@@ -80,4 +80,11 @@ public class IndiwareTest {
         assertEquals(matcher.group(1), "07/2");
         assertEquals(matcher.group(2), "RE/k-st6");
     }
+
+    @Test
+    public void testBracesPattern() {
+        Matcher matcher = IndiwareParser.bracesPattern.matcher("(Fdr)");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "Fdr");
+    }
 }
