@@ -18,6 +18,7 @@ import me.vertretungsplan.objects.credential.PasswordCredential;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
@@ -51,8 +52,6 @@ public class ESchoolParser extends BaseParser {
             throw new IOException("no login");
         }
 
-        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("wp", scheduleData.getData().getString("id")));
         nvps.add(new BasicNameValuePair("go", "vplan"));
@@ -74,6 +73,15 @@ public class ESchoolParser extends BaseParser {
                 throw new CredentialInvalidException();
             }
         }
+
+        SubstitutionSchedule schedule = parseESchoolSchedule(doc);
+
+        return schedule;
+    }
+
+    @NotNull
+    SubstitutionSchedule parseESchoolSchedule(Document doc) throws IOException, JSONException {
+        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
         String infoString = doc.select("#Content table").first().select("td").get(1).ownText();
         Pattern pattern = Pattern.compile("Letzte Aktualisierung:\u00a0(\\d{2}.\\d{2}.\\d{4} - \\d{2}:\\d{2})");
@@ -101,7 +109,6 @@ public class ESchoolParser extends BaseParser {
 
         schedule.setClasses(getAllClasses());
         schedule.setTeachers(getAllTeachers());
-
         return schedule;
     }
 
