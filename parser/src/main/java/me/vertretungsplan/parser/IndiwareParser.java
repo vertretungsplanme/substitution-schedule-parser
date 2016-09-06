@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 public class IndiwareParser extends BaseParser {
     protected JSONObject data;
 
-    static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ([^\\s]+) ?,? ?(.*)");
-    static final Pattern cancelPattern = Pattern.compile("([^\\s]+) ([^\\s]+) fällt (:?leider )?aus");
-    static final Pattern delayPattern = Pattern.compile("([^\\s]+) ([^\\s]+) (verlegt nach .*)");
+    static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
+    static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
+    static final Pattern delayPattern = Pattern.compile("([^\\s]+) (.+) (verlegt nach .*)");
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
     static final Pattern bracesPattern = Pattern.compile("^\\((.*)\\)$");

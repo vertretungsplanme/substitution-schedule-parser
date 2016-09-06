@@ -27,10 +27,10 @@ public class IndiwareTest {
 
     @Test
     public void testSubstitutionPatternWithDesc() {
-        Matcher matcher = IndiwareParser.substitutionPattern.matcher("für ETH Röh , Aufgaben Frau Röhling");
+        Matcher matcher = IndiwareParser.substitutionPattern.matcher("für ETH Frau Röhling , Aufgaben Frau Röhling");
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "ETH");
-        assertEquals(matcher.group(2), "Röh");
+        assertEquals(matcher.group(2), "Frau Röhling");
         assertEquals(matcher.group(3), "Aufgaben Frau Röhling");
     }
 
