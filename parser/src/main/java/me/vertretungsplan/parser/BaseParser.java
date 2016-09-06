@@ -138,6 +138,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "indiware":
                 parser = new IndiwareParser(data, cookieProvider);
                 break;
+            case "stundenplan24":
+                parser = new IndiwareStundenplan24Parser(data, cookieProvider);
+                break;
         }
         return parser;
     }

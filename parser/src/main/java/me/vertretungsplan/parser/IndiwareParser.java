@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IndiwareParser extends BaseParser {
-    private JSONObject data;
+    protected JSONObject data;
 
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ([^\\s]+) ?,? ?(.*)");
     static final Pattern cancelPattern = Pattern.compile("([^\\s]+) ([^\\s]+) fällt (:?leider )?aus");
