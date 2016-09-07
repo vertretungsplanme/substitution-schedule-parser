@@ -29,10 +29,42 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Generic parser for Untis substitution schedules served by
+ * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>light. It seems that the "light" version of DSB is
+ * discontinued, many schools are currently switching to the newer DSBmobile (which can be parsed with
+ * {@link DSBMobileParser}.
+ * <p>
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ * <p>
+ * <dl>
+ * <dt><code>id</code> (String, required)</dt>
+ * <dd>The ID of the DSBlight instance. This is a
+ * <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> and can be found in the URL
+ * (<code>Player.aspx?ID=...</code>)</dd>
+ * <p>
+ * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * <p>
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the Untis schedule. DSBlight itself always uses UTF-8, but the hosted HTML schedule can
+ * also be ISO-8859-1.</dd>
+ * <p>
+ * <dt><code>login</code> (Boolean, optional)</dt>
+ * <dd>Whether this DSBlight instance requires login using a username and a password. Default: <code>false</code></dd>
+ * </dl>
+ * <p>
+ * Additionally, this parser supports the parameters specified in {@link UntisCommonParser}.
+ */
 public class DSBLightParser extends UntisCommonParser {
 
     private static final String BASE_URL = "https://light.dsbcontrol.de/DSBlightWebsite/Homepage/";
     private static final String ENCODING = "UTF-8";
+    private static final String PARAM_ID = "id";
+    private static final String PARAM_LOGIN = "login";
+    private static final String PARAM_CLASSES = "classes";
+    private static final String PARAM_ENCODING = "encoding";
 
     private JSONObject data;
 
@@ -45,7 +77,7 @@ public class DSBLightParser extends UntisCommonParser {
     @Override
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException,
             JSONException, CredentialInvalidException {
-        String id = data.getString("id");
+        String id = data.getString(PARAM_ID);
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         Map<String, String> referer = new HashMap<>();
@@ -60,7 +92,7 @@ public class DSBLightParser extends UntisCommonParser {
 
         doc = Jsoup.parse(response);
 
-        if (data.has("login") && data.getBoolean("login")) {
+        if (data.has(PARAM_LOGIN) && data.getBoolean(PARAM_LOGIN)) {
             if (!(credential instanceof UserPasswordCredential)) {
                 throw new IllegalArgumentException("no login");
             }
@@ -129,7 +161,7 @@ public class DSBLightParser extends UntisCommonParser {
 
     private void parseDay(String url, Map<String, String> referer, SubstitutionSchedule schedule, String startUrl)
             throws IOException, JSONException {
-        String html = httpGet(url, data.getString("encoding"), referer);
+        String html = httpGet(url, data.getString(PARAM_ENCODING), referer);
         Document doc = Jsoup.parse(html);
         if (doc.title().toLowerCase().contains("untis")
                 || doc.html().toLowerCase().contains("untis") || doc.select(".mon_list").size() > 0) {
@@ -147,7 +179,7 @@ public class DSBLightParser extends UntisCommonParser {
 
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
-        JSONArray classesJson = data.getJSONArray("classes");
+        JSONArray classesJson = data.getJSONArray(PARAM_CLASSES);
         List<String> classes = new ArrayList<>();
         for (int i = 0; i < classesJson.length(); i++) {
             classes.add(classesJson.getString(i));

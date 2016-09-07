@@ -24,11 +24,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Generischer Parser für Vertretungspläne im CSV-Format
- * Beispiel: http://czg.noxxi.de/vp.pl?/csv
+ * Generic parser for substitution schedules in CSV format.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ *     <dt><code>url</code> (String, required)</dt>
+ *     <dd>The url of the CSV file to be fetched</dd>
+ *
+ *     <dt><code>separator</code> (String, required)</dt>
+ *     <dd>The separator used in the CSV file (such as <code>","</code>, <code>";"</code> or <code>"\t"</code>)</dd>
+ *
+ *     <dt><code>columns</code> (Array of Strings, required)</dt>
+ *     <dd>The order of columns used in the CSV file. Entries can be: <code>"lesson", "subject",
+ *     "previousSubject", "type", "type-entfall", "room", "previousRoom", "teacher", "previousTeacher", desc",
+ *     "desc-type", "class", "day", "stand"</code></dd>
+ *
+ *     <dt><code>classes</code> (Array of Strings, required if <code>classesUrl</code> not specified)</dt>
+ *     <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ *     <dt><code>website</code> (String, recommended)</dt>
+ *     <dd>The URL of a website where the substitution schedule can be seen online</dd>
+ *
+ *     <dt><code>skipLines</code> (Integer, optional)</dt>
+ *     <dd>The number of lines to skip at the beginning of the CSV file. Default: <code>0</code></dd>
+ *
+ *     <dt><code>classesUrl</code> (String, optional)</dt>
+ *     <dd>The URL of an additional CSV file containing the classes, one per line</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler}.
  */
 public class CSVParser extends BaseParser {
 
+    private static final String PARAM_SEPARATOR = "separator";
+    private static final String PARAM_SKIP_LINES = "skipLines";
+    private static final String PARAM_COLUMNS = "columns";
+    private static final String PARAM_WEBSITE = "website";
+    private static final String PARAM_CLASSES_URL = "classesUrl";
+    private static final String PARAM_CLASSES = "classes";
+    private static final String PARAM_URL = "url";
     private JSONObject data;
 
     public CSVParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -40,7 +76,7 @@ public class CSVParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-        String url = data.getString("url");
+        String url = data.getString(PARAM_URL);
         String response = executor.execute(Request.Get(url)).returnContent().asString();
 
         return parseCSV(response);
@@ -52,15 +88,15 @@ public class CSVParser extends BaseParser {
 
         String[] lines = response.split("\n");
 
-        String separator = data.getString("separator");
-        for (int i = data.optInt("skipLines", 0); i<lines.length; i++) {
+        String separator = data.getString(PARAM_SEPARATOR);
+        for (int i = data.optInt(PARAM_SKIP_LINES, 0); i < lines.length; i++) {
             String[] columns = lines[i].split(separator);
             Substitution v = new Substitution();
             String dayName = null;
             String stand = "";
             int j = 0;
             for (String column:columns) {
-                String type = data.getJSONArray("columns")
+                String type = data.getJSONArray(PARAM_COLUMNS)
                         .getString(j);
                 switch (type) {
                     case "lesson":
@@ -134,8 +170,8 @@ public class CSVParser extends BaseParser {
             }
         }
 
-        if (scheduleData.getData().has("website")) {
-            schedule.setWebsite(scheduleData.getData().getString("website"));
+        if (scheduleData.getData().has(PARAM_WEBSITE)) {
+            schedule.setWebsite(scheduleData.getData().getString(PARAM_WEBSITE));
         }
 
         schedule.setClasses(getAllClasses());
@@ -146,8 +182,8 @@ public class CSVParser extends BaseParser {
 
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
-        if (data.has("classesUrl")) {
-            String url = data.getString("classesUrl");
+        if (data.has(PARAM_CLASSES_URL)) {
+            String url = data.getString(PARAM_CLASSES_URL);
             String response = executor.execute(Request.Get(url)).returnContent().asString();
             List<String> classes = new ArrayList<>();
             for (String string:response.split("\n")) {
@@ -155,7 +191,7 @@ public class CSVParser extends BaseParser {
             }
             return classes;
         } else {
-            JSONArray classesJson = data.getJSONArray("classes");
+            JSONArray classesJson = data.getJSONArray(PARAM_CLASSES);
             List<String> classes = new ArrayList<>();
             for (int i = 0; i < classesJson.length(); i++) {
                 classes.add(classesJson.getString(i));

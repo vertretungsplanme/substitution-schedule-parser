@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,8 +29,31 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser for substitution schedules in HTML format created by the <a href="http://davinci.stueber.de/">DaVinci</a>
+ * software. Probably only supports the newest version (DaVinci 6).
+ * <p>
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ * <p>
+ * <dl>
+ * <dt><code>url</code> (String, required)</dt>
+ * <dd>The url of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
+ * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
+ * <p>
+ * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * <p>
+ * <dt><code>classesSource</code> (String, optional)</dt>
+ * <dd>The URL of the homepage of a DaVinci timetable, showing the list of all available classes</dd>
+ * </dl>
+ * <p>
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler}.
+ */
 public class DaVinciParser extends BaseParser {
     private static final String ENCODING = "UTF-8";
+    private static final String PARAM_URL = "url";
+    private static final String PARAM_CLASSES_SOURCE = "classesSource";
 
     public DaVinciParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -154,7 +178,7 @@ public class DaVinciParser extends BaseParser {
 
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
-        String url = scheduleData.getData().getString("url");
+        String url = scheduleData.getData().getString(PARAM_URL);
         Document doc = Jsoup.parse(httpGet(url, ENCODING));
         List<String> dayUrls = getDayUrls(url, doc);
         for (String dayUrl : dayUrls) {
@@ -254,7 +278,7 @@ public class DaVinciParser extends BaseParser {
 
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
-        if (scheduleData.getData().has("classesSource")) {
+        if (scheduleData.getData().has(PARAM_CLASSES_SOURCE)) {
             Document doc = Jsoup.parse(httpGet(scheduleData.getData().getString("classesSource"), ENCODING));
             List<String> classes = new ArrayList<>();
             for (Element li : doc.select("li.Class")) {
