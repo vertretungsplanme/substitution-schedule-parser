@@ -108,7 +108,7 @@ public class SubstitutionScheduleData {
 
     /**
      * Get additional data about this substitution schedule in form of a JSON object. What data is needed here
-     * depends on the parser type, see their own documentation in the {@link me.vertretungsplan.parser} package.
+     * depends on the parser type, see their own documentation in the <code>me.vertretungsplan.parser</code> package.
      *
      * @return additional data about this substitution schedule
      */
@@ -118,7 +118,7 @@ public class SubstitutionScheduleData {
 
     /**
      * Set additional data about this substitution schedule in form of a JSON object. What data is needed here
-     * depends on the parser type, see their own documentation in the {@link me.vertretungsplan.parser} package.
+     * depends on the parser type, see their own documentation in the <code>me.vertretungsplan.parser</code> package.
      *
      * @param data additional data about this substitution schedule
      */

@@ -194,27 +194,33 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     /**
-     * Ruft den Vertretungsplan ab und parst ihn. Wird immer asynchron
-     * ausgeführt.
+     * Downloads and parses the substitution schedule
      *
-     * @return Der geparste {@link SubstitutionSchedule}
-     * @throws IOException
-     * @throws JSONException
+     * @return the parsed {@link SubstitutionSchedule}
+     * @throws IOException Connection or parsing error
+     * @throws JSONException Error with the JSON configuration
+     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
+     * not correct
      */
     public abstract SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException;
 
     /**
-     * Gibt eine Liste aller verfügbaren Klassen zurück. Wird immer asynchron
-     * ausgeführt.
+     * Get a list of all available classes.
      *
-     * @return Eine Liste aller verfügbaren Klassen für diese Schule (auch die,
-     * die nicht aktuell vom Vertretungsplan betroffen sind)
-     * @throws IOException
-     * @throws JSONException
+     * @return a list of all available classes (also those not currently affected by the substitution schedule)
+     * @throws IOException Connection or parsing error
+     * @throws JSONException Error with the JSON configuration
      */
     public abstract List<String> getAllClasses() throws IOException, JSONException;
 
+    /**
+     * Get a list of all available teachers. Can also be <code>null</code>.
+     *
+     * @return a list of all available teachers (also those not currently affected by the substitution schedule)
+     * @throws IOException   Connection or parsing error
+     * @throws JSONException Error with the JSON configuration
+     */
     @SuppressWarnings("SameReturnValue")
     public abstract List<String> getAllTeachers() throws IOException, JSONException;
 
