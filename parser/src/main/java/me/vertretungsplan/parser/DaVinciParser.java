@@ -150,6 +150,8 @@ public class DaVinciParser extends BaseParser {
 
     @Override
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException, CredentialInvalidException {
+        new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
+
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
         String url = scheduleData.getData().getString("url");
