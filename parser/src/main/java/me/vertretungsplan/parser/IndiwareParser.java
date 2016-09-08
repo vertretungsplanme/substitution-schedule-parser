@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 
 public class IndiwareParser extends BaseParser {
     protected JSONObject data;
+
+    private static final int MAX_DAYS = 7;
 
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
     static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
@@ -52,10 +55,27 @@ public class IndiwareParser extends BaseParser {
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
+        Pattern dateFormatPattern = Pattern.compile("\\{date\\(([^)]+)\\)\\}");
         for (int i = 0; i < urls.length(); i++) {
             String url = urls.getString(i);
-            String xml = httpGet(url, encoding);
-            docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+            Matcher matcher = dateFormatPattern.matcher(url);
+            if (matcher.find()) {
+                String pattern = matcher.group(1);
+                for (int j = 0; j < MAX_DAYS; j++) {
+                    LocalDate date = LocalDate.now().plusDays(j);
+                    String dateStr = DateTimeFormat.forPattern(pattern).print(date);
+                    String urlWithDate = matcher.replaceFirst(dateStr);
+                    try {
+                        String xml = httpGet(urlWithDate, encoding);
+                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                    } catch (IOException e) {
+                        // fail silently
+                    }
+                }
+            } else {
+                String xml = httpGet(url, encoding);
+                docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+            }
         }
 
         for (Document doc : docs) {
