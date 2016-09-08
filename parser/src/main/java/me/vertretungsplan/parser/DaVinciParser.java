@@ -32,22 +32,22 @@ import java.util.regex.Pattern;
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://davinci.stueber.de/">DaVinci</a>
  * software. Probably only supports the newest version (DaVinci 6).
- * <p>
+ *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
- * <p>
+ *
  * <dl>
  * <dt><code>url</code> (String, required)</dt>
  * <dd>The url of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
  * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
- * <p>
+ *
  * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
- * <p>
+ *
  * <dt><code>classesSource</code> (String, optional)</dt>
  * <dd>The URL of the homepage of a DaVinci timetable, showing the list of all available classes</dd>
  * </dl>
- * <p>
+ *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler}.
  */
 public class DaVinciParser extends BaseParser {

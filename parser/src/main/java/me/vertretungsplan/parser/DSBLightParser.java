@@ -34,27 +34,27 @@ import java.util.regex.Pattern;
  * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>light. It seems that the "light" version of DSB is
  * discontinued, many schools are currently switching to the newer DSBmobile (which can be parsed with
  * {@link DSBMobileParser}.
- * <p>
+ *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
- * <p>
+ *
  * <dl>
  * <dt><code>id</code> (String, required)</dt>
  * <dd>The ID of the DSBlight instance. This is a
  * <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> and can be found in the URL
  * (<code>Player.aspx?ID=...</code>)</dd>
- * <p>
+ *
  * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
- * <p>
+ *
  * <dt><code>encoding</code> (String, required)</dt>
  * <dd>The charset of the Untis schedule. DSBlight itself always uses UTF-8, but the hosted HTML schedule can
  * also be ISO-8859-1.</dd>
- * <p>
+ *
  * <dt><code>login</code> (Boolean, optional)</dt>
  * <dd>Whether this DSBlight instance requires login using a username and a password. Default: <code>false</code></dd>
  * </dl>
- * <p>
+ *
  * Additionally, this parser supports the parameters specified in {@link UntisCommonParser}.
  */
 public class DSBLightParser extends UntisCommonParser {
