@@ -16,6 +16,7 @@ import org.apache.http.client.HttpResponseException;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
@@ -24,6 +25,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
+ * software and hosted on <a href="http://www.stundenplan24.de/">Stundenplan24.de</a>. Schools only providing the
+ * mobile version ("Indiware mobil") of the schedule instead of the desktop version ("Vertretungsplan") are currently
+ * not supported.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>schoolNumber</code> (String, required)</dt>
+ * <dd>The 8-digit school number used to access the schedule. It can be found in the URL.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
+ * schedules on Stundenplan24.de seem to be protected by a login.
+ */
 public class IndiwareStundenplan24Parser extends IndiwareParser {
 
     private static final int MAX_DAYS = 7;

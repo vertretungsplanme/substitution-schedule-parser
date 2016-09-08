@@ -31,10 +31,25 @@ import java.util.*;
  *
  * More information on the <a href="https://legionboard.github.io">official website</a>
  * and on its <a href="https://gitlab.com/groups/legionboard">project page on GitLab</a>.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>api</code> (String, required)</dt>
+ * <dd>The URL where the LegionBoard Heart API can be found.</dd>
+ *
+ * <dt><code>website</code> (String, recommended)</dt>
+ * <dd>The URL of a website where the substitution schedule can be seen online. Normally, this would be the URL of the
+ * LegionBoard Eye instance.</dd>
+ *
+ * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
+ * schedules on LegionBoard are protected by a login.
  */
 public class LegionBoardParser extends BaseParser {
 
-	private JSONObject data;
+    private static final String PARAM_API = "api";
+    private static final String PARAM_WEBSITE = "website";
 
 	/**
 	 * URL of given LegionBoard Heart instance
@@ -48,11 +63,11 @@ public class LegionBoardParser extends BaseParser {
 
 	public LegionBoardParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
 		super(scheduleData, cookieProvider);
-		data = scheduleData.getData();
-		try {
-			api = data.getString("api");
-			website = data.getString("website");
-		} catch (JSONException e) {
+        JSONObject data = scheduleData.getData();
+        try {
+            api = data.getString(PARAM_API);
+            website = data.getString(PARAM_WEBSITE);
+        } catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}

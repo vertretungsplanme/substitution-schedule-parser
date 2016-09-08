@@ -35,10 +35,39 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * Parser for Untis and DaVinci substitution schedules served by
+ * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>mobile
+ * (<a href="http://mobile.dsbcontrol.de/">mobile.dsbcontrol.de</a>).
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * <dt><code>type</code> (String, optional)</dt>
+ * <dd>Can be set to either <code>"untis"</code> or <code>"davinci"</code> to specify which type of schedule is
+ * used. By default, the parser tries to detect this automatically, but this does not always work.</dd>
+ *
+ * <dt><code>encoding</code> (String, optional)</dt>
+ * <dd>The charset of the Untis/DaVinci schedule. DSBmobile itself always uses UTF-8, but the hosted HTML schedule can
+ * also be ISO-8859-1. Default: UTF-8</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link UntisCommonParser} (if it is an Untis
+ * schedule).
+ *
+ * DSBmobile schedules always need a login using a school number and a password. You have to set a
+ * {@link SchoolNumberPasswordAuthenticationData} which specifies the 6-digit school number.
+ */
 public class DSBMobileParser extends UntisCommonParser {
 
     private static final String URL = "https://app.dsbcontrol.de/JsonHandlerWeb.ashx/GetData";
     private static final String ENCODING = "UTF-8";
+    private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_TYPE = "type";
     private JSONObject data;
 
     public DSBMobileParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -170,11 +199,11 @@ public class DSBMobileParser extends UntisCommonParser {
     private void loadScheduleFromUrl(SubstitutionSchedule v, String url, List<String> usedUrls)
             throws IOException, JSONException {
         usedUrls.add(url);
-        String html = httpGet(url, data.has("encoding") ? data.getString("encoding") : "UTF-8");
+        String html = httpGet(url, data.has(PARAM_ENCODING) ? data.getString(PARAM_ENCODING) : "UTF-8");
         Document doc = Jsoup.parse(html);
 
         if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")
-                || data.optString("type", "").equals("untis")) {
+                || data.optString(PARAM_TYPE, "").equals("untis")) {
             if (doc.select(".mon_head").size() > 1) {
                 for (int j = 0; j < doc.select(".mon_head").size(); j++) {
                     Document doc2 = Document.createShell(doc.baseUri());
@@ -198,7 +227,7 @@ public class DSBMobileParser extends UntisCommonParser {
                 v.addDay(day);
             }
         } else if (doc.html().toLowerCase().contains("created by davinci")
-                || data.optString("type", "").equals("davinci")) {
+                || data.optString(PARAM_TYPE, "").equals("davinci")) {
             Elements titles = doc.select("h2");
             Elements tables = doc.select("h2 + p + table");
             if (titles.size() != tables.size()) throw new IOException("Anzahl Überschriften != Anzahl Tabellen");

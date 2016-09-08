@@ -28,7 +28,27 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
+ * software.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>urls</code> (Array of Strings, required)</dt>
+ * <dd>The URLs of the XML files of the schedule. There is one file for each day. If the filenames themselves
+ * contain the date, you can use something like <code>{date(yyyy-MM-dd)}</code> in the URL. This placeholder will then
+ * be replaced with the dates of the next 7 days.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
+ */
 public class IndiwareParser extends BaseParser {
+    private static final String PARAM_URLS = "urls";
+    private static final String PARAM_ENCODING = "encoding";
     protected JSONObject data;
 
     private static final int MAX_DAYS = 7;
@@ -49,8 +69,8 @@ public class IndiwareParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-        JSONArray urls = data.getJSONArray("urls");
-        String encoding = data.getString("encoding");
+        JSONArray urls = data.getJSONArray(PARAM_URLS);
+        String encoding = data.getString(PARAM_ENCODING);
         List<Document> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);

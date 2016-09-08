@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  *
  * <dl>
  * <dt><code>url</code> (String, required)</dt>
- * <dd>The url of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
+ * <dd>The URL of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
  * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
  *
  * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * <dd>The URL of the homepage of a DaVinci timetable, showing the list of all available classes</dd>
  * </dl>
  *
- * Additionally, this parser supports the parameters specified in {@link LoginHandler}.
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */
 public class DaVinciParser extends BaseParser {
     private static final String ENCODING = "UTF-8";

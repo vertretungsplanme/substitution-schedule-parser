@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.authentication.NoAuthenticationData;
 import me.vertretungsplan.objects.authentication.PasswordAuthenticationData;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import org.apache.http.NameValuePair;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,24 +38,45 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser for substitution schedules served by eSchool (eschool.topackt.com). Supports both
+ * password-protected and public schedules.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>id</code> (String, required)</dt>
+ * <dd>The ID of the ESchool instance. This is the <code>wp</code> parameter of the URL where the schedule is
+ * found.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
+ *
+ * For password protected schedules, You have to use a {@link PasswordAuthenticationData}.
+ */
 public class ESchoolParser extends BaseParser {
     private static final String BASE_URL = "http://eschool.topackt.com/";
     private static final String ENCODING = "ISO-8859-1";
+    public static final String PARAM_ID = "id";
 
     public ESchoolParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
     }
 
     @Override
-    public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException, CredentialInvalidException {
-        if (credential == null || !(credential instanceof PasswordCredential)
+    public SubstitutionSchedule getSubstitutionSchedule()
+            throws IOException, JSONException, CredentialInvalidException {
+        if (!(scheduleData.getAuthenticationData() instanceof NoAuthenticationData)
+                && (credential == null || !(credential instanceof PasswordCredential)
                 || ((PasswordCredential) credential).getPassword() == null
-                || ((PasswordCredential) credential).getPassword().isEmpty()) {
+                || ((PasswordCredential) credential).getPassword().isEmpty())) {
             throw new IOException("no login");
         }
 
         List<NameValuePair> nvps = new ArrayList<>();
-        nvps.add(new BasicNameValuePair("wp", scheduleData.getData().getString("id")));
+        nvps.add(new BasicNameValuePair("wp", scheduleData.getData().getString(PARAM_ID)));
         nvps.add(new BasicNameValuePair("go", "vplan"));
         nvps.add(new BasicNameValuePair("content", "x14"));
         nvps.add(new BasicNameValuePair("sortby", "S"));
@@ -112,7 +135,7 @@ public class ESchoolParser extends BaseParser {
     }
 
     private void parseTable(Element table, SubstitutionScheduleDay day) {
-        for (Element th:table.select("th[colspan=10]")) {
+        for (Element th : table.select("th[colspan=10]")) {
             String lesson;
 
             Pattern pattern = Pattern.compile("(\\d+)\\. Stunde");
@@ -130,7 +153,7 @@ public class ESchoolParser extends BaseParser {
                 subst.setLesson(lesson);
 
                 Elements columns = row.select("td");
-                
+
                 String[] classes = columns.get(0).text().split(", ");
                 subst.setClasses(new HashSet<>(Arrays.asList(classes)));
 

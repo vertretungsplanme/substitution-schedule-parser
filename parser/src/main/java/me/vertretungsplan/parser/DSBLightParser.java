@@ -30,10 +30,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Generic parser for Untis substitution schedules served by
- * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>light. It seems that the "light" version of DSB is
- * discontinued, many schools are currently switching to the newer DSBmobile (which can be parsed with
- * {@link DSBMobileParser}.
+ * Parser for Untis substitution schedules served by
+ * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>light. Supports both password-protected and public
+ * schedules.
+ * <p>
+ * It seems that the "light" version of DSB is discontinued, many schools are currently switching to the newer
+ * DSBmobile (which can be parsed with {@link DSBMobileParser}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -44,7 +46,7 @@ import java.util.regex.Pattern;
  * <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">UUID</a> and can be found in the URL
  * (<code>Player.aspx?ID=...</code>)</dd>
  *
- * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
  *
  * <dt><code>encoding</code> (String, required)</dt>
@@ -56,6 +58,9 @@ import java.util.regex.Pattern;
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link UntisCommonParser}.
+ *
+ * For password protected schedules, you have to use a
+ * {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData}.
  */
 public class DSBLightParser extends UntisCommonParser {
 
@@ -144,18 +149,20 @@ public class DSBLightParser extends UntisCommonParser {
             firstUrl) throws IOException, JSONException {
         String response = httpGet(url, ENCODING, referer);
         Document doc = Jsoup.parse(response, url);
-        if (doc.select("iframe").attr("src").equals(firstUrl))
+        if (doc.select("iframe").attr("src").equals(firstUrl)) {
             return;
+        }
         for (Element iframe : doc.select("iframe")) {
             // Data
             parseDay(iframe.attr("src"), referer, schedule, iframe.attr("src"));
         }
         if (doc.select("#hlNext").size() > 0) {
             String nextUrl = doc.select("#hlNext").first().attr("abs:href");
-            if (firstUrl == null)
+            if (firstUrl == null) {
                 parseProgram(nextUrl, schedule, referer, doc.select("iframe").attr("src"));
-            else
+            } else {
                 parseProgram(nextUrl, schedule, referer, firstUrl);
+            }
         }
     }
 
@@ -171,8 +178,9 @@ public class DSBLightParser extends UntisCommonParser {
                 String attr = meta.attr("content").toLowerCase();
                 String redirectUrl = url.substring(0, url.lastIndexOf("/") + 1) +
                         attr.substring(attr.indexOf("url=") + 4);
-                if (!redirectUrl.equals(startUrl))
+                if (!redirectUrl.equals(startUrl)) {
                     parseDay(redirectUrl, referer, schedule, startUrl);
+                }
             }
         }
     }

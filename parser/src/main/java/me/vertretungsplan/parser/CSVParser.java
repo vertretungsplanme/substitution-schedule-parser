@@ -54,7 +54,7 @@ import java.util.List;
  *     <dd>The URL of an additional CSV file containing the classes, one per line</dd>
  * </dl>
  *
- * Additionally, this parser supports the parameters specified in {@link LoginHandler}.
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */
 public class CSVParser extends BaseParser {
 
