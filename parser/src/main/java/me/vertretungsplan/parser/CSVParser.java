@@ -22,36 +22,47 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Generic parser for substitution schedules in CSV format.
+ * <p>
+ * This parser can be accessed using <code>"csv"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>
- *     <dt><code>url</code> (String, required)</dt>
- *     <dd>The url of the CSV file to be fetched</dd>
+ * <dt><code>url</code> (String, required)</dt>
+ * <dd>The url of the CSV file to be fetched</dd>
  *
- *     <dt><code>separator</code> (String, required)</dt>
- *     <dd>The separator used in the CSV file (such as <code>","</code>, <code>";"</code> or <code>"\t"</code>)</dd>
+ * <dt><code>separator</code> (String, required)</dt>
+ * <dd>The separator used in the CSV file (such as <code>","</code>, <code>";"</code> or <code>"\t"</code>)</dd>
  *
- *     <dt><code>columns</code> (Array of Strings, required)</dt>
- *     <dd>The order of columns used in the CSV file. Entries can be: <code>"lesson", "subject",
- *     "previousSubject", "type", "type-entfall", "room", "previousRoom", "teacher", "previousTeacher", desc",
- *     "desc-type", "class", "day", "stand"</code></dd>
+ * <dt><code>columns</code> (Array of Strings, required)</dt>
+ * <dd>The order of columns used in the CSV file. Entries can be: <code>"lesson", "subject",
+ * "previousSubject", "type", "type-entfall", "room", "previousRoom", "teacher", "previousTeacher", desc",
+ * "desc-type", "class", "day", "stand", "ignore"</code></dd>
  *
- *     <dt><code>classes</code> (Array of Strings, required if <code>classesUrl</code> not specified)</dt>
- *     <dd>The list of all classes, as they can appear in the schedule</dd>
+ * <dt><code>classes</code> (Array of Strings, required if <code>classesUrl</code> not specified)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
  *
- *     <dt><code>website</code> (String, recommended)</dt>
- *     <dd>The URL of a website where the substitution schedule can be seen online</dd>
+ * <dt><code>website</code> (String, recommended)</dt>
+ * <dd>The URL of a website where the substitution schedule can be seen online</dd>
  *
- *     <dt><code>skipLines</code> (Integer, optional)</dt>
- *     <dd>The number of lines to skip at the beginning of the CSV file. Default: <code>0</code></dd>
+ * <dt><code>skipLines</code> (Integer, optional)</dt>
+ * <dd>The number of lines to skip at the beginning of the CSV file. Default: <code>0</code></dd>
  *
- *     <dt><code>classesUrl</code> (String, optional)</dt>
- *     <dd>The URL of an additional CSV file containing the classes, one per line</dd>
+ * <dt><code>classesUrl</code> (String, optional)</dt>
+ * <dd>The URL of an additional CSV file containing the classes, one per line</dd>
+ *
+ * <dt><code>classRegex</code> (String, optional)</dt>
+ * <dd>RegEx to modify the classes set on the schedule (in {@link #getSubstitutionSchedule()}, not
+ * {@link #getAllClasses()}. The RegEx is matched against the class using {@link Matcher#find()}. If the RegEx
+ * contains a group, the content of the first group {@link Matcher#group(int)} is used as the resulting class.
+ * Otherwise, {@link Matcher#group()} is used. If the RegEx cannot be matched ({@link Matcher#find()} returns
+ * <code>false</code>), the class is set to an empty string.
+ * </dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -151,6 +162,10 @@ public class CSVParser extends BaseParser {
                     case "stand":
                         stand = column;
                         break;
+                    case "ignore":
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown column type: " + column);
                 }
                 j++;
             }

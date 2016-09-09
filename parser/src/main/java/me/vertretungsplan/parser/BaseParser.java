@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
  * Base class for {@link SubstitutionScheduleParser} implementations.
  */
 public abstract class BaseParser implements SubstitutionScheduleParser {
+    public static final String PARAM_CLASS_REGEX = "classRegex";
     protected SubstitutionScheduleData scheduleData;
     protected Executor executor;
     protected Credential credential;
@@ -313,10 +314,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    protected String getClassName(String text, JSONObject data) throws JSONException {
+    String getClassName(String text, JSONObject data) throws JSONException {
         text = text.replace("(", "").replace(")", "");
-        if (data.has("classRegex")) {
-            Pattern pattern = Pattern.compile(data.getString("classRegex"));
+        if (data.has(PARAM_CLASS_REGEX)) {
+            Pattern pattern = Pattern.compile(data.getString(PARAM_CLASS_REGEX));
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 if (matcher.groupCount() > 0) {

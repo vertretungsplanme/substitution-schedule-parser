@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
 /**
  * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
  * software.
+ * <p>
+ * This parser can be accessed using <code>"indiware"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -41,8 +43,12 @@ import java.util.regex.Pattern;
  * contain the date, you can use something like <code>{date(yyyy-MM-dd)}</code> in the URL. This placeholder will then
  * be replaced with the dates of the next 7 days.</dd>
  *
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the XML files. It's probably either UTF-8 or ISO-8859-1.</dd>
+ *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */

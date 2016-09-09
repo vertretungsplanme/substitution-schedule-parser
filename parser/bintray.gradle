@@ -32,7 +32,7 @@ publishing {
 
             pom.withXml {
                 asNode().children().last() + {
-                    resolveStrategy = Closure.DELEGATE_FIRST
+                    resolveStrategy = DELEGATE_FIRST
                     name bintrayName
                     description libraryDescription
                     url siteUrl

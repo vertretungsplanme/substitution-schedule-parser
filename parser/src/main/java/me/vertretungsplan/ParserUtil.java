@@ -10,7 +10,6 @@ package me.vertretungsplan;
 
 import me.vertretungsplan.additionalinfo.BaseAdditionalInfoParser;
 import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;

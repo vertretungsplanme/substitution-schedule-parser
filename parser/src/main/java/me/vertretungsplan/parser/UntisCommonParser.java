@@ -26,25 +26,80 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Enthält gemeinsam genutzte Funktionen für die Parser für
- * Untis-Vertretungspläne
+ * Contains common code used by {@link DSBLightParser}, {@link DSBMobileParser}, {@link UntisInfoParser},
+ * {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser} and {@link UntisSubstitutionParser}.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} in addition to the
+ * parameters specified in the documentation of the parser itself.
+ *
+ * <dl>
+ * <dt><code>columns</code> (Array of Strings, required)</dt>
+ * <dd>The order of columns used in the substitutions table. Entries can be: <code>"lesson", "subject",
+ * "previousSubject", "type", "type-entfall", "room", "previousRoom", "teacher", "previousTeacher", desc",
+ * "desc-type", "substitutionFrom", "teacherTo", "class", "ignore"</code> (<code>"class"</code> only works when
+ * <code>classInExtraLine</code> is <code>false</code>.
+ * </dd>
+ *
+ * <dt><code>lastChangeLeft</code> (Boolean, optional)</dt>
+ * <dd>Whether the date of last change is in the top left corner instead of in the <code>.mon_head</code> table.
+ * Default: <code>false</code></dd>
+ *
+ * <dt><code>classInExtraLine</code> (Boolean, optional)</dt>
+ * <dd>Whether the changes in the table are grouped using headers containing the class name(s). Default:
+ * <code>false</code></dd>
+ *
+ * <dt><code>classesSeparated</code> (Boolean, optional)</dt>
+ * <dd>Whether the class names are separated by commas. If this is set to <code>false</code>, combinations like "5abcde"
+ * are attempted to be accounted for using an ugly algorithm based on RegExes generated from {@link #getAllClasses()}.
+ * Default: <code>true</code></dd>
+ *
+ * <dt><code>excludeClasses</code> (Array of Strings, optional)</dt>
+ * <dd>Substitutions for classes from this Array are ignored when reading the schedule. By default, only the class
+ * <code>"-----"</code> is ignored.</dd>
+ *
+ * <dt><code>classRegex</code> (String, optional)</dt>
+ * <dd>RegEx to modify the classes set on the schedule (in {@link #getSubstitutionSchedule()}, not
+ * {@link #getAllClasses()}. The RegEx is matched against the class using {@link Matcher#find()}. If the RegEx
+ * contains a group, the content of the first group {@link Matcher#group(int)} is used as the resulting class.
+ * Otherwise, {@link Matcher#group()} is used. If the RegEx cannot be matched ({@link Matcher#find()} returns
+ * <code>false</code>), the class is set to an empty string.
+ * </dd>
+ * </dl>
  *
  */
 public abstract class UntisCommonParser extends BaseParser {
 
     private static final String[] EXCLUDED_CLASS_NAMES = new String[]{"-----"};
+    private static final String PARAM_LAST_CHANGE_LEFT = "lastChangeLeft";
+    private static final String PARAM_LAST_CHANGE_SELECTOR = "lastChangeSelector"; // only used in UntisMonitorParser
+    private static final String PARAM_CLASS_IN_EXTRA_LINE = "classInExtraLine";
+    private static final String PARAM_COLUMNS = "columns";
+    private static final String PARAM_CLASSES_SEPARATED = "classesSeparated";
+    private static final String PARAM_EXCLUDE_CLASSES = "excludeClasses";
 
-	public UntisCommonParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
-		super(scheduleData, cookieProvider);
+    UntisCommonParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
+        super(scheduleData, cookieProvider);
 	}
 
 	static String findLastChange(Element doc, SubstitutionScheduleData scheduleData) {
 		String lastChange = null;
+
+        boolean lastChangeLeft = false;
+        if (scheduleData != null) {
+            if (scheduleData.getData().has("stand_links")) {
+                // backwards compatibility
+                lastChangeLeft = scheduleData.getData().optBoolean("stand_links", false);
+            } else {
+                lastChangeLeft = scheduleData.getData().optBoolean(PARAM_LAST_CHANGE_LEFT, false);
+            }
+        }
+
 		if (doc.select("table.mon_head").size() > 0) {
 			Element monHead = doc.select("table.mon_head").first();
 			lastChange = findLastChangeFromMonHeadTable(monHead);
-		} else if (scheduleData != null && scheduleData.getData().optBoolean("stand_links", false)) {
-			lastChange = doc.select("body").html().substring(0, doc.select("body").html().indexOf("<p>") - 1);
+        } else if (lastChangeLeft) {
+            lastChange = doc.select("body").html().substring(0, doc.select("body").html().indexOf("<p>") - 1);
 		} else {
 			List<Node> childNodes;
 			if (doc instanceof Document) {
@@ -86,39 +141,30 @@ public abstract class UntisCommonParser extends BaseParser {
 	}
 
     /**
-     * Parst eine Vertretungstabelle eines Untis-Vertretungsplans
+     * Parses an Untis substitution schedule table
      *
-     * @param table das <code>table</code>-Element des HTML-Dokuments, das geparst
-     *              werden soll
-     * @param data  Daten von der Schule (aus <code>Schule.getData()</code>)
-     * @param day   der {@link SubstitutionScheduleDay} in dem die Vertretungen
-     *              gespeichert werden sollen
-     * @throws JSONException
+     * @param table the <code>table</code> Element from the HTML document
+     * @param data  {@link SubstitutionScheduleData#getData()}
+     * @param day   the {@link SubstitutionScheduleDay} where the substitutions will be stored
      */
-    protected void parseVertretungsplanTable(Element table, JSONObject data,
-                                             SubstitutionScheduleDay day) throws JSONException {
-        parseVertretungsplanTable(table, data, day, null);
+    void parseSubstitutionScheduleTable(Element table, JSONObject data,
+                                        SubstitutionScheduleDay day) throws JSONException {
+        parseSubstitutionScheduleTable(table, data, day, null);
     }
 
 	/**
-	 * Parst eine Vertretungstabelle eines Untis-Vertretungsplans
-	 *
-	 * @param table
-	 *            das <code>table</code>-Element des HTML-Dokuments, das geparst
-	 *            werden soll
-	 * @param data
-	 *            Daten von der Schule (aus <code>Schule.getData()</code>)
-	 * @param day
-	 *            der {@link SubstitutionScheduleDay} in dem die Vertretungen
-	 *            gespeichert werden sollen
-     * @param defaultKlasse
-	 * 			  die Klasse, die gesetzt werden soll, wenn aus der Tabelle keine Klasse gelesen werden kann
-     * @throws JSONException
+     * Parses an Untis substitution schedule table
+     *
+     * @param table        the <code>table</code> Element from the HTML document
+     * @param data        {@link SubstitutionScheduleData#getData()}
+     * @param day        the {@link SubstitutionScheduleDay} where the substitutions will be stored
+     * @param defaultClass    the class that should be set if there is no class column in the table
      */
-    protected void parseVertretungsplanTable(Element table, JSONObject data,
-                                             SubstitutionScheduleDay day, String defaultKlasse) throws JSONException {
-        if (data.optBoolean("class_in_extra_line")) {
-			for (Element element : table.select("td.inline_header")) {
+    private void parseSubstitutionScheduleTable(Element table, JSONObject data,
+                                                SubstitutionScheduleDay day, String defaultClass) throws JSONException {
+        if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
+                || data.optBoolean("class_in_extra_line")) { // backwards compatibility
+            for (Element element : table.select("td.inline_header")) {
 				String className = getClassName(element.text(), data);
 				if (isValidClass(className)) {
 					Element zeile = null;
@@ -169,7 +215,7 @@ public abstract class UntisCommonParser extends BaseParser {
 								}
 								if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-								String type = data.getJSONArray("columns")
+                                String type = data.getJSONArray(PARAM_COLUMNS)
                                         .getString(i);
 
 								switch (type) {
@@ -222,7 +268,11 @@ public abstract class UntisCommonParser extends BaseParser {
 									case "teacherTo":
 										v.setTeacherTo(text);
 										break;
-								}
+                                    case "ignore":
+                                        break;
+                                    default:
+                                        throw new IllegalArgumentException("Unknown column type: " + type);
+                                }
 								i++;
 							}
 
@@ -248,9 +298,9 @@ public abstract class UntisCommonParser extends BaseParser {
 			}
 		} else {
 			boolean hasType = false;
-			for (int i = 0; i < data.getJSONArray("columns").length(); i++) {
-				if (data.getJSONArray("columns").getString(i).equals("type"))
-					hasType = true;
+            for (int i = 0; i < data.getJSONArray(PARAM_COLUMNS).length(); i++) {
+                if (data.getJSONArray(PARAM_COLUMNS).getString(i).equals("type"))
+                    hasType = true;
 			}
 			Substitution previousSubstitution = null;
 			int skipLines = 0;
@@ -264,7 +314,7 @@ public abstract class UntisCommonParser extends BaseParser {
 				}
 
 				Substitution v = new Substitution();
-                String klassen = defaultKlasse != null ? defaultKlasse : "";
+                String klassen = defaultClass != null ? defaultClass : "";
                 int i = 0;
                 for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
@@ -295,8 +345,8 @@ public abstract class UntisCommonParser extends BaseParser {
 					}
 					if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-					String type = data.getJSONArray("columns").getString(i);
-					switch (type) {
+                    String type = data.getJSONArray(PARAM_COLUMNS).getString(i);
+                    switch (type) {
 						case "lesson":
 							v.setLesson(text);
 							break;
@@ -349,7 +399,11 @@ public abstract class UntisCommonParser extends BaseParser {
 						case "class":
 							klassen = getClassName(text, data);
 							break;
-					}
+                        case "ignore":
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown column type: " + type);
+                    }
 					i++;
 				}
 
@@ -411,17 +465,14 @@ public abstract class UntisCommonParser extends BaseParser {
 						e.printStackTrace();
 					}
 				} else {
-					if (data.optBoolean("classes_separated", true)) {
-						affectedClasses = Arrays.asList(klassen.split(", "));
+                    if (data.optBoolean(PARAM_CLASSES_SEPARATED, true)
+                            && data.optBoolean("classes_separated", true)) { // backwards compatibility
+                        affectedClasses = Arrays.asList(klassen.split(", "));
 					} else {
 						affectedClasses = new ArrayList<>();
 						try {
-							for (String klasse : getAllClasses()) { // TODO:
-																	// Gibt es
-																	// eine
-																	// bessere
-																	// Möglichkeit?
-								StringBuilder regex = new StringBuilder();
+                            for (String klasse : getAllClasses()) { // TODO: is there a better way?
+                                StringBuilder regex = new StringBuilder();
 								for (char character : klasse.toCharArray()) {
 									regex.append(character);
 									regex.append(".*");
@@ -484,15 +535,12 @@ public abstract class UntisCommonParser extends BaseParser {
 	}
 
 	/**
-	 * Parst eine "Nachrichten zum Tag"-Tabelle aus Untis-Vertretungsplänen
-	 *  @param table
-	 *            das <code>table</code>-Element des HTML-Dokuments, das geparst
-	 *            werden soll
-	 * @param day
-	 *            der {@link SubstitutionScheduleDay} in dem die Nachrichten
-	 */
-	protected void parseMessages(Element table, SubstitutionScheduleDay day) {
-		Elements zeilen = table
+     * Parses a "Nachrichten zum Tag" ("daily news") table from an Untis schedule
+     * @param table the <code>table</code>-Element to be parsed
+     * @param day the {@link SubstitutionScheduleDay} where the messages should be stored
+     */
+    private void parseMessages(Element table, SubstitutionScheduleDay day) {
+        Elements zeilen = table
 				.select("tr:not(:contains(Nachrichten zum Tag))");
 		for (Element i : zeilen) {
 			Elements spalten = i.select("td");
@@ -507,15 +555,15 @@ public abstract class UntisCommonParser extends BaseParser {
 		}
 	}
 
-	protected SubstitutionScheduleDay parseMonitorVertretungsplanTag(Element doc, JSONObject data) throws
-			JSONException {
+    SubstitutionScheduleDay parseMonitorDay(Element doc, JSONObject data) throws
+            JSONException {
 		SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 		String date = doc.select(".mon_title").first().text().replaceAll(" \\(Seite \\d+ / \\d+\\)", "");
 		day.setDateString(date);
 		day.setDate(ParserUtils.parseDate(date));
 
-		if (!scheduleData.getData().has("lastChangeSelector")) {
-			String lastChange = findLastChange(doc, scheduleData);
+        if (!scheduleData.getData().has(PARAM_LAST_CHANGE_SELECTOR)) {
+            String lastChange = findLastChange(doc, scheduleData);
 			day.setLastChangeString(lastChange);
 			day.setLastChange(ParserUtils.parseDateTime(lastChange));
 		}
@@ -526,16 +574,19 @@ public abstract class UntisCommonParser extends BaseParser {
 		}
 
 		// VERTRETUNGSPLAN
-        if (doc.select("table:has(tr.list)").size() > 0)
-			parseVertretungsplanTable(doc.select("table:has(tr.list)").first(), data, day);
+        if (doc.select("table:has(tr.list)").size() > 0) {
+            parseSubstitutionScheduleTable(doc.select("table:has(tr.list)").first(), data, day);
+        }
 
 		return day;
 	}
 
 	private boolean isValidClass(String klasse) throws JSONException {
 		return klasse != null && !Arrays.asList(EXCLUDED_CLASS_NAMES).contains(klasse) &&
-				!(scheduleData.getData().has("exclude_classes") &&
-						contains(scheduleData.getData().getJSONArray("exclude_classes"), klasse));
+                !(scheduleData.getData().has(PARAM_EXCLUDE_CLASSES) &&
+                        contains(scheduleData.getData().getJSONArray(PARAM_EXCLUDE_CLASSES), klasse)) &&
+                !(scheduleData.getData().has("exclude_classes") && // backwards compatibility
+                        contains(scheduleData.getData().getJSONArray("exclude_classes"), klasse));
 	}
 
 	@Override
@@ -543,19 +594,19 @@ public abstract class UntisCommonParser extends BaseParser {
 		return getClassesFromJson();
 	}
 
-	protected void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
+    void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
             JSONException {
         if (next.className().equals("subst")) {
             //Vertretungstabelle
 			if (next.text().contains("Vertretungen sind nicht freigegeben")) {
 				return;
 			}
-            parseVertretungsplanTable(next, scheduleData.getData(), day, klasse);
+            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse);
         } else {
             //Nachrichten
             parseMessages(next, day);
 			next = next.nextElementSibling().nextElementSibling();
-            parseVertretungsplanTable(next, scheduleData.getData(), day, klasse);
+            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse);
         }
         v.addDay(day);
     }

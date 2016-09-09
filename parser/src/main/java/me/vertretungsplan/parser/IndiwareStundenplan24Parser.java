@@ -30,6 +30,8 @@ import java.util.List;
  * software and hosted on <a href="http://www.stundenplan24.de/">Stundenplan24.de</a>. Schools only providing the
  * mobile version ("Indiware mobil") of the schedule instead of the desktop version ("Vertretungsplan") are currently
  * not supported.
+ * <p>
+ * This parser can be accessed using <code>"stundenplan24"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -40,6 +42,7 @@ import java.util.List;
  *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
  *
  * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
  * schedules on Stundenplan24.de seem to be protected by a login.

@@ -39,6 +39,8 @@ import java.util.zip.GZIPOutputStream;
  * Parser for Untis and DaVinci substitution schedules served by
  * <a href="http://www.digitales-schwarzes-brett.de/">DSB</a>mobile
  * (<a href="http://mobile.dsbcontrol.de/">mobile.dsbcontrol.de</a>).
+ * <p>
+ * This parser can be accessed using <code>"dsbmobile"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -219,11 +221,11 @@ public class DSBMobileParser extends UntisCommonParser {
                         doc2.body().appendChild(doc.select(".mon_title").get(j).clone());
                         doc2.body().appendChild(doc.select("table:has(tr.list)").get(j).clone());
                     }
-                    SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc2, data);
+                    SubstitutionScheduleDay day = parseMonitorDay(doc2, data);
                     v.addDay(day);
                 }
             } else {
-                SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc, data);
+                SubstitutionScheduleDay day = parseMonitorDay(doc, data);
                 v.addDay(day);
             }
         } else if (doc.html().toLowerCase().contains("created by davinci")

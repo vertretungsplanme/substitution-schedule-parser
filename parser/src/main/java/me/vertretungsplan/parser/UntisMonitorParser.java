@@ -27,13 +27,60 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parser für Untis-Vertretungspläne mit dem Monitor-Stundenplan-Layout
- * Beispiel: Lornsenschule Schleswig http://vertretung.lornsenschule.de/schueler/subst_001.htm
- * Funktioniert mit vielen anderen Schulen mit unterschiedlichen Layouts.
+ * Parser for substitution schedules in HTML format created by the <a href="http://untis.de/">Untis</a> software
+ * using the "Monitor-Vertretungsplan" layout.
+ * <p>
+ * Example: <a href="http://vertretung.lornsenschule.de/schueler/subst_001.htm">Lornsenschule Schleswig</a>
+ * <p>
+ * This parser can be accessed using <code>"untis-monitor"</code> for {@link SubstitutionScheduleData#setApi(String)}.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>urls</code> (Array of JSONObjects, required)</dt>
+ * <dd>The URLs of the HTML files of the schedule. There is one file for each day. Each JSONObject has a
+ * <code>url</code> parameter specifying the URL and a <code>following</code> parameter to set if the parser
+ * should follow HTML <code>meta</code> tag redirects to load multiple pages. If you are using
+ * {@link LoginHandler} for a HTTP POST login, the <code>url</code> parameter can also be set to
+ * <code>"loginResponse"</code>
+ * </dd>
+ *
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the XML files. It's probably either UTF-8 or ISO-8859-1.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * <dt><code>website</code> (String, recommended)</dt>
+ * <dd>The URL of a website where the substitution schedule can be seen online</dd>
+ *
+ * <dt><code>lastChangeSelector</code> (String, optional)</dt>
+ * <dd>When this is specified, the date of last change is read from the first HTML element that matches this CSS
+ * selector. The CSS selector syntax is supported as specified by
+ * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
+ *
+ * <dt><code>embeddedContentSelector</code> (String, optional)</dt>
+ * <dd>When the Untis schedule is embedded in another HTML file using server-side code, you can use this to
+ * specify which HTML elements should be considered as the containers for the Untis schedule. The CSS selector
+ * syntax is supported as specified by
+ * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules
+ * and those specified in {@link UntisCommonParser}.
  */
 public class UntisMonitorParser extends UntisCommonParser {
 
     private static final int MAX_RECURSION_DEPTH = 30;
+    private static final String PARAM_URLS = "urls";
+    private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
+    private static final String PARAM_LAST_CHANGE_SELECTOR = "lastChangeSelector";
+    private static final String PARAM_WEBSITE = "website";
+    private static final String SUBPARAM_FOLLOWING = "following";
+    private static final String SUBPARAM_URL = "url";
+    private static final String VALUE_URL_LOGIN_RESPONSE = "loginResponse";
     private String loginResponse;
 
     public UntisMonitorParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -46,30 +93,30 @@ public class UntisMonitorParser extends UntisCommonParser {
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
-        JSONArray urls = scheduleData.getData().getJSONArray("urls");
-        String encoding = scheduleData.getData().getString("encoding");
+        JSONArray urls = scheduleData.getData().getJSONArray(PARAM_URLS);
+        String encoding = scheduleData.getData().getString(PARAM_ENCODING);
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {
             JSONObject url = urls.getJSONObject(i);
-            loadUrl(url.getString("url"), encoding, url.getBoolean("following"), docs);
+            loadUrl(url.getString(SUBPARAM_URL), encoding, url.getBoolean(SUBPARAM_FOLLOWING), docs);
         }
 
         for (Document doc : docs) {
-            if (scheduleData.getData().has("embeddedContentSelector")) {
-                for (Element part : doc.select(scheduleData.getData().getString("embeddedContentSelector"))) {
-                    SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(part, scheduleData.getData());
+            if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+                for (Element part : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
+                    SubstitutionScheduleDay day = parseMonitorDay(part, scheduleData.getData());
                     v.addDay(day);
                 }
             } else if (doc.title().contains("Untis")) {
-                SubstitutionScheduleDay day = parseMonitorVertretungsplanTag(doc, scheduleData.getData());
+                SubstitutionScheduleDay day = parseMonitorDay(doc, scheduleData.getData());
                 v.addDay(day);
             }
             // else Error
 
-            if (scheduleData.getData().has("lastChangeSelector")
-                    && doc.select(scheduleData.getData().getString("lastChangeSelector")).size() > 0) {
-                String text = doc.select(scheduleData.getData().getString("lastChangeSelector")).first().text();
+            if (scheduleData.getData().has(PARAM_LAST_CHANGE_SELECTOR)
+                    && doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).size() > 0) {
+                String text = doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).first().text();
                 String lastChange;
                 Pattern pattern = Pattern.compile("\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d,? \\d\\d:\\d\\d");
                 Matcher matcher = pattern.matcher(text);
@@ -83,8 +130,8 @@ public class UntisMonitorParser extends UntisCommonParser {
             }
         }
 
-        if (scheduleData.getData().has("website")) {
-            v.setWebsite(scheduleData.getData().getString("website"));
+        if (scheduleData.getData().has(PARAM_WEBSITE)) {
+            v.setWebsite(scheduleData.getData().getString(PARAM_WEBSITE));
         } else if (urls.length() == 1) {
             v.setWebsite(urls.getString(0));
         }
@@ -98,7 +145,7 @@ public class UntisMonitorParser extends UntisCommonParser {
     private void loadUrl(String url, String encoding, boolean following, List<Document> docs, String startUrl,
                          int recursionDepth) throws IOException, CredentialInvalidException {
         String html;
-        if (url.equals("loginResponse")) {
+        if (url.equals(VALUE_URL_LOGIN_RESPONSE)) {
             html = loginResponse;
         } else {
             try {

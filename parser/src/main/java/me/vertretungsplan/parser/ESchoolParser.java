@@ -41,6 +41,8 @@ import java.util.regex.Pattern;
 /**
  * Parser for substitution schedules served by eSchool (eschool.topackt.com). Supports both
  * password-protected and public schedules.
+ * <p>
+ * This parser can be accessed using <code>"eschool"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:

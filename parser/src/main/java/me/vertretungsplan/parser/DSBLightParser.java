@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
  * <p>
  * It seems that the "light" version of DSB is discontinued, many schools are currently switching to the newer
  * DSBmobile (which can be parsed with {@link DSBMobileParser}.
+ * <p>
+ * This parser can be accessed using <code>"dsblight"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -172,7 +174,7 @@ public class DSBLightParser extends UntisCommonParser {
         Document doc = Jsoup.parse(html);
         if (doc.title().toLowerCase().contains("untis")
                 || doc.html().toLowerCase().contains("untis") || doc.select(".mon_list").size() > 0) {
-            schedule.addDay(parseMonitorVertretungsplanTag(doc, data));
+            schedule.addDay(parseMonitorDay(doc, data));
             if (doc.select("meta[http-equiv=refresh]").size() > 0) {
                 Element meta = doc.select("meta[http-equiv=refresh]").first();
                 String attr = meta.attr("content").toLowerCase();

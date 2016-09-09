@@ -66,6 +66,6 @@ public class UntisLastChangeTest {
 
     @Test
     public void testFindLastChange() throws Exception {
-        assertEquals(UntisCommonParser.findLastChange(doc, null), date);
+        assertEquals(date, UntisCommonParser.findLastChange(doc, null));
     }
 }

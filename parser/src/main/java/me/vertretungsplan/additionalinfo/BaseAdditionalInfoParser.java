@@ -8,8 +8,6 @@
 package me.vertretungsplan.additionalinfo;
 
 import me.vertretungsplan.objects.AdditionalInfo;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
 import org.apache.http.client.fluent.Request;
 
 import java.io.IOException;

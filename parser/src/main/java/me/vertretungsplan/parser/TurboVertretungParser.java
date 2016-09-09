@@ -26,10 +26,32 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Parser for Turbo-Vertretung substitution schedules. Example: <a href="http://www.goethe-schule
- * .de/ANBgkqhkiG9w0BAQEFAAOCAQ8goethe-schuleAMIIBCgKCAQEAnkFG3NUV4779/internet1.html">Goethe-Schule Bochum</a>
+ * Parser for substitution schedules in HTML format created by the Turbo-Vertretung software.
+ * <p>
+ * Example:
+ * <a href="http://www.goethe-schule.de/ANBgkqhkiG9w0BAQEFAAOCAQ8goethe-schuleAMIIBCgKCAQEAnkFG3NUV4779/internet1.html">Goethe-Schule Bochum</a>
+ * <p>
+ * This parser can be accessed using <code>"turbovertretung"</code> for {@link SubstitutionScheduleData#setApi(String)}.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>urls</code> (Array of Strings, required)</dt>
+ * <dd>The URLs of the HTML files of the schedule. There is one file for each day.</dd>
+ *
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the HTML files. It's probably either UTF-8 or ISO-8859-1.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */
 public class TurboVertretungParser extends BaseParser {
+    private static final String PARAM_URLS = "urls";
+    private static final String PARAM_ENCODING = "encoding";
     private JSONObject data;
 
     public TurboVertretungParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -38,18 +60,25 @@ public class TurboVertretungParser extends BaseParser {
     }
 
     @Override
-    public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException, CredentialInvalidException {
+    public SubstitutionSchedule getSubstitutionSchedule()
+            throws IOException, JSONException, CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore); //
 
-        JSONArray urls = data.getJSONArray("urls");
-        String encoding = data.getString("encoding");
+        JSONArray urls = data.getJSONArray(PARAM_URLS);
+        String encoding = data.getString(PARAM_ENCODING);
         List<Document> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         for (int i = 0; i < urls.length(); i++) {
-            JSONObject url = urls.getJSONObject(i);
-            loadUrl(url.getString("url"), encoding, docs);
+            String url;
+            if (urls.get(i) instanceof JSONObject) {
+                // backwards compatibility
+                url = urls.getJSONObject(i).getString("url");
+            } else {
+                url = urls.getString(i);
+            }
+            loadUrl(url, encoding, docs);
         }
 
         for (Document doc : docs) {
@@ -74,7 +103,8 @@ public class TurboVertretungParser extends BaseParser {
         day.setDate(DateTimeFormat.forPattern("EEEE, d. MMMM yyyy").withLocale(Locale.GERMAN).parseLocalDate(date));
 
         String lastChange = doc.select(".Stand").text().replace("Stand: ", "");
-        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss").withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
+        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss").withLocale(Locale.GERMAN)
+                .parseLocalDateTime(lastChange));
 
         if (doc.text().contains("Kein Vertretungsplan")) {
             v.addDay(day);
@@ -88,7 +118,8 @@ public class TurboVertretungParser extends BaseParser {
             day.addMessage(doc.select(".LehrerVerplantLabel").text() + "\n" + doc.select(".LehrerVerplant").text());
         }
         if (doc.select(".Abwesenheiten-Klassen").size() > 0) {
-            day.addMessage(doc.select(".Abwesenheiten-KlassenLabel").text() + "\n" + doc.select(".Abwesenheiten-Klassen").text());
+            day.addMessage(doc.select(".Abwesenheiten-KlassenLabel").text() + "\n" +
+                    doc.select(".Abwesenheiten-Klassen").text());
         }
 
         Element table = doc.select("table").first();

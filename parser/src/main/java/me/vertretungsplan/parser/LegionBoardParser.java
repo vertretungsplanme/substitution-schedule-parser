@@ -28,9 +28,11 @@ import java.util.*;
 
 /**
  * Parser for LegionBoard, an open source changes management system for schools.
- *
- * More information on the <a href="https://legionboard.github.io">official website</a>
- * and on its <a href="https://gitlab.com/groups/legionboard">project page on GitLab</a>.
+ * <p>
+ * More information can be found on the <a href="https://legionboard.github.io">official website</a> and on its
+ * <a href="https://gitlab.com/groups/legionboard">project page on GitLab</a>.
+ * <p>
+ * This parser can be accessed using <code>"legionboard"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
@@ -42,6 +44,7 @@ import java.util.*;
  * <dt><code>website</code> (String, recommended)</dt>
  * <dd>The URL of a website where the substitution schedule can be seen online. Normally, this would be the URL of the
  * LegionBoard Eye instance.</dd>
+ * </dl>
  *
  * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
  * schedules on LegionBoard are protected by a login.

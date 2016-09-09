@@ -29,11 +29,33 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Parser for svPlan substitution schedules.
+ * Parser for substitution schedules in HTML format created by the <a href="http://www.haneke.de/SvPlan.html">svPlan</a>
+ * software.
+ * <p>
  * Example: <a href="http://www.ratsschule.de/Vplan/PH_heute.htm">Ratsschule Melle</a>
+ * <p>
+ * This parser can be accessed using <code>"svplan"</code> for {@link SubstitutionScheduleData#setApi(String)}.
+ *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>urls</code> (Array of Strings, required)</dt>
+ * <dd>The URLs of the HTML files of the schedule. There is one file for each day.</dd>
+ *
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the HTML files. It's probably either UTF-8 or ISO-8859-1.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */
 public class SVPlanParser extends BaseParser {
 
+    private static final String PARAM_URLS = "urls";
+    private static final String PARAM_ENCODING = "encoding";
     private JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -45,13 +67,19 @@ public class SVPlanParser extends BaseParser {
             CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore); //
 
-        JSONArray urls = data.getJSONArray("urls");
-        String encoding = data.getString("encoding");
+        JSONArray urls = data.getJSONArray(PARAM_URLS);
+        String encoding = data.getString(PARAM_ENCODING);
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {
-            JSONObject url = urls.getJSONObject(i);
-            loadUrl(url.getString("url"), encoding, docs);
+            String url;
+            if (urls.get(i) instanceof JSONObject) {
+                // backwards compatibility
+                url = urls.getJSONObject(i).getString("url");
+            } else {
+                url = urls.getString(i);
+            }
+            loadUrl(url, encoding, docs);
         }
 
         SubstitutionSchedule v = parseSVPlanSchedule(docs);

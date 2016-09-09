@@ -23,13 +23,36 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Parser für Untis-Vertretungspläne mit dem Info-Stundenplan-Layout, aber ohne Navigationsleiste
- * Beispiel: http://www.vertretung.org/vertretung/w00000.htm
- * Wurde bisher noch nicht mit anderen Schulen getestet.
+ * Parser for substitution schedules in HTML format created by the <a href="http://untis.de/">Untis</a> software
+ * using the "Info-Stundenplan" layout, but without the navigation bar. Only substitution schedule tables are supported,
+ * not timetables.
+ * <p>
+ * Example: <a href="http://www.egwerther.de/vertretungsplan/w00000.htm">EG Werther</a>
+ * <p>
+ * This parser can be accessed using <code>"untis-info-headless"</code> for
+ * {@link SubstitutionScheduleData#setApi(String)}.
  *
+ * <h4>Configuration parameters</h4>
+ * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
+ *
+ * <dl>
+ * <dt><code>url</code> (String, required)</dt>
+ * <dd>The URL of the HTML file containing the schedule. There is only one page spanning a whole week.</dd>
+ *
+ * <dt><code>encoding</code> (String, required)</dt>
+ * <dd>The charset of the HTML file. It's probably either UTF-8 or ISO-8859-1.</dd>
+ *
+ * <dt><code>classes</code> (Array of Strings, required)</dt>
+ * <dd>The list of all classes, as they can appear in the schedule</dd>
+ * </dl>
+ *
+ * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules
+ * and those specified in {@link UntisCommonParser}.
  */
 public class UntisInfoHeadlessParser extends UntisCommonParser {
-	
+
+	private static final String PARAM_URL = "url";
+    private static final String PARAM_ENCODING = "encoding";
 	private String url;
 	private JSONObject data;
 
@@ -37,7 +60,7 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
 		super(scheduleData, cookieProvider);
 		try {
 			data = scheduleData.getData();
-			url = data.getString("url");
+            url = data.getString(PARAM_URL);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -50,8 +73,8 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
 
 		SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
-		Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
-		Elements dayElems = doc.select("#vertretung > p > b, #vertretung > b");
+		Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+        Elements dayElems = doc.select("#vertretung > p > b, #vertretung > b");
 		for (Element dayElem : dayElems) {
 			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 			day.setLastChangeString("");
