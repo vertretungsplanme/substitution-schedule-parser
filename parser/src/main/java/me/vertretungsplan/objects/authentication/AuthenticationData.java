@@ -12,7 +12,16 @@ import me.vertretungsplan.objects.credential.Credential;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * An AuthenticationData is used in
+ * {@link me.vertretungsplan.objects.SubstitutionScheduleData#setAuthenticationData(AuthenticationData)} to specify
+ * what type of credential is needed to access the schedule. If the schedule requires no authentication, use
+ * {@link NoAuthenticationData}.
+ */
 public interface AuthenticationData {
+    /**
+     * @return The type of credential needed to access the schedule.
+     */
     Class<? extends Credential> getCredentialType();
     JSONObject getData() throws JSONException;
 }

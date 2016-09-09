@@ -14,6 +14,9 @@ import me.vertretungsplan.utils.SubstitutionTextUtils;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Represents the difference between to {@link Substitution}s.
+ */
 public class SubstitutionDiff {
     public static final int MAX_COMPLEXITY = 3;
     private Substitution oldSubstitution;
@@ -54,6 +57,10 @@ public class SubstitutionDiff {
         // Do nothing. Needed for Jackson
     }
 
+    /**
+     * @return A complexity index for this <code>SubstitutionDiff</code>. This is incremented by 1 for each field
+     * that is not equal between the old and the new <code>Substitution</code>.
+     */
     public int getComplexity() {
         int complexity = 0;
         if (!Objects.equals(oldSubstitution.getLesson(), newSubstitution.getLesson())) complexity++;
@@ -68,6 +75,10 @@ public class SubstitutionDiff {
         return complexity;
     }
 
+    /**
+     * @return The classes this {@link SubstitutionDiff} affects. Throws an {@link IllegalArgumentException} if the
+     * classes of the old and the new <code>Substitution</code> are not equal.
+     */
     public Set<String> getClasses() {
         if (!oldSubstitution.getClasses().equals(newSubstitution.getClasses())) {
             throw new IllegalArgumentException("classes must be equal");
