@@ -26,6 +26,7 @@ task javadoc(overwrite: true, type: Javadoc) {
         exclude 'networking/**'
     }
     options.encoding = 'UTF-8'
+    options.links("http://docs.oracle.com/javase/7/docs/api/");
     classpath = sourceSets.main.output + sourceSets.main.compileClasspath
 }
 
