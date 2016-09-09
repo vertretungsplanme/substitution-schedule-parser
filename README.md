@@ -9,7 +9,7 @@ Java library for parsing schools' substitution schedules. Supports multiple diff
 The Android App [vertretungsplan.me](https://vertretungsplan.me) is powered by this library and supports more than 100 schools. An [older version](https://github.com/johan12345/vertretungsplan) of the app is open source.
 
 ## Usage
-The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. The automatically generated Javadoc is available at [javadoc.io](https://www.javadoc.io/doc/me.vertretungsplan/parser). More and improved documentation will follow shortly, see issues [#1](https://github.com/johan12345/substitution-schedule-parser/issues/1) and [#2](https://github.com/johan12345/substitution-schedule-parser/issues/2).
+The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. The automatically generated Javadoc is available at [javadoc.io](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
 Builds of the library are available through both the JCenter and Maven Central repositories. You can find instructions
 how to use them with different build systems (such as Gradle and Maven)
@@ -44,7 +44,7 @@ Below you find the currently supported substitution schedule softwares and the c
 
 *WebUntis* is currently not supported. It should theoretically be possible to implement a corresponding parser, but keep in mind that polling its API too often (more than once an hour) is [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
 
-Depending on the type of software, different options need to be supplied in `SubstitutionScheduleData.setData()`. There is no documentation about this yet (see issue #2).
+Depending on the type of software, different options need to be supplied in `SubstitutionScheduleData.setData()`. Documentation about these parameters can be found on each parser's page in the [Javadoc](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
 ## License
 This library is licensed under the [Mozilla Public License, Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
