@@ -85,6 +85,7 @@ public class DaVinciParser extends BaseParser {
         String lesson = null;
 
         Pattern previousCurrentPattern = Pattern.compile("\\+([^\\s]+) \\(([^)]+)\\)");
+        Pattern previousPattern = Pattern.compile("\\(([^)]+)\\)");
 
         for (Element row : table.select("tr:not(thead tr, tr:has(td[bgcolor=#9999FF]))")) {
             Substitution subst = new Substitution();
@@ -95,20 +96,24 @@ public class DaVinciParser extends BaseParser {
 
                 if (value.isEmpty()) {
                     if (header.equals("Klasse")) subst.setClasses(classes);
-                    if (header.equals("Pos") || header.equals("Stunde")) subst.setLesson(lesson);
+                    if (header.equals("Pos") || header.equals("Stunde") || header.equals("Std.")) {
+                        subst.setLesson(lesson);
+                    }
                     if (header.equals("Art") || header.equals("Merkmal")) subst.setType("Vertretung");
                     continue;
                 }
 
-                Matcher matcher = previousCurrentPattern.matcher(value);
+                Matcher previousCurrentMatcher = previousCurrentPattern.matcher(value);
+                Matcher previousMatcher = previousPattern.matcher(value);
 
                 switch (header) {
                     case "Klasse":
-                        classes = new HashSet<>(Arrays.asList(value.split(",")));
+                        classes = new HashSet<>(Arrays.asList(value.split(", ")));
                         subst.setClasses(classes);
                         break;
                     case "Pos":
                     case "Stunde":
+                    case "Std.":
                         lesson = value;
                         subst.setLesson(lesson);
                         break;
@@ -125,9 +130,12 @@ public class DaVinciParser extends BaseParser {
                         break;
                     case "Lehrer":
                     case "Lehrer Kürzel":
-                        if (matcher.find()) {
-                            subst.setTeacher(matcher.group(1));
-                            subst.setPreviousTeacher(matcher.group(2));
+                    case "Lehrer Name":
+                        if (previousCurrentMatcher.find()) {
+                            subst.setTeacher(previousCurrentMatcher.group(1));
+                            subst.setPreviousTeacher(previousCurrentMatcher.group(2));
+                        } else if (previousMatcher.find()) {
+                            subst.setPreviousTeacher(previousMatcher.group(1));
                         } else {
                             subst.setPreviousTeacher(value);
                         }
@@ -136,9 +144,10 @@ public class DaVinciParser extends BaseParser {
                         subst.setSubject(value);
                         break;
                     case "Fach":
-                        if (matcher.find()) {
-                            subst.setSubject(matcher.group(1));
-                            subst.setPreviousSubject(matcher.group(2));
+                    case "Original Fach":
+                        if (previousCurrentMatcher.find()) {
+                            subst.setSubject(previousCurrentMatcher.group(1));
+                            subst.setPreviousSubject(previousCurrentMatcher.group(2));
                         } else {
                             subst.setPreviousSubject(value);
                         }
@@ -147,9 +156,10 @@ public class DaVinciParser extends BaseParser {
                         subst.setRoom(value);
                         break;
                     case "Raum":
-                        if (matcher.find()) {
-                            subst.setRoom(matcher.group(1));
-                            subst.setPreviousRoom(matcher.group(2));
+                    case "Original Raum":
+                        if (previousCurrentMatcher.find()) {
+                            subst.setRoom(previousCurrentMatcher.group(1));
+                            subst.setPreviousRoom(previousCurrentMatcher.group(2));
                         } else {
                             subst.setPreviousRoom(value);
                         }
