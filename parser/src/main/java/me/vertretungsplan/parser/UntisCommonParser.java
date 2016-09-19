@@ -531,7 +531,7 @@ public abstract class UntisCommonParser extends BaseParser {
 	}
 
 	private boolean isEmpty(String text) {
-		return text.trim().equals("") || text.trim().equals("---");
+		return text.replaceAll("\u00A0", "").trim().equals("") || text.replaceAll("\u00A0", "").trim().equals("---");
 	}
 
 	/**
