@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -285,6 +286,13 @@ public class DaVinciParser extends BaseParser {
             } else {
                 throw new IOException("Could not find date");
             }
+        }
+
+        for (Element p : doc.select(".row:has(h1.list-table-caption) p")) {
+            for (TextNode node : p.textNodes()) day.addMessage(node.text().trim());
+        }
+        for (Element message : doc.select(".callout")) {
+            for (TextNode node : message.textNodes()) day.addMessage(node.text().trim());
         }
 
         String lastChange = doc.select(".row.copyright div").first().ownText();
