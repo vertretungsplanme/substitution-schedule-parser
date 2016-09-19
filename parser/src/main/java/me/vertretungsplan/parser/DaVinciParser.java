@@ -50,12 +50,20 @@ import java.util.regex.Pattern;
  * <dd>The URL of the homepage of a DaVinci timetable, showing the list of all available classes</dd>
  * </dl>
  *
+ * <dt><code>embeddedContentSelector</code> (String, optional)</dt>
+ * <dd>When the DaVinci schedule is embedded in another HTML file using server-side code, you can use this to
+ * specify which HTML elements should be considered as the containers for the DaVinci schedule. The CSS selector
+ * syntax is supported as specified by
+ * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
+ * </dl>
+ *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
  */
 public class DaVinciParser extends BaseParser {
     private static final String ENCODING = "UTF-8";
     private static final String PARAM_URL = "url";
     private static final String PARAM_CLASSES_SOURCE = "classesSource";
+    public static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
 
     public DaVinciParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -183,14 +191,21 @@ public class DaVinciParser extends BaseParser {
         String url = scheduleData.getData().getString(PARAM_URL);
         Document doc = Jsoup.parse(httpGet(url, ENCODING));
         List<String> dayUrls = getDayUrls(url, doc);
-        for (String dayUrl : dayUrls) {
-            Document dayDoc;
-            if (dayUrl.equals(url)) {
-                dayDoc = doc;
-            } else {
-                dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+
+        if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+            for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
+                schedule.addDay(parseDay(el));
             }
-            schedule.addDay(parseDay(dayDoc));
+        } else {
+            for (String dayUrl : dayUrls) {
+                Document dayDoc;
+                if (dayUrl.equals(url)) {
+                    dayDoc = doc;
+                } else {
+                    dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+                }
+                schedule.addDay(parseDay(dayDoc));
+            }
         }
 
         schedule.setWebsite(url);
@@ -242,7 +257,7 @@ public class DaVinciParser extends BaseParser {
     }
 
     @NotNull
-    SubstitutionScheduleDay parseDay(Document doc) throws IOException {
+    SubstitutionScheduleDay parseDay(Element doc) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         String title = doc.select("h1.list-table-caption").first().text();
