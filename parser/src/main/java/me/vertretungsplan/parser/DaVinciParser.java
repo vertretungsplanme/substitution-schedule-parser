@@ -289,10 +289,14 @@ public class DaVinciParser extends BaseParser {
         }
 
         for (Element p : doc.select(".row:has(h1.list-table-caption) p")) {
-            for (TextNode node : p.textNodes()) day.addMessage(node.text().trim());
+            for (TextNode node : p.textNodes()) {
+                if (!node.text().trim().isEmpty()) day.addMessage(node.text().trim());
+            }
         }
         for (Element message : doc.select(".callout")) {
-            for (TextNode node : message.textNodes()) day.addMessage(node.text().trim());
+            for (TextNode node : message.textNodes()) {
+                if (!node.text().trim().isEmpty()) day.addMessage(node.text().trim());
+            }
         }
 
         String lastChange = doc.select(".row.copyright div").first().ownText();
