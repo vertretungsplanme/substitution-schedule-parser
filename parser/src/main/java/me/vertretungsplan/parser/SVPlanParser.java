@@ -157,12 +157,14 @@ public class SVPlanParser extends BaseParser {
                     } else if (type.startsWith("svp-raum") || type.startsWith("Raum"))
                         substitution.setRoom(column.text());
 
-                    if (substitution.getLesson() == null)
+                    if (substitution.getLesson() == null) {
                         substitution.setLesson(lastLesson);
+                    }
                 }
 
                 if (substitution.getType() == null) {
                     substitution.setType("Vertretung");
+                    substitution.setColor(colorProvider.getColor("Vertretung"));
                 }
 
                 day.addSubstitution(substitution);
