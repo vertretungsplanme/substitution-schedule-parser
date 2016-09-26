@@ -29,7 +29,7 @@ import java.util.List;
  * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
  * software and hosted on <a href="http://www.stundenplan24.de/">Stundenplan24.de</a>. Schools only providing the
  * mobile version ("Indiware mobil") of the schedule instead of the desktop version ("Vertretungsplan") are currently
- * not supported.
+ * not supported. The parser also supports schedules in the same format hosted on different URLs.
  * <p>
  * This parser can be accessed using <code>"stundenplan24"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
@@ -37,15 +37,21 @@ import java.util.List;
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>
- * <dt><code>schoolNumber</code> (String, required)</dt>
+ * <dt><code>schoolNumber</code> (String, required if <code>baseurl</code> not specified)</dt>
  * <dd>The 8-digit school number used to access the schedule. It can be found in the URL.</dd>
+ *
+ * <dl>
+ * <dt><code>baseurl</code> (String, required if <code>schoolNumber</code> not specified)</dt>
+ * <dd>Schedule hosted on a custom URL. The URL normally ends with "/vplan" (without slash at the end).</dd>
  *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
  * </dl>
  *
- * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
- * schedules on Stundenplan24.de seem to be protected by a login.
+ * When specifying <code>schoolNumber</code>, you have to use a
+ * {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData}
+ * because all schedules on Stundenplan24.de seem to be protected by a login. Schedules on custom URLs may use
+ * different kinds of login, in that case the parameters from {@link LoginHandler} are supported.
  */
 public class IndiwareStundenplan24Parser extends IndiwareParser {
 
@@ -61,20 +67,26 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
     public SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException {
 
-        if (credential == null || !(credential instanceof UserPasswordCredential)) {
-            throw new IOException("no login");
+        String baseurl;
+        if (data.has("schoolNumber")) {
+            baseurl = "http://www.stundenplan24.de/" + data.getString("schoolNumber") + "/vplan/";
+            if (credential == null || !(credential instanceof UserPasswordCredential)) {
+                throw new IOException("no login");
+            }
+            String login = ((UserPasswordCredential) credential).getUsername();
+            String password = ((UserPasswordCredential) credential).getPassword();
+            executor.auth(login, password);
+        } else {
+            baseurl = data.getString("baseurl") + "/";
+            new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         }
-        String login = ((UserPasswordCredential) credential).getUsername();
-        String password = ((UserPasswordCredential) credential).getPassword();
-        executor.auth(login, password);
 
-        String schoolNumber = data.getString("schoolNumber");
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
-            String url = "http://www.stundenplan24.de/" + schoolNumber + "/vplan/vdaten/VplanKl" + dateStr +
+            String url = baseurl + "vdaten/VplanKl" + dateStr +
                     ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, ENCODING);
@@ -93,7 +105,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
             v.addDay(parseIndiwareDay(doc));
         }
 
-        v.setWebsite("http://www.stundenplan24.de/" + schoolNumber + "/vplan/");
+        v.setWebsite(baseurl);
 
         v.setClasses(getAllClasses());
         v.setTeachers(getAllTeachers());
