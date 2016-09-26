@@ -45,6 +45,9 @@ import java.util.regex.Pattern;
  * <dt><code>encoding</code> (String, required)</dt>
  * <dd>The charset of the XML files. It's probably either UTF-8 or ISO-8859-1.</dd>
  *
+ * <dt><code>columns</code> (Array of Strings, required)</dt>
+ * <dd>As defined in {@link UntisCommonParser}, but additionally supports <code>"columns"</code> as a column type.</dd>
+ *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
  * </dl>
