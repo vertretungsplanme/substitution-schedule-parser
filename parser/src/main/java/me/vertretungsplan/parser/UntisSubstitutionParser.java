@@ -12,6 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,8 +125,10 @@ public class UntisSubstitutionParser extends UntisCommonParser {
                                 + "tr:has(td[align=center]:has(font[color]))")) {
                     SubstitutionScheduleDay day = null;
                     String date = line.select("td").get(dateColumn).text().trim();
+                    LocalDate parsedDate = ParserUtils.parseDate(date);
                     for (SubstitutionScheduleDay search : v.getDays()) {
-                        if (search.getDateString().equals(date)) {
+                        if (Objects.equals(search.getDate(), parsedDate)
+                                || Objects.equals(search.getDateString(), date)) {
                             day = search;
                             break;
                         }
@@ -132,7 +136,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
                     if (day == null) {
                         day = new SubstitutionScheduleDay();
                         day.setDateString(date);
-                        day.setDate(ParserUtils.parseDate(date));
+                        day.setDate(parsedDate);
                         day.setLastChangeString(lastChange);
                         day.setLastChange(lastChangeDate);
                         v.addDay(day);

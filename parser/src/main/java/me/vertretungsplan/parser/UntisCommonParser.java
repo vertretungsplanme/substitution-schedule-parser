@@ -270,6 +270,8 @@ public abstract class UntisCommonParser extends BaseParser {
 										break;
                                     case "ignore":
                                         break;
+                                    case "date": // used by UntisSubstitutionParser
+                                        break;
                                     default:
                                         throw new IllegalArgumentException("Unknown column type: " + type);
                                 }
@@ -400,6 +402,8 @@ public abstract class UntisCommonParser extends BaseParser {
 							klassen = getClassName(text, data);
 							break;
                         case "ignore":
+                            break;
+                        case "date": // used by UntisSubstitutionParser
                             break;
                         default:
                             throw new IllegalArgumentException("Unknown column type: " + type);

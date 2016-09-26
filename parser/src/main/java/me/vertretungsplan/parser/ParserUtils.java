@@ -44,7 +44,8 @@ class ParserUtils {
             "EEEE', den 'dd.MM.yyyy",
             "EEEE', den 'dd.MM",
             "dd.MM.yyyy",
-            "dd.MM"
+            "dd.MM",
+            "d.M."
     };
     private static String[] separators = new String[]{
             " ",
