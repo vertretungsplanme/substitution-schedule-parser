@@ -73,6 +73,10 @@ import java.util.regex.Pattern;
  * <dd>Set this to <code>true</code> if the URL of the actual schedules (displayed in a frame) end with
  * <code>36/w/w00000.htm</code> instead of <code>w/36/w00000.htm</code>. Default: <code>"false"</code>
  * </dd>
+ *
+ * <dt><code>letter</code> (String, optional, Default: <code>w</code>)</dt>
+ * <dd>The letter occurring in the URL of the schedule pages. For student schedules, this is almost always a
+ * <code>w</code>. Teacher schedules use a <code>v</code>.</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules
@@ -135,8 +139,8 @@ public class UntisInfoParser extends UntisCommonParser {
 		
 		for (Element option:select.children()) {
 			String week = option.attr("value");
-            String letter = "w";
-            if (data.optBoolean(PARAM_SINGLE_CLASSES,
+			String letter = data.optString("letter", "w");
+			if (data.optBoolean(PARAM_SINGLE_CLASSES,
                     data.optBoolean("single_classes", false))) { // backwards compatibility
                 int classNumber = 1;
 				for (String klasse:getAllClasses()) {
