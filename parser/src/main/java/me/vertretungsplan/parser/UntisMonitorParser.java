@@ -133,7 +133,7 @@ public class UntisMonitorParser extends UntisCommonParser {
         if (scheduleData.getData().has(PARAM_WEBSITE)) {
             v.setWebsite(scheduleData.getData().getString(PARAM_WEBSITE));
         } else if (urls.length() == 1) {
-            v.setWebsite(urls.getString(0));
+            v.setWebsite(urls.getJSONObject(0).getString("url"));
         }
 
         v.setClasses(getAllClasses());
