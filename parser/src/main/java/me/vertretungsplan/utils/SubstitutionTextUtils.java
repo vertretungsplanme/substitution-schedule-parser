@@ -63,7 +63,7 @@ public class SubstitutionTextUtils {
     private static String room(Substitution substitution) {
         String room = substitution.getRoom();
         String previousRoom = substitution.getPreviousRoom();
-        if (hasData(room) && hasData(previousRoom)) {
+        if (hasData(room) && hasData(previousRoom) && !room.equals(previousRoom)) {
             return String.format("%s statt %s", room, previousRoom);
         } else if (hasData(room)) {
             return room;
