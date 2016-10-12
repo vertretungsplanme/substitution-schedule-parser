@@ -142,6 +142,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "stundenplan24":
                 parser = new IndiwareStundenplan24Parser(data, cookieProvider);
                 break;
+            case "webuntis":
+                parser = new WebUntisParser(data, cookieProvider);
+                break;
         }
         return parser;
     }
@@ -213,7 +216,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
      * @throws IOException Connection or parsing error
      * @throws JSONException Error with the JSON configuration
      */
-    public abstract List<String> getAllClasses() throws IOException, JSONException;
+    public abstract List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException;
 
     /**
      * Get a list of all available teachers. Can also be <code>null</code>.
@@ -223,7 +226,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
      * @throws JSONException Error with the JSON configuration
      */
     @SuppressWarnings("SameReturnValue")
-    public abstract List<String> getAllTeachers() throws IOException, JSONException;
+    public abstract List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException;
 
     public Credential getCredential() {
         return credential;
