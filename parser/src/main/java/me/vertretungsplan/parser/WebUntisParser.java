@@ -90,6 +90,7 @@ public class WebUntisParser extends BaseParser {
             } else {
                 substitution.setType(codeToType(substJson.getString("type")));
             }
+            substitution.setColor(colorProvider.getColor(substitution.getType()));
 
             Set<String> cls = new HashSet<>();
             JSONArray classesJson = substJson.getJSONArray("kl");
@@ -158,6 +159,7 @@ public class WebUntisParser extends BaseParser {
 
         schedule.setClasses(toNamesList(getClasses()));
         schedule.setTeachers(toNamesList(teachers));
+        schedule.setWebsite("https://" + data.getString(PARAM_HOST) + "/WebUntis");
 
         logout();
         return schedule;
