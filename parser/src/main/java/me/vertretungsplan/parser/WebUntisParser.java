@@ -75,8 +75,8 @@ public class WebUntisParser extends BaseParser {
 
         TimeGrid timegrid = new TimeGrid(getTimeGrid());
 
-        JSONArray teachers = getTeachers();
-        Map<String, String> teachersMap = idNameMap(teachers);
+        /*JSONArray teachers = getTeachers();
+        Map<String, String> teachersMap = idNameMap(teachers);*/
 
         JSONArray substitutions = getSubstitutions(LocalDate.now(), LocalDate.now().plusDays(6));
 
@@ -129,12 +129,12 @@ public class WebUntisParser extends BaseParser {
             substitution.setRoom(room);
             substitution.setPreviousRoom(previousRoom);
 
-            JSONArray teachersJson = substJson.getJSONArray("te");
+            /*JSONArray teachersJson = substJson.getJSONArray("te");
             if (teachersJson.length() > 1) throw new IOException("more than one teacher");
             if (teachersJson.length() != 0) {
                 substitution.setTeacher(teachersMap.get(teachersJson.getJSONObject(0).getString("id")));
                 substitution.setPreviousTeacher(teachersMap.get(teachersJson.getJSONObject(0).optString("orgid")));
-            }
+            }*/
 
             substitution.setDesc(substJson.optString("txt"));
 
@@ -159,7 +159,6 @@ public class WebUntisParser extends BaseParser {
         }
 
         schedule.setClasses(toNamesList(getClasses()));
-        schedule.setTeachers(toNamesList(teachers));
         schedule.setWebsite("https://" + data.getString(PARAM_HOST) + "/WebUntis");
 
         logout();
