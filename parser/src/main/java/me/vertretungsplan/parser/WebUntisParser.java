@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -270,7 +271,7 @@ public class WebUntisParser extends BaseParser {
         String host = data.getString(PARAM_HOST);
         String school = data.getString(PARAM_SCHOOLNAME);
 
-        String url = "https://" + host + "/WebUntis/jsonrpc.do?school=" + school;
+        String url = "https://" + host + "/WebUntis/jsonrpc.do?school=" + URLEncoder.encode(school, "UTF-8");
 
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", USERAGENT);
