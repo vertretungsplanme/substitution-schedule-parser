@@ -48,6 +48,9 @@ import java.util.List;
  *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * <dt><code>classSeparator</code> (String, optional, Default: <code>, `</code>)</dt>
+ * <dd>The string with which multiple classes are separated.</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -56,6 +59,7 @@ public class SVPlanParser extends BaseParser {
 
     private static final String PARAM_URLS = "urls";
     private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_CLASS_SEPARATOR = "classSeparator";
     private JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -141,9 +145,10 @@ public class SVPlanParser extends BaseParser {
                     if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
                         substitution.setLesson(column.text());
                         lastLesson = column.text();
-                    } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse"))
-                        substitution.getClasses().addAll(Arrays.asList(column.text().split(", ")));
-                    else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer"))
+                    } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
+                        substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
+                                (PARAM_CLASS_SEPARATOR, ", "))));
+                    } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer"))
                         substitution.setPreviousTeacher(column.text());
                     else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung"))
                         substitution.setTeacher(column.text());
