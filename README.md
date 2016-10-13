@@ -27,11 +27,12 @@ as soon as possible.
 ## Supported substitution schedule software systems
 Below you find the currently supported substitution schedule softwares and the corresponding values for `SubstitutionScheduleData.setApi()`:
 
-* Untis (*not* WebUntis)
+* Untis
   * Monitor-Vertretungsplan ([example](http://vertretung.lornsenschule.de/schueler/subst_001.htm)) `"untis-monitor"`
   * Vertretungsplan ([example](http://www.jkg-stuttgart.de/jkgdata/vertretungsplan/sa3.htm)) `"untis-subst"`
   * Info-Stundenplan ([example](http://www.akg-bensheim.de/akgweb2011/content/Vertretung/default.htm)) `"untis-info"`
   * Info-Stundenplan without header ([example](http://www.egwerther.de/vertretungsplan/w00000.htm)) `"untis-info-headless"`
+  * WebUntis `"webuntis"` (see note below)
 * svPlan ([example](http://www.ratsschule.de/Vplan/PH_heute.htm)) `"svplan"`
 * DaVinci ([example](http://hochtaunusschule.de/hts-vertretungsplan/)) `"davinci"`
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
@@ -42,7 +43,7 @@ Below you find the currently supported substitution schedule softwares and the c
   * XML export [example](http://burg-gymnasiumwettin.de/sites/schule/plan/mo.xml) `"indiware"`
   * Stundenplan24.de `"stundenplan24"`
 
-*WebUntis* is currently not supported. It should theoretically be possible to implement a corresponding parser, but keep in mind that polling its API too often (more than once an hour) is [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
+A parser for *WebUntis* is included, but keep in mind that polling its API too often (more than once an hour) is allegedly [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
 
 Depending on the type of software, different options need to be supplied in `SubstitutionScheduleData.setData()`. Documentation about these parameters can be found on each parser's page in the [Javadoc](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
