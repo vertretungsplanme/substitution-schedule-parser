@@ -17,10 +17,7 @@ import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.http.entity.ContentType;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -66,6 +63,7 @@ public class WebUntisParser extends BaseParser {
     private String sessionId;
     private static final String USERAGENT = "vertretungsplan.me";
     private String sharedSecret;
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
 
     WebUntisParser(SubstitutionScheduleData scheduleData,
                    CookieProvider cookieProvider) {
@@ -84,7 +82,25 @@ public class WebUntisParser extends BaseParser {
         /*JSONArray teachers = getTeachers();
         Map<String, String> teachersMap = idNameMap(teachers);*/
 
-        JSONArray substitutions = getSubstitutions(LocalDate.now(), LocalDate.now().plusDays(6));
+        JSONArray holidays = getHolidays();
+        // find out if there's a holiday currently and if so, also display substitutions after it
+        int daysToAdd = 0;
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i < holidays.length(); i++) {
+            LocalDate startDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
+                    ("startDate")));
+            LocalDate endDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
+                    ("endDate")));
+            if (!startDate.isAfter(today.plusDays(6)) && !endDate.isBefore(today)) {
+                if (startDate.isBefore(today)) {
+                    daysToAdd += Days.daysBetween(today, endDate).getDays() + 1;
+                } else {
+                    daysToAdd += Days.daysBetween(startDate, endDate).getDays() + 2;
+                }
+            }
+        }
+
+        JSONArray substitutions = getSubstitutions(today, today.plusDays(6 + daysToAdd));
 
         Map<LocalDate, SubstitutionScheduleDay> days = new HashMap<>();
 
@@ -152,10 +168,9 @@ public class WebUntisParser extends BaseParser {
 
             substitution.setDesc(substJson.optString("txt"));
 
-            DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMdd");
             DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HHmm");
 
-            LocalDate date = dateFormat.parseLocalDate(String.valueOf(substJson.getInt("date")));
+            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(substJson.getInt("date")));
             LocalTime start = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("startTime")));
             LocalTime end = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("endTime")));
 
@@ -209,15 +224,18 @@ public class WebUntisParser extends BaseParser {
     private JSONArray getSubstitutions(LocalDate start, LocalDate end)
             throws CredentialInvalidException, IOException, JSONException {
         JSONObject params = new JSONObject();
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
-        params.put("startDate", fmt.print(start));
-        params.put("endDate", fmt.print(end));
+        params.put("startDate", DATE_FORMAT.print(start));
+        params.put("endDate", DATE_FORMAT.print(end));
         params.put("departmentId", 0);
         return (JSONArray) request("getSubstitutions", params);
     }
 
     private JSONArray getTimeGrid() throws JSONException, CredentialInvalidException, IOException {
         return (JSONArray) request("getTimegridUnits");
+    }
+
+    private JSONArray getHolidays() throws JSONException, CredentialInvalidException, IOException {
+        return (JSONArray) request("getHolidays");
     }
 
     private LocalDateTime getLastImport() throws JSONException, CredentialInvalidException, IOException {
