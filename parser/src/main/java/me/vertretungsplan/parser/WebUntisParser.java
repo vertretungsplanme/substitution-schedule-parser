@@ -14,6 +14,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.codec.binary.Base32;
 import org.apache.http.entity.ContentType;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -27,8 +28,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -60,6 +65,7 @@ public class WebUntisParser extends BaseParser {
     private final JSONObject data;
     private String sessionId;
     private static final String USERAGENT = "vertretungsplan.me";
+    private String sharedSecret;
 
     WebUntisParser(SubstitutionScheduleData scheduleData,
                    CookieProvider cookieProvider) {
@@ -155,13 +161,7 @@ public class WebUntisParser extends BaseParser {
 
             substitution.setLesson(timegrid.getDay(date.getDayOfWeek()).getLesson(start, end));
 
-            SubstitutionScheduleDay day = days.get(date);
-            if (day == null) {
-                day = new SubstitutionScheduleDay();
-                day.setDate(date);
-                schedule.addDay(day);
-                days.put(date, day);
-            }
+            SubstitutionScheduleDay day = getDayForDate(schedule, days, date);
 
             day.addSubstitution(substitution);
         }
@@ -170,7 +170,40 @@ public class WebUntisParser extends BaseParser {
         schedule.setWebsite("https://" + data.getString(PARAM_HOST) + "/WebUntis");
 
         logout();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = LocalDate.now().plusDays(i);
+            JSONArray messages = getMessagesOfDay(date).getJSONObject("messageOfDayCollection")
+                    .getJSONArray("messages");
+            if (messages.length() > 0) {
+                SubstitutionScheduleDay day = getDayForDate(schedule, days, date);
+                for (int j = 0; j < messages.length(); j++) {
+                    day.addMessage(messages.getJSONObject(j).getString("text"));
+                }
+            }
+        }
         return schedule;
+    }
+
+    @NotNull private static SubstitutionScheduleDay getDayForDate(SubstitutionSchedule schedule,
+                                                                  Map<LocalDate, SubstitutionScheduleDay> days,
+                                                                  LocalDate date) {
+        SubstitutionScheduleDay day = days.get(date);
+        if (day == null) {
+            day = new SubstitutionScheduleDay();
+            day.setDate(date);
+            schedule.addDay(day);
+            days.put(date, day);
+        }
+        return day;
+    }
+
+    private JSONObject getMessagesOfDay(LocalDate date) throws JSONException, CredentialInvalidException, IOException {
+        // messages only seem to work if they are set as "public" in WebUntis.
+        loginInternal();
+        JSONObject params = new JSONObject();
+        params.put("date", date.toString());
+        return (JSONObject) request("getMessagesOfDay", params, true);
     }
 
     private JSONArray getSubstitutions(LocalDate start, LocalDate end)
@@ -275,18 +308,43 @@ public class WebUntisParser extends BaseParser {
 
     private Object request(String method, @NotNull JSONObject params)
             throws JSONException, IOException, CredentialInvalidException {
+        return request(method, params, false);
+    }
+
+    private Object request(String method, @NotNull JSONObject params, boolean internal)
+            throws JSONException, IOException, CredentialInvalidException {
         String host = data.getString(PARAM_HOST);
         String school = data.getString(PARAM_SCHOOLNAME);
 
-        String url = "https://" + host + "/WebUntis/jsonrpc.do?school=" + URLEncoder.encode(school, "UTF-8");
+        String url = "https://" + host + "/WebUntis/jsonrpc" + (internal ? "_intern" : "") + ".do?school=" +
+                URLEncoder.encode(school, "UTF-8");
 
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", USERAGENT);
 
+        if (internal && !method.equals("getAppSharedSecret")) {
+            JSONObject auth = new JSONObject();
+            long time = System.currentTimeMillis();
+            auth.put("user", ((UserPasswordCredential) credential).getUsername());
+            try {
+                auth.put("otp", authCodeInternal(time));
+            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+                throw new IOException(e);
+            }
+            auth.put("clientTime", time);
+            params.put("auth", auth);
+        }
+
         JSONObject body = new JSONObject();
         body.put("id", ISODateTimeFormat.dateTime().print(DateTime.now()));
         body.put("method", method);
-        body.put("params", params);
+        if (internal) {
+            JSONArray paramsArray = new JSONArray();
+            paramsArray.put(params);
+            body.put("params", paramsArray);
+        } else {
+            body.put("params", params);
+        }
         body.put("jsonrpc", "2.0");
 
         JSONObject response = new JSONObject(
@@ -362,5 +420,42 @@ public class WebUntisParser extends BaseParser {
 
     @NotNull private String getParseableTime(int value) {
         return String.format("%04d", value);
+    }
+
+    private void loginInternal() throws JSONException, IOException, CredentialInvalidException {
+        if (sharedSecret != null) return;
+
+        JSONObject params = new JSONObject();
+        params.put("userName", ((UserPasswordCredential) credential).getUsername());
+        params.put("password", ((UserPasswordCredential) credential).getPassword());
+        params.put("client", USERAGENT);
+        sharedSecret = (String) request("getAppSharedSecret", params, true);
+    }
+
+    private int authCodeInternal(long time) throws NoSuchAlgorithmException, InvalidKeyException {
+        long t = time / 30000;
+        byte[] key = new Base32().decode(sharedSecret.toUpperCase().getBytes());
+        byte[] data = new byte[8];
+        long value = t;
+        int i = 8;
+        while (true) {
+            int i2 = i - 1;
+            if (i <= 0) {
+                break;
+            }
+            data[i2] = (byte) ((int) value);
+            value >>>= 8;
+            i = i2;
+        }
+        SecretKeySpec signKey = new SecretKeySpec(key, "HmacSHA1");
+        Mac mac = Mac.getInstance("HmacSHA1");
+        mac.init(signKey);
+        byte[] hash = mac.doFinal(data);
+        int offset = hash[19] & 15;
+        long truncatedHash = 0;
+        for (int i2 = 0; i2 < 4; i2 += 1) {
+            truncatedHash = (truncatedHash << 8) | ((long) (hash[offset + i2] & 255));
+        }
+        return (int) ((truncatedHash & 2147483647L) % 1000000);
     }
 }
