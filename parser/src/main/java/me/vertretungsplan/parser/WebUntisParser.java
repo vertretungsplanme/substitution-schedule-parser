@@ -79,8 +79,11 @@ public class WebUntisParser extends BaseParser {
 
         TimeGrid timegrid = new TimeGrid(getTimeGrid());
 
-        /*JSONArray teachers = getTeachers();
-        Map<String, String> teachersMap = idNameMap(teachers);*/
+        Map<String, String> teachersMap = null;
+        if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
+            JSONArray teachers = getTeachers();
+            teachersMap = idNameMap(teachers);
+        }
 
         JSONArray holidays = getHolidays();
         // find out if there's a holiday currently and if so, also display substitutions after it
@@ -159,12 +162,15 @@ public class WebUntisParser extends BaseParser {
             substitution.setRoom(room);
             substitution.setPreviousRoom(previousRoom);
 
-            /*JSONArray teachersJson = substJson.getJSONArray("te");
-            if (teachersJson.length() > 1) throw new IOException("more than one teacher");
-            if (teachersJson.length() != 0) {
-                substitution.setTeacher(teachersMap.get(teachersJson.getJSONObject(0).getString("id")));
-                substitution.setPreviousTeacher(teachersMap.get(teachersJson.getJSONObject(0).optString("orgid")));
-            }*/
+            if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
+                assert teachersMap != null;
+                JSONArray teachersJson = substJson.getJSONArray("te");
+                if (teachersJson.length() > 1) throw new IOException("more than one teacher");
+                if (teachersJson.length() != 0) {
+                    substitution.setTeacher(teachersMap.get(teachersJson.getJSONObject(0).getString("id")));
+                    substitution.setPreviousTeacher(teachersMap.get(teachersJson.getJSONObject(0).optString("orgid")));
+                }
+            }
 
             substitution.setDesc(substJson.optString("txt"));
 
@@ -257,6 +263,7 @@ public class WebUntisParser extends BaseParser {
             case "cancel":
                 return "Entfall";
             case "subst":
+            case "stxt":
                 return "Vertretung";
             case "rmchg":
                 return "Raumänderung";
@@ -264,6 +271,8 @@ public class WebUntisParser extends BaseParser {
                 return "Sondereins.";
             case "shift":
                 return "Verlegung";
+            case "free":
+                return "Freisetzung";
             default:
                 System.err.println("unknown type: " + code);
                 return code;
