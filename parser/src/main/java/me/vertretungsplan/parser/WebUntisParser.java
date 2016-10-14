@@ -101,10 +101,18 @@ public class WebUntisParser extends BaseParser {
             substitution.setClasses(cls);
 
             JSONArray subjectsJson = substJson.getJSONArray("su");
-            if (subjectsJson.length() > 1) throw new IOException("more than one subject");
-            if (subjectsJson.length() != 0) {
-                substitution.setSubject(subjectsJson.getJSONObject(0).getString("name"));
+            String subject = null;
+            for (int k = 0; k < subjectsJson.length(); k++) {
+                JSONObject subjectJson = subjectsJson.getJSONObject(k);
+                if (subjectJson.has("name")) {
+                    if (subject == null) {
+                        subject = subjectJson.getString("name");
+                    } else {
+                        subject += ", " + subjectJson.getString("name");
+                    }
+                }
             }
+            substitution.setSubject(subject);
 
             JSONArray roomsJson = substJson.getJSONArray("ro");
             String room = null;
@@ -353,8 +361,6 @@ public class WebUntisParser extends BaseParser {
     }
 
     @NotNull private String getParseableTime(int value) {
-        String startTime = String.valueOf(value);
-        if (startTime.length() == 3) startTime = "0" + startTime;
-        return startTime;
+        return String.format("%04d", value);
     }
 }
