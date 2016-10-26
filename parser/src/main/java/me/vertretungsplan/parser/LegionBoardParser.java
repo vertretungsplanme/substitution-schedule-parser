@@ -179,7 +179,7 @@ public class LegionBoardParser extends BaseParser {
 				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
-				for (int k = 0; k < 7; k++) {
+				for (int k = 0; k < 8; k++) {
 					final LocalDate date = LocalDate.now().plusDays(k);
 					if ((date.isAfter(startingDate) || date.isEqual(startingDate)) &&
 						(date.isBefore(endingDate) || date.isEqual(endingDate))) {
