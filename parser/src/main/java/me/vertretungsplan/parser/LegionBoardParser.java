@@ -29,7 +29,7 @@ import java.util.*;
 /**
  * Parser for LegionBoard, an open source changes management system for schools.
  * <p>
- * More information can be found on the <a href="https://legionboard.github.io">official website</a> and on its
+ * More information can be found on the <a href="http://legionboard.org">official website</a> and on its
  * <a href="https://gitlab.com/groups/legionboard">project page on GitLab</a>.
  * <p>
  * This parser can be accessed using <code>"legionboard"</code> for {@link SubstitutionScheduleData#setApi(String)}.
@@ -179,7 +179,7 @@ public class LegionBoardParser extends BaseParser {
 				if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
 					substitutionSchedule.addDay(substitutionScheduleDay);
 				}
-				for (int k = 0; k < 7; k++) {
+				for (int k = 0; k < 8; k++) {
 					final LocalDate date = LocalDate.now().plusDays(k);
 					if ((date.isAfter(startingDate) || date.isEqual(startingDate)) &&
 						(date.isBefore(endingDate) || date.isEqual(endingDate))) {
