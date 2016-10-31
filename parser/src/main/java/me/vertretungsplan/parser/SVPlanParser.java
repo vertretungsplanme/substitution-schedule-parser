@@ -139,19 +139,20 @@ public class SVPlanParser extends BaseParser {
                     } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
                         substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
                                 (PARAM_CLASS_SEPARATOR, ", "))));
-                    } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer"))
+                    } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
                         if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setPreviousTeacher(column.text());
-                    else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung"))
+                    } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
                         if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setTeacher(column.text());
-                    else if (type.startsWith("svp-fach") || type.startsWith("Fach"))
+                    } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
                         substitution.setSubject(column.text());
-                    else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
+                    } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
                         substitution.setDesc(column.text());
                         String recognizedType = recognizeType(column.text());
                         substitution.setType(recognizedType);
                         substitution.setColor(colorProvider.getColor(recognizedType));
-                    } else if (type.startsWith("svp-raum") || type.startsWith("Raum"))
+                    } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
                         substitution.setRoom(column.text());
+                    }
 
                     if (substitution.getLesson() == null) {
                         substitution.setLesson(lastLesson);
