@@ -49,8 +49,11 @@ import java.util.List;
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
  *
- * <dt><code>classSeparator</code> (String, optional, Default: <code>, `</code>)</dt>
+ * <dt><code>classSeparator</code> (String, optional, Default: <code>", "</code>)</dt>
  * <dd>The string with which multiple classes are separated.</dd>
+ *
+ * <dt><code>excludeTeachers</code> (Boolean, optional, Default: <code>false</code>)</dt>
+ * <dd>Don't show teachers on the schedule.</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -60,6 +63,7 @@ public class SVPlanParser extends BaseParser {
     private static final String PARAM_URLS = "urls";
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_CLASS_SEPARATOR = "classSeparator";
+    private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
     private JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -136,9 +140,9 @@ public class SVPlanParser extends BaseParser {
                         substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
                                 (PARAM_CLASS_SEPARATOR, ", "))));
                     } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer"))
-                        substitution.setPreviousTeacher(column.text());
+                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setPreviousTeacher(column.text());
                     else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung"))
-                        substitution.setTeacher(column.text());
+                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setTeacher(column.text());
                     else if (type.startsWith("svp-fach") || type.startsWith("Fach"))
                         substitution.setSubject(column.text());
                     else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
