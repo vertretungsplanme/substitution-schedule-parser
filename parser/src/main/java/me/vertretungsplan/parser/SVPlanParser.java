@@ -121,12 +121,11 @@ public class SVPlanParser extends BaseParser {
             Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
             String lastLesson = "";
             for (Element row : rows) {
-                if (row.hasClass("svp-header") || (row.parent().select(".gerade").size() > 0 &&
+                if (row.hasClass("svp-header") || (row.select(".gerade").size() == 0 &&
                         row.select(".ungerade").size() == 0))
                     continue;
 
                 Substitution substitution = new Substitution();
-                List<String> affectedClasses = new ArrayList<>();
 
                 for (Element column : row.select("td")) {
                     if (!hasData(column.text())) {
