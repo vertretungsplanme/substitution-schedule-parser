@@ -122,7 +122,8 @@ public class SVPlanParser extends BaseParser {
             String lastLesson = "";
             for (Element row : rows) {
                 if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
-                        || (row.select(".gerade").size() == 0 && row.select(".ungerade").size() == 0))
+                        || (doc.select(".svp-header").size() == 0
+                        && row.select(".gerade").size() == 0 && row.select(".ungerade").size() == 0))
                     continue;
 
                 Substitution substitution = new Substitution();
@@ -172,10 +173,16 @@ public class SVPlanParser extends BaseParser {
                 while (sibling != null && sibling.tagName().equals("p")) {
                     for (String nachricht : TextNode.createFromEncoded(sibling.html(), null).getWholeText()
                             .split("<br />\\s*<br />")) {
-                        if (hasData(nachricht))
-                            day.addMessage(nachricht);
+                        if (hasData(nachricht)) day.addMessage(nachricht);
                     }
                     sibling = sibling.nextElementSibling();
+                }
+            } else if (svp.select(".Mitteilungen").size() > 0) {
+                for (Element p : svp.select(".Mitteilungen")) {
+                    for (String nachricht : TextNode.createFromEncoded(p.html(), null).getWholeText()
+                            .split("<br />\\s*<br />")) {
+                        if (hasData(nachricht)) day.addMessage(nachricht);
+                    }
                 }
             }
 

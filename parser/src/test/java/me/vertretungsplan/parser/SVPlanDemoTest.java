@@ -29,22 +29,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SVPlanDemoTest extends BaseDemoTest {
-    private String html;
+    private String html1;
+    private String html2;
 
     private SVPlanParser parser;
 
     @Before
     public void setUp() throws JSONException {
-        html = readResource("/svplan/svplan.html");
+        html1 = readResource("/svplan/svplan1.html");
+        html2 = readResource("/svplan/svplan2.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new SVPlanParser(scheduleData, null);
     }
 
     @Test
-    public void demoTest() throws IOException, JSONException {
+    public void demoTest1() throws IOException, JSONException {
         List<Document> docs = new ArrayList<>();
-        docs.add(Jsoup.parse(html));
+        docs.add(Jsoup.parse(html1));
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
         assertEquals(new LocalDateTime(2016, 9, 2, 11, 10), schedule.getLastChange());
@@ -56,6 +58,35 @@ public class SVPlanDemoTest extends BaseDemoTest {
         assertEquals(14, day.getSubstitutions().size());
         assertEquals(1, day.getMessages().size());
         assertEquals("Ordnungsdienst:9BR<br>", day.getMessages().get(0));
+
+        for (Substitution subst : day.getSubstitutions()) {
+            assertTrue(subst.getClasses().size() == 1);
+            assertNotEmpty(subst.getLesson());
+            assertNullOrNotEmpty(subst.getPreviousSubject());
+            assertNotEmpty(subst.getSubject());
+            assertNullOrNotEmpty(subst.getRoom());
+            assertNullOrNotEmpty(subst.getTeacher());
+            assertNullOrNotEmpty(subst.getPreviousTeacher());
+            assertNullOrNotEmpty(subst.getDesc());
+            assertNotEmpty(subst.getType());
+        }
+    }
+
+    @Test
+    public void demoTest2() throws IOException, JSONException {
+        List<Document> docs = new ArrayList<>();
+        docs.add(Jsoup.parse(html2));
+        SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
+
+        assertEquals(new LocalDateTime(2016, 11, 6, 19, 36, 18), schedule.getLastChange());
+        assertEquals(1, schedule.getDays().size());
+
+        SubstitutionScheduleDay day = schedule.getDays().get(0);
+
+        assertEquals(new LocalDate(2016, 11, 7), day.getDate());
+        assertEquals(19, day.getSubstitutions().size());
+        assertEquals(1, day.getMessages().size());
+        assertEquals("Sprechtag Frau Fildebrandt (Klasse 9).", day.getMessages().get(0));
 
         for (Substitution subst : day.getSubstitutions()) {
             assertTrue(subst.getClasses().size() == 1);
