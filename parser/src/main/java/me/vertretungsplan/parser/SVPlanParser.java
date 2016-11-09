@@ -167,6 +167,13 @@ public class SVPlanParser extends BaseParser {
                 day.addSubstitution(substitution);
             }
 
+            if (svp.select(".LehrerVerplant").size() > 0) {
+                day.addMessage("<b>Verplante Lehrer:</b> " + svp.select(".LehrerVerplant").text());
+            }
+            if (svp.select(".Abwesenheiten").size() > 0) {
+                day.addMessage("<b>Abwesenheiten:</b> " + svp.select(".Abwesenheiten").text());
+            }
+
             if (svp.select("h2:contains(Mitteilungen)").size() > 0) {
                 Element h2 = svp.select("h2:contains(Mitteilungen)").first();
                 Element sibling = h2.nextElementSibling();
