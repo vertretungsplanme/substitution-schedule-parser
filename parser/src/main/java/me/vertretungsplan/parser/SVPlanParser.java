@@ -142,7 +142,9 @@ public class SVPlanParser extends BaseParser {
                     } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
                         if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setPreviousTeacher(column.text());
                     } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
-                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setTeacher(column.text());
+                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                            substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+                        }
                     } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
                         substitution.setSubject(column.text());
                     } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
