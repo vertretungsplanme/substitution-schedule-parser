@@ -52,10 +52,6 @@ import java.util.*;
  * <dt><code>schoolname</code> (String, required)</dt>
  * <dd>The school name entered into WebUntis for login.</dd>
  *
- * <dt><code>withTeachers</code> (Boolean, optional, default: <code>true</code> for teacher schedules,
- * <code>false</code> for student schedules)</dt>
- * <dd>Whether to show teachers on the schedule. If set to <code>true</code> and the user has no right to access
- * teachers in WebUntis, a {@link CredentialInvalidException} will be thrown.</dd>
  * </dl>
  *
  * Schedules on WebUntis are always protected using a
@@ -64,7 +60,6 @@ import java.util.*;
 public class WebUntisParser extends BaseParser {
     private static final String PARAM_HOST = "host";
     private static final String PARAM_SCHOOLNAME = "schoolname";
-    private static final String PARAM_WITH_TEACHERS = "withTeachers";
     private final JSONObject data;
     private String sessionId;
     private static final String USERAGENT = "vertretungsplan.me";
@@ -85,12 +80,9 @@ public class WebUntisParser extends BaseParser {
 
         TimeGrid timegrid = new TimeGrid(getTimeGrid());
 
-        Map<String, String> teachersMap = null;
-        boolean showTeachers = data.optBoolean(PARAM_WITH_TEACHERS,
-                schedule.getType() == SubstitutionSchedule.Type.TEACHER);
-        if (showTeachers) {
-            JSONArray teachers = getTeachers();
-            teachersMap = idNameMap(teachers);
+        if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
+            // check if we have the permission to access teachers.
+            getTeachers();
         }
 
         JSONArray holidays = getHolidays();
@@ -170,15 +162,28 @@ public class WebUntisParser extends BaseParser {
             substitution.setRoom(room);
             substitution.setPreviousRoom(previousRoom);
 
-            if (showTeachers) {
-                assert teachersMap != null;
-                JSONArray teachersJson = substJson.getJSONArray("te");
-                if (teachersJson.length() > 1) throw new IOException("more than one teacher");
-                if (teachersJson.length() != 0) {
-                    substitution.setTeacher(teachersMap.get(teachersJson.getJSONObject(0).getString("id")));
-                    substitution.setPreviousTeacher(teachersMap.get(teachersJson.getJSONObject(0).optString("orgid")));
+            JSONArray teachersJson = substJson.getJSONArray("te");
+            String teacher = null;
+            String previousTeacher = null;
+            for (int k = 0; k < teachersJson.length(); k++) {
+                JSONObject teacherJson = teachersJson.getJSONObject(k);
+                if (teacherJson.has("name")) {
+                    if (teacher == null) {
+                        teacher = teacherJson.getString("name");
+                    } else {
+                        teacher += ", " + teacherJson.getString("name");
+                    }
+                }
+                if (teacherJson.has("orgname")) {
+                    if (previousTeacher == null) {
+                        previousTeacher = teacherJson.getString("orgname");
+                    } else {
+                        previousTeacher += ", " + teacherJson.getString("orgname");
+                    }
                 }
             }
+            substitution.setTeacher(teacher);
+            substitution.setPreviousTeacher(previousTeacher);
 
             substitution.setDesc(substJson.optString("txt"));
 
