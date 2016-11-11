@@ -51,6 +51,11 @@ import java.util.*;
  *
  * <dt><code>schoolname</code> (String, required)</dt>
  * <dd>The school name entered into WebUntis for login.</dd>
+ *
+ * <dt><code>withTeachers</code> (Boolean, optional, default: <code>true</code> for teacher schedules,
+ * <code>false</code> for student schedules)</dt>
+ * <dd>Whether to show teachers on the schedule. If set to <code>true</code> and the user has no right to access
+ * teachers in WebUntis, a {@link CredentialInvalidException} will be thrown.</dd>
  * </dl>
  *
  * Schedules on WebUntis are always protected using a
@@ -59,6 +64,7 @@ import java.util.*;
 public class WebUntisParser extends BaseParser {
     private static final String PARAM_HOST = "host";
     private static final String PARAM_SCHOOLNAME = "schoolname";
+    private static final String PARAM_WITH_TEACHERS = "withTeachers";
     private final JSONObject data;
     private String sessionId;
     private static final String USERAGENT = "vertretungsplan.me";
@@ -80,7 +86,9 @@ public class WebUntisParser extends BaseParser {
         TimeGrid timegrid = new TimeGrid(getTimeGrid());
 
         Map<String, String> teachersMap = null;
-        if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
+        boolean showTeachers = data.optBoolean(PARAM_WITH_TEACHERS,
+                schedule.getType() == SubstitutionSchedule.Type.TEACHER);
+        if (showTeachers) {
             JSONArray teachers = getTeachers();
             teachersMap = idNameMap(teachers);
         }
@@ -162,7 +170,7 @@ public class WebUntisParser extends BaseParser {
             substitution.setRoom(room);
             substitution.setPreviousRoom(previousRoom);
 
-            if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
+            if (showTeachers) {
                 assert teachersMap != null;
                 JSONArray teachersJson = substJson.getJSONArray("te");
                 if (teachersJson.length() > 1) throw new IOException("more than one teacher");
