@@ -398,6 +398,9 @@ public class WebUntisParser extends BaseParser {
                     throw new IOException("Method not found");
                 case -8504:
                     throw new CredentialInvalidException();
+                case -8998:
+                    // Benutzer vorübergehend gesperrt
+                    throw new CredentialInvalidException();
                 case -8520:
                     throw new IOException("not logged in");
                 default:
