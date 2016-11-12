@@ -34,7 +34,7 @@ class ParserUtils {
             "EEEE', den 'dd.M.yyyy",
             "EEEE', den 'dd.M",
             "dd.M.yyyy",
-            "dd.M",
+            "dd.M.",
             "dd.MM.yyyy EEEE",
             "dd.MM EEEE",
             "EEEE, dd.MM.yyyy",
@@ -44,7 +44,7 @@ class ParserUtils {
             "EEEE', den 'dd.MM.yyyy",
             "EEEE', den 'dd.MM",
             "dd.MM.yyyy",
-            "dd.MM",
+            "dd.MM.",
             "d.M.yyyy EEEE",
             "d.M. EEEE",
             "d.M. EEEE",
@@ -55,7 +55,7 @@ class ParserUtils {
             "EEEE', den 'd.M.yyyy",
             "EEEE', den 'd.M",
             "d.M.yyyy",
-            "d.M",
+            "d.M.",
             "EEEE, d. MMMM yyyy"
     };
     private static String[] separators = new String[]{
