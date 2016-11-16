@@ -259,8 +259,8 @@ public class LegionBoardParser extends BaseParser {
 		// Set description
 		substitution.setDesc(change.getString("text"));
 		// Set lesson
-		final String startingHour = change.getString("startingHour");
-		final String endingHour = change.getString("endingHour");
+		final String startingHour = change.getString("startingHour").replaceFirst("^0+(?!$)", "");
+		final String endingHour = change.getString("endingHour").replaceFirst("^0+(?!$)", "");
 		if (!startingHour.equals("") || !endingHour.equals("")) {
 			String lesson = "";
 			if (!startingHour.equals("") && endingHour.equals("")) {
