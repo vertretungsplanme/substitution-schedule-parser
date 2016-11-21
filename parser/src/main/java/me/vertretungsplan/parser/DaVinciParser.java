@@ -316,7 +316,7 @@ public class DaVinciParser extends BaseParser {
     }
 
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException {
+    public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
         if (scheduleData.getData().has(PARAM_CLASSES_SOURCE)) {
             Document doc = Jsoup.parse(httpGet(scheduleData.getData().getString("classesSource"), ENCODING));
             List<String> classes = new ArrayList<>();

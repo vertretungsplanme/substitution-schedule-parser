@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
@@ -148,8 +149,8 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param day   the {@link SubstitutionScheduleDay} where the substitutions will be stored
      */
     void parseSubstitutionScheduleTable(Element table, JSONObject data,
-                                        SubstitutionScheduleDay day) throws JSONException {
-        parseSubstitutionScheduleTable(table, data, day, null);
+										SubstitutionScheduleDay day) throws JSONException, CredentialInvalidException {
+		parseSubstitutionScheduleTable(table, data, day, null);
     }
 
 	/**
@@ -161,8 +162,9 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param defaultClass    the class that should be set if there is no class column in the table
      */
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
-                                                SubstitutionScheduleDay day, String defaultClass) throws JSONException {
-        if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
+												SubstitutionScheduleDay day, String defaultClass)
+			throws JSONException, CredentialInvalidException {
+		if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
                 || data.optBoolean("class_in_extra_line")) { // backwards compatibility
             for (Element element : table.select("td.inline_header")) {
 				String className = getClassName(element.text(), data);
@@ -560,7 +562,7 @@ public abstract class UntisCommonParser extends BaseParser {
 	}
 
     SubstitutionScheduleDay parseMonitorDay(Element doc, JSONObject data) throws
-            JSONException {
+			JSONException, CredentialInvalidException {
 		SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 		String date = doc.select(".mon_title").first().text().replaceAll(" \\(Seite \\d+ / \\d+\\)", "");
 		day.setDateString(date);
@@ -594,13 +596,13 @@ public abstract class UntisCommonParser extends BaseParser {
 	}
 
 	@Override
-	public List<String> getAllClasses() throws IOException, JSONException {
+	public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
 		return getClassesFromJson();
 	}
 
     void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
-            JSONException {
-        if (next.className().equals("subst")) {
+			JSONException, CredentialInvalidException {
+		if (next.className().equals("subst")) {
             //Vertretungstabelle
 			if (next.text().contains("Vertretungen sind nicht freigegeben")) {
 				return;

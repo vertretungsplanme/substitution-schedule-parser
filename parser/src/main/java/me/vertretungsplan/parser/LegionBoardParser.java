@@ -103,7 +103,7 @@ public class LegionBoardParser extends BaseParser {
 	 * Returns a JSONArray with all changes from now to in one week.
 	 * More information: <a href="https://gitlab.com/legionboard/heart/blob/master/doc/changes/list.md">List changes</a>
 	 */
-	private JSONArray getChanges() throws IOException, JSONException {
+	private JSONArray getChanges() throws IOException, JSONException, CredentialInvalidException {
 		// Date (or alias of date) when the changes start
 		final String startBy = "now";
 		// Date (or alias of date) when the changes end
@@ -117,7 +117,7 @@ public class LegionBoardParser extends BaseParser {
 	 * Returns a JSONArray with all courses.
 	 * More information: <a href="https://gitlab.com/legionboard/heart/blob/master/doc/courses/list.md">List courses</a>
 	 */
-	private JSONArray getCourses() throws IOException, JSONException {
+	private JSONArray getCourses() throws IOException, JSONException, CredentialInvalidException {
 		final String url = api + "/courses?k=" + getAuthenticationKey(getCredential());
 		return getJSONArray(url);
 	}
@@ -126,12 +126,12 @@ public class LegionBoardParser extends BaseParser {
 	 * Returns a JSONArray with all teachers.
 	 * More information: <a href="https://gitlab.com/legionboard/heart/blob/master/doc/teachers/list.md">List teachers</a>
 	 */
-	private JSONArray getTeachers() throws IOException, JSONException {
+	private JSONArray getTeachers() throws IOException, JSONException, CredentialInvalidException {
 		final String url = api + "/teachers?k=" + getAuthenticationKey(getCredential());
 		return getJSONArray(url);
 	}
 
-	private JSONArray getJSONArray(String url) throws IOException, JSONException {
+	private JSONArray getJSONArray(String url) throws IOException, JSONException, CredentialInvalidException {
 		try {
 			return new JSONArray(httpGet(url, "UTF-8"));
 		} catch (HttpResponseException httpResponseException) {
@@ -278,7 +278,7 @@ public class LegionBoardParser extends BaseParser {
 	}
 
 	@Override
-	public List<String> getAllClasses() throws IOException, JSONException {
+	public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
 		final List<String> classes = new ArrayList<>();
 		final JSONArray courses = getCourses();
 		if (courses == null) {
@@ -295,7 +295,7 @@ public class LegionBoardParser extends BaseParser {
 	}
 
 	@Override
-	public List<String> getAllTeachers() throws IOException, JSONException {
+	public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
 		final List<String> teachers = new ArrayList<>();
 		final JSONArray jsonTeachers = getTeachers();
 		if (jsonTeachers == null) {

@@ -143,12 +143,12 @@ public class DSBLightParser extends UntisCommonParser {
     }
 
     private void parseProgram(String url, SubstitutionSchedule schedule, Map<String, String> referer) throws
-            IOException, JSONException {
+            IOException, JSONException, CredentialInvalidException {
         parseProgram(url, schedule, referer, null);
     }
 
     private void parseProgram(String url, SubstitutionSchedule schedule, Map<String, String> referer, String
-            firstUrl) throws IOException, JSONException {
+            firstUrl) throws IOException, JSONException, CredentialInvalidException {
         String response = httpGet(url, ENCODING, referer);
         Document doc = Jsoup.parse(response, url);
         if (doc.select("iframe").attr("src").equals(firstUrl)) {
@@ -169,7 +169,7 @@ public class DSBLightParser extends UntisCommonParser {
     }
 
     private void parseDay(String url, Map<String, String> referer, SubstitutionSchedule schedule, String startUrl)
-            throws IOException, JSONException {
+            throws IOException, JSONException, CredentialInvalidException {
         String html = httpGet(url, data.getString(PARAM_ENCODING), referer);
         Document doc = Jsoup.parse(html);
         if (doc.title().toLowerCase().contains("untis")
