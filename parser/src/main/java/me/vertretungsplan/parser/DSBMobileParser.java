@@ -172,7 +172,8 @@ public class DSBMobileParser extends UntisCommonParser {
         return null;
     }
 
-    private JSONObject getDataFromApi(String login, String password) throws JSONException, IOException {
+    private JSONObject getDataFromApi(String login, String password)
+            throws JSONException, IOException, CredentialInvalidException {
         JSONObject json = new JSONObject();
         json.put("AppId", "");
         json.put("PushId", "");
@@ -199,7 +200,7 @@ public class DSBMobileParser extends UntisCommonParser {
     }
 
     private void loadScheduleFromUrl(SubstitutionSchedule v, String url, List<String> usedUrls)
-            throws IOException, JSONException {
+            throws IOException, JSONException, CredentialInvalidException {
         usedUrls.add(url);
         String html = httpGet(url, data.has(PARAM_ENCODING) ? data.getString(PARAM_ENCODING) : "UTF-8");
         Document doc = Jsoup.parse(html);

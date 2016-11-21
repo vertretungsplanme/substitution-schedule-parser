@@ -103,8 +103,8 @@ public class UntisInfoParser extends UntisCommonParser {
 			e.printStackTrace();
 		}
 	}
-	
-	private String getNavbarDoc() throws JSONException, IOException {
+
+	private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
 		if(navbarDoc == null) {
 			String navbarUrl = baseUrl + "/frames/navbar.htm";
             navbarDoc = httpGet(navbarUrl, data.getString(PARAM_ENCODING));
@@ -187,8 +187,8 @@ public class UntisInfoParser extends UntisCommonParser {
 	}
 
     private void parseDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
-            throws JSONException {
-        Elements days = doc.select("#vertretung > p > b, #vertretung > b");
+			throws JSONException, CredentialInvalidException {
+		Elements days = doc.select("#vertretung > p > b, #vertretung > b");
 		for (Element dayElem : days) {
 			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
@@ -210,8 +210,8 @@ public class UntisInfoParser extends UntisCommonParser {
 	}
 
 	@Override
-	public List<String> getAllClasses() throws JSONException, IOException {
-        if (super.getAllClasses() != null) {
+	public List<String> getAllClasses() throws JSONException, IOException, CredentialInvalidException {
+		if (super.getAllClasses() != null) {
             return super.getAllClasses();
         } else {
             String js = getNavbarDoc();

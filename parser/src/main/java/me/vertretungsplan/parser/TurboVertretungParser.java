@@ -149,7 +149,8 @@ public class TurboVertretungParser extends BaseParser {
         return "." + css + ", ." + css + "Neu";
     }
 
-    private void loadUrl(String url, String encoding, List<Document> docs) throws IOException {
+    private void loadUrl(String url, String encoding, List<Document> docs)
+            throws IOException, CredentialInvalidException {
         String html = httpGet(url, encoding).replace("&nbsp;", "");
         Document doc = Jsoup.parse(html);
         docs.add(doc);

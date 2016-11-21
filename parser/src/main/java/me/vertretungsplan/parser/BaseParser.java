@@ -15,6 +15,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
@@ -239,12 +240,12 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.credential = credential;
     }
 
-    protected String httpGet(String url, String encoding) throws IOException {
+    protected String httpGet(String url, String encoding) throws IOException, CredentialInvalidException {
         return httpGet(url, encoding, null);
     }
 
     protected String httpGet(String url, String encoding,
-                             Map<String, String> headers) throws IOException {
+                             Map<String, String> headers) throws IOException, CredentialInvalidException {
         Request request = Request.Get(url).connectTimeout(15000)
                 .socketTimeout(15000);
         if (headers != null) {
@@ -252,18 +253,24 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        return new String(executor.execute(request).returnContent().asBytes(),
-                encoding);
+        try {
+            return new String(executor.execute(request).returnContent().asBytes(),
+                    encoding);
+        } catch (HttpResponseException e) {
+            handleHttpResponseException(e);
+            return null;
+        }
     }
 
     @SuppressWarnings("SameParameterValue")
     protected String httpPost(String url, String encoding,
-                              List<NameValuePair> formParams) throws IOException {
+                              List<NameValuePair> formParams) throws IOException, CredentialInvalidException {
         return httpPost(url, encoding, formParams, null);
     }
 
     protected String httpPost(String url, String encoding,
-                              List<NameValuePair> formParams, Map<String, String> headers) throws IOException {
+                              List<NameValuePair> formParams, Map<String, String> headers)
+            throws IOException, CredentialInvalidException {
         Request request = Request.Post(url).bodyForm(formParams)
                 .connectTimeout(15000).socketTimeout(15000);
         if (headers != null) {
@@ -271,18 +278,24 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        return new String(executor.execute(request)
-                .returnContent().asBytes(), encoding);
+        try {
+            return new String(executor.execute(request)
+                    .returnContent().asBytes(), encoding);
+        } catch (HttpResponseException e) {
+            handleHttpResponseException(e);
+            return null;
+        }
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected String httpPost(String url, String encoding, String body, ContentType contentType) throws IOException {
+    protected String httpPost(String url, String encoding, String body, ContentType contentType)
+            throws IOException, CredentialInvalidException {
         return httpPost(url, encoding, body, contentType, null);
     }
 
     @SuppressWarnings("SameParameterValue")
     protected String httpPost(String url, String encoding, String body, ContentType contentType,
-                              Map<String, String> headers) throws IOException {
+                              Map<String, String> headers) throws IOException, CredentialInvalidException {
         Request request = Request.Post(url).bodyString(body, contentType)
                 .connectTimeout(15000).socketTimeout(15000);
         if (headers != null) {
@@ -290,8 +303,22 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        return new String(executor.execute(request)
-                .returnContent().asBytes(), encoding);
+        try {
+            return new String(executor.execute(request)
+                    .returnContent().asBytes(), encoding);
+        } catch (HttpResponseException e) {
+            handleHttpResponseException(e);
+            return null;
+        }
+    }
+
+    private void handleHttpResponseException(HttpResponseException e)
+            throws CredentialInvalidException, HttpResponseException {
+        if (e.getStatusCode() == 401) {
+            throw new CredentialInvalidException();
+        } else {
+            throw e;
+        }
     }
 
     private KeyStore loadKeyStore() throws KeyStoreException,
