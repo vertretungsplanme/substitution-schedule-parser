@@ -174,7 +174,7 @@ public class DSBLightParser extends UntisCommonParser {
         Document doc = Jsoup.parse(html);
         if (doc.title().toLowerCase().contains("untis")
                 || doc.html().toLowerCase().contains("untis") || doc.select(".mon_list").size() > 0) {
-            schedule.addDay(parseMonitorDay(doc, data));
+            parseMultipleMonitorDays(schedule, doc, data);
             if (doc.select("meta[http-equiv=refresh]").size() > 0) {
                 Element meta = doc.select("meta[http-equiv=refresh]").first();
                 String attr = meta.attr("content").toLowerCase();

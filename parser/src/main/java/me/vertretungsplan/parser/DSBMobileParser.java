@@ -207,28 +207,7 @@ public class DSBMobileParser extends UntisCommonParser {
 
         if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")
                 || data.optString(PARAM_TYPE, "").equals("untis")) {
-            if (doc.select(".mon_head").size() > 1) {
-                for (int j = 0; j < doc.select(".mon_head").size(); j++) {
-                    Document doc2 = Document.createShell(doc.baseUri());
-                    doc2.body().appendChild(doc.select(".mon_head").get(j).clone());
-                    Element next = doc.select(".mon_head").get(j).nextElementSibling();
-                    if (next != null && next.tagName().equals("center")) {
-                        doc2.body().appendChild(next.select(".mon_title").first().clone());
-                        if (next.select("table:has(tr.list)").size() > 0)
-                            doc2.body().appendChild(next.select("table:has(tr.list)").first());
-                        if (next.select("table.info").size() > 0)
-                            doc2.body().appendChild(next.select("table.info").first());
-                    } else {
-                        doc2.body().appendChild(doc.select(".mon_title").get(j).clone());
-                        doc2.body().appendChild(doc.select("table:has(tr.list)").get(j).clone());
-                    }
-                    SubstitutionScheduleDay day = parseMonitorDay(doc2, data);
-                    v.addDay(day);
-                }
-            } else {
-                SubstitutionScheduleDay day = parseMonitorDay(doc, data);
-                v.addDay(day);
-            }
+            parseMultipleMonitorDays(v, doc, data);
         } else if (doc.html().toLowerCase().contains("created by davinci")
                 || data.optString(PARAM_TYPE, "").equals("davinci")) {
             Elements titles = doc.select("h2");
