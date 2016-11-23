@@ -140,7 +140,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
                     for (Element line : table
                             .select("tr.list.odd:not(:has(td.inline_header)), "
                                     + "tr.list.even:not(:has(td.inline_header)), "
-                                    + "tr:has(td[align=center]:has(font[color]))")) {
+                                    + "tr:has(td[align=center]:gt(0)")) {
                         SubstitutionScheduleDay day = null;
                         String date = line.select("td").get(dateColumn).text().trim();
                         LocalDate parsedDate = ParserUtils.parseDate(date);
