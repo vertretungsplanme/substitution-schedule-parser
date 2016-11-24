@@ -193,7 +193,8 @@ public class WebUntisParser extends BaseParser {
             LocalTime start = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("startTime")));
             LocalTime end = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("endTime")));
 
-            substitution.setLesson(timegrid.getDay(date.getDayOfWeek()).getLesson(start, end));
+            TimeGrid.Day timegridDay = timegrid.getDay(date.getDayOfWeek());
+            substitution.setLesson(timegridDay != null ? timegridDay.getLesson(start, end) : "");
 
             SubstitutionScheduleDay day = getDayForDate(schedule, days, date);
 
