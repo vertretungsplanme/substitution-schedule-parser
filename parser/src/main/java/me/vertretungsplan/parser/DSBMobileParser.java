@@ -117,6 +117,8 @@ public class DSBMobileParser extends UntisCommonParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         List<String> usedUrls = new ArrayList<>();
+        int successfulUrls = 0;
+        int totalUrls = 0;
         for (int i = 0; i < timetableModules.length(); i++) {
             JSONArray timetableParts = timetableModules.getJSONObject(i).getJSONArray("Childs" /* sic! */);
             for (int j = 0; j < timetableParts.length(); j++) {
@@ -124,12 +126,21 @@ public class DSBMobileParser extends UntisCommonParser {
                 if (timetablePart.getInt("ConType") != 6) continue;
 
                 String url = timetablePart.getString("Detail");
-                loadScheduleFromUrl(v, url, usedUrls);
+                totalUrls ++;
+                try {
+                    loadScheduleFromUrl(v, url, usedUrls);
+                    successfulUrls ++;
+                } catch (IncompatibleScheduleException ignored) {
+
+                }
                 if (timetablePart.has("Date") && v.getLastChangeString() == null) {
                     v.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm").parseLocalDateTime(
                             timetablePart.getString("Date")));
                 }
             }
+        }
+        if (successfulUrls == 0 && totalUrls > 0) {
+            throw new IOException("No compatible schedules found");
         }
 
         JSONObject newsPage = getPageByType(data, "news");
@@ -200,7 +211,7 @@ public class DSBMobileParser extends UntisCommonParser {
     }
 
     private void loadScheduleFromUrl(SubstitutionSchedule v, String url, List<String> usedUrls)
-            throws IOException, JSONException, CredentialInvalidException {
+            throws IOException, JSONException, CredentialInvalidException, IncompatibleScheduleException {
         usedUrls.add(url);
         String html = httpGet(url, data.has(PARAM_ENCODING) ? data.getString(PARAM_ENCODING) : "UTF-8");
         Document doc = Jsoup.parse(html);
@@ -224,14 +235,7 @@ public class DSBMobileParser extends UntisCommonParser {
         } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
             return;
         } else {
-            String headline = doc.select(".headline").text();
-            if (headline.contains("Pläne") || headline.contains("Vertretungspläne")) {
-                // heinekingmedia schedule. Currently not supported, but skip without error because some schools have an
-                // Untis schedule too
-                return;
-            } else {
-                throw new IOException("Kein Untis- oder DaVinci-Vertretungsplan?");
-            }
+            throw new IncompatibleScheduleException();
         }
 
         if (doc.select("meta[http-equiv=refresh]").size() > 0) {
@@ -249,4 +253,6 @@ public class DSBMobileParser extends UntisCommonParser {
         return null;
     }
 
+    private class IncompatibleScheduleException extends Throwable {
+    }
 }
