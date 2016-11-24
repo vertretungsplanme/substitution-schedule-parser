@@ -396,10 +396,9 @@ public class WebUntisParser extends BaseParser {
             switch (error.getInt("code")) {
                 case -32601:
                     throw new IOException("Method not found");
-                case -8504:
-                    throw new CredentialInvalidException();
-                case -8998:
-                    // Benutzer vorübergehend gesperrt
+                case -8504: // wrong password
+                case -8998: // user temporarily blocked
+                case -8502: // no username specified
                     throw new CredentialInvalidException();
                 case -8520:
                     throw new IOException("not logged in");
