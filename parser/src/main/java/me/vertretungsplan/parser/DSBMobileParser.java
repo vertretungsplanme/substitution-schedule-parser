@@ -223,12 +223,15 @@ public class DSBMobileParser extends UntisCommonParser {
             }
         } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
             return;
-        } else if (doc.select(".headline").text().contains("Pläne")) {
-            // heinekingmedia schedule. Currently not supported, but skip without error because some schools have an
-            // Untis schedule too
-            return;
         } else {
-            throw new IOException("Kein Untis- oder DaVinci-Vertretungsplan?");
+            String headline = doc.select(".headline").text();
+            if (headline.contains("Pläne") || headline.contains("Vertretungspläne")) {
+                // heinekingmedia schedule. Currently not supported, but skip without error because some schools have an
+                // Untis schedule too
+                return;
+            } else {
+                throw new IOException("Kein Untis- oder DaVinci-Vertretungsplan?");
+            }
         }
 
         if (doc.select("meta[http-equiv=refresh]").size() > 0) {
