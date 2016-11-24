@@ -157,82 +157,84 @@ public class IndiwareParser extends BaseParser {
         }
 
         Element haupt = vp.select("haupt").first();
+        if (haupt != null) {
 
-        for (Element aktion : haupt.select("aktion")) {
-            Substitution substitution = new Substitution();
-            String type = "Vertretung";
-            String course = null;
-            for (Element info : aktion.children()) {
-                String value = info.text();
-                if (value.equals("---")) continue;
-                switch (info.tagName()) {
-                    case "klasse":
-                        Set<String> classes = new HashSet<>();
-                        for (String klasse : value.split(",")) {
-                            Matcher courseMatcher = coursePattern.matcher(klasse);
-                            if (courseMatcher.matches()) {
-                                classes.add(courseMatcher.group(1));
-                                course = courseMatcher.group(2);
+            for (Element aktion : haupt.select("aktion")) {
+                Substitution substitution = new Substitution();
+                String type = "Vertretung";
+                String course = null;
+                for (Element info : aktion.children()) {
+                    String value = info.text();
+                    if (value.equals("---")) continue;
+                    switch (info.tagName()) {
+                        case "klasse":
+                            Set<String> classes = new HashSet<>();
+                            for (String klasse : value.split(",")) {
+                                Matcher courseMatcher = coursePattern.matcher(klasse);
+                                if (courseMatcher.matches()) {
+                                    classes.add(courseMatcher.group(1));
+                                    course = courseMatcher.group(2);
+                                } else {
+                                    classes.add(klasse);
+                                }
+                            }
+                            substitution.setClasses(classes);
+                            break;
+                        case "stunde":
+                            substitution.setLesson(value);
+                            break;
+                        case "fach":
+                            StringBuilder subject = new StringBuilder();
+                            subject.append(value);
+                            if (course != null) {
+                                subject.append(" ").append(course);
+                            }
+                            substitution.setSubject(subject.toString());
+                            break;
+                        case "lehrer":
+                            Matcher bracesMatcher = bracesPattern.matcher(value);
+                            if (bracesMatcher.matches()) value = bracesMatcher.group(1);
+                            substitution.setTeacher(value);
+                            break;
+                        case "raum":
+                            substitution.setRoom(value);
+                            break;
+                        case "info":
+                            Matcher substitutionMatcher = substitutionPattern.matcher(value);
+                            Matcher cancelMatcher = cancelPattern.matcher(value);
+                            Matcher delayMatcher = delayPattern.matcher(value);
+                            Matcher selfMatcher = selfPattern.matcher(value);
+                            if (substitutionMatcher.matches()) {
+                                substitution.setPreviousSubject(substitutionMatcher.group(1));
+                                substitution.setPreviousTeacher(substitutionMatcher.group(2));
+                                if (!substitutionMatcher.group(3).isEmpty()) {
+                                    substitution.setDesc(substitutionMatcher.group(3));
+                                }
+                            } else if (cancelMatcher.matches()) {
+                                type = "Entfall";
+                                substitution.setPreviousSubject(cancelMatcher.group(1));
+                                substitution.setPreviousTeacher(cancelMatcher.group(2));
+                            } else if (delayMatcher.matches()) {
+                                type = "Verlegung";
+                                substitution.setPreviousSubject(delayMatcher.group(1));
+                                substitution.setPreviousTeacher(delayMatcher.group(2));
+                                substitution.setDesc(delayMatcher.group(3));
+                            } else if (selfMatcher.matches()) {
+                                type = "selbst.";
+                                if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
                             } else {
-                                classes.add(klasse);
+                                substitution.setDesc(value);
                             }
-                        }
-                        substitution.setClasses(classes);
-                        break;
-                    case "stunde":
-                        substitution.setLesson(value);
-                        break;
-                    case "fach":
-                        StringBuilder subject = new StringBuilder();
-                        subject.append(value);
-                        if (course != null) {
-                            subject.append(" ").append(course);
-                        }
-                        substitution.setSubject(subject.toString());
-                        break;
-                    case "lehrer":
-                        Matcher bracesMatcher = bracesPattern.matcher(value);
-                        if (bracesMatcher.matches()) value = bracesMatcher.group(1);
-                        substitution.setTeacher(value);
-                        break;
-                    case "raum":
-                        substitution.setRoom(value);
-                        break;
-                    case "info":
-                        Matcher substitutionMatcher = substitutionPattern.matcher(value);
-                        Matcher cancelMatcher = cancelPattern.matcher(value);
-                        Matcher delayMatcher = delayPattern.matcher(value);
-                        Matcher selfMatcher = selfPattern.matcher(value);
-                        if (substitutionMatcher.matches()) {
-                            substitution.setPreviousSubject(substitutionMatcher.group(1));
-                            substitution.setPreviousTeacher(substitutionMatcher.group(2));
-                            if (!substitutionMatcher.group(3).isEmpty()) {
-                                substitution.setDesc(substitutionMatcher.group(3));
-                            }
-                        } else if (cancelMatcher.matches()) {
-                            type = "Entfall";
-                            substitution.setPreviousSubject(cancelMatcher.group(1));
-                            substitution.setPreviousTeacher(cancelMatcher.group(2));
-                        } else if (delayMatcher.matches()) {
-                            type = "Verlegung";
-                            substitution.setPreviousSubject(delayMatcher.group(1));
-                            substitution.setPreviousTeacher(delayMatcher.group(2));
-                            substitution.setDesc(delayMatcher.group(3));
-                        } else if (selfMatcher.matches()) {
-                            type = "selbst.";
-                            if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
-                        } else {
-                            substitution.setDesc(value);
-                        }
-                        break;
+                            break;
+                    }
                 }
+                substitution.setType(type);
+                substitution.setColor(colorProvider.getColor(substitution.getType()));
+                if (course != null && substitution.getSubject() == null) {
+                    substitution.setSubject(course);
+                }
+                day.addSubstitution(substitution);
             }
-            substitution.setType(type);
-            substitution.setColor(colorProvider.getColor(substitution.getType()));
-            if (course != null && substitution.getSubject() == null) {
-                substitution.setSubject(course);
-            }
-            day.addSubstitution(substitution);
         }
 
         return day;
