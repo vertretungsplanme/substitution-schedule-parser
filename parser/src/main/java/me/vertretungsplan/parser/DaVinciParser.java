@@ -274,9 +274,11 @@ public class DaVinciParser extends BaseParser {
         String title = doc.select("h1.list-table-caption").first().text();
         String klasse = null;
         // title can either be date or class
-        if (title.matches("\\w+ \\d+\\.\\d+.\\d{4}")) {
-            day.setDateString(title);
-            day.setDate(ParserUtils.parseDate(title));
+        Pattern datePattern = Pattern.compile("\\d+\\.\\d+.\\d{4}");
+        Matcher dateMatcher = datePattern.matcher(title);
+        if (dateMatcher.find()) {
+            day.setDateString(dateMatcher.group());
+            day.setDate(ParserUtils.parseDate(dateMatcher.group()));
         } else {
             klasse = title;
             String nextText = doc.select("h1.list-table-caption").first().nextElementSibling().text();
