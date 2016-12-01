@@ -62,7 +62,8 @@ import java.util.regex.Pattern;
  * <dd>Whether this DSBlight instance requires login using a username and a password. Default: <code>false</code></dd>
  * </dl>
  *
- * Additionally, this parser supports the parameters specified in {@link UntisCommonParser}.
+ * Additionally, this parser supports the parameters specified in {@link UntisCommonParser} and {@link LoginHandler}
+ * (the latter as an alternative to the Boolean <code>login</code> parameter defined here).
  *
  * For password protected schedules, you have to use a
  * {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData}.
@@ -104,7 +105,7 @@ public class DSBLightParser extends UntisCommonParser {
 
         doc = Jsoup.parse(response);
 
-        if (data.has(PARAM_LOGIN) && data.getBoolean(PARAM_LOGIN)) {
+        if (data.has(PARAM_LOGIN) && data.get(PARAM_LOGIN) instanceof Boolean && data.getBoolean(PARAM_LOGIN)) {
             if (!(credential instanceof UserPasswordCredential)) {
                 throw new IllegalArgumentException("no login");
             }
@@ -124,6 +125,8 @@ public class DSBLightParser extends UntisCommonParser {
             response = httpPost(iframeUrl, ENCODING, params, referer);
             doc = Jsoup.parse(response);
             if (doc.select("#ctl02_lblLoginFehlgeschlagen").size() > 0) throw new CredentialInvalidException();
+        } else if (data.has(PARAM_LOGIN) && data.get(PARAM_LOGIN) instanceof JSONObject) {
+            new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         }
         Pattern regex = Pattern.compile("location\\.href=\"([^\"]*)\"");
 
