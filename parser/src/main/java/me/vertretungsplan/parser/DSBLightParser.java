@@ -13,13 +13,16 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +75,7 @@ public class DSBLightParser extends UntisCommonParser {
     private static final String PARAM_LOGIN = "login";
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_BASEURL = "baseurl";
 
     private JSONObject data;
 
@@ -88,9 +92,10 @@ public class DSBLightParser extends UntisCommonParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         Map<String, String> referer = new HashMap<>();
-        referer.put("Referer", BASE_URL + "/Player.aspx?ID=" + id);
+        String baseUrl = data.optString(PARAM_BASEURL, BASE_URL);
+        referer.put("Referer", baseUrl + "/Player.aspx?ID=" + id);
 
-        String response = httpGet(BASE_URL + "/Player.aspx?ID=" + id, ENCODING, referer);
+        String response = httpGet(baseUrl + "/Player.aspx?ID=" + id, ENCODING, referer);
         Document doc = Jsoup.parse(response);
         // IFrame.aspx
         String iframeUrl = doc.select("iframe").first().attr("src");
@@ -137,35 +142,50 @@ public class DSBLightParser extends UntisCommonParser {
 
         v.setClasses(getAllClasses());
         v.setTeachers(getAllTeachers());
-        v.setWebsite(BASE_URL + "/Player.aspx?ID=" + id);
+        v.setWebsite(baseUrl + "/Player.aspx?ID=" + id);
 
         return v;
     }
 
     private void parseProgram(String url, SubstitutionSchedule schedule, Map<String, String> referer) throws
             IOException, JSONException, CredentialInvalidException {
-        parseProgram(url, schedule, referer, null);
+        String response = httpGet(url, ENCODING, referer);
+        parseProgram(url, response, schedule, referer, null);
     }
 
-    private void parseProgram(String url, SubstitutionSchedule schedule, Map<String, String> referer, String
-            firstUrl) throws IOException, JSONException, CredentialInvalidException {
-        String response = httpGet(url, ENCODING, referer);
-        Document doc = Jsoup.parse(response, url);
-        if (doc.select("iframe").attr("src").equals(firstUrl)) {
-            return;
-        }
-        for (Element iframe : doc.select("iframe")) {
-            // Data
-            parseDay(iframe.attr("src"), referer, schedule, iframe.attr("src"));
-        }
-        if (doc.select("#hlNext").size() > 0) {
-            String nextUrl = doc.select("#hlNext").first().attr("abs:href");
-            if (firstUrl == null) {
-                parseProgram(nextUrl, schedule, referer, doc.select("iframe").attr("src"));
-            } else {
-                parseProgram(nextUrl, schedule, referer, firstUrl);
+    private void parseProgram(String url, String html, SubstitutionSchedule schedule, Map<String, String> referer,
+                              String firstUrl) throws IOException, JSONException, CredentialInvalidException {
+            Document doc = Jsoup.parse(html, url);
+            if (doc.select("iframe").attr("src").equals(firstUrl)) {
+                return;
             }
-        }
+            for (Element iframe : doc.select("iframe")) {
+                // Data
+                parseDay(iframe.attr("src"), referer, schedule, iframe.attr("src"));
+            }
+            if (firstUrl == null) {
+                firstUrl = doc.select("iframe").attr("src");
+            }
+            if (doc.select("#hlNext").size() > 0) {
+                String nextUrl = doc.select("#hlNext").first().attr("abs:href");
+                try {
+                    String response = httpGet(nextUrl, ENCODING, referer);
+                    parseProgram(response, nextUrl, schedule, referer, firstUrl);
+                } catch (HttpResponseException ignored) {
+
+                }
+            }
+            if (html.contains("Timer1")) {
+                List<Connection.KeyVal> formData = ((FormElement) doc.select("form").first()).formData();
+                List<NameValuePair> formParams = new ArrayList<>();
+                for (Connection.KeyVal kv:formData) {
+                    formParams.add(new BasicNameValuePair(kv.key(), kv.value()));
+                }
+                formParams.add(new BasicNameValuePair("__EVENTTARGET", "Timer1"));
+                formParams.add(new BasicNameValuePair("__EVENTARGUMENT", ""));
+                String response = httpPost(url, ENCODING, formParams, referer);
+                parseProgram(url, response, schedule, referer, firstUrl);
+            }
     }
 
     private void parseDay(String url, Map<String, String> referer, SubstitutionSchedule schedule, String startUrl)
