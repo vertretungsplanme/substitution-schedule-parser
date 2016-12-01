@@ -70,7 +70,9 @@ import java.util.Objects;
  * <dd>A URL that is opened after the login to check if it was successful.</dd>
  *
  * <dt><code>checkText</code> (String, optional)</dt>
- * <dd>If this String is included in the HTML under <code>checkUrl</code>, the credential is considered invalid.</dd>
+ * <dd>If this String is included in the HTML under <code>checkUrl</code>, the credential is considered invalid. If
+ * checkUrl is not specified, the response from the login request is used (only for POST).
+ * </dd>
  * </dl>
  *
  * <h5>Parameters for HTTP Basic Auth (<code>"basic"</code>) and NTLM (<code>"ntlm"</code>)</h5>
@@ -183,6 +185,8 @@ public class LoginHandler {
                     if (checkUrl != null && checkText != null) {
                         String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
                         if (response.contains(checkText)) throw new CredentialInvalidException();
+					} else if (checkText != null) {
+						if (html.contains(checkText)) throw new CredentialInvalidException();
 					}
 					return html;
 				}
