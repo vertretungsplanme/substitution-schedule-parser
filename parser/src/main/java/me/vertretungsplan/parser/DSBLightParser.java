@@ -23,6 +23,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.FormElement;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,8 +59,15 @@ import java.util.regex.Pattern;
  * <dd>The charset of the Untis schedule. DSBlight itself always uses UTF-8, but the hosted HTML schedule can
  * also be ISO-8859-1.</dd>
  *
- * <dt><code>login</code> (Boolean, optional)</dt>
- * <dd>Whether this DSBlight instance requires login using a username and a password. Default: <code>false</code></dd>
+ * <dt><code>login</code> (Boolean, optional, Default: <code>false</code>)</dt>
+ * <dd>Whether this DSBlight instance requires login using a username and a password.</dd>
+ *
+ * <dt><code>baseurl</code> (String, optional, Default: <code>https://light.dsbcontrol
+ * .de/DSBlightWebsite/Homepage/</code>)</dt>
+ * <dd>URL where this DSBlight instance is located</dd>
+ *
+ * <dt><code>iframeIndex</code> (Integer, optional)</dt>
+ * <dd>If this is set, the content of only one of the displayed iframes is used</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link UntisCommonParser} and {@link LoginHandler}
@@ -77,6 +85,7 @@ public class DSBLightParser extends UntisCommonParser {
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_BASEURL = "baseurl";
+    private static final String PARAM_IFRAME_INDEX = "iframeIndex";
 
     private JSONObject data;
 
@@ -128,18 +137,13 @@ public class DSBLightParser extends UntisCommonParser {
         } else if (data.has(PARAM_LOGIN) && data.get(PARAM_LOGIN) instanceof JSONObject) {
             new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         }
-        Pattern regex = Pattern.compile("location\\.href=\"([^\"]*)\"");
 
-        for (Element iframe : doc.select("iframe")) {
-            // PreProgram.aspx
-            String response2 = httpGet(iframe.attr("src"), ENCODING, referer);
-            Matcher matcher = regex.matcher(response2);
-            if (matcher.find()) {
-                // Program.aspx
-                String url = matcher.group(1);
-                parseProgram(url, v, referer);
-            } else {
-                throw new IOException("URL nicht gefunden");
+        Elements iframes = doc.select("iframe");
+        if (data.has(PARAM_IFRAME_INDEX)) {
+            parsePreProgram(v, referer, iframes.get(data.getInt(PARAM_IFRAME_INDEX)));
+        } else {
+            for (Element iframe : iframes) {
+                parsePreProgram(v, referer, iframe);
             }
         }
 
@@ -148,6 +152,21 @@ public class DSBLightParser extends UntisCommonParser {
         v.setWebsite(baseUrl + "/Player.aspx?ID=" + id);
 
         return v;
+    }
+
+    private void parsePreProgram(SubstitutionSchedule v, Map<String, String> referer, Element iframe)
+            throws IOException, CredentialInvalidException, JSONException {
+        Pattern regex = Pattern.compile("location\\.href=\"([^\"]*)\"");
+        // PreProgram.aspx
+        String response2 = httpGet(iframe.attr("src"), ENCODING, referer);
+        Matcher matcher = regex.matcher(response2);
+        if (matcher.find()) {
+            // Program.aspx
+            String url = matcher.group(1);
+            parseProgram(url, v, referer);
+        } else {
+            throw new IOException("URL nicht gefunden");
+        }
     }
 
     private void parseProgram(String url, SubstitutionSchedule schedule, Map<String, String> referer) throws
