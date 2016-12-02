@@ -178,7 +178,8 @@ public class DSBLightParser extends UntisCommonParser {
     private void parseProgram(String url, String html, SubstitutionSchedule schedule, Map<String, String> referer,
                               String firstUrl) throws IOException, JSONException, CredentialInvalidException {
             Document doc = Jsoup.parse(html, url);
-            if (doc.select("iframe").attr("src").equals(firstUrl)) {
+        if (doc.select("iframe").attr("src").equals(firstUrl)
+                || doc.select("iframe").size() == 0) {
                 return;
             }
             for (Element iframe : doc.select("iframe")) {
