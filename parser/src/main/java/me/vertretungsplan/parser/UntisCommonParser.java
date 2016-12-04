@@ -630,10 +630,12 @@ public abstract class UntisCommonParser extends BaseParser {
 						doc2.body().appendChild(next.select("table:has(tr.list)").first());
 					if (next.select("table.info").size() > 0)
 						doc2.body().appendChild(next.select("table.info").first());
-				} else {
-					doc2.body().appendChild(doc.select(".mon_title").get(j).clone());
-					doc2.body().appendChild(doc.select("table:has(tr.list)").get(j).clone());
-				}
+                } else if (doc.select(".mon_title").size() - 1 >= j) {
+                    doc2.body().appendChild(doc.select(".mon_title").get(j).clone());
+                    doc2.body().appendChild(doc.select("table:has(tr.list)").get(j).clone());
+                } else {
+                    continue;
+                }
 				SubstitutionScheduleDay day = parseMonitorDay(doc2, data);
 				v.addDay(day);
 			}
