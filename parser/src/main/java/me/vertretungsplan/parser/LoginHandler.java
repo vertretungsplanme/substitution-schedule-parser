@@ -188,7 +188,6 @@ public class LoginHandler {
 						for (NameValuePair nvp:nvps) {
 							builder.addTextBody(nvp.getName(), nvp.getValue());
 						}
-						builder.setContentType(ContentType.MULTIPART_FORM_DATA);
 						request.body(builder.build());
 					} else {
 						request.bodyForm(nvps, Charset.forName("UTF-8"));
