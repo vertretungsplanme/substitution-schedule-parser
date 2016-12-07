@@ -18,6 +18,8 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
@@ -71,6 +73,9 @@ import java.util.Objects;
  *
  * <dt><code>checkText</code> (String, optional)</dt>
  * <dd>If this String is included in the HTML under <code>checkUrl</code>, the credential is considered invalid.</dd>
+ *
+ * <dt><code>form-data</code> (Boolean, optional, Default: <code>false</code>)</dt>
+ * <dd>Whether to use <code>multipart/form-data</code> instead of <code>application/x-www-form-urlencoded</code>.</dd>
  * </dl>
  *
  * <h5>Parameters for HTTP Basic Auth (<code>"basic"</code>) and NTLM (<code>"ntlm"</code>)</h5>
@@ -175,7 +180,18 @@ public class LoginHandler {
 							value = password;
 						nvps.add(new BasicNameValuePair(name, value));
 					}
-					String html = executor.execute(Request.Post(url).bodyForm(nvps, Charset.forName("UTF-8"))).returnContent().asString();
+					Request request = Request.Post(url);
+					if (loginConfig.optBoolean("form-data", false)) {
+						MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+						for (NameValuePair nvp:nvps) {
+							builder.addTextBody(nvp.getName(), nvp.getValue());
+						}
+						builder.setContentType(ContentType.MULTIPART_FORM_DATA);
+						request.body(builder.build());
+					} else {
+						request.bodyForm(nvps, Charset.forName("UTF-8"));
+					}
+					String html = executor.execute(request).returnContent().asString();
 					if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
 
                     String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
