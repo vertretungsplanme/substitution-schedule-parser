@@ -125,13 +125,13 @@ public class UntisInfoParser extends UntisCommonParser {
 		String info = navbarDoc.select(".description").text();
 		String lastChange;
 		try {
-			lastChange = info.substring(info.indexOf("Stand:"));
+			lastChange = info.substring(info.indexOf("Stand:") + "Stand:".length()).trim();
 		} catch (Exception e) {
             try {
                 String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.getString(PARAM_ENCODING));
                 Document infoDoc = Jsoup.parse(infoHtml);
                 String info2 = infoDoc.select(".description").text();
-				lastChange = info2.substring(info2.indexOf("Stand:"));
+				lastChange = info2.substring(info2.indexOf("Stand:") + "Stand:".length()).trim();
 			} catch (Exception e1) {
 				lastChange = "";
 			}
@@ -189,24 +189,30 @@ public class UntisInfoParser extends UntisCommonParser {
     private void parseDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
 			throws JSONException, CredentialInvalidException {
 		Elements days = doc.select("#vertretung > p > b, #vertretung > b");
-		for (Element dayElem : days) {
-			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+		if (days.size() > 0) {
+			for (Element dayElem : days) {
+				SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
-			day.setLastChangeString(lastChange);
-			day.setLastChange(ParserUtils.parseDateTime(lastChange));
+				day.setLastChangeString(lastChange);
+				day.setLastChange(ParserUtils.parseDateTime(lastChange));
 
-			String date = dayElem.text();
-			day.setDateString(date);
-			day.setDate(ParserUtils.parseDate(date));
+				String date = dayElem.text();
+				day.setDateString(date);
+				day.setDate(ParserUtils.parseDate(date));
 
-			Element next;
-			if (dayElem.parent().tagName().equals("p")) {
-				next = dayElem.parent().nextElementSibling().nextElementSibling();
-			} else {
-				next = dayElem.parent().select("p").first().nextElementSibling();
+				Element next;
+				if (dayElem.parent().tagName().equals("p")) {
+					next = dayElem.parent().nextElementSibling().nextElementSibling();
+				} else {
+					next = dayElem.parent().select("p").first().nextElementSibling();
+				}
+				parseDay(day, next, v, klasse);
 			}
-            parseDay(day, next, v, klasse);
-        }
+		} else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
+			parseSubstitutionTable(v, null, doc);
+			v.setLastChangeString(lastChange);
+			v.setLastChange(ParserUtils.parseDateTime(lastChange));
+		}
 	}
 
 	@Override

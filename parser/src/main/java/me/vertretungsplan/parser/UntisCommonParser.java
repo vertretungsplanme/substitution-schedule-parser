@@ -13,6 +13,9 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -23,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -148,7 +152,7 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param data  {@link SubstitutionScheduleData#getData()}
      * @param day   the {@link SubstitutionScheduleDay} where the substitutions will be stored
      */
-    void parseSubstitutionScheduleTable(Element table, JSONObject data,
+	void parseSubstitutionScheduleTable(Element table, JSONObject data,
 										SubstitutionScheduleDay day) throws JSONException, CredentialInvalidException {
 		parseSubstitutionScheduleTable(table, data, day, null);
     }
@@ -654,6 +658,74 @@ public abstract class UntisCommonParser extends BaseParser {
 		} else {
 			SubstitutionScheduleDay day = parseMonitorDay(doc, data);
 			v.addDay(day);
+		}
+	}
+
+	/**
+	 * Parses an Untis substitution table ({@link UntisSubstitutionParser}).
+	 *
+	 * @param v
+	 * @param lastChange
+	 * @param doc
+	 * @throws JSONException
+	 * @throws CredentialInvalidException
+	 */
+	protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc)
+			throws JSONException, CredentialInvalidException {
+		JSONObject data = scheduleData.getData();
+
+		LocalDateTime lastChangeDate = ParserUtils.parseDateTime(lastChange);
+		Pattern dayPattern = Pattern.compile("\\d\\d?.\\d\\d?. / \\w+");
+
+		int dateColumn = -1;
+		JSONArray columns = data.getJSONArray("columns");
+		for (int i = 0; i < columns.length(); i++) {
+			if (columns.getString(i).equals("date")) {
+				dateColumn = i;
+				break;
+			}
+		}
+
+		Element table = doc.select("table[rules=all]").first();
+
+		if (dateColumn == -1) {
+			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+			day.setLastChangeString(lastChange);
+			day.setLastChange(lastChangeDate);
+			String title = doc.select("font[size=5], font[size=4]").text();
+			Matcher matcher = dayPattern.matcher(title);
+			if (matcher.find()) {
+				String date = matcher.group();
+				day.setDateString(date);
+				day.setDate(ParserUtils.parseDate(date));
+			}
+			parseSubstitutionScheduleTable(table, data, day);
+			v.addDay(day);
+		} else {
+			for (Element line : table
+					.select("tr.list.odd:not(:has(td.inline_header)), "
+							+ "tr.list.even:not(:has(td.inline_header)), "
+							+ "tr:has(td[align=center]):gt(0)")) {
+				SubstitutionScheduleDay day = null;
+				String date = line.select("td").get(dateColumn).text().trim();
+				LocalDate parsedDate = ParserUtils.parseDate(date);
+				for (SubstitutionScheduleDay search : v.getDays()) {
+					if (Objects.equals(search.getDate(), parsedDate)
+							|| Objects.equals(search.getDateString(), date)) {
+						day = search;
+						break;
+					}
+				}
+				if (day == null) {
+					day = new SubstitutionScheduleDay();
+					day.setDateString(date);
+					day.setDate(parsedDate);
+					day.setLastChangeString(lastChange);
+					day.setLastChange(lastChangeDate);
+					v.addDay(day);
+				}
+				parseSubstitutionScheduleTable(line, data, day);
+			}
 		}
 	}
 }
