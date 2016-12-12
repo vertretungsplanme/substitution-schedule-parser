@@ -687,6 +687,7 @@ public abstract class UntisCommonParser extends BaseParser {
 		}
 
 		Element table = doc.select("table[rules=all]").first();
+		if (table.text().replace("\u00a0", "").trim().equals("Keine Vertretungen")) return;
 
 		if (dateColumn == -1) {
 			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
