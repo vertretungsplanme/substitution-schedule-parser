@@ -145,6 +145,22 @@ public class SubstitutionTextUtils {
         return builder.toString();
     }
 
+    public static String joinTeachers(Set<String> teachers) {
+        List<String> list = new ArrayList<>(teachers);
+        Collections.sort(list);
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        for (String teacher : list) {
+            if (first) {
+                first = false;
+            } else {
+                builder.append(", ");
+            }
+            builder.append(teacher);
+        }
+        return builder.toString();
+    }
+
     private static String subjectAndTeacher(String subject, String previousSubject, String teacher,
                                             String previousTeacher) {
         if (hasData(teacher) && hasData(previousTeacher) && !teacher.equals(previousTeacher)) {
