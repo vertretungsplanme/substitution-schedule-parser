@@ -23,10 +23,7 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -254,8 +251,8 @@ public abstract class UntisCommonParser extends BaseParser {
 										handleTeacher(v, spalte);
 										break;
 									case "previousTeacher":
-										v.setPreviousTeacher(text);
-										break;
+                                        v.setPreviousTeachers(splitTeachers(text));
+                                        break;
 									case "desc":
 										v.setDesc(text);
 										break;
@@ -396,8 +393,8 @@ public abstract class UntisCommonParser extends BaseParser {
 							handleTeacher(v, spalte);
 							break;
 						case "previousTeacher":
-							v.setPreviousTeacher(text);
-							break;
+                            v.setPreviousTeachers(splitTeachers(text));
+                            break;
 						case "substitutionFrom":
 							v.setSubstitutionFrom(text);
 							break;
@@ -509,14 +506,24 @@ public abstract class UntisCommonParser extends BaseParser {
 
 	private void handleTeacher(Substitution subst, Element cell) {
 		if (cell.select("s").size() > 0) {
-			subst.setPreviousTeacher(cell.select("s").text());
-			if (cell.ownText().length() > 0) {
-				subst.setTeacher(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
-			}
+            subst.setPreviousTeachers(splitTeachers(cell.select("s").text()));
+            if (cell.ownText().length() > 0) {
+                subst.setTeachers(splitTeachers(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", "")));
+            }
 		} else {
-			subst.setTeacher(cell.text());
-		}
+            subst.setTeachers(splitTeachers(cell.text()));
+        }
 	}
+
+    private Set<String> splitTeachers(String s) {
+        Set<String> teachers = new HashSet<>();
+        if (scheduleData.getData().optBoolean("splitTeachers", true)) {
+            teachers.addAll(Arrays.asList(s.split(", ")));
+        } else {
+            teachers.add(s);
+        }
+        return teachers;
+    }
 
 	private void handleRoom(Substitution subst, Element cell) {
 		if (cell.select("s").size() > 0) {
