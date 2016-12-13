@@ -176,10 +176,16 @@ public class SubstitutionScheduleDay implements Cloneable {
      * @param substitution the substitution to add
      */
     public void addSubstitution(Substitution substitution) {
-        // Look for equal substitutions for different classes and merge them to make dataset as small as possible
+        // Look for equal substitutions for different classes or teachers and merge them
         for (Substitution s : getSubstitutions()) {
             if (s.equalsExcludingClasses(substitution)) {
                 s.getClasses().addAll(substitution.getClasses());
+                return;
+            } else if (s.equalsExcludingTeachers(substitution)) {
+                s.getTeachers().addAll(substitution.getTeachers());
+                return;
+            } else if (s.equalsExcludingPreviousTeachers(substitution)) {
+                s.getPreviousTeachers().addAll(substitution.getPreviousTeachers());
                 return;
             }
         }
