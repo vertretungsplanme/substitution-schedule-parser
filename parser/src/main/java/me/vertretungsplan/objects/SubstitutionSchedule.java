@@ -120,8 +120,8 @@ public class SubstitutionSchedule implements Cloneable {
         if (teacher == null) return substitutions;
         Set<Substitution> teacherSubstitutions = new HashSet<>();
         for (Substitution substitution : substitutions) {
-            if (teacher.equals(substitution.getTeacher())
-                    || teacher.equals(substitution.getPreviousTeacher())) {
+            if (substitution.getTeachers().contains(teacher)
+                    || substitution.getPreviousTeachers().contains(teacher)) {
                 teacherSubstitutions.add(substitution);
             }
         }

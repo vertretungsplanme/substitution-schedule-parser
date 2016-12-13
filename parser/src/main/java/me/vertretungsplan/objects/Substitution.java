@@ -25,8 +25,8 @@ public class Substitution {
     private String type;
     private String subject;
     private String previousSubject;
-    private String teacher;
-    private String previousTeacher;
+    private Set<String> teachers;
+    private Set<String> previousTeachers;
     private String room;
     private String previousRoom;
     private String desc;
@@ -36,6 +36,8 @@ public class Substitution {
 
     public Substitution() {
         classes = new HashSet<>();
+        teachers = new HashSet<>();
+        previousTeachers = new HashSet<>();
     }
 
     /**
@@ -50,8 +52,8 @@ public class Substitution {
         this.type = substitution.type;
         this.subject = substitution.type;
         this.previousSubject = substitution.previousSubject;
-        this.teacher = substitution.teacher;
-        this.previousTeacher = substitution.previousTeacher;
+        this.teachers = substitution.teachers;
+        this.previousTeachers = substitution.previousTeachers;
         this.room = substitution.room;
         this.previousRoom = substitution.previousRoom;
         this.desc = substitution.desc;
@@ -68,7 +70,8 @@ public class Substitution {
     }
 
     /**
-     * @return A text describing the substitution (designed to be shown together with {@link #getTeachers()}, type and
+     * @return A text describing the substitution (designed to be shown together with
+     * {@link #getPreviousAndCurrentTeacherText()}, type and
      * lesson)
      */
     public String getTeacherText() {
@@ -78,7 +81,7 @@ public class Substitution {
     /**
      * @return A text describing the current and previous teacher
      */
-    public String getTeachers() {
+    public String getPreviousAndCurrentTeacherText() {
         return SubstitutionTextUtils.getTeachers(this);
     }
 
@@ -186,43 +189,88 @@ public class Substitution {
     }
 
     /**
-     * Get the teacher giving this lesson. Is an abbreviation in most cases.
+     * Get the teacher giving this lesson. Abbreviations are used in most cases.
+     * If there are multiple teachers, they are returned as a comma-separated list. See also {@link #getTeachers()}.
      *
      * @return the teacher
      */
     @Nullable
     public String getTeacher() {
-        return teacher;
+        return teachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(teachers) : null;
     }
 
     /**
-     * Set the teacher giving this lesson. Is an abbreviation in most cases.
+     * Get the teachers giving this lesson. Abbreviations are used in most cases.
+     *
+     * @return the teachers
+     */
+    public Set<String> getTeachers() {
+        return teachers;
+    }
+
+    /**
+     * Set the teacher giving this lesson. Abbreviations are used in most cases.
+     * If there are multiple teachers, use {@link #setTeachers(Set)} instead.
      *
      * @param teacher the teacher to set
      */
     public void setTeacher(@Nullable String teacher) {
-        this.teacher = teacher;
+        teachers.clear();
+        teachers.add(teacher);
     }
 
     /**
-     * Get the teacher who would have given this lesson according to the regular schedule. Is an abbreviation in most
-     * cases.
+     * Set the teachers giving this lesson. Abbreviations are used in most cases.
+     *
+     * @param teachers the teachers to set
+     */
+    public void setTeachers(Set<String> teachers) {
+        this.teachers = teachers;
+    }
+
+    /**
+     * Get the teacher who would have given this lesson according to the regular schedule. Abbreviations are used in
+     * most cases.
+     * If there are multiple teachers, they are returned as a comma-separated list. See also
+     * {@link #getPreviousTeachers()}.
      *
      * @return the previous teacher
      */
     @Nullable
     public String getPreviousTeacher() {
-        return previousTeacher;
+        return previousTeachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
     }
 
     /**
-     * Set the teacher who would have given this lesson according to the regular schedule. Is an abbreviation in most
-     * cases.
+     * Get the teachers who would have given this lesson according to the regular schedule. Abbreviations are used in
+     * most cases.
+     *
+     * @return the previous teachers
+     */
+    public Set<String> getPreviousTeachers() {
+        return previousTeachers;
+    }
+
+    /**
+     * Set the teacher who would have given this lesson according to the regular schedule. Abbreviations are used in
+     * most cases.
+     * If there are multiple teachers, use {@link #setPreviousTeachers(Set)} instead.
      *
      * @param previousTeacher the previous teacher to set
      */
     public void setPreviousTeacher(@Nullable String previousTeacher) {
-        this.previousTeacher = previousTeacher;
+        previousTeachers.clear();
+        previousTeachers.add(previousTeacher);
+    }
+
+    /**
+     * Set the teachers who would have given this lesson according to the regular schedule. Abbreviations are used in
+     * most cases.
+     *
+     * @param previousTeachers the previous teachers to set
+     */
+    public void setPreviousTeachers(Set<String> previousTeachers) {
+        this.previousTeachers = previousTeachers;
     }
 
     /**
@@ -369,8 +417,9 @@ public class Substitution {
         if (previousSubject != null ? !previousSubject.equals(that.previousSubject) : that.previousSubject != null) {
             return false;
         }
-        if (teacher != null ? !teacher.equals(that.teacher) : that.teacher != null) return false;
-        if (previousTeacher != null ? !previousTeacher.equals(that.previousTeacher) : that.previousTeacher != null) {
+        if (teachers != null ? !teachers.equals(that.teachers) : that.teachers != null) return false;
+        if (previousTeachers != null ? !previousTeachers.equals(that.previousTeachers) : that.previousTeachers !=
+                null) {
             return false;
         }
         if (room != null ? !room.equals(that.room) : that.room != null) return false;
@@ -402,7 +451,8 @@ public class Substitution {
             case STUDENT:
                 return lesson + " " + classes.toString() + " " + getType() + " " + getText();
             case TEACHER:
-                return lesson + " " + getTeachers() + " " + getType() + " " + getTeacherText() + " (" +
+                return lesson + " " + getPreviousAndCurrentTeacherText() + " " + getType() + " " + getTeacherText() +
+                        " (" +
                         (substitutionFrom != null ? substitutionFrom : "") + "/" +
                         (teacherTo != null ? teacherTo : "") + ")";
             default:

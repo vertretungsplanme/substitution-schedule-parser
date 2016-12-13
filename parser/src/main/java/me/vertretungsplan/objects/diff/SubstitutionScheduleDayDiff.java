@@ -124,8 +124,8 @@ public class SubstitutionScheduleDayDiff implements Cloneable {
         if (Objects.equals(a.getType(), b.getType())) score++;
         if (Objects.equals(a.getSubject(), b.getSubject())) score++;
         if (Objects.equals(a.getPreviousSubject(), b.getPreviousSubject())) score++;
-        if (Objects.equals(a.getTeacher(), b.getTeacher())) score++;
-        if (Objects.equals(a.getPreviousTeacher(), b.getPreviousTeacher())) score++;
+        if (Objects.equals(a.getTeachers(), b.getTeachers())) score++;
+        if (Objects.equals(a.getPreviousTeachers(), b.getPreviousTeachers())) score++;
         if (Objects.equals(a.getRoom(), b.getRoom())) score++;
         if (Objects.equals(a.getPreviousRoom(), b.getPreviousRoom())) score++;
         if (Objects.equals(a.getDesc(), b.getDesc())) score++;
