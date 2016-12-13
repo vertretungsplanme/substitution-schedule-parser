@@ -9,6 +9,7 @@
 package me.vertretungsplan.objects;
 
 import me.vertretungsplan.utils.SubstitutionTextUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +19,7 @@ import java.util.Set;
 /**
  * Represents one substitution on a {@link SubstitutionSchedule}
  */
-public class Substitution {
+public class Substitution implements Cloneable {
 
     private Set<String> classes;
     private String lesson;
@@ -411,27 +412,78 @@ public class Substitution {
 
         Substitution that = (Substitution) o;
 
-        if (lesson != null ? !lesson.equals(that.lesson) : that.lesson != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
-        if (previousSubject != null ? !previousSubject.equals(that.previousSubject) : that.previousSubject != null) {
-            return false;
-        }
-        if (teachers != null ? !teachers.equals(that.teachers) : that.teachers != null) return false;
-        if (previousTeachers != null ? !previousTeachers.equals(that.previousTeachers) : that.previousTeachers !=
-                null) {
-            return false;
-        }
-        if (room != null ? !room.equals(that.room) : that.room != null) return false;
-        if (previousRoom != null ? !previousRoom.equals(that.previousRoom) : that.previousRoom != null) return false;
-        if (desc != null ? !desc.equals(that.desc) : that.desc != null) return false;
-        if (color != null ? !color.equals(that.color) : that.color != null) return false;
-        if (substitutionFrom != null ? !substitutionFrom.equals(that.substitutionFrom) :
-                that.substitutionFrom != null) {
-            return false;
-        }
-        if (teacherTo != null ? !teacherTo.equals(that.teacherTo) : that.teacherTo != null) return false;
-        return true;
+        return new EqualsBuilder()
+                .append(lesson, that.lesson)
+                .append(type, that.type)
+                .append(subject, that.subject)
+                .append(previousSubject, that.previousSubject)
+                .append(teachers, that.teachers)
+                .append(previousTeachers, that.previousTeachers)
+                .append(room, that.room)
+                .append(previousRoom, that.previousRoom)
+                .append(desc, that.desc)
+                .append(color, that.color)
+                .append(substitutionFrom, that.substitutionFrom)
+                .append(teacherTo, that.teacherTo).isEquals();
+    }
+
+    /**
+     * Check if this substitution equals another one, but excluding the teachers. This is used to merge two
+     * substitutions with the same data and different teachers automatically.
+     *
+     * @param o the substitution (or other object) to compare
+     * @return boolean indicating whether all fields of the two substitutions, excluding the teachers, are equal
+     */
+    @SuppressWarnings("NegatedConditionalExpression")
+    public boolean equalsExcludingTeachers(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Substitution that = (Substitution) o;
+
+        return new EqualsBuilder()
+                .append(lesson, that.lesson)
+                .append(type, that.type)
+                .append(subject, that.subject)
+                .append(previousSubject, that.previousSubject)
+                .append(classes, that.classes)
+                .append(previousTeachers, that.previousTeachers)
+                .append(room, that.room)
+                .append(previousRoom, that.previousRoom)
+                .append(desc, that.desc)
+                .append(color, that.color)
+                .append(substitutionFrom, that.substitutionFrom)
+                .append(teacherTo, that.teacherTo).isEquals();
+    }
+
+    /**
+     * Check if this substitution equals another one, but excluding the previous teachers. This is used to merge two
+     * substitutions with the same data and different previous teachers automatically.
+     *
+     * @param o the substitution (or other object) to compare
+     * @return boolean indicating whether all fields of the two substitutions, excluding the previous teachers, are
+     * equal
+     */
+    @SuppressWarnings("NegatedConditionalExpression")
+    public boolean equalsExcludingPreviousTeachers(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Substitution that = (Substitution) o;
+
+        return new EqualsBuilder()
+                .append(lesson, that.lesson)
+                .append(type, that.type)
+                .append(subject, that.subject)
+                .append(previousSubject, that.previousSubject)
+                .append(teachers, that.teachers)
+                .append(classes, that.classes)
+                .append(room, that.room)
+                .append(previousRoom, that.previousRoom)
+                .append(desc, that.desc)
+                .append(color, that.color)
+                .append(substitutionFrom, that.substitutionFrom)
+                .append(teacherTo, that.teacherTo).isEquals();
     }
 
     @Override
@@ -458,5 +510,9 @@ public class Substitution {
             default:
                 return null;
         }
+    }
+
+    public Substitution clone() throws CloneNotSupportedException {
+        return (Substitution) super.clone();
     }
 }

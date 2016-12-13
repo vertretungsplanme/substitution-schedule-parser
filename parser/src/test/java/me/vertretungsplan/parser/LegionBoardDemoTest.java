@@ -48,7 +48,7 @@ public class LegionBoardDemoTest extends BaseDemoTest {
         assertEquals(3, schedule.getDays().size());
         SubstitutionScheduleDay firstDay = schedule.getDays().get(0);
         assertEquals(new LocalDate(2016, 9, 2), firstDay.getDate());
-        assertEquals(3, firstDay.getSubstitutions().size());
+        assertEquals(2, firstDay.getSubstitutions().size());
     }
 
     @After
