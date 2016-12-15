@@ -16,6 +16,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -40,8 +41,12 @@ import java.util.regex.Pattern;
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>
- * <dt><code>url</code> (String, required)</dt>
+ * <dt><code>url</code> (String, required if <code>urls</code> not specified)</dt>
  * <dd>The URL of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
+ * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
+ *
+ * <dt><code>url</code> (Array of strings, required if <code>url</code> not specified)</dt>
+ * <dd>The URLs of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
  * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
  *
  * <dt><code>classes</code> (Array of Strings, required if <code>classesSource</code> not specified)</dt>
@@ -49,6 +54,9 @@ import java.util.regex.Pattern;
  *
  * <dt><code>classesSource</code> (String, optional)</dt>
  * <dd>The URL of the homepage of a DaVinci timetable, showing the list of all available classes</dd>
+ *
+ * <dt><code>website</code> (String, recommended)</dt>
+ * <dd>The URL of a website where the substitution schedule can be seen online</dd>
  * </dl>
  *
  * <dt><code>embeddedContentSelector</code> (String, optional)</dt>
@@ -63,8 +71,10 @@ import java.util.regex.Pattern;
 public class DaVinciParser extends BaseParser {
     private static final String ENCODING = "UTF-8";
     private static final String PARAM_URL = "url";
+    private static final String PARAM_URLS = "urls";
     private static final String PARAM_CLASSES_SOURCE = "classesSource";
-    public static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
+    private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
+    private static final String PARAM_WEBSITE = "website";
 
     public DaVinciParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -199,27 +209,42 @@ public class DaVinciParser extends BaseParser {
 
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
-        String url = scheduleData.getData().getString(PARAM_URL);
-        Document doc = Jsoup.parse(httpGet(url, ENCODING));
-        List<String> dayUrls = getDayUrls(url, doc);
-
-        if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
-            for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
-                schedule.addDay(parseDay(el));
+        List<String> urls = new ArrayList<>();
+        if (scheduleData.getData().has(PARAM_URLS)) {
+            JSONArray urlsArray = scheduleData.getData().getJSONArray(PARAM_URLS);
+            for (int i = 0; i < urlsArray.length(); i++) {
+                urls.add(urlsArray.getString(i));
             }
         } else {
-            for (String dayUrl : dayUrls) {
-                Document dayDoc;
-                if (dayUrl.equals(url)) {
-                    dayDoc = doc;
-                } else {
-                    dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+            urls.add(scheduleData.getData().getString(PARAM_URL));
+        }
+
+        for (String url:urls) {
+            Document doc = Jsoup.parse(httpGet(url, ENCODING));
+            List<String> dayUrls = getDayUrls(url, doc);
+
+            if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+                for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
+                    schedule.addDay(parseDay(el));
                 }
-                schedule.addDay(parseDay(dayDoc));
+            } else {
+                for (String dayUrl : dayUrls) {
+                    Document dayDoc;
+                    if (dayUrl.equals(url)) {
+                        dayDoc = doc;
+                    } else {
+                        dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+                    }
+                    schedule.addDay(parseDay(dayDoc));
+                }
             }
         }
 
-        schedule.setWebsite(url);
+        if (scheduleData.getData().has(PARAM_WEBSITE)) {
+            schedule.setWebsite(scheduleData.getData().getString(PARAM_WEBSITE));
+        } else {
+            schedule.setWebsite(urls.get(0));
+        }
         schedule.setClasses(getAllClasses());
         schedule.setTeachers(getAllTeachers());
 
