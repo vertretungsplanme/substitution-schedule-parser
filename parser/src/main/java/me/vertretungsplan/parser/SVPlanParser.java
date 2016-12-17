@@ -108,7 +108,8 @@ public class SVPlanParser extends BaseParser {
             } else if (doc.select(".Trennlinie").size() > 0) {
                 Element div = new Element(Tag.valueOf("div"), "");
                 for (Node node : doc.body().childNodesCopy()) {
-                    if (node instanceof Element && ((Element) node).hasClass("Trennlinie")) {
+                    if (node instanceof Element && ((Element) node).hasClass("Trennlinie")
+                            && div.select("table").size() > 0) {
                         parseSvPlanDay(v, div, doc);
                         div = new Element(Tag.valueOf("div"), "");
                     } else {
