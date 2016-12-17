@@ -20,7 +20,9 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -100,9 +102,20 @@ public class SVPlanParser extends BaseParser {
 
         for (Document doc : docs) {
             if (doc.select(".svp").size() > 0) {
-                for (Element svp:doc.select(".svp")) {
+                for (Element svp : doc.select(".svp")) {
                     parseSvPlanDay(v, svp, doc);
                 }
+            } else if (doc.select(".Trennlinie").size() > 0) {
+                Element div = new Element(Tag.valueOf("div"), "");
+                for (Node node : doc.body().childNodesCopy()) {
+                    if (node instanceof Element && ((Element) node).hasClass("Trennlinie")) {
+                        parseSvPlanDay(v, div, doc);
+                        div = new Element(Tag.valueOf("div"), "");
+                    } else {
+                        div.appendChild(node);
+                    }
+                }
+                parseSvPlanDay(v, div, doc);
             } else {
                 parseSvPlanDay(v, doc, doc);
             }
@@ -122,8 +135,7 @@ public class SVPlanParser extends BaseParser {
             String lastLesson = "";
             for (Element row : rows) {
                 if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
-                        || (doc.select(".svp-header").size() == 0
-                        && row.select(".gerade").size() == 0 && row.select(".ungerade").size() == 0))
+                        || row.select("th").size() > 0 || row.text().trim().equals(""))
                     continue;
 
                 Substitution substitution = new Substitution();
