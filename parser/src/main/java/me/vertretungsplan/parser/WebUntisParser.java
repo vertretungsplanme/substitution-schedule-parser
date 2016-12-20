@@ -282,7 +282,7 @@ public class WebUntisParser extends BaseParser {
             case "rmchg":
                 return "Raumänderung";
             case "add":
-                return "Sondereins.";
+                return "Sondereinsatz";
             case "shift":
                 return "Verlegung";
             case "free":
