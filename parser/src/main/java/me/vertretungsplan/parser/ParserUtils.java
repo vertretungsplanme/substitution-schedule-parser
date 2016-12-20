@@ -18,6 +18,8 @@ import org.joda.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class ParserUtils {
 
@@ -167,6 +169,32 @@ class ParserUtils {
         }
         // Does not match any known format :(
         return null;
+    }
+
+    static List<String> handleUrlWithDateFormat(String url) {
+        List<String> urls = new ArrayList<>();
+        Pattern dateFormatPattern = Pattern.compile("\\{date\\(([^)]+)\\)\\}");
+        Matcher matcher = dateFormatPattern.matcher(url);
+        if (matcher.find()) {
+            String pattern = matcher.group(1);
+            for (int j = 0; j < 7; j++) {
+                LocalDate date = LocalDate.now().plusDays(j);
+                String dateStr = DateTimeFormat.forPattern(pattern).print(date);
+                String urlWithDate = matcher.replaceFirst(dateStr);
+                urls.add(urlWithDate);
+            }
+        } else {
+            urls.add(url);
+        }
+        return urls;
+    }
+
+    static List<String> handleUrlsWithDateFormat(List<String> urls) {
+        List<String> urlsWithDate = new ArrayList<>();
+        for (String url:urls) {
+            urlsWithDate.addAll(handleUrlWithDateFormat(url));
+        }
+        return urlsWithDate;
     }
 
 }
