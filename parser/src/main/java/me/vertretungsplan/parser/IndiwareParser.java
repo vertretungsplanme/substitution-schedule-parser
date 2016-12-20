@@ -81,27 +81,21 @@ public class IndiwareParser extends BaseParser {
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
-        Pattern dateFormatPattern = Pattern.compile("\\{date\\(([^)]+)\\)\\}");
+        int successfulSchedules = 0;
+        IOException lastException = null;
         for (int i = 0; i < urls.length(); i++) {
-            String url = urls.getString(i);
-            Matcher matcher = dateFormatPattern.matcher(url);
-            if (matcher.find()) {
-                String pattern = matcher.group(1);
-                for (int j = 0; j < MAX_DAYS; j++) {
-                    LocalDate date = LocalDate.now().plusDays(j);
-                    String dateStr = DateTimeFormat.forPattern(pattern).print(date);
-                    String urlWithDate = matcher.replaceFirst(dateStr);
-                    try {
-                        String xml = httpGet(urlWithDate, encoding);
-                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
-                    } catch (IOException e) {
-                        // fail silently
-                    }
+            for (String url:ParserUtils.handleUrlWithDateFormat(urls.getString(i))) {
+                try {
+                    String xml = httpGet(url, encoding);
+                    docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                    successfulSchedules ++;
+                } catch (IOException e) {
+                    lastException = e;
                 }
-            } else {
-                String xml = httpGet(url, encoding);
-                docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
             }
+        }
+        if (successfulSchedules == 0 && lastException != null) {
+            throw lastException;
         }
 
         for (Document doc : docs) {

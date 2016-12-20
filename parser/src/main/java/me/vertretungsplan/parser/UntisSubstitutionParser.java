@@ -12,6 +12,8 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import org.apache.http.client.HttpResponseException;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +25,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://untis.de/">Untis</a> software
@@ -38,10 +42,14 @@ import java.util.List;
  *
  * <dl>
  * <dt><code>baseurl</code> (String, required if <code>urls</code> not specified)</dt>
- * <dd>The URL of the home page of the substitution schedule where the selection of classes is found.</dd>
+ * <dd>The URL of the home page of the substitution schedule where the selection of classes is found. If the URL
+ * contains the date, you can use something like <code>{date(yyyy-MM-dd)}</code> in the URL. This placeholder will then
+ * be replaced with the dates of the next 7 days.</dd>
  *
  * <dt><code>urls</code> (Array of strings, required if <code>baseurl</code> not specified)</dt>
- * <dd>The URLs of the home pages of the substitution schedule where the selection of classes is found.</dd>
+ * <dd>The URLs of the home pages of the substitution schedule where the selection of classes is found. If the URL
+ * contains the date, you can use something like <code>{date(yyyy-MM-dd)}</code> in the URL. This placeholder will then
+ * be replaced with the dates of the next 7 days.</dd>
  *
  * <dt><code>encoding</code> (String, required)</dt>
  * <dd>The charset of the XML files. It's probably either UTF-8 or ISO-8859-1.</dd>
@@ -96,7 +104,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
 
         int successfulSchedules = 0;
         HttpResponseException lastExceptionSchedule = null;
-        for (String baseUrl:urls) {
+        for (String baseUrl:ParserUtils.handleUrlsWithDateFormat(urls)) {
             try {
                 Document doc = Jsoup.parse(this.httpGet(baseUrl, encoding));
                 Elements classes = doc.select("td a");
