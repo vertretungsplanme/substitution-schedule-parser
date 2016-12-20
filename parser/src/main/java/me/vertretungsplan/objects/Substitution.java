@@ -217,7 +217,7 @@ public class Substitution implements Cloneable {
      */
     public void setTeacher(@Nullable String teacher) {
         teachers.clear();
-        teachers.add(teacher);
+        if (teacher != null) teachers.add(teacher);
     }
 
     /**
@@ -261,7 +261,7 @@ public class Substitution implements Cloneable {
      */
     public void setPreviousTeacher(@Nullable String previousTeacher) {
         previousTeachers.clear();
-        previousTeachers.add(previousTeacher);
+        if (previousTeacher != null) previousTeachers.add(previousTeacher);
     }
 
     /**
