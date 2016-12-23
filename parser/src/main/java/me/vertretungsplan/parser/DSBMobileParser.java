@@ -32,6 +32,7 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -54,7 +55,7 @@ import java.util.zip.GZIPOutputStream;
  * used. By default, the parser tries to detect this automatically, but this does not always work.</dd>
  *
  * <dt><code>scheduleFilter</code> (String, optional)</dt>
- * <dd>If this is set, only schedules whose title in DSBmobile contains this string will be shown</dd>
+ * <dd>If this is set, only schedules whose title in DSBmobile matches this regex will be shown</dd>
  *
  * <dt><code>encoding</code> (String, optional)</dt>
  * <dd>The charset of the Untis/DaVinci schedule. DSBmobile itself always uses UTF-8, but the hosted HTML schedule can
@@ -128,8 +129,11 @@ public class DSBMobileParser extends UntisCommonParser {
             String scheduleFilter = scheduleData.getData().optString("scheduleFilter", null);
             String title = module.optString("Title");
             // skip schedules that don't match the filter
-            if (scheduleFilter != null && (title == null || !title.contains(scheduleFilter))) {
-                continue;
+            if (scheduleFilter != null) {
+                Pattern pattern = Pattern.compile(scheduleFilter);
+                if (title == null || !pattern.matcher(title).matches()) {
+                    continue;
+                }
             }
 
             JSONArray timetableParts = module.getJSONArray("Childs" /* sic! */);
