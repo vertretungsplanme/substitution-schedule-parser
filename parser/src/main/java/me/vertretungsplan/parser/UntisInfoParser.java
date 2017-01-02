@@ -14,6 +14,8 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,6 +93,8 @@ public class UntisInfoParser extends UntisCommonParser {
     public static final String PARAM_REMOVE_NON_MATCHING_CLASSES = "removeNonMatchingClasses";
     private static final String PARAM_SINGLE_CLASSES = "singleClasses";
     public static final String PARAM_W_AFTER_NUMBER = "wAfterNumber";
+    private static final String PARAM_LETTER = "letter";
+    private static final String PARAM_SCHEDULE_TYPE = "scheduleType";
     private String baseUrl;
     private JSONObject data;
     private String navbarDoc;
@@ -140,16 +144,16 @@ public class UntisInfoParser extends UntisCommonParser {
 
         int successfulWeeks = 0;
         HttpResponseException lastException = null;
-        for (Element option : select.children()) {
-            String week = option.attr("value");
-            if (data.optBoolean(PARAM_SINGLE_CLASSES,
+		for (Element option : select.children()) {
+			String week = option.attr("value");
+            String weekName = option.text();
+			if (data.optBoolean(PARAM_SINGLE_CLASSES,
                     data.optBoolean("single_classes", false))) { // backwards compatibility
                 int classNumber = 1;
-                for (String klasse : getAllClasses()) {
+				for (String klasse : getAllClasses()) {
                     String url = getScheduleUrl(week, classNumber, data);
-                    try {
-                        Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
-                        parseDays(v, lastChange, doc, klasse);
+					try {
+                        parsePage(v, lastChange, klasse, url, weekName);
                     } catch (HttpResponseException e) {
                         if (e.getStatusCode() == 500) {
                             // occurs in Hannover_MMBS
@@ -160,14 +164,13 @@ public class UntisInfoParser extends UntisCommonParser {
                         }
                     }
 
-                    classNumber++;
-                }
-                successfulWeeks++;
-            } else {
-                String url = getScheduleUrl(week, 0, data);
+					classNumber ++;
+				}
+			    successfulWeeks++;
+			} else {
+				String url = getScheduleUrl(week, 0,data);
                 try {
-                    Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
-                    parseDays(v, lastChange, doc, null);
+                    parsePage(v, lastChange,  null, url, weekName);
                     successfulWeeks++;
                 } catch (HttpResponseException e) {
                     lastException = e;
@@ -183,11 +186,12 @@ public class UntisInfoParser extends UntisCommonParser {
         return v;
     }
 
-    @NotNull static String getScheduleUrl(String week, int number, JSONObject data)
+    @NotNull
+    static String getScheduleUrl(String week, int number, JSONObject data)
             throws JSONException {
         String paddedNumber = String.format("%05d", number);
         String baseUrl = data.getString(PARAM_BASEURL);
-        String letter = data.optString("letter", "w");
+        String letter = getLetter(data);
         String url;
         if (data.optBoolean(PARAM_W_AFTER_NUMBER,
                 data.optBoolean("w_after_number", false))) { // backwards compatibility
@@ -198,7 +202,64 @@ public class UntisInfoParser extends UntisCommonParser {
         return url;
     }
 
-    private void parseDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
+    private static String getLetter(JSONObject data) {
+        String letter;
+        switch (data.optString(PARAM_SCHEDULE_TYPE, "substitution")) {
+            case "timetable":
+                letter = "c";
+                break;
+            case "substitutionTeacher":
+                letter = "v";
+                break;
+            case "substitution":
+            default:
+                letter = "w";
+                break;
+        }
+        return data.optString(PARAM_LETTER, letter);
+    }
+
+    private void parsePage(SubstitutionSchedule v, String lastChange, String klasse, String url, String weekName)
+            throws IOException, CredentialInvalidException, JSONException {
+        Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+        switch (data.optString(PARAM_SCHEDULE_TYPE, "substitution")) {
+            case "timetable":
+                parseTimetable(v, lastChange, doc, klasse, weekName);
+                break;
+            case "substitution":
+            case "substitutionTeacher":
+            default:
+                parseSubstitutionDays(v, lastChange, doc, klasse);
+                break;
+        }
+
+    }
+
+    private void parseTimetable(SubstitutionSchedule v, String lastChange, Document doc, String klasse, String
+            weekName) {
+        v.setLastChange(ParserUtils.parseDateTime(lastChange));
+        LocalDate weekStart = DateTimeFormat.forPattern("d.M.yyyy").parseLocalDate(weekName);
+
+        Element table = doc.select("table").first();
+
+        List<SubstitutionScheduleDay> days = new ArrayList<>();
+        for (int i = 0; i < table.select("tr").first().select("td:gt(0)").size(); i++) {
+            LocalDate date = weekStart.plusDays(i);
+            SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+            day.setDate(date);
+        }
+
+        List<String> lessons = new ArrayList<>();
+        for (Element lessonHeader : table.select("tr:gt(0) td:eq(0)")) {
+            lessons.add(lessonHeader.select("table").first().select("td").first().text());
+        }
+
+        for (int col = 0; col < days.size(); col++) {
+
+        }
+    }
+
+    private void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
             throws JSONException, CredentialInvalidException {
         Elements days = doc.select("#vertretung > p > b, #vertretung > b");
         if (days.size() > 0) {
