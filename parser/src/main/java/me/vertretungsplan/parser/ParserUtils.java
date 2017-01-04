@@ -114,11 +114,11 @@ class ParserUtils {
                     Duration nextYearDifference = abs(new Duration(DateTime.now(), dt.plusYears(1).toDateTime()));
                     if (lastYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() - 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
                                 .parseLocalDateTime(string);
                     } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() + 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
                                 .parseLocalDateTime(string);
                     } else {
                         return dt;
@@ -159,11 +159,11 @@ class ParserUtils {
                             abs(new Duration(DateTime.now(), d.plusYears(1).toDateTimeAtCurrentTime()));
                     if (lastYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() - 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
                                 .parseLocalDate(string);
                     } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() + 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
                                 .parseLocalDate(string);
                     } else {
                         return d;
