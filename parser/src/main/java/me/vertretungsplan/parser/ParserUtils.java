@@ -76,7 +76,14 @@ class ParserUtils {
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
     static {
+        init();
+    }
+
+    static void init() {
         int i = 0;
+        dateFormatters.clear();
+        dateTimeFormatters.clear();
+
         for (String date : dateFormats) {
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
