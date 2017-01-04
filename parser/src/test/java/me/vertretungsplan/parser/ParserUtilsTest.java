@@ -14,8 +14,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-rtTrue;
-
 public class ParserUtilsTest {
     @Test
     public void testNewYear() {
