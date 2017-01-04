@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import org.jetbrains.annotations.TestOnly;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalDate;
@@ -75,10 +76,7 @@ class ParserUtils {
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
-    static {
-        init();
-    }
-
+    @TestOnly
     static void init() {
         int i = 0;
         dateFormatters.clear();
@@ -98,8 +96,15 @@ class ParserUtils {
         }
     }
 
+    private static void reinitIfNeeded() {
+        if (dateFormatters.size() == 0 || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
+            init();
+        }
+    }
+
     static LocalDateTime parseDateTime(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
 
         string = string.replace("Stand:", "").replace("Import:", "").trim();
         int i = 0;
@@ -144,6 +149,8 @@ class ParserUtils {
 
     static LocalDate parseDate(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
+
         string = string.replace("Stand:", "").replace("Import:", "").replaceAll(", Woche [A-Z]", "").trim();
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
