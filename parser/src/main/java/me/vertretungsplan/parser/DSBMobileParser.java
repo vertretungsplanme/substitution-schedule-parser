@@ -110,7 +110,7 @@ public class DSBMobileParser extends UntisCommonParser {
             throw new CredentialInvalidException();
         } else if (resultcode != 0) throw new IOException("Resultcode " + resultcode);
 
-        JSONObject timetablePage = getPageByType(data, "timetable");
+        JSONObject timetablePage = getPageByType(data, scheduleData.getData().optString("pageType", "timetable"));
         if (timetablePage == null) throw new IOException("no timetable page found");
         JSONArray timetableModules = timetablePage.getJSONObject("Root").getJSONArray("Childs" /* sic! */);
 
