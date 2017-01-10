@@ -32,6 +32,7 @@ import org.jsoup.select.Elements;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -52,6 +53,9 @@ import java.util.zip.GZIPOutputStream;
  * <dt><code>type</code> (String, optional)</dt>
  * <dd>Can be set to either <code>"untis"</code> or <code>"davinci"</code> to specify which type of schedule is
  * used. By default, the parser tries to detect this automatically, but this does not always work.</dd>
+ *
+ * <dt><code>scheduleFilter</code> (String, optional)</dt>
+ * <dd>If this is set, only schedules whose title in DSBmobile matches this regex will be shown</dd>
  *
  * <dt><code>encoding</code> (String, optional)</dt>
  * <dd>The charset of the Untis/DaVinci schedule. DSBmobile itself always uses UTF-8, but the hosted HTML schedule can
@@ -120,7 +124,19 @@ public class DSBMobileParser extends UntisCommonParser {
         int successfulUrls = 0;
         int totalUrls = 0;
         for (int i = 0; i < timetableModules.length(); i++) {
-            JSONArray timetableParts = timetableModules.getJSONObject(i).getJSONArray("Childs" /* sic! */);
+            JSONObject module = timetableModules.getJSONObject(i);
+
+            String scheduleFilter = scheduleData.getData().optString("scheduleFilter", null);
+            String title = module.optString("Title");
+            // skip schedules that don't match the filter
+            if (scheduleFilter != null) {
+                Pattern pattern = Pattern.compile(scheduleFilter);
+                if (title == null || !pattern.matcher(title).matches()) {
+                    continue;
+                }
+            }
+
+            JSONArray timetableParts = module.getJSONArray("Childs" /* sic! */);
             for (int j = 0; j < timetableParts.length(); j++) {
                 JSONObject timetablePart = timetableParts.getJSONObject(j);
                 if (timetablePart.getInt("ConType") != 6) continue;
