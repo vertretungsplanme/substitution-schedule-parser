@@ -13,6 +13,8 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
@@ -84,13 +86,33 @@ public class IndiwareParser extends BaseParser {
         int successfulSchedules = 0;
         IOException lastException = null;
         for (int i = 0; i < urls.length(); i++) {
-            for (String url:ParserUtils.handleUrlWithDateFormat(urls.getString(i))) {
+            if (urls.optJSONObject(i) != null) {
                 try {
-                    String xml = httpGet(url, encoding);
-                    docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
-                    successfulSchedules ++;
+                    JSONObject obj = urls.getJSONObject(i);
+                    String url = obj.getString("url");
+                    if (obj.has("postData")) {
+                        JSONObject postParams = obj.getJSONObject("postData");
+                        List<NameValuePair> nvps = new ArrayList<>();
+                        for (String name : JSONObject.getNames(postParams)) {
+                            String value = postParams.getString(name);
+                            nvps.add(new BasicNameValuePair(name, value));
+                        }
+                        String xml = httpPost(url, encoding, nvps);
+                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                        successfulSchedules++;
+                    }
                 } catch (IOException e) {
                     lastException = e;
+                }
+            } else {
+                for (String url : ParserUtils.handleUrlWithDateFormat(urls.getString(i))) {
+                    try {
+                        String xml = httpGet(url, encoding);
+                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                        successfulSchedules++;
+                    } catch (IOException e) {
+                        lastException = e;
+                    }
                 }
             }
         }

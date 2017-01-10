@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import org.jetbrains.annotations.TestOnly;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalDate;
@@ -75,8 +76,12 @@ class ParserUtils {
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
-    static {
+    @TestOnly
+    static void init() {
         int i = 0;
+        dateFormatters.clear();
+        dateTimeFormatters.clear();
+
         for (String date : dateFormats) {
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
@@ -91,8 +96,15 @@ class ParserUtils {
         }
     }
 
+    private static void reinitIfNeeded() {
+        if (dateFormatters.size() == 0 || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
+            init();
+        }
+    }
+
     static LocalDateTime parseDateTime(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
 
         string = string.replace("Stand:", "").replace("Import:", "").trim();
         int i = 0;
@@ -107,11 +119,11 @@ class ParserUtils {
                     Duration nextYearDifference = abs(new Duration(DateTime.now(), dt.plusYears(1).toDateTime()));
                     if (lastYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() - 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
                                 .parseLocalDateTime(string);
                     } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() + 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
                                 .parseLocalDateTime(string);
                     } else {
                         return dt;
@@ -137,6 +149,8 @@ class ParserUtils {
 
     static LocalDate parseDate(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
+
         string = string.replace("Stand:", "").replace("Import:", "").replaceAll(", Woche [A-Z]", "").trim();
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
@@ -152,11 +166,11 @@ class ParserUtils {
                             abs(new Duration(DateTime.now(), d.plusYears(1).toDateTimeAtCurrentTime()));
                     if (lastYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() - 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
                                 .parseLocalDate(string);
                     } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
                         return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear() + 1)
+                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
                                 .parseLocalDate(string);
                     } else {
                         return d;
