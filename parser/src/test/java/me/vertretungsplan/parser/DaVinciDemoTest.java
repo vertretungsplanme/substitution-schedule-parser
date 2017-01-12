@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.joda.time.LocalDate;
@@ -29,6 +30,7 @@ public class DaVinciDemoTest extends BaseDemoTest {
     private static final String EXAMPLE_URL = "http://example.com";
 
     private String htmlSingle;
+    private String htmlSingleDaVinci5;
     private String htmlDayIndex;
     private String htmlMonth;
     private String htmlClasses;
@@ -38,6 +40,7 @@ public class DaVinciDemoTest extends BaseDemoTest {
     @Before
     public void setUp() throws JSONException {
         htmlSingle = readResource("/davinci/single.html");
+        htmlSingleDaVinci5 = readResource("/davinci/single_5.html");
         htmlDayIndex = readResource("/davinci/dayIndex.html");
         htmlMonth = readResource("/davinci/month.html");
         htmlClasses = readResource("/davinci/classes.html");
@@ -47,18 +50,37 @@ public class DaVinciDemoTest extends BaseDemoTest {
     }
 
     @Test
-    public void demoTest() throws IOException, JSONException {
-        SubstitutionScheduleDay day = parser.parseDay(Jsoup.parse(htmlSingle));
+    public void singleTest6() throws IOException, JSONException {
+        SubstitutionSchedule schedule = new SubstitutionSchedule();
+        parser.parsePage(Jsoup.parse(htmlSingle), schedule);
+        SubstitutionScheduleDay day = schedule.getDays().get(0);
         assertEquals(new LocalDate(2016, 9, 5), day.getDate());
         assertEquals(new LocalDateTime(2016, 9, 2, 13, 32), day.getLastChange());
         assertEquals(23, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
 
+        checkSubstitutions(day);
+    }
+
+    @Test
+    public void singleTest5() throws IOException, JSONException {
+        SubstitutionSchedule schedule = new SubstitutionSchedule();
+        parser.parsePage(Jsoup.parse(htmlSingleDaVinci5), schedule);
+        SubstitutionScheduleDay day = schedule.getDays().get(0);
+        assertEquals(new LocalDate(2017, 1, 16), day.getDate());
+        assertEquals(new LocalDateTime(2017, 1, 12, 7, 59), schedule.getLastChange());
+        assertEquals(2, day.getSubstitutions().size());
+        assertEquals(0, day.getMessages().size());
+
+        checkSubstitutions(day);
+    }
+
+    private void checkSubstitutions(SubstitutionScheduleDay day) {
         for (Substitution subst : day.getSubstitutions()) {
             assertTrue(subst.getClasses().size() > 0);
             assertNotEmpty(subst.getLesson());
             assertNotEmpty(subst.getPreviousSubject());
-            assertNotEmpty(subst.getSubject());
+            assertNullOrNotEmpty(subst.getSubject());
             assertNullOrNotEmpty(subst.getRoom());
             assertNullOrNotEmpty(subst.getTeacher());
             assertNullOrNotEmpty(subst.getDesc());

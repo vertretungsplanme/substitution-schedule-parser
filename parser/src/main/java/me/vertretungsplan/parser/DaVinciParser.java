@@ -14,6 +14,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
@@ -80,26 +81,33 @@ public class DaVinciParser extends BaseParser {
         super(scheduleData, cookieProvider);
     }
 
-    static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, ColorProvider colorProvider) {
-        parseDaVinciTable(table, day, null, colorProvider);
+    static void parseDaVinciTable(Element table, SubstitutionSchedule v, ColorProvider colorProvider) {
+        parseDaVinciTable(table, v, null, null, colorProvider);
     }
 
-    static void parseDaVinciTable(Element table, SubstitutionScheduleDay day, String klasse,
+    static void parseDaVinciTable(Element table, SubstitutionSchedule v, SubstitutionScheduleDay day, ColorProvider
+                                  colorProvider) {
+        parseDaVinciTable(table, v, null, day, colorProvider);
+    }
+
+    static void parseDaVinciTable(Element table, SubstitutionSchedule v, String klasse, SubstitutionScheduleDay day,
                                   ColorProvider colorProvider) {
         List<String> headers = new ArrayList<>();
         for (Element header : table.select("thead tr th, tr td[bgcolor=#9999FF]")) {
             headers.add(header.text());
         }
 
-        // These two variables can
+        // These three variables can
         Set<String> classes = new HashSet<>();
         String lesson = null;
+        LocalDate currentDate = null;
 
         Pattern previousCurrentPattern = Pattern.compile("\\+([^\\s]+) \\(([^)]+)\\)");
         Pattern previousPattern = Pattern.compile("\\(([^)]+)\\)");
 
         for (Element row : table.select("tr:not(thead tr, tr:has(td[bgcolor=#9999FF]))")) {
             Substitution subst = new Substitution();
+            LocalDate substDate = null;
             Elements columns = row.select("td");
             for (int i = 0; i < headers.size(); i++) {
                 String value = columns.get(i).text().replace("\u00a0", "");
@@ -111,6 +119,7 @@ public class DaVinciParser extends BaseParser {
                         subst.setLesson(lesson);
                     }
                     if (header.equals("Art") || header.equals("Merkmal")) subst.setType("Vertretung");
+                    if (header.equals("Datum")) substDate = currentDate;
                     continue;
                 }
 
@@ -186,6 +195,10 @@ public class DaVinciParser extends BaseParser {
 
                         }
                         break;
+                    case "Datum":
+                        substDate = ParserUtils.parseDate(value);
+                        currentDate = substDate;
+                        break;
                 }
             }
             if (klasse != null) {
@@ -199,7 +212,24 @@ public class DaVinciParser extends BaseParser {
                 subst.setType(recognizedType != null ? recognizedType : "Vertretung");
             }
             subst.setColor(colorProvider.getColor(subst.getType()));
+
+            if (substDate == null && day == null) continue;
+
+            if (day == null) {
+                for (SubstitutionScheduleDay d : v.getDays()) {
+                    if (d.getDate().equals(substDate)) {
+                        day = d;
+                    }
+                }
+                if (day == null) {
+                    day = new SubstitutionScheduleDay();
+                    day.setDate(substDate);
+                    v.addDay(day);
+                }
+            }
+
             day.addSubstitution(subst);
+
         }
     }
 
@@ -225,7 +255,7 @@ public class DaVinciParser extends BaseParser {
 
             if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
                 for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
-                    schedule.addDay(parseDay(el));
+                    parsePage(el, schedule);
                 }
             } else {
                 for (String dayUrl : dayUrls) {
@@ -235,7 +265,7 @@ public class DaVinciParser extends BaseParser {
                     } else {
                         dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
                     }
-                    schedule.addDay(parseDay(dayDoc));
+                    parsePage(dayDoc, schedule);
                 }
             }
         }
@@ -275,6 +305,12 @@ public class DaVinciParser extends BaseParser {
             for (Element day : days) {
                 dayUrls.add(new URL(new URL(url), day.attr("href")).toString());
             }
+        } else if (doc.select("table td[align=left] a").size() > 0) {
+            // Table of classes (DaVinci 5)
+            Elements classes = doc.select("table td[align=left] a");
+            for (Element klasse : classes) {
+                dayUrls.add(new URL(new URL(url), klasse.attr("href")).toString());
+            }
         } else {
             // Single day
             dayUrls.add(url);
@@ -293,10 +329,17 @@ public class DaVinciParser extends BaseParser {
     }
 
     @NotNull
-    SubstitutionScheduleDay parseDay(Element doc) throws IOException {
+    void parsePage(Element doc, SubstitutionSchedule schedule) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
-        String title = doc.select("h1.list-table-caption").first().text();
+        Element titleElem;
+        if (doc.select("h1.list-table-caption").size() > 0) {
+            titleElem = doc.select("h1.list-table-caption").first();
+        } else {
+            // DaVinci 5
+            titleElem = doc.select("h2").first();
+        }
+        String title = titleElem.text();
         String klasse = null;
         // title can either be date or class
         Pattern datePattern = Pattern.compile("\\d+\\.\\d+.\\d{4}");
@@ -306,12 +349,13 @@ public class DaVinciParser extends BaseParser {
             day.setDate(ParserUtils.parseDate(dateMatcher.group()));
         } else {
             klasse = title;
-            String nextText = doc.select("h1.list-table-caption").first().nextElementSibling().text();
+            String nextText = titleElem.nextElementSibling().text();
             if (nextText.matches("\\w+ \\d+\\.\\d+.\\d{4}")) {
                 day.setDateString(nextText);
                 day.setDate(ParserUtils.parseDate(nextText));
             } else {
-                throw new IOException("Could not find date");
+                // could not find date, must be multiple days
+                day = null;
             }
         }
 
@@ -326,20 +370,44 @@ public class DaVinciParser extends BaseParser {
             }
         }
 
-        String lastChange = doc.select(".row.copyright div").first().ownText();
+        Element lastChangeElem = doc.select(".row.copyright div").first();
+        if (lastChangeElem == null) {
+            // DaVinci 5
+            lastChangeElem = doc.select("h1").first();
+        }
+        String lastChange = lastChangeElem.ownText();
         Pattern pattern = Pattern.compile("(\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}) \\|");
         Matcher matcher = pattern.matcher(lastChange);
         if (matcher.find()) {
             LocalDateTime lastChangeTime =
                     DateTimeFormat.forPattern("dd-MM-yyyy HH:mm").parseLocalDateTime(matcher.group(1));
-            day.setLastChange(lastChangeTime);
+            if (day != null) {
+                day.setLastChange(lastChangeTime);
+            } else {
+                schedule.setLastChange(lastChangeTime);
+            }
+        } else {
+            Pattern pattern2 = Pattern.compile("(\\d{2}.\\d{2}.\\d{4} \\| \\d+:\\d{2})");
+            Matcher matcher2 = pattern2.matcher(lastChange);
+            if (matcher2.find()) {
+                LocalDateTime lastChangeTime =
+                        DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(matcher2.group(1));
+                if (day != null) {
+                    day.setLastChange(lastChangeTime);
+                } else {
+                    schedule.setLastChange(lastChangeTime);
+                }
+            }
         }
 
         if (doc.select(".list-table").size() > 0 || !doc.select(".callout").text().contains("Es liegen keine")) {
-            Element table = doc.select(".list-table").first();
-            parseDaVinciTable(table, day, klasse, colorProvider);
+            Element table = doc.select(".list-table, table").first();
+            parseDaVinciTable(table, schedule, klasse, day, colorProvider);
         }
-        return day;
+
+        if (day != null) {
+            schedule.addDay(day);
+        }
     }
 
     @Override
@@ -347,7 +415,12 @@ public class DaVinciParser extends BaseParser {
         if (scheduleData.getData().has(PARAM_CLASSES_SOURCE)) {
             Document doc = Jsoup.parse(httpGet(scheduleData.getData().getString("classesSource"), ENCODING));
             List<String> classes = new ArrayList<>();
-            for (Element li : doc.select("li.Class")) {
+            Elements elems = doc.select("li.Class");
+            if (elems.size() == 0) {
+                // daVinci 5
+                elems = doc.select("td[align=left] a");
+            }
+            for (Element li : elems) {
                 classes.add(li.text());
             }
             return classes;

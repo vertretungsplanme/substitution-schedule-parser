@@ -245,7 +245,7 @@ public class DSBMobileParser extends UntisCommonParser {
                 String date = titles.get(i).text();
                 day.setDateString(date);
                 day.setDate(ParserUtils.parseDate(date));
-                DaVinciParser.parseDaVinciTable(tables.get(i), day, colorProvider);
+                DaVinciParser.parseDaVinciTable(tables.get(i), v, day, colorProvider);
                 v.addDay(day);
             }
         } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
