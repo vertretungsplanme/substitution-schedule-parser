@@ -140,8 +140,11 @@ public class DaVinciParser extends BaseParser {
                     case "VLehrer Kürzel":
                     case "VLehrer":
                     case "Vertreter":
+                    case "Vertretungslehrkraft":
                         if (!value.startsWith("*")) {
-                            if (value.equals("Raumänderung")) {
+                            if (value.equals("Raumänderung")
+                                    || value.equals("Frei")
+                                    || value.equals("Stillarbeit")) {
                                 subst.setType(value);
                             } else {
                                 subst.setTeacher(value);
@@ -151,6 +154,7 @@ public class DaVinciParser extends BaseParser {
                     case "Lehrer":
                     case "Lehrer Kürzel":
                     case "Lehrer Name":
+                    case "Lehrkraft":
                         if (previousCurrentMatcher.find()) {
                             subst.setTeacher(previousCurrentMatcher.group(1));
                             subst.setPreviousTeacher(previousCurrentMatcher.group(2));
@@ -161,6 +165,7 @@ public class DaVinciParser extends BaseParser {
                         }
                         break;
                     case "VFach":
+                    case "V Fach":
                         subst.setSubject(value);
                         break;
                     case "Fach":
@@ -173,6 +178,7 @@ public class DaVinciParser extends BaseParser {
                         }
                         break;
                     case "VRaum":
+                    case "V Raum":
                         subst.setRoom(value);
                         break;
                     case "Raum":
