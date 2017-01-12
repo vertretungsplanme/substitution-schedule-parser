@@ -142,13 +142,9 @@ public class DaVinciParser extends BaseParser {
                     case "Vertreter":
                     case "Vertretungslehrkraft":
                         if (!value.startsWith("*")) {
-                            if (value.equals("Raumänderung")
-                                    || value.equals("Frei")
-                                    || value.equals("Stillarbeit")) {
-                                subst.setType(value);
-                            } else {
-                                subst.setTeacher(value);
-                            }
+                            subst.setTeacher(value);
+                        } else {
+                            subst.setType(value.substring(1));
                         }
                         break;
                     case "Lehrer":
@@ -197,9 +193,6 @@ public class DaVinciParser extends BaseParser {
                     case "Info":
                     case "Mitteilung":
                         subst.setDesc(value);
-                        if (!headers.contains("Art") && !headers.contains("Merkmal")) {
-
-                        }
                         break;
                     case "Datum":
                         substDate = ParserUtils.parseDate(value);
