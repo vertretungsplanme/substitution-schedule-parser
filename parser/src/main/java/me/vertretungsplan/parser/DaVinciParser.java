@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://davinci.stueber.de/">DaVinci</a>
- * software. Probably only supports the newest version (DaVinci 6).
+ * software. Supports DaVinci 6 and 5 (the latter was not tested in depth yet).
  * <p>
  * This parser can be accessed using <code>"davinci"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
