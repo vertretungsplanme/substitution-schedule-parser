@@ -66,12 +66,13 @@ public class DaVinciDemoTest extends BaseDemoTest {
     public void singleTest5() throws IOException, JSONException {
         SubstitutionSchedule schedule = new SubstitutionSchedule();
         parser.parsePage(Jsoup.parse(htmlSingleDaVinci5), schedule);
+        assertEquals(3, schedule.getDays().size());
+        assertEquals(new LocalDateTime(2017, 1, 17, 7, 32), schedule.getLastChange());
+
         SubstitutionScheduleDay day = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2017, 1, 16), day.getDate());
-        assertEquals(new LocalDateTime(2017, 1, 12, 7, 59), schedule.getLastChange());
+        assertEquals(new LocalDate(2017, 1, 17), day.getDate());
         assertEquals(2, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
-
         checkSubstitutions(day);
     }
 
