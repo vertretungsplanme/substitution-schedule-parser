@@ -91,7 +91,6 @@ public class Substitution implements Cloneable {
      *
      * @return the classes
      */
-    @NotNull
     public Set<String> getClasses() {
         return classes;
     }
@@ -101,7 +100,7 @@ public class Substitution implements Cloneable {
      *
      * @param classes the classes to set
      */
-    public void setClasses(@NotNull Set<String> classes) {
+    public void setClasses(Set<String> classes) {
         this.classes = classes;
     }
 
@@ -113,7 +112,6 @@ public class Substitution implements Cloneable {
      *
      * @return the lesson
      */
-    @NotNull
     public String getLesson() {
         return lesson;
     }
@@ -126,7 +124,7 @@ public class Substitution implements Cloneable {
      *
      * @param lesson the lesson
      */
-    public void setLesson(@NotNull String lesson) {
+    public void setLesson(String lesson) {
         this.lesson = lesson;
     }
 
@@ -136,7 +134,6 @@ public class Substitution implements Cloneable {
      *
      * @return the type
      */
-    @NotNull
     public String getType() {
         return type;
     }
@@ -147,7 +144,7 @@ public class Substitution implements Cloneable {
      *
      * @param type the type to set
      */
-    public void setType(@NotNull String type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -156,7 +153,6 @@ public class Substitution implements Cloneable {
      *
      * @return the subject
      */
-    @Nullable
     public String getSubject() {
         return subject;
     }
@@ -166,7 +162,7 @@ public class Substitution implements Cloneable {
      *
      * @param subject the subject to set
      */
-    public void setSubject(@Nullable String subject) {
+    public void setSubject(String subject) {
         this.subject = subject;
     }
 
@@ -175,7 +171,6 @@ public class Substitution implements Cloneable {
      *
      * @return the previous subject
      */
-    @Nullable
     public String getPreviousSubject() {
         return previousSubject;
     }
@@ -185,7 +180,7 @@ public class Substitution implements Cloneable {
      *
      * @param previousSubject the previous subject to set
      */
-    public void setPreviousSubject(@Nullable String previousSubject) {
+    public void setPreviousSubject(String previousSubject) {
         this.previousSubject = previousSubject;
     }
 
@@ -195,7 +190,6 @@ public class Substitution implements Cloneable {
      *
      * @return the teacher
      */
-    @Nullable
     public String getTeacher() {
         return teachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(teachers) : null;
     }
@@ -215,7 +209,7 @@ public class Substitution implements Cloneable {
      *
      * @param teacher the teacher to set
      */
-    public void setTeacher(@Nullable String teacher) {
+    public void setTeacher(String teacher) {
         teachers.clear();
         if (teacher != null) teachers.add(teacher);
     }
@@ -237,7 +231,6 @@ public class Substitution implements Cloneable {
      *
      * @return the previous teacher
      */
-    @Nullable
     public String getPreviousTeacher() {
         return previousTeachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
     }
@@ -259,7 +252,7 @@ public class Substitution implements Cloneable {
      *
      * @param previousTeacher the previous teacher to set
      */
-    public void setPreviousTeacher(@Nullable String previousTeacher) {
+    public void setPreviousTeacher(String previousTeacher) {
         previousTeachers.clear();
         if (previousTeacher != null) previousTeachers.add(previousTeacher);
     }
@@ -279,7 +272,6 @@ public class Substitution implements Cloneable {
      *
      * @return the room
      */
-    @Nullable
     public String getRoom() {
         return room;
     }
@@ -289,7 +281,7 @@ public class Substitution implements Cloneable {
      *
      * @param room the room to set
      */
-    public void setRoom(@Nullable String room) {
+    public void setRoom(String room) {
         this.room = room;
     }
 
@@ -298,7 +290,6 @@ public class Substitution implements Cloneable {
      *
      * @return the previous room
      */
-    @Nullable
     public String getPreviousRoom() {
         return previousRoom;
     }
@@ -308,7 +299,7 @@ public class Substitution implements Cloneable {
      *
      * @param previousRoom the previous room to set
      */
-    public void setPreviousRoom(@Nullable String previousRoom) {
+    public void setPreviousRoom(String previousRoom) {
         this.previousRoom = previousRoom;
     }
 
@@ -317,7 +308,6 @@ public class Substitution implements Cloneable {
      *
      * @return the description
      */
-    @Nullable
     public String getDesc() {
         return desc;
     }
@@ -327,7 +317,7 @@ public class Substitution implements Cloneable {
      *
      * @param desc the description to set
      */
-    public void setDesc(@Nullable String desc) {
+    public void setDesc(String desc) {
         this.desc = desc;
     }
 
@@ -337,7 +327,6 @@ public class Substitution implements Cloneable {
      *
      * @return the color to set
      */
-    @NotNull
     public String getColor() {
         return color;
     }
@@ -350,7 +339,7 @@ public class Substitution implements Cloneable {
      *
      * @param color the color to set
      */
-    public void setColor(@NotNull String color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
@@ -361,7 +350,6 @@ public class Substitution implements Cloneable {
      *
      * @return the substitution from
      */
-    @Nullable
     public String getSubstitutionFrom() {
         return substitutionFrom;
     }
@@ -373,7 +361,7 @@ public class Substitution implements Cloneable {
      *
      * @param substitutionFrom the substitution from to set
      */
-    public void setSubstitutionFrom(@Nullable String substitutionFrom) {
+    public void setSubstitutionFrom(String substitutionFrom) {
         this.substitutionFrom = substitutionFrom;
     }
 
@@ -383,7 +371,6 @@ public class Substitution implements Cloneable {
      *
      * @return the teacher to
      */
-    @Nullable
     public String getTeacherTo() {
         return teacherTo;
     }
@@ -394,7 +381,7 @@ public class Substitution implements Cloneable {
      *
      * @param teacherTo the teacher to to set
      */
-    public void setTeacherTo(@Nullable String teacherTo) {
+    public void setTeacherTo(String teacherTo) {
         this.teacherTo = teacherTo;
     }
 
