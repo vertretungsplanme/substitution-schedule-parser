@@ -214,7 +214,8 @@ public class DaVinciParser extends BaseParser {
 
             if (substDate == null && day == null) continue;
 
-            if (day == null) {
+            if (day == null || substDate != null && !substDate.equals(day.getDate())) {
+                day = null;
                 for (SubstitutionScheduleDay d : v.getDays()) {
                     if (d.getDate().equals(substDate)) {
                         day = d;
