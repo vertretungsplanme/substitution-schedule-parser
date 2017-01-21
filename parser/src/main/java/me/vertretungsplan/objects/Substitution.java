@@ -10,8 +10,6 @@ package me.vertretungsplan.objects;
 
 import me.vertretungsplan.utils.SubstitutionTextUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -464,6 +462,29 @@ public class Substitution implements Cloneable {
                 .append(subject, that.subject)
                 .append(previousSubject, that.previousSubject)
                 .append(teachers, that.teachers)
+                .append(classes, that.classes)
+                .append(room, that.room)
+                .append(previousRoom, that.previousRoom)
+                .append(desc, that.desc)
+                .append(color, that.color)
+                .append(substitutionFrom, that.substitutionFrom)
+                .append(teacherTo, that.teacherTo).isEquals();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Substitution that = (Substitution) o;
+
+        return new EqualsBuilder()
+                .append(lesson, that.lesson)
+                .append(type, that.type)
+                .append(subject, that.subject)
+                .append(previousSubject, that.previousSubject)
+                .append(teachers, that.teachers)
+                .append(previousTeachers, that.previousTeachers)
                 .append(classes, that.classes)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
