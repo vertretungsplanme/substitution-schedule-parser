@@ -104,6 +104,8 @@ public class SubstitutionSchedule implements Cloneable {
                 if (!excludedSubjects.contains(substitution.getSubject())) {
                     filteredSubstitutions.add(substitution);
                 }
+            } else {
+                filteredSubstitutions.add(substitution);
             }
         }
         return filteredSubstitutions;
