@@ -481,7 +481,11 @@ public abstract class UntisCommonParser extends BaseParser {
                             for (String klasse : getAllClasses()) { // TODO: is there a better way?
                                 StringBuilder regex = new StringBuilder();
 								for (char character : klasse.toCharArray()) {
-									regex.append(character);
+									if (character == '?') {
+										regex.append("\\?");
+									} else {
+										regex.append(character);
+									}
 									regex.append(".*");
 								}
 								if (klassen.matches(regex.toString()))
