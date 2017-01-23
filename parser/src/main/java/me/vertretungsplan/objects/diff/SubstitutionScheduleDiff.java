@@ -104,6 +104,8 @@ public class SubstitutionScheduleDiff implements Cloneable {
                 if (!excludedSubjects.contains(substitution.getNewSubstitution().getSubject())) {
                     filteredSubstitutions.add(substitution);
                 }
+            } else {
+                filteredSubstitutions.add(substitution);
             }
         }
         return filteredSubstitutions;
