@@ -74,7 +74,16 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
 		SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
 		Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+        doc.setBaseUri(url);
         Elements dayElems = doc.select("#vertretung > p > b, #vertretung > b");
+
+        Elements frames = doc.select("frame[src*=w00]");
+        if (dayElems.size() == 0 && frames.size() > 0) {
+            // doc is embedded in frame
+            doc = Jsoup.parse(httpGet(frames.get(0).absUrl("src"), data.getString(PARAM_ENCODING)));
+            dayElems = doc.select("#vertretung > p > b, #vertretung > b");
+        }
+
 		for (Element dayElem : dayElems) {
 			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 			day.setLastChangeString("");
