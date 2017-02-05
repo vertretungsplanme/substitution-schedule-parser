@@ -67,6 +67,12 @@ import java.util.regex.Pattern;
  * Otherwise, {@link Matcher#group()} is used. If the RegEx cannot be matched ({@link Matcher#find()} returns
  * <code>false</code>), the class is set to an empty string.
  * </dd>
+ *
+ * <dt><code>typeAutoDetection</code> (Boolean, optional)</dt>
+ * <dd>If there is no type column and the detection using desc-type did not work, this sets whether the type may be
+ * automatically set to "Entfall" (cancellation) depending on the values of other columns.
+ * Default: <code>true</code></dd>
+ *
  * </dl>
  *
  */
@@ -79,6 +85,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_COLUMNS = "columns";
     private static final String PARAM_CLASSES_SEPARATED = "classesSeparated";
     private static final String PARAM_EXCLUDE_CLASSES = "excludeClasses";
+    private static final String PARAM_TYPE_AUTO_DETECTION = "typeAutoDetection";
 
     UntisCommonParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -419,12 +426,18 @@ public abstract class UntisCommonParser extends BaseParser {
 				}
 
 				if (v.getType() == null) {
-					if ((zeile.select("strike").size() > 0 && equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
-							equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
-							|| (v.getSubject() == null && v.getRoom() == null && v
-							.getTeacher() == null && v.getPreviousSubject() != null)) {
-						v.setType("Entfall");
-						v.setColor(colorProvider.getColor("Entfall"));
+                	if (data.optBoolean(PARAM_TYPE_AUTO_DETECTION, true)) {
+						if ((zeile.select("strike").size() > 0 &&
+								equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
+								equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
+								|| (v.getSubject() == null && v.getRoom() == null && v
+								.getTeacher() == null && v.getPreviousSubject() != null)) {
+							v.setType("Entfall");
+							v.setColor(colorProvider.getColor("Entfall"));
+						} else {
+							v.setType("Vertretung");
+							v.setColor(colorProvider.getColor("Vertretung"));
+						}
 					} else {
 						v.setType("Vertretung");
 						v.setColor(colorProvider.getColor("Vertretung"));
