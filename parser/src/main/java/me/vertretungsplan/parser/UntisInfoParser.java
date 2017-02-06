@@ -136,8 +136,10 @@ public class UntisInfoParser extends UntisCommonParser {
 				lastChange = "";
 			}
         }
-		
-		for (Element option:select.children()) {
+
+        int successfulWeeks = 0;
+        HttpResponseException lastException = null;
+        for (Element option:select.children()) {
 			String week = option.attr("value");
 			String letter = data.optString("letter", "w");
 			if (data.optBoolean(PARAM_SINGLE_CLASSES,
@@ -168,7 +170,8 @@ public class UntisInfoParser extends UntisCommonParser {
 
 					classNumber ++;
 				}
-			} else {
+                successfulWeeks++;
+            } else {
 				String url;
                 if (data.optBoolean(PARAM_W_AFTER_NUMBER,
                         data.optBoolean("w_after_number", false))) { // backwards compatibility
@@ -176,11 +179,19 @@ public class UntisInfoParser extends UntisCommonParser {
                 } else {
                     url = baseUrl + "/" + letter + "/" + week + "/" + letter + "00000.htm";
                 }
-                Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
-                parseDays(v, lastChange, doc, null);
+                try {
+                    Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+                    parseDays(v, lastChange, doc, null);
+                    successfulWeeks++;
+                } catch (HttpResponseException e) {
+                    lastException = e;
+                }
             }
 		}
-		v.setClasses(getAllClasses());
+        if (successfulWeeks == 0 && lastException != null) {
+            throw lastException;
+        }
+        v.setClasses(getAllClasses());
 		v.setTeachers(getAllTeachers());
 		v.setWebsite(baseUrl + "/default.htm");
 		return v;
