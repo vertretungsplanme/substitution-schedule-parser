@@ -52,6 +52,9 @@ import java.util.*;
  * <dt><code>schoolname</code> (String, required)</dt>
  * <dd>The school name entered into WebUntis for login.</dd>
  *
+ * <dt><code>protocol</code> (String, optional, Default: https)</dt>
+ * <dd>The protocol used to access WebUntis. The *.webuntis.com servers support HTTPS, self-hosted ones may not.</dd>
+ *
  * </dl>
  *
  * Schedules on WebUntis are always protected using a
@@ -60,6 +63,7 @@ import java.util.*;
 public class WebUntisParser extends BaseParser {
     private static final String PARAM_HOST = "host";
     private static final String PARAM_SCHOOLNAME = "schoolname";
+    public static final String PARAM_PROTOCOL = "protocol";
     private final JSONObject data;
     private String sessionId;
     private static final String USERAGENT = "vertretungsplan.me";
@@ -202,7 +206,8 @@ public class WebUntisParser extends BaseParser {
         }
 
         schedule.setClasses(toNamesList(getClasses()));
-        schedule.setWebsite("https://" + data.getString(PARAM_HOST) + "/WebUntis");
+        final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
+        schedule.setWebsite(protocol + data.getString(PARAM_HOST) + "/WebUntis");
 
         logout();
 
@@ -357,7 +362,8 @@ public class WebUntisParser extends BaseParser {
         String host = data.getString(PARAM_HOST);
         String school = data.getString(PARAM_SCHOOLNAME);
 
-        String url = "https://" + host + "/WebUntis/jsonrpc" + (internal ? "_intern" : "") + ".do?school=" +
+        final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
+        String url = protocol + host + "/WebUntis/jsonrpc" + (internal ? "_intern" : "") + ".do?school=" +
                 URLEncoder.encode(school, "UTF-8");
 
         Map<String, String> headers = new HashMap<>();
