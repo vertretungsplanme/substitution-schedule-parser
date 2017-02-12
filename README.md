@@ -38,7 +38,7 @@ Below you find the currently supported substitution schedule softwares and the c
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
 * DSBmobile (with either Untis Monitor-Vertretungsplan or DaVinci inside) `"dsbmobile"`
 * DSBlight (with Untis Monitor-Vertretungsplan inside) `"dsblight"`
-* [LegionBoard](https://legionboard.github.io) `"legionboard"`
+* [LegionBoard](http://legionboard.org) `"legionboard"`
 * Indiware
   * XML export [example](http://burg-gymnasiumwettin.de/sites/schule/plan/mo.xml) `"indiware"`
   * Stundenplan24.de `"stundenplan24"`
