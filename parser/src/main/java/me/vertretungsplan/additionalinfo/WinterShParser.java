@@ -8,6 +8,7 @@
 package me.vertretungsplan.additionalinfo;
 
 import me.vertretungsplan.objects.AdditionalInfo;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
@@ -28,10 +29,13 @@ public class WinterShParser extends BaseAdditionalInfoParser {
 	
 	@Override
 	public AdditionalInfo getAdditionalInfo() throws IOException {
+		String xml = httpGet(URL, ENCODING);
+		return handleXML(xml);
+	}
+
+	@NotNull static AdditionalInfo handleXML(String xml) {
 		AdditionalInfo info = new AdditionalInfo();
 		info.setTitle(TITLE);
-
-		String xml = httpGet(URL, ENCODING);
 		Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
 		String text = doc.select("item description").first().text();
 		if (text.equals("Zurzeit gibt es keine Hinweise auf witterungsbedingten Unterrichtsausfall.")) {
