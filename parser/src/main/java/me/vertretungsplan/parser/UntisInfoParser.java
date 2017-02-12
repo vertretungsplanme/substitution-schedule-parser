@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.client.HttpResponseException;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -84,101 +85,86 @@ import java.util.regex.Pattern;
  */
 public class UntisInfoParser extends UntisCommonParser {
 
-    private static final String PARAM_BASEURL = "baseurl";
+    public static final String PARAM_BASEURL = "baseurl";
     private static final String PARAM_ENCODING = "encoding";
-    private static final String PARAM_CLASS_SELECT_REGEX = "classSelectRegex";
-    private static final String PARAM_REMOVE_NON_MATCHING_CLASSES = "removeNonMatchingClasses";
+    public static final String PARAM_CLASS_SELECT_REGEX = "classSelectRegex";
+    public static final String PARAM_REMOVE_NON_MATCHING_CLASSES = "removeNonMatchingClasses";
     private static final String PARAM_SINGLE_CLASSES = "singleClasses";
-    private static final String PARAM_W_AFTER_NUMBER = "wAfterNumber";
+    public static final String PARAM_W_AFTER_NUMBER = "wAfterNumber";
     private String baseUrl;
     private JSONObject data;
-	private String navbarDoc;
+    private String navbarDoc;
 
-	public UntisInfoParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
-		super(scheduleData, cookieProvider);
-		try {
-			data = scheduleData.getData();
+    public UntisInfoParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
+        super(scheduleData, cookieProvider);
+        try {
+            data = scheduleData.getData();
             baseUrl = data.getString(PARAM_BASEURL);
         } catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
+            e.printStackTrace();
+        }
+    }
 
-	private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
-		if(navbarDoc == null) {
-			String navbarUrl = baseUrl + "/frames/navbar.htm";
+    private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
+        if (navbarDoc == null) {
+            String navbarUrl = baseUrl + "/frames/navbar.htm";
             navbarDoc = httpGet(navbarUrl, data.getString(PARAM_ENCODING));
         }
-		return navbarDoc;
-	}
+        return navbarDoc;
+    }
 
-	@Override
-	public SubstitutionSchedule getSubstitutionSchedule()
-			throws IOException, JSONException, CredentialInvalidException {
-		new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-		
-		Document navbarDoc = Jsoup.parse(getNavbarDoc().replace("&nbsp;", ""));
-		Element select = navbarDoc.select("select[name=week]").first();
+    @Override
+    public SubstitutionSchedule getSubstitutionSchedule()
+            throws IOException, JSONException, CredentialInvalidException {
+        new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
 
-		SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
-		
-		String info = navbarDoc.select(".description").text();
-		String lastChange;
-		try {
-			lastChange = info.substring(info.indexOf("Stand:") + "Stand:".length()).trim();
-		} catch (Exception e) {
+        Document navbarDoc = Jsoup.parse(getNavbarDoc().replace("&nbsp;", ""));
+        Element select = navbarDoc.select("select[name=week]").first();
+
+        SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
+
+        String info = navbarDoc.select(".description").text();
+        String lastChange;
+        try {
+            lastChange = info.substring(info.indexOf("Stand:") + "Stand:".length()).trim();
+        } catch (Exception e) {
             try {
                 String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.getString(PARAM_ENCODING));
                 Document infoDoc = Jsoup.parse(infoHtml);
                 String info2 = infoDoc.select(".description").text();
-				lastChange = info2.substring(info2.indexOf("Stand:") + "Stand:".length()).trim();
-			} catch (Exception e1) {
-				lastChange = "";
-			}
+                lastChange = info2.substring(info2.indexOf("Stand:") + "Stand:".length()).trim();
+            } catch (Exception e1) {
+                lastChange = "";
+            }
         }
 
         int successfulWeeks = 0;
         HttpResponseException lastException = null;
-        for (Element option:select.children()) {
-			String week = option.attr("value");
-			String letter = data.optString("letter", "w");
-			if (data.optBoolean(PARAM_SINGLE_CLASSES,
+        for (Element option : select.children()) {
+            String week = option.attr("value");
+            if (data.optBoolean(PARAM_SINGLE_CLASSES,
                     data.optBoolean("single_classes", false))) { // backwards compatibility
                 int classNumber = 1;
-				for (String klasse:getAllClasses()) {
-					String paddedNumber = String.format("%05d", classNumber);
-					String url;
-                    if (data.optBoolean(PARAM_W_AFTER_NUMBER,
-                            data.optBoolean("w_after_number", false))) { // backwards compatibility
-                        url = baseUrl + "/" + week + "/" + letter + "/" + letter + paddedNumber + ".htm";
-                    } else {
-                        url = baseUrl + "/" + letter + "/" + week + "/" + letter + paddedNumber + ".htm";
-                    }
-
-					try {
-						Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
+                for (String klasse : getAllClasses()) {
+                    String url = getScheduleUrl(week, classNumber, data);
+                    try {
+                        Document doc = Jsoup.parse(httpGet(url, data.getString("encoding")));
                         parseDays(v, lastChange, doc, klasse);
                     } catch (HttpResponseException e) {
-						if (e.getStatusCode() == 500) {
-							// occurs in Hannover_MMBS
-							classNumber ++;
-							continue;
-						} else {
-							throw e;
-						}
-					}
+                        if (e.getStatusCode() == 500) {
+                            // occurs in Hannover_MMBS
+                            classNumber++;
+                            continue;
+                        } else {
+                            throw e;
+                        }
+                    }
 
-					classNumber ++;
-				}
+                    classNumber++;
+                }
                 successfulWeeks++;
             } else {
-				String url;
-                if (data.optBoolean(PARAM_W_AFTER_NUMBER,
-                        data.optBoolean("w_after_number", false))) { // backwards compatibility
-                    url = baseUrl + "/" + week + "/" + letter + "/" + letter + "00000.htm";
-                } else {
-                    url = baseUrl + "/" + letter + "/" + week + "/" + letter + "00000.htm";
-                }
+                String url = getScheduleUrl(week, 0, data);
                 try {
                     Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
                     parseDays(v, lastChange, doc, null);
@@ -187,89 +173,107 @@ public class UntisInfoParser extends UntisCommonParser {
                     lastException = e;
                 }
             }
-		}
+        }
         if (successfulWeeks == 0 && lastException != null) {
             throw lastException;
         }
         v.setClasses(getAllClasses());
-		v.setTeachers(getAllTeachers());
-		v.setWebsite(baseUrl + "/default.htm");
-		return v;
-	}
+        v.setTeachers(getAllTeachers());
+        v.setWebsite(baseUrl + "/default.htm");
+        return v;
+    }
+
+    @NotNull static String getScheduleUrl(String week, int number, JSONObject data)
+            throws JSONException {
+        String paddedNumber = String.format("%05d", number);
+        String baseUrl = data.getString(PARAM_BASEURL);
+        String letter = data.optString("letter", "w");
+        String url;
+        if (data.optBoolean(PARAM_W_AFTER_NUMBER,
+                data.optBoolean("w_after_number", false))) { // backwards compatibility
+            url = baseUrl + "/" + week + "/" + letter + "/" + letter + paddedNumber + ".htm";
+        } else {
+            url = baseUrl + "/" + letter + "/" + week + "/" + letter + paddedNumber + ".htm";
+        }
+        return url;
+    }
 
     private void parseDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
-			throws JSONException, CredentialInvalidException {
-		Elements days = doc.select("#vertretung > p > b, #vertretung > b");
-		if (days.size() > 0) {
-			for (Element dayElem : days) {
-				SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+            throws JSONException, CredentialInvalidException {
+        Elements days = doc.select("#vertretung > p > b, #vertretung > b");
+        if (days.size() > 0) {
+            for (Element dayElem : days) {
+                SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
-				day.setLastChangeString(lastChange);
-				day.setLastChange(ParserUtils.parseDateTime(lastChange));
+                day.setLastChangeString(lastChange);
+                day.setLastChange(ParserUtils.parseDateTime(lastChange));
 
-				String date = dayElem.text();
-				day.setDateString(date);
-				day.setDate(ParserUtils.parseDate(date));
+                String date = dayElem.text();
+                day.setDateString(date);
+                day.setDate(ParserUtils.parseDate(date));
 
-				Element next;
-				if (dayElem.parent().tagName().equals("p")) {
-					next = dayElem.parent().nextElementSibling().nextElementSibling();
-				} else {
-					next = dayElem.parent().select("p").first().nextElementSibling();
-				}
-				parseDay(day, next, v, klasse);
-			}
-		} else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
-			parseSubstitutionTable(v, null, doc);
-			v.setLastChangeString(lastChange);
-			v.setLastChange(ParserUtils.parseDateTime(lastChange));
-		}
-	}
-
-	@Override
-	public List<String> getAllClasses() throws JSONException, IOException, CredentialInvalidException {
-		if (super.getAllClasses() != null) {
-            return super.getAllClasses();
-        } else {
-            String js = getNavbarDoc();
-            Pattern pattern = Pattern.compile("var classes = (\\[[^\\]]*\\]);");
-            Matcher matcher = pattern.matcher(js);
-            if (matcher.find()) {
-                JSONArray classesJson = new JSONArray(matcher.group(1));
-				List<String> classes = new ArrayList<>();
-				for (int i = 0; i < classesJson.length(); i++) {
-					String className = classesJson.getString(i);
-                    if (data.optString(PARAM_CLASS_SELECT_REGEX, null) != null) {
-                        Pattern classNamePattern = Pattern.compile(data.getString(PARAM_CLASS_SELECT_REGEX));
-                        Matcher classNameMatcher = classNamePattern.matcher(className);
-						if (classNameMatcher.find()) {
-							if (classNameMatcher.groupCount() > 0) {
-								StringBuilder builder = new StringBuilder();
-								for (int j = 1; j <= classNameMatcher.groupCount(); j++) {
-									if (classNameMatcher.group(j) != null) {
-										builder.append(classNameMatcher.group(j));
-									}
-								}
-								className = builder.toString();
-							} else {
-								className = classNameMatcher.group();
-							}
-                        } else if (data.optBoolean(PARAM_REMOVE_NON_MATCHING_CLASSES, false)) {
-                            continue;
-                        }
-					}
-                    classes.add(className);
+                Element next;
+                if (dayElem.parent().tagName().equals("p")) {
+                    next = dayElem.parent().nextElementSibling().nextElementSibling();
+                } else {
+                    next = dayElem.parent().select("p").first().nextElementSibling();
                 }
-                return classes;
-            } else {
-                throw new IOException();
+                parseDay(day, next, v, klasse);
             }
+        } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
+            parseSubstitutionTable(v, null, doc);
+            v.setLastChangeString(lastChange);
+            v.setLastChange(ParserUtils.parseDateTime(lastChange));
         }
     }
 
-	@Override
-	public List<String> getAllTeachers() {
-		return null;
-	}
+    @Override
+    public List<String> getAllClasses() throws JSONException, IOException, CredentialInvalidException {
+        if (super.getAllClasses() != null) {
+            return super.getAllClasses();
+        } else {
+            return parseClasses(getNavbarDoc(), data);
+        }
+    }
+
+    @NotNull static List<String> parseClasses(String navbarDoc, JSONObject data) throws JSONException, IOException {
+        Pattern pattern = Pattern.compile("var classes = (\\[[^\\]]*\\]);");
+        Matcher matcher = pattern.matcher(navbarDoc);
+        if (matcher.find()) {
+            JSONArray classesJson = new JSONArray(matcher.group(1));
+            List<String> classes = new ArrayList<>();
+            for (int i = 0; i < classesJson.length(); i++) {
+                String className = classesJson.getString(i);
+                if (data.optString(PARAM_CLASS_SELECT_REGEX, null) != null) {
+                    Pattern classNamePattern = Pattern.compile(data.getString(PARAM_CLASS_SELECT_REGEX));
+                    Matcher classNameMatcher = classNamePattern.matcher(className);
+                    if (classNameMatcher.find()) {
+                        if (classNameMatcher.groupCount() > 0) {
+                            StringBuilder builder = new StringBuilder();
+                            for (int j = 1; j <= classNameMatcher.groupCount(); j++) {
+                                if (classNameMatcher.group(j) != null) {
+                                    builder.append(classNameMatcher.group(j));
+                                }
+                            }
+                            className = builder.toString();
+                        } else {
+                            className = classNameMatcher.group();
+                        }
+                    } else if (data.optBoolean(PARAM_REMOVE_NON_MATCHING_CLASSES, false)) {
+                        continue;
+                    }
+                }
+                classes.add(className);
+            }
+            return classes;
+        } else {
+            throw new IOException();
+        }
+    }
+
+    @Override
+    public List<String> getAllTeachers() {
+        return null;
+    }
 
 }
