@@ -1,6 +1,6 @@
 # substitution-schedule-parser
-[![Build Status](https://travis-ci.org/johan12345/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/johan12345/substitution-schedule-parser)
-[![Coverage Status](https://coveralls.io/repos/github/johan12345/substitution-schedule-parser/badge.svg?branch=master)](https://coveralls.io/github/johan12345/substitution-schedule-parser?branch=master)
+[![Build Status](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser)
+[![Coverage Status](https://coveralls.io/repos/github/vertretungsplanme/substitution-schedule-parser/badge.svg?branch=master)](https://coveralls.io/github/vertretungsplanme/substitution-schedule-parser?branch=master)
 [![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg)](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)
 [![Javadocs](https://www.javadoc.io/badge/me.vertretungsplan/parser.svg)](https://www.javadoc.io/doc/me.vertretungsplan/parser)
 
