@@ -45,8 +45,9 @@ public class ColorProvider {
     private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",
             "Unterricht geändert", "Unterrichtstausch", "geändert", "statt", "Stundentausch"};
     private static final String[] GREEN_VALUES =
-            {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten"};
-    private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung"};
+            {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten",
+                    "Raum-Vertr."};
+    private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung", "Frei/Veranstaltung"};
     private static final String[] ORANGE_VALUES = {"Klausur"};
     private static final String[] GRAY_VALUES = {"Pausenaufsicht"};
     private static final HashMap<String, String> defaultColorMap = new HashMap<>();
