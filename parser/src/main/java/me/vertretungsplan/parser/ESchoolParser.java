@@ -156,7 +156,7 @@ public class ESchoolParser extends BaseParser {
 
                 Elements columns = row.select("td");
 
-                String[] classes = columns.get(0).text().split(", ");
+                String[] classes = columns.get(0).text().split(", |\\+");
                 subst.setClasses(new HashSet<>(Arrays.asList(classes)));
 
                 subst.setPreviousTeacher(getPreviousValue(columns.get(1)));
