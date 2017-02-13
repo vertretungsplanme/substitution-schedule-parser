@@ -172,11 +172,12 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     protected static String recognizeType(String text) {
-        if (text.contains("f.a.") || text.contains("fällt aus") || text.contains("faellt aus") ||
-                text.contains("entfällt")) {
+        if (text.toLowerCase().contains("f.a.") || text.toLowerCase().contains("fällt aus")
+                || text.toLowerCase().contains("faellt aus") || text.toLowerCase().contains("entfällt")) {
             return "Entfall";
         } else if (equalsOneOf(text, "Raumänderung", "Klasse frei", "Unterrichtstausch", "Freistunde", "Raumverlegung",
-                "Selbstlernen", "Zusammenlegung", "HA", "Raum beachten", "Stundentausch", "Klausur")) {
+                "Selbstlernen", "Zusammenlegung", "HA", "Raum beachten", "Stundentausch", "Klausur", "Raum-Vertr.",
+                "Betreuung", "Frei/Veranstaltung")) {
             return text;
         } else if (text.contains("verschoben")) {
             return "Verlegung";
