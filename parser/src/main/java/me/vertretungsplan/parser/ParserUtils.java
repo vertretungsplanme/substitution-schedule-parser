@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -232,7 +233,7 @@ class ParserUtils {
                 String regex = data.getString("classes");
                 Generex generex = new Generex(regex);
                 final List<String> classes = generex.getAllMatchedStrings();
-                classes.sort(new NaturalOrderComparator());
+                Collections.sort(classes, new NaturalOrderComparator());
                 return classes;
             } else {
                 return null;
