@@ -8,6 +8,9 @@
 
 package me.vertretungsplan.parser;
 
+import com.mifmif.common.regex.Generex;
+import com.paour.comparator.NaturalOrderComparator;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -15,6 +18,9 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -211,4 +217,28 @@ class ParserUtils {
         return urlsWithDate;
     }
 
+
+    @Nullable
+    static List<String> getClassesFromJson(JSONObject data) throws JSONException {
+        if (data.has("classes")) {
+            if (data.get("classes") instanceof JSONArray) {
+                JSONArray classesJson = data.getJSONArray("classes");
+                List<String> classes = new ArrayList<>();
+                for (int i = 0; i < classesJson.length(); i++) {
+                    classes.add(classesJson.getString(i));
+                }
+                return classes;
+            } else if (data.get("classes") instanceof String) {
+                String regex = data.getString("classes");
+                Generex generex = new Generex(regex);
+                final List<String> classes = generex.getAllMatchedStrings();
+                classes.sort(new NaturalOrderComparator());
+                return classes;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }
