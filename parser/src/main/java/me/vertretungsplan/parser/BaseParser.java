@@ -41,7 +41,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -376,15 +375,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     @Nullable
     protected List<String> getClassesFromJson() throws JSONException {
-        if (scheduleData.getData().has("classes")) {
-            JSONArray classesJson = scheduleData.getData().getJSONArray("classes");
-            List<String> classes = new ArrayList<>();
-            for (int i = 0; i < classesJson.length(); i++) {
-                classes.add(classesJson.getString(i));
-            }
-            return classes;
-        } else {
-            return null;
-        }
+        final JSONObject data = scheduleData.getData();
+        return ParserUtils.getClassesFromJson(data);
     }
 }
