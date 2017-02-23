@@ -387,7 +387,7 @@ public class UntisInfoParser extends UntisCommonParser {
         if (value.startsWith("*")) {
             value = value.substring(1);
         }
-        if (value.equals("--.") || value.equals("---")) {
+        if (value.equals("---.") || value.equals("---")) {
             value = null;
         }
 
