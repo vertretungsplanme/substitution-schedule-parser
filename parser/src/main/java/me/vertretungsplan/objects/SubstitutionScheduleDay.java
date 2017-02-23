@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.objects;
 
+import com.paour.comparator.NaturalOrderComparator;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -300,7 +301,13 @@ public class SubstitutionScheduleDay implements Cloneable {
 
         builder.append("last change: ").append(getLastChangeString()).append("\n\n");
 
-        for (Substitution subst : substitutions) builder.append(subst.toString(type)).append("\n");
+        List<Substitution> sortedSubstitutions = new ArrayList<>(substitutions);
+        Collections.sort(sortedSubstitutions, new Comparator<Substitution>() {
+            @Override public int compare(Substitution o1, Substitution o2) {
+                return new NaturalOrderComparator().compare(o1.getLesson(), o2.getLesson());
+            }
+        });
+        for (Substitution subst : sortedSubstitutions) builder.append(subst.toString(type)).append("\n");
 
         builder.append("\n");
         for (String message : messages) builder.append(message).append("\n");
