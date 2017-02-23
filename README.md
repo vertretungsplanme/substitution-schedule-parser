@@ -31,6 +31,8 @@ Below you find the currently supported substitution schedule softwares and the c
   * Monitor-Vertretungsplan ([example](http://vertretung.lornsenschule.de/schueler/subst_001.htm)) `"untis-monitor"`
   * Vertretungsplan ([example](http://www.jkg-stuttgart.de/jkgdata/vertretungsplan/sa3.htm)) `"untis-subst"`
   * Info-Stundenplan ([example](http://www.akg-bensheim.de/akgweb2011/content/Vertretung/default.htm)) `"untis-info"`
+    * Substitution tables: good support
+    * Timetables with substitution entries: experimental
   * Info-Stundenplan without header ([example](http://www.egwerther.de/vertretungsplan/w00000.htm)) `"untis-info-headless"`
   * WebUntis `"webuntis"` (see note below)
 * svPlan ([example](http://www.ratsschule.de/Vplan/PH_heute.htm)) `"svplan"`

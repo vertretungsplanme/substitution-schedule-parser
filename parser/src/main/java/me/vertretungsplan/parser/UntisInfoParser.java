@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
@@ -25,8 +26,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -148,7 +148,8 @@ public class UntisInfoParser extends UntisCommonParser {
 			String week = option.attr("value");
             String weekName = option.text();
 			if (data.optBoolean(PARAM_SINGLE_CLASSES,
-                    data.optBoolean("single_classes", false))) { // backwards compatibility
+                    data.optBoolean("single_classes", false)) // backwards compatibility
+                    || data.optString(PARAM_SCHEDULE_TYPE, "substitution").equals("timetable")) {
                 int classNumber = 1;
 				for (String klasse : getAllClasses()) {
                     String url = getScheduleUrl(week, classNumber, data);
@@ -236,7 +237,7 @@ public class UntisInfoParser extends UntisCommonParser {
     }
 
     private void parseTimetable(SubstitutionSchedule v, String lastChange, Document doc, String klasse, String
-            weekName) {
+            weekName) throws JSONException {
         v.setLastChange(ParserUtils.parseDateTime(lastChange));
         LocalDate weekStart = DateTimeFormat.forPattern("d.M.yyyy").parseLocalDate(weekName);
 
@@ -245,17 +246,175 @@ public class UntisInfoParser extends UntisCommonParser {
         List<SubstitutionScheduleDay> days = new ArrayList<>();
         for (int i = 0; i < table.select("tr").first().select("td:gt(0)").size(); i++) {
             LocalDate date = weekStart.plusDays(i);
-            SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-            day.setDate(date);
+
+            SubstitutionScheduleDay day = null;
+            for (SubstitutionScheduleDay d : v.getDays()) {
+                if (d.getDate().equals(date)) {
+                    day = d;
+                    break;
+                }
+            }
+            if (day == null) {
+                day = new SubstitutionScheduleDay();
+                day.setDate(date);
+                v.addDay(day);
+            }
+            days.add(day);
         }
 
-        List<String> lessons = new ArrayList<>();
-        for (Element lessonHeader : table.select("tr:gt(0) td:eq(0)")) {
-            lessons.add(lessonHeader.select("table").first().select("td").first().text());
+        Elements rows = table.select("> tbody > tr:gt(0)");
+        Map<Integer, String> lessons = new HashMap<>();
+
+        int i = 0;
+        int lessonCounter = 1;
+        while (i < rows.size()) {
+            Element cell = rows.get(i).select("td").first();
+            String lessonName = cell.text().trim();
+            if (lessonName.length() > 3) {
+                lessonName = String.valueOf(lessonCounter);
+            }
+            lessons.put(i, lessonName);
+            i += getRowspan(cell);
+            lessonCounter += 1;
         }
 
-        for (int col = 0; col < days.size(); col++) {
+        // counts the number of columns that will be missing from each row due to a cell with colspan
+        Map<Integer, Integer> columnsToSkip = new HashMap<>();
+        for (int j = 0; j < rows.size(); j++) {
+            columnsToSkip.put(j, 0);
+        }
 
+        for (int col = 1; col < days.size(); col++) {
+            int row = 0;
+            while (row < rows.size()) {
+                Element cell = rows.get(row).select("> td").get(col - columnsToSkip.get(row));
+                String lesson = getTimetableLesson(cell, row, lessons);
+
+                days.get(col - 1).addAllSubstitutions(parseTimetableCell(cell, lesson, klasse,
+                        data.getJSONArray("cellFormat"), colorProvider));
+
+                for (int skippedRow = row + 1; skippedRow < row + getRowspan(cell); skippedRow++) {
+                    columnsToSkip.put(skippedRow, columnsToSkip.get(skippedRow) + 1);
+                }
+
+                row += getRowspan(cell);
+            }
+        }
+    }
+
+    private int getRowspan(Element cell) {
+        return cell.hasAttr("rowspan") ? Integer.valueOf(cell.attr("rowspan")) : 1;
+    }
+
+    private String getTimetableLesson(Element cell, int row, Map<Integer, String> lessons) {
+        int rowspan = getRowspan(cell);
+
+        String minLesson = lessons.get(row);
+        String maxLesson = minLesson;
+        for (int i = row + 1; i < row + rowspan; i++) {
+            if (lessons.containsKey(i)) {
+                maxLesson = lessons.get(i);
+            }
+        }
+
+        if (minLesson.equals(maxLesson)) {
+            return minLesson;
+        } else {
+            return String.format("%s - %s", minLesson, maxLesson);
+        }
+    }
+
+    private static List<Substitution> parseTimetableCell(Element cell, String lesson, String klasse, JSONArray
+            cellFormat, ColorProvider colorProvider)
+            throws JSONException {
+        List<Substitution> substitutions = new ArrayList<>();
+        if (cell.text().trim().equals("")) {
+            return substitutions;
+        }
+
+        final Elements rows = cell.select("table").first().select("tr");
+
+        int cols = rows.get(0).select("td").size();
+        int courseCount = cols / cellFormat.getJSONArray(0).length();
+
+        for (int course = 0; course < courseCount; course++) {
+            Substitution s = new Substitution();
+            s.setLesson(lesson);
+
+            final HashSet<String> classes = new HashSet<>();
+            classes.add(klasse);
+            s.setClasses(classes);
+
+            boolean isChange = false;
+
+            for (int row = 0; row < cellFormat.length() && row < rows.size(); row++) {
+                JSONArray rowData = cellFormat.getJSONArray(row);
+                Element tr = rows.get(row);
+                for (int col = 0; col < rowData.length(); col++) {
+                    if (rowData.getString(col) == null) continue;
+                    String type = rowData.getString(col);
+
+                    try {
+                        Element td = tr.select("td").get(col + course * cellFormat.getJSONArray(0).length());
+                        if (td.select("font[color=#FF0000]").size() > 0) {
+                            isChange = true;
+                        }
+
+                        parseTimetableCellContent(s, type, td);
+                    } catch (IndexOutOfBoundsException e) {
+                        if (course == 0) throw e;
+                    }
+                }
+            }
+
+            if (s.getSubject() == null && s.getTeacher() == null && s.getRoom() == null) {
+                s.setType("Entfall");
+            } else {
+                s.setType("Vertretung");
+            }
+            s.setColor(colorProvider.getColor(s.getType()));
+
+            if (isChange) {
+                substitutions.add(s);
+            }
+        }
+
+        return substitutions;
+    }
+
+    private static void parseTimetableCellContent(Substitution s, String type, Element td) {
+        String value = td.text();
+        if (value.startsWith("*")) {
+            value = value.substring(1);
+        }
+        if (value.equals("--.") || value.equals("---")) {
+            value = null;
+        }
+
+        boolean striked = td.select("strike").text().equals(td.text());
+
+        switch (type) {
+            case "subject":
+                if (striked) {
+                    s.setPreviousSubject(value);
+                } else {
+                    s.setSubject(value);
+                }
+                break;
+            case "teacher":
+                if (striked) {
+                    s.setPreviousTeacher(value);
+                } else {
+                    s.setTeacher(value);
+                }
+                break;
+            case "room":
+                if (striked) {
+                    s.setPreviousRoom(value);
+                } else {
+                    s.setRoom(value);
+                }
+                break;
         }
     }
 
