@@ -162,8 +162,8 @@ public class WebUntisParser extends BaseParser {
             substitution.setPreviousRoom(previousRoom);
 
             JSONArray teachersJson = substJson.getJSONArray("te");
-            String teacher = null;
-            String previousTeacher = null;
+            Set<String> teachers = new HashSet<>();
+            Set<String> previousTeachers = new HashSet<>();
             for (int k = 0; k < teachersJson.length(); k++) {
                 JSONObject teacherJson = teachersJson.getJSONObject(k);
 
@@ -174,22 +174,14 @@ public class WebUntisParser extends BaseParser {
                 }
 
                 if (teacherJson.has("name")) {
-                    if (teacher == null) {
-                        teacher = teacherJson.getString("name");
-                    } else {
-                        teacher += ", " + teacherJson.getString("name");
-                    }
+                    teachers.add(teacherJson.getString("name"));
                 }
                 if (teacherJson.has("orgname")) {
-                    if (previousTeacher == null) {
-                        previousTeacher = teacherJson.getString("orgname");
-                    } else {
-                        previousTeacher += ", " + teacherJson.getString("orgname");
-                    }
+                    previousTeachers.add(teacherJson.getString("orgname"));
                 }
             }
-            substitution.setTeacher(teacher);
-            substitution.setPreviousTeacher(previousTeacher);
+            substitution.setTeachers(teachers.size() > 0 ? teachers : null);
+            substitution.setPreviousTeachers(previousTeachers.size() > 0 ? previousTeachers : null);
 
             substitution.setDesc(substJson.optString("txt"));
 
