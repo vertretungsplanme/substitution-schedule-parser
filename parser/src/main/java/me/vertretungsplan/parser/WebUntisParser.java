@@ -84,11 +84,6 @@ public class WebUntisParser extends BaseParser {
 
         TimeGrid timegrid = new TimeGrid(getTimeGrid());
 
-        if (schedule.getType() == SubstitutionSchedule.Type.TEACHER) {
-            // check if we have the permission to access teachers.
-            getTeachers();
-        }
-
         JSONArray holidays = getHolidays();
         // find out if there's a holiday currently and if so, also display substitutions after it
         int daysToAdd = 0;
@@ -171,6 +166,13 @@ public class WebUntisParser extends BaseParser {
             String previousTeacher = null;
             for (int k = 0; k < teachersJson.length(); k++) {
                 JSONObject teacherJson = teachersJson.getJSONObject(k);
+
+                if (schedule.getType().equals(SubstitutionSchedule.Type.TEACHER) && !teacherJson.has("orgname") &&
+                        !teacherJson.has("name")) {
+                    // cannot access teacher names
+                    throw new CredentialInvalidException();
+                }
+
                 if (teacherJson.has("name")) {
                     if (teacher == null) {
                         teacher = teacherJson.getString("name");
