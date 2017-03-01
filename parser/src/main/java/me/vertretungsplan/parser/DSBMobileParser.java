@@ -142,6 +142,9 @@ public class DSBMobileParser extends UntisCommonParser {
                 if (timetablePart.getInt("ConType") != 6) continue;
 
                 String url = timetablePart.getString("Detail");
+
+                if (url.endsWith("subst_title.htm") || url.endsWith("ticker.htm")) continue;
+
                 totalUrls ++;
                 try {
                     loadScheduleFromUrl(v, url, usedUrls);
