@@ -180,8 +180,8 @@ public class WebUntisParser extends BaseParser {
                     previousTeachers.add(teacherJson.getString("orgname"));
                 }
             }
-            substitution.setTeachers(teachers.size() > 0 ? teachers : null);
-            substitution.setPreviousTeachers(previousTeachers.size() > 0 ? previousTeachers : null);
+            substitution.setTeachers(teachers);
+            substitution.setPreviousTeachers(previousTeachers);
 
             substitution.setDesc(substJson.optString("txt"));
 
