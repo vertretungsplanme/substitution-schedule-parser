@@ -10,6 +10,7 @@ package me.vertretungsplan.objects;
 
 import me.vertretungsplan.utils.SubstitutionTextUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -492,6 +493,24 @@ public class Substitution implements Cloneable {
                 .append(color, that.color)
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(lesson)
+                .append(type)
+                .append(subject)
+                .append(previousSubject)
+                .append(teachers)
+                .append(previousTeachers)
+                .append(classes)
+                .append(room)
+                .append(previousRoom)
+                .append(desc)
+                .append(color)
+                .append(substitutionFrom)
+                .append(teacherTo).toHashCode();
     }
 
     @Override
