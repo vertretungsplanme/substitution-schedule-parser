@@ -128,7 +128,11 @@ public class DaVinciParser extends BaseParser {
 
                 switch (header) {
                     case "Klasse":
-                        classes = new HashSet<>(Arrays.asList(value.split(", ")));
+                        String classesStr = value;
+                        if (previousMatcher.find()) {
+                            classesStr = previousMatcher.group(1);
+                        }
+                        classes = new HashSet<>(Arrays.asList(classesStr.split(", ")));
                         subst.setClasses(classes);
                         break;
                     case "Pos":
