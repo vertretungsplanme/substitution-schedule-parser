@@ -12,6 +12,8 @@ import me.vertretungsplan.additionalinfo.BaseRSSFeedParser;
 
 public class LsSchleswigRSSParser extends BaseRSSFeedParser {
     @Override protected String getRSSUrl() {
-        return "https://fulltextrss-jhknet.rhcloud.com/feed/ls.php";
+        return "http://hp.lornsenschule.de/index" +
+                ".php/schule/artikelarchiv?option=com_content&format=feed&type=rss&filter_order=a" +
+                ".publish_up&filter_order_Dir=desc";
     }
 }
