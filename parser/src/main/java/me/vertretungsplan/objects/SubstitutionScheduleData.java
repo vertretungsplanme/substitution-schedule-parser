@@ -12,8 +12,8 @@ import me.vertretungsplan.objects.authentication.AuthenticationData;
 import me.vertretungsplan.parser.CookieProvider;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains data about a school's substitution schedule. This has to be provided to a
@@ -22,12 +22,12 @@ import java.util.Set;
 public class SubstitutionScheduleData {
     private SubstitutionSchedule.Type type;
     private String api;
-    private Set<String> additionalInfos;
+    private List<String> additionalInfos;
     private JSONObject data;
     private AuthenticationData authenticationData;
 
     public SubstitutionScheduleData() {
-        additionalInfos = new HashSet<>();
+        additionalInfos = new ArrayList<>();
     }
 
     /**
@@ -88,7 +88,7 @@ public class SubstitutionScheduleData {
      *
      * @return the set of additional info types
      */
-    public Set<String> getAdditionalInfos() {
+    public List<String> getAdditionalInfos() {
         return additionalInfos;
     }
 
@@ -102,7 +102,7 @@ public class SubstitutionScheduleData {
      *
      * @param additionalInfos the additional info types to set
      */
-    public void setAdditionalInfos(Set<String> additionalInfos) {
+    public void setAdditionalInfos(List<String> additionalInfos) {
         this.additionalInfos = additionalInfos;
     }
 
