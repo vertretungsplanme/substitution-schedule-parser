@@ -7,8 +7,9 @@
  */
 package me.vertretungsplan.additionalinfo;
 
-import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
 import org.apache.http.client.fluent.Request;
@@ -37,8 +38,11 @@ public abstract class BaseAdditionalInfoParser {
             case "amgrottweil-rss":
                 parser = new AmgRottweilRSSParser();
                 break;
-            case "amgrottweil-messages":
-                parser = new AmgRottweilMessagesParser();
+            case "amgrottweil-messages-student":
+                parser = new AmgRottweilStudentMessagesParser();
+                break;
+            case "amgrottweil-messages-teacher":
+                parser = new AmgRottweilTeacherMessagesParser();
                 break;
             case "lsschleswig-rss":
                 parser = new LsSchleswigRSSParser();

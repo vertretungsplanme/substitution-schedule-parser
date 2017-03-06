@@ -18,14 +18,16 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 
-public class AmgRottweilMessagesParser extends BaseAdditionalInfoParser {
-
-    static final String TITLE = "Nachrichten für Schüler";
+public abstract class AmgRottweilMessagesParser extends BaseAdditionalInfoParser {
 
     @Override public AdditionalInfo getAdditionalInfo() throws IOException {
-        String html = httpGet("https://www.amgrw.de/AMGaktuell/NachrichtenSchueler.php", "UTF-8");
+        String html = httpGet(getUrl(), "UTF-8");
         return parse(html);
     }
+
+    @NotNull protected abstract String getUrl();
+
+    @NotNull protected abstract String getTitle();
 
     @NotNull AdditionalInfo parse(String html) {
         Document doc = Jsoup.parse(html);
@@ -44,7 +46,7 @@ public class AmgRottweilMessagesParser extends BaseAdditionalInfoParser {
 
         AdditionalInfo info = new AdditionalInfo();
         info.setHasInformation(false);
-        info.setTitle(TITLE);
+        info.setTitle(getTitle());
         info.setText(text.toString());
         return info;
     }
