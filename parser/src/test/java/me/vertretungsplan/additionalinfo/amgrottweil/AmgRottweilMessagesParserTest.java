@@ -18,7 +18,7 @@ public class AmgRottweilMessagesParserTest extends BaseDemoTest {
     @Test
     public void test() {
         String html = readResource("/amgrottweil/messages.html");
-        AdditionalInfo info = new AmgRottweilMessagesParser().parse(html);
+        AdditionalInfo info = new AmgRottweilStudentMessagesParser().parse(html);
         assertEquals(AmgRottweilMessagesParser.TITLE, info.getTitle());
         assertEquals("Kunst-Kurse KS1 und KS2 / Hageloch : Foto-Projekt findet erst am 17.3.statt !" +
                 "(Unterricht am 10.3. fällt aus.) /Ha<br><br>USA-Austausch: Bewerbungsschluss Mi, 8.03.! " +
