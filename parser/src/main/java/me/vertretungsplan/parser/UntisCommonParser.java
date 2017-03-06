@@ -330,8 +330,10 @@ public abstract class UntisCommonParser extends BaseParser {
                 int i = 0;
                 for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
-					if (isEmpty(text)) {
-						i++;
+
+                    String type = data.getJSONArray(PARAM_COLUMNS).getString(i);
+                    if (isEmpty(text) && !type.equals("type-entfall")) {
+                        i++;
 						continue;
 					}
 
@@ -357,7 +359,6 @@ public abstract class UntisCommonParser extends BaseParser {
 					}
 					if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-                    String type = data.getJSONArray(PARAM_COLUMNS).getString(i);
                     switch (type) {
 						case "lesson":
 							v.setLesson(text);
