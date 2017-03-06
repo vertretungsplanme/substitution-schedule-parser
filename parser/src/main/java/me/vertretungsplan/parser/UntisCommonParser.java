@@ -172,6 +172,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
 												SubstitutionScheduleDay day, String defaultClass)
 			throws JSONException, CredentialInvalidException {
+		final JSONArray columns = data.getJSONArray(PARAM_COLUMNS);
 		if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
                 || data.optBoolean("class_in_extra_line")) { // backwards compatibility
             for (Element element : table.select("td.inline_header")) {
@@ -225,8 +226,8 @@ public abstract class UntisCommonParser extends BaseParser {
 								}
 								if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-                                String type = data.getJSONArray(PARAM_COLUMNS)
-                                        .getString(i);
+								String type = columns
+										.getString(i);
 
 								switch (type) {
 									case "lesson":
@@ -310,9 +311,9 @@ public abstract class UntisCommonParser extends BaseParser {
 			}
 		} else {
 			boolean hasType = false;
-            for (int i = 0; i < data.getJSONArray(PARAM_COLUMNS).length(); i++) {
-                if (data.getJSONArray(PARAM_COLUMNS).getString(i).equals("type"))
-                    hasType = true;
+			for (int i = 0; i < columns.length(); i++) {
+				if (columns.getString(i).equals("type"))
+					hasType = true;
 			}
 			Substitution previousSubstitution = null;
 			int skipLines = 0;
@@ -357,8 +358,8 @@ public abstract class UntisCommonParser extends BaseParser {
 					}
 					if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-                    String type = data.getJSONArray(PARAM_COLUMNS).getString(i);
-                    switch (type) {
+					String type = columns.getString(i);
+					switch (type) {
 						case "lesson":
 							v.setLesson(text);
 							break;
@@ -427,11 +428,9 @@ public abstract class UntisCommonParser extends BaseParser {
 
 				if (v.getType() == null) {
                 	if (data.optBoolean(PARAM_TYPE_AUTO_DETECTION, true)) {
-						if ((zeile.select("strike").size() > 0 &&
-								equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
-								equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
-								|| (v.getSubject() == null && v.getRoom() == null && v
-								.getTeacher() == null && v.getPreviousSubject() != null)) {
+						if (availableButEmptyOrUnavailable(columns, "subject", v.getSubject())
+								&& availableButEmptyOrUnavailable(columns, "teacher", v.getTeacher())
+								&& availableButEmptyOrUnavailable(columns, "room", v.getRoom())) {
 							v.setType("Entfall");
 							v.setColor(colorProvider.getColor("Entfall"));
 						} else {
@@ -520,6 +519,14 @@ public abstract class UntisCommonParser extends BaseParser {
 			}
 		}
     }
+
+	private boolean availableButEmptyOrUnavailable(JSONArray columns, String key, String value) throws JSONException {
+		if (contains(columns, key)) {
+			return value == null;
+		} else {
+			return true;
+		}
+	}
 
 	private void handleTeacher(Substitution subst, Element cell) {
 		if (cell.select("s").size() > 0) {
