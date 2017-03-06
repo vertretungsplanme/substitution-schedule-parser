@@ -9,6 +9,7 @@ package me.vertretungsplan.additionalinfo;
 
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
+import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
 import org.apache.http.client.fluent.Request;
 
@@ -18,31 +19,38 @@ import java.io.IOException;
  * Parser that creates {@link AdditionalInfo}s.
  */
 public abstract class BaseAdditionalInfoParser {
-	protected BaseAdditionalInfoParser() {
-	}
+    protected BaseAdditionalInfoParser() {
+    }
 
-	/**
-	 * Create an additional info parser. Uses the supplied {@code type} string to create an appropriate subclass.
-	 *
-	 * @param type the type of additional info
-	 * @return A {@link BaseAdditionalInfoParser} subclass
-	 */
-	public static BaseAdditionalInfoParser getInstance(String type) {
-		BaseAdditionalInfoParser parser = null;
-		if (type.equals("winter-sh")) {
-			parser = new WinterShParser();
-		} else if (type.equals("amgrottweil-rss")) {
-			parser = new AmgRottweilRSSParser();
-		} else if (type.equals("amgrottweil-messages")) {
-			parser = new AmgRottweilMessagesParser();
-		}
-		return parser;
-	}
+    /**
+     * Create an additional info parser. Uses the supplied {@code type} string to create an appropriate subclass.
+     *
+     * @param type the type of additional info
+     * @return A {@link BaseAdditionalInfoParser} subclass
+     */
+    public static BaseAdditionalInfoParser getInstance(String type) {
+        BaseAdditionalInfoParser parser = null;
+        switch (type) {
+            case "winter-sh":
+                parser = new WinterShParser();
+                break;
+            case "amgrottweil-rss":
+                parser = new AmgRottweilRSSParser();
+                break;
+            case "amgrottweil-messages":
+                parser = new AmgRottweilMessagesParser();
+                break;
+            case "lsschleswig-rss":
+                parser = new LsSchleswigRSSParser();
+                break;
+        }
+        return parser;
+    }
 
-	public abstract AdditionalInfo getAdditionalInfo() throws IOException;
+    public abstract AdditionalInfo getAdditionalInfo() throws IOException;
 
-	@SuppressWarnings("SameParameterValue")
-	protected String httpGet(String url, String encoding) throws IOException {
-		return new String(Request.Get(url).execute().returnContent().asBytes(), encoding);
-	}
+    @SuppressWarnings("SameParameterValue")
+    protected String httpGet(String url, String encoding) throws IOException {
+        return new String(Request.Get(url).execute().returnContent().asBytes(), encoding);
+    }
 }
