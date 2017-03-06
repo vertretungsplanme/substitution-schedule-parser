@@ -7,6 +7,8 @@
  */
 package me.vertretungsplan.additionalinfo;
 
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilMessagesParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
 import org.apache.http.client.fluent.Request;
 
@@ -16,7 +18,7 @@ import java.io.IOException;
  * Parser that creates {@link AdditionalInfo}s.
  */
 public abstract class BaseAdditionalInfoParser {
-	public BaseAdditionalInfoParser() {
+	protected BaseAdditionalInfoParser() {
 	}
 
 	/**
@@ -29,7 +31,11 @@ public abstract class BaseAdditionalInfoParser {
 		BaseAdditionalInfoParser parser = null;
 		if (type.equals("winter-sh")) {
 			parser = new WinterShParser();
-		} //else if ... (other parsers)
+		} else if (type.equals("amgrottweil-rss")) {
+			parser = new AmgRottweilRSSParser();
+		} else if (type.equals("amgrottweil-messages")) {
+			parser = new AmgRottweilMessagesParser();
+		}
 		return parser;
 	}
 
