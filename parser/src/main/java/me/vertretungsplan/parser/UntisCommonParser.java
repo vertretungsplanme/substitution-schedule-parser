@@ -526,6 +526,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                             if (v.getType().equals("Vertretung")) {
                                 subst.setType("Vertretung");
+                                subst.setColor(colorProvider.getColor("Vertretung"));
                             }
 
                             break;
