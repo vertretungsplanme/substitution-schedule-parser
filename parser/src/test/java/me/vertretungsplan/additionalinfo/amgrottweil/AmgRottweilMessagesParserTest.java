@@ -19,7 +19,7 @@ public class AmgRottweilMessagesParserTest extends BaseDemoTest {
     public void test() {
         String html = readResource("/amgrottweil/messages.html");
         AdditionalInfo info = new AmgRottweilStudentMessagesParser().parse(html);
-        assertEquals(AmgRottweilMessagesParser.TITLE, info.getTitle());
+        assertEquals("Nachrichten für Schüler", info.getTitle());
         assertEquals("Kunst-Kurse KS1 und KS2 / Hageloch : Foto-Projekt findet erst am 17.3.statt !" +
                 "(Unterricht am 10.3. fällt aus.) /Ha<br><br>USA-Austausch: Bewerbungsschluss Mi, 8.03.! " +
                 "AJ<br><br>JtfO Fußball Mädchen WK III: Schülerinnen der Klassen 6+7, Treff Montag, 6.03., 2. gr. " +
