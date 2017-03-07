@@ -85,6 +85,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_CLASSES_SEPARATED = "classesSeparated";
     private static final String PARAM_EXCLUDE_CLASSES = "excludeClasses";
     private static final String PARAM_TYPE_AUTO_DETECTION = "typeAutoDetection";
+    private static final String PARAM_MERGE_WITH_DIFFERENT_TYPE = "mergeWithDifferentType";
 
     UntisCommonParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -314,7 +315,6 @@ public abstract class UntisCommonParser extends BaseParser {
                     hasType = true;
                 }
             }
-            Substitution previousSubstitution = null;
             int skipLines = 0;
             for (Element zeile : table
                     .select("tr.list.odd:not(:has(td.inline_header)), "
@@ -517,8 +517,26 @@ public abstract class UntisCommonParser extends BaseParser {
                         v.getClasses().add(klasse);
                     }
                 }
-                day.addSubstitution(v);
-                previousSubstitution = v;
+
+                if (data.optBoolean(PARAM_MERGE_WITH_DIFFERENT_TYPE, false)) {
+                    boolean found = false;
+                    for (Substitution subst : day.getSubstitutions()) {
+                        if (subst.equalsExcludingType(v)) {
+                            found = true;
+
+                            if (v.getType().equals("Vertretung")) {
+                                subst.setType("Vertretung");
+                            }
+
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        day.addSubstitution(v);
+                    }
+                } else {
+                    day.addSubstitution(v);
+                }
             }
         }
     }

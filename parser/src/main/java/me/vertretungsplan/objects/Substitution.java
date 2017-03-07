@@ -385,6 +385,33 @@ public class Substitution implements Cloneable {
     }
 
     /**
+     * Check if this substitution equals another one, but excluding the type.
+     *
+     * @param o the substitution (or other object) to compare
+     * @return boolean indicating whether all fields of the two substitutions, excluding the classes, are equal
+     */
+    @SuppressWarnings("NegatedConditionalExpression")
+    public boolean equalsExcludingType(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Substitution that = (Substitution) o;
+
+        return new EqualsBuilder()
+                .append(lesson, that.lesson)
+                .append(classes, that.classes)
+                .append(subject, that.subject)
+                .append(previousSubject, that.previousSubject)
+                .append(teachers, that.teachers)
+                .append(previousTeachers, that.previousTeachers)
+                .append(room, that.room)
+                .append(previousRoom, that.previousRoom)
+                .append(desc, that.desc)
+                .append(substitutionFrom, that.substitutionFrom)
+                .append(teacherTo, that.teacherTo).isEquals();
+    }
+
+    /**
      * Check if this substitution equals another one, but excluding the classes. This is used to merge two
      * substitutions with the same data and different classes automatically.
      *
