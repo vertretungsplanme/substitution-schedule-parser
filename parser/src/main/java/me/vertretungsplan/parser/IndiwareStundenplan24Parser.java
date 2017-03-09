@@ -102,7 +102,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         for (Document doc : docs) {
-            v.addDay(parseIndiwareDay(doc));
+            v.addDay(parseIndiwareDay(doc, false));
         }
 
         v.setWebsite(baseurl);

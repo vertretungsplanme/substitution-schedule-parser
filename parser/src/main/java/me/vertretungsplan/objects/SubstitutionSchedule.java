@@ -9,6 +9,8 @@
 package me.vertretungsplan.objects;
 
 import com.paour.comparator.NaturalOrderComparator;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -390,6 +392,38 @@ public class SubstitutionSchedule implements Cloneable {
             teachers.add(teacher);
             filteredSchedule.setTeachers(teachers);
         }
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SubstitutionSchedule that = (SubstitutionSchedule) o;
+
+        return new EqualsBuilder()
+                .append(type, that.type)
+                .append(lastChange, that.lastChange)
+                .append(lastChangeString, that.lastChangeString)
+                .append(website, that.website)
+                .append(days, that.days)
+                .append(additionalInfos, that.additionalInfos)
+                .append(classes, that.classes)
+                .append(teachers, that.teachers)
+                .isEquals();
+    }
+
+    @Override public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(type)
+                .append(lastChange)
+                .append(lastChangeString)
+                .append(website)
+                .append(days)
+                .append(additionalInfos)
+                .append(classes)
+                .append(teachers)
+                .toHashCode();
     }
 
 
