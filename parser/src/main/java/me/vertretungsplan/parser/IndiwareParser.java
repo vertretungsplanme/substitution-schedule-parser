@@ -257,7 +257,6 @@ public class IndiwareParser extends BaseParser {
         }
 
         if (ds.fuss() != null) {
-            Element fuss = ds.fuss();
             StringBuilder message = new StringBuilder();
             boolean first = true;
             for (Element fusszeile : ds.fusszeilen()) {
@@ -286,7 +285,10 @@ public class IndiwareParser extends BaseParser {
             int i = 0;
             for (Element info : aktion.children()) {
                 String value = info.text();
-                if (value.equals("---")) continue;
+                if (value.equals("---")) {
+                    i++;
+                    continue;
+                }
                 final String columnType = html ? columnTypes.get(i) : info.tagName();
                 switch (columnType) {
                     case "klasse":
