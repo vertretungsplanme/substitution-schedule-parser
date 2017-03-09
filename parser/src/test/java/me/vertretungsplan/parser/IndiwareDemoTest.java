@@ -25,18 +25,38 @@ import static org.junit.Assert.assertEquals;
 public class IndiwareDemoTest extends BaseDemoTest {
     private IndiwareParser parser;
     private String xml;
+    private String html;
 
     @Before
     public void setUp() throws JSONException {
         xml = readResource("/indiware/indiware.xml");
+        html = readResource("/indiware/indiware.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new IndiwareParser(scheduleData, null);
     }
 
     @Test
-    public void demoTest() {
-        SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()));
+    public void demoTestXML() {
+        SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()), false);
+        verify(schedule);
+    }
+
+    @Test
+    public void demoTestHTML() {
+        SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(html), true);
+        verify(schedule);
+    }
+
+    @Test
+    public void testEquals() {
+        SubstitutionScheduleDay scheduleXML = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()),
+                false);
+        SubstitutionScheduleDay scheduleHTML = parser.parseIndiwareDay(Jsoup.parse(html), true);
+        assertEquals(scheduleXML, scheduleHTML);
+    }
+
+    private void verify(SubstitutionScheduleDay schedule) {
         assertEquals(new LocalDate(2016, 8, 22), schedule.getDate());
         assertEquals(new LocalDateTime(2016, 8, 19, 12, 50), schedule.getLastChange());
         assertEquals(2, schedule.getMessages().size());

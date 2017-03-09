@@ -15,7 +15,6 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,6 +23,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
+ * Parser for substitution schedules in XML or HTML format created by the <a href="http://indiware.de/">Indiware</a>
  * software.
  * <p>
  * This parser can be accessed using <code>"indiware"</code> for {@link SubstitutionScheduleData#setApi(String)}.
@@ -79,7 +79,7 @@ public class IndiwareParser extends BaseParser {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         JSONArray urls = data.getJSONArray(PARAM_URLS);
         String encoding = data.getString(PARAM_ENCODING);
-        List<Document> docs = new ArrayList<>();
+        List<String> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
@@ -97,8 +97,7 @@ public class IndiwareParser extends BaseParser {
                             String value = postParams.getString(name);
                             nvps.add(new BasicNameValuePair(name, value));
                         }
-                        String xml = httpPost(url, encoding, nvps);
-                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                        docs.add(httpPost(url, encoding, nvps));
                         successfulSchedules++;
                     }
                 } catch (IOException e) {
@@ -107,8 +106,7 @@ public class IndiwareParser extends BaseParser {
             } else {
                 for (String url : ParserUtils.handleUrlWithDateFormat(urls.getString(i))) {
                     try {
-                        String xml = httpGet(url, encoding);
-                        docs.add(Jsoup.parse(xml, url, Parser.xmlParser()));
+                        docs.add(httpGet(url, encoding));
                         successfulSchedules++;
                     } catch (IOException e) {
                         lastException = e;
@@ -120,8 +118,17 @@ public class IndiwareParser extends BaseParser {
             throw lastException;
         }
 
-        for (Document doc : docs) {
-            v.addDay(parseIndiwareDay(doc));
+        for (String response : docs) {
+            boolean html;
+            Document doc;
+            if (response.contains("<html")) {
+                html = true;
+                doc = Jsoup.parse(response);
+            } else {
+                html = false;
+                doc = Jsoup.parse(response, null, Parser.xmlParser());
+            }
+            v.addDay(parseIndiwareDay(doc, html));
         }
 
         v.setWebsite(urls.getString(0));
@@ -132,125 +139,223 @@ public class IndiwareParser extends BaseParser {
         return v;
     }
 
-    SubstitutionScheduleDay parseIndiwareDay(Document doc) {
-        SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-        Element vp = doc.select("vp").first();
-        Element kopf = vp.select("kopf").first();
+    private interface DataSource {
+        Element titel();
 
-        String date = kopf.select("titel").text().replaceAll("\\(\\w-Woche\\)", "").trim();
+        Element datum();
+
+        Elements kopfinfos();
+
+        Element fuss();
+
+        Elements fusszeilen();
+
+        Elements aktionen();
+    }
+
+    private class XMLDataSource implements DataSource {
+        private Element vp;
+        private Element kopf;
+
+        public XMLDataSource(Document doc) {
+            vp = doc.select("vp").first();
+            kopf = vp.select("kopf").first();
+        }
+
+        @Override public Element titel() {
+            return kopf.select("titel").first();
+        }
+
+        @Override public Element datum() {
+            return kopf.select("datum").first();
+        }
+
+        @Override public Elements kopfinfos() {
+            return kopf.select("kopfinfo > *");
+        }
+
+        @Override public Element fuss() {
+            return vp.select("fuss").first();
+        }
+
+        @Override public Elements fusszeilen() {
+            return fuss().select("fusszeile fussinfo");
+        }
+
+        @Override public Elements aktionen() {
+            return vp.select("haupt > aktion");
+        }
+    }
+
+    private class HTMLDataSource implements DataSource {
+        private Document doc;
+
+        public HTMLDataSource(Document doc) {
+            this.doc = doc;
+        }
+
+        @Override public Element titel() {
+            return doc.select(".vpfuerdatum").first();
+        }
+
+        @Override public Element datum() {
+            return doc.select(".vpdatum").first();
+        }
+
+        @Override public Elements kopfinfos() {
+            return doc.select(".tablekopf").first().select("tr");
+        }
+
+        @Override public Element fuss() {
+            return doc.select("p:has(.ueberschrift:contains(Informationen)) + table").first();
+        }
+
+        @Override public Elements fusszeilen() {
+            return fuss().select("tr td");
+        }
+
+        @Override public Elements aktionen() {
+            return doc.select("p:has(.ueberschrift:contains(Unterrichtsstunden)) + p + table tr:gt(0)");
+        }
+
+        public Elements headers() {
+            return doc.select("p:has(.ueberschrift:contains(Unterrichtsstunden)) + p + table th");
+        }
+    }
+
+    SubstitutionScheduleDay parseIndiwareDay(Document doc, boolean html) {
+        SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+
+        DataSource ds;
+        if (html) {
+            ds = new HTMLDataSource(doc);
+        } else {
+            ds = new XMLDataSource(doc);
+        }
+
+        String date = ds.titel().text().replaceAll("\\(\\w-Woche\\)", "").trim();
         day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
                 .withLocale(Locale.GERMAN).parseLocalDate(date));
 
-        String lastChange = kopf.select("datum").text();
+        String lastChange = ds.datum().text();
         day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
                 .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
 
-        if (kopf.select("kopfinfo").size() > 0) {
-            for (Element kopfinfo : kopf.select("kopfinfo").first().children()) {
-                String title = kopfinfoTitle(kopfinfo.tagName());
+        if (ds.kopfinfos().size() > 0) {
+            for (Element kopfinfo : ds.kopfinfos()) {
+                String title = html ? kopfinfo.select("th").text() : kopfinfoTitle(kopfinfo.tagName()) + ":";
 
                 StringBuilder message = new StringBuilder();
-                if (title != null) message.append("<b>").append(title).append(":").append("</b>").append(" ");
-                message.append(kopfinfo.text());
+                if (title != null && !title.isEmpty()) {
+                    message.append("<b>").append(title).append("</b>").append(" ");
+                }
+                message.append(html ? kopfinfo.select("td").text() : kopfinfo.text());
 
                 day.addMessage(message.toString());
             }
         }
 
-        if (vp.select("fuss").size() > 0) {
-            Element fuss = vp.select("fuss").first();
+        if (ds.fuss() != null) {
+            Element fuss = ds.fuss();
             StringBuilder message = new StringBuilder();
             boolean first = true;
-            for (Element fusszeile : fuss.select("fusszeile")) {
+            for (Element fusszeile : ds.fusszeilen()) {
                 if (first) {
                     first = false;
                 } else {
                     message.append("\n");
                 }
-                message.append(fusszeile.select("fussinfo").text());
+                message.append(fusszeile.text());
             }
             day.addMessage(message.toString());
         }
 
-        Element haupt = vp.select("haupt").first();
-        if (haupt != null) {
-
-            for (Element aktion : haupt.select("aktion")) {
-                Substitution substitution = new Substitution();
-                String type = "Vertretung";
-                String course = null;
-                for (Element info : aktion.children()) {
-                    String value = info.text();
-                    if (value.equals("---")) continue;
-                    switch (info.tagName()) {
-                        case "klasse":
-                            Set<String> classes = new HashSet<>();
-                            for (String klasse : value.split(",")) {
-                                Matcher courseMatcher = coursePattern.matcher(klasse);
-                                if (courseMatcher.matches()) {
-                                    classes.add(courseMatcher.group(1));
-                                    course = courseMatcher.group(2);
-                                } else {
-                                    classes.add(klasse);
-                                }
-                            }
-                            substitution.setClasses(classes);
-                            break;
-                        case "stunde":
-                            substitution.setLesson(value);
-                            break;
-                        case "fach":
-                            StringBuilder subject = new StringBuilder();
-                            subject.append(value);
-                            if (course != null) {
-                                subject.append(" ").append(course);
-                            }
-                            substitution.setSubject(subject.toString());
-                            break;
-                        case "lehrer":
-                            Matcher bracesMatcher = bracesPattern.matcher(value);
-                            if (bracesMatcher.matches()) value = bracesMatcher.group(1);
-                            substitution.setTeacher(value);
-                            break;
-                        case "raum":
-                            substitution.setRoom(value);
-                            break;
-                        case "info":
-                            Matcher substitutionMatcher = substitutionPattern.matcher(value);
-                            Matcher cancelMatcher = cancelPattern.matcher(value);
-                            Matcher delayMatcher = delayPattern.matcher(value);
-                            Matcher selfMatcher = selfPattern.matcher(value);
-                            if (substitutionMatcher.matches()) {
-                                substitution.setPreviousSubject(substitutionMatcher.group(1));
-                                substitution.setPreviousTeacher(substitutionMatcher.group(2));
-                                if (!substitutionMatcher.group(3).isEmpty()) {
-                                    substitution.setDesc(substitutionMatcher.group(3));
-                                }
-                            } else if (cancelMatcher.matches()) {
-                                type = "Entfall";
-                                substitution.setPreviousSubject(cancelMatcher.group(1));
-                                substitution.setPreviousTeacher(cancelMatcher.group(2));
-                            } else if (delayMatcher.matches()) {
-                                type = "Verlegung";
-                                substitution.setPreviousSubject(delayMatcher.group(1));
-                                substitution.setPreviousTeacher(delayMatcher.group(2));
-                                substitution.setDesc(delayMatcher.group(3));
-                            } else if (selfMatcher.matches()) {
-                                type = "selbst.";
-                                if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
-                            } else {
-                                substitution.setDesc(value);
-                            }
-                            break;
-                    }
-                }
-                substitution.setType(type);
-                substitution.setColor(colorProvider.getColor(substitution.getType()));
-                if (course != null && substitution.getSubject() == null) {
-                    substitution.setSubject(course);
-                }
-                day.addSubstitution(substitution);
+        List<String> columnTypes = null;
+        if (html) {
+            columnTypes = new ArrayList<>();
+            for (Element th : ((HTMLDataSource) ds).headers()) {
+                columnTypes.add(th.className().replace("thplan", ""));
             }
+        }
+
+        for (Element aktion : ds.aktionen()) {
+            Substitution substitution = new Substitution();
+            String type = "Vertretung";
+            String course = null;
+            int i = 0;
+            for (Element info : aktion.children()) {
+                String value = info.text();
+                if (value.equals("---")) continue;
+                final String columnType = html ? columnTypes.get(i) : info.tagName();
+                switch (columnType) {
+                    case "klasse":
+                        Set<String> classes = new HashSet<>();
+                        for (String klasse : value.split(",")) {
+                            Matcher courseMatcher = coursePattern.matcher(klasse);
+                            if (courseMatcher.matches()) {
+                                classes.add(courseMatcher.group(1));
+                                course = courseMatcher.group(2);
+                            } else {
+                                classes.add(klasse);
+                            }
+                        }
+                        substitution.setClasses(classes);
+                        break;
+                    case "stunde":
+                        substitution.setLesson(value);
+                        break;
+                    case "fach":
+                        StringBuilder subject = new StringBuilder();
+                        subject.append(value);
+                        if (course != null) {
+                            subject.append(" ").append(course);
+                        }
+                        substitution.setSubject(subject.toString());
+                        break;
+                    case "lehrer":
+                        Matcher bracesMatcher = bracesPattern.matcher(value);
+                        if (bracesMatcher.matches()) value = bracesMatcher.group(1);
+                        substitution.setTeacher(value);
+                        break;
+                    case "raum":
+                        substitution.setRoom(value);
+                        break;
+                    case "info":
+                        Matcher substitutionMatcher = substitutionPattern.matcher(value);
+                        Matcher cancelMatcher = cancelPattern.matcher(value);
+                        Matcher delayMatcher = delayPattern.matcher(value);
+                        Matcher selfMatcher = selfPattern.matcher(value);
+                        if (substitutionMatcher.matches()) {
+                            substitution.setPreviousSubject(substitutionMatcher.group(1));
+                            substitution.setPreviousTeacher(substitutionMatcher.group(2));
+                            if (!substitutionMatcher.group(3).isEmpty()) {
+                                substitution.setDesc(substitutionMatcher.group(3));
+                            }
+                        } else if (cancelMatcher.matches()) {
+                            type = "Entfall";
+                            substitution.setPreviousSubject(cancelMatcher.group(1));
+                            substitution.setPreviousTeacher(cancelMatcher.group(2));
+                        } else if (delayMatcher.matches()) {
+                            type = "Verlegung";
+                            substitution.setPreviousSubject(delayMatcher.group(1));
+                            substitution.setPreviousTeacher(delayMatcher.group(2));
+                            substitution.setDesc(delayMatcher.group(3));
+                        } else if (selfMatcher.matches()) {
+                            type = "selbst.";
+                            if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
+                        } else {
+                            substitution.setDesc(value);
+                        }
+                        break;
+                }
+                i++;
+            }
+            substitution.setType(type);
+            substitution.setColor(colorProvider.getColor(substitution.getType()));
+            if (course != null && substitution.getSubject() == null) {
+                substitution.setSubject(course);
+            }
+            day.addSubstitution(substitution);
         }
 
         return day;
