@@ -203,11 +203,12 @@ public class IndiwareParser extends BaseParser {
         }
 
         @Override public Elements kopfinfos() {
-            return doc.select(".tablekopf").first().select("tr");
+            return doc.select("table:has(th[class^=thkopf]) tr");
         }
 
         @Override public Element fuss() {
-            return doc.select("p:has(.ueberschrift:contains(Informationen)) + table").first();
+            return doc.select("table:not(:has(th[class^=thkopf])):not(:has(.tdaktionen))" +
+                    ":not(span:contains(Aufsichten) + table)").first();
         }
 
         @Override public Elements fusszeilen() {
@@ -215,11 +216,11 @@ public class IndiwareParser extends BaseParser {
         }
 
         @Override public Elements aktionen() {
-            return doc.select("p:has(.ueberschrift:contains(Unterrichtsstunden)) + p + table tr:gt(0)");
+            return doc.select("table:has(.tdaktionen) tr:gt(0)");
         }
 
         public Elements headers() {
-            return doc.select("p:has(.ueberschrift:contains(Unterrichtsstunden)) + p + table th");
+            return doc.select("table:has(.tdaktionen) th");
         }
     }
 
