@@ -16,6 +16,8 @@ import me.vertretungsplan.objects.credential.Credential;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
@@ -81,7 +83,11 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                     new DefaultHostnameVerifier());
 
             CloseableHttpClient httpclient = HttpClients.custom()
-                    .setSSLSocketFactory(sslsf).setRedirectStrategy(new LaxRedirectStrategy()).build();
+                    .setSSLSocketFactory(sslsf)
+                    .setRedirectStrategy(new LaxRedirectStrategy())
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
             this.executor = Executor.newInstance(httpclient).use(cookieStore);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
