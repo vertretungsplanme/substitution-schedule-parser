@@ -20,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
@@ -50,6 +49,12 @@ import java.util.regex.Pattern;
  *
  * <dt><code>classes</code> (Array of Strings, required)</dt>
  * <dd>The list of all classes, as they can appear in the schedule</dd>
+ *
+ * <dt><code>embeddedContentSelector</code> (String, optional)</dt>
+ * <dd>When the Untis schedule is embedded in another HTML file using server-side code, you can use this to
+ * specify which HTML elements should be considered as the containers for the Indiware HTML schedule. The CSS selector
+ * syntax is supported as specified by
+ * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -57,6 +62,7 @@ import java.util.regex.Pattern;
 public class IndiwareParser extends BaseParser {
     private static final String PARAM_URLS = "urls";
     private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
     protected JSONObject data;
 
     private static final int MAX_DAYS = 7;
@@ -120,7 +126,7 @@ public class IndiwareParser extends BaseParser {
 
         for (String response : docs) {
             boolean html;
-            Document doc;
+            Element doc;
             if (response.contains("<html")) {
                 html = true;
                 doc = Jsoup.parse(response);
@@ -128,7 +134,16 @@ public class IndiwareParser extends BaseParser {
                 html = false;
                 doc = Jsoup.parse(response, null, Parser.xmlParser());
             }
-            v.addDay(parseIndiwareDay(doc, html));
+            if (data.has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+                String selector = data.getString(PARAM_EMBEDDED_CONTENT_SELECTOR);
+                Elements elems = doc.select(selector);
+                if (elems.size() == 0) throw new IOException("No elements found using " + selector);
+                for (Element elem : elems) {
+                    v.addDay(parseIndiwareDay(elem, html));
+                }
+            } else {
+                v.addDay(parseIndiwareDay(doc, html));
+            }
         }
 
         v.setWebsite(urls.getString(0));
@@ -157,7 +172,7 @@ public class IndiwareParser extends BaseParser {
         private Element vp;
         private Element kopf;
 
-        public XMLDataSource(Document doc) {
+        public XMLDataSource(Element doc) {
             vp = doc.select("vp").first();
             kopf = vp.select("kopf").first();
         }
@@ -188,9 +203,9 @@ public class IndiwareParser extends BaseParser {
     }
 
     private class HTMLDataSource implements DataSource {
-        private Document doc;
+        private Element doc;
 
-        public HTMLDataSource(Document doc) {
+        public HTMLDataSource(Element doc) {
             this.doc = doc;
         }
 
@@ -224,7 +239,7 @@ public class IndiwareParser extends BaseParser {
         }
     }
 
-    SubstitutionScheduleDay parseIndiwareDay(Document doc, boolean html) {
+    SubstitutionScheduleDay parseIndiwareDay(Element doc, boolean html) {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         DataSource ds;
