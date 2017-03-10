@@ -15,6 +15,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -323,21 +324,29 @@ public class IndiwareParser extends BaseParser {
                         substitution.setLesson(value);
                         break;
                     case "fach":
-                        StringBuilder subject = new StringBuilder();
-                        subject.append(value);
-                        if (course != null) {
-                            subject.append(" ").append(course);
+                        String subject = subjectAndCourse(course, value);
+                        if (columnTypes.contains("vfach")) {
+                            substitution.setPreviousSubject(subject);
+                        } else {
+                            substitution.setSubject(subject);
                         }
-                        substitution.setSubject(subject.toString());
                         break;
+                    case "vfach":
+                        substitution.setSubject(subjectAndCourse(course, value));
                     case "lehrer":
                         Matcher bracesMatcher = bracesPattern.matcher(value);
                         if (bracesMatcher.matches()) value = bracesMatcher.group(1);
                         substitution.setTeacher(value);
                         break;
                     case "raum":
-                        substitution.setRoom(value);
+                        if (columnTypes.contains("vraum")) {
+                            substitution.setPreviousRoom(value);
+                        } else {
+                            substitution.setRoom(value);
+                        }
                         break;
+                    case "vraum":
+                        substitution.setRoom(value);
                     case "info":
                         Matcher substitutionMatcher = substitutionPattern.matcher(value);
                         Matcher cancelMatcher = cancelPattern.matcher(value);
@@ -377,6 +386,15 @@ public class IndiwareParser extends BaseParser {
         }
 
         return day;
+    }
+
+    @NotNull private String subjectAndCourse(String course, String subject) {
+        StringBuilder subjectBuilder = new StringBuilder();
+        subjectBuilder.append(subject);
+        if (course != null) {
+            subjectBuilder.append(" ").append(course);
+        }
+        return subjectBuilder.toString();
     }
 
     private static String kopfinfoTitle(String type) {
