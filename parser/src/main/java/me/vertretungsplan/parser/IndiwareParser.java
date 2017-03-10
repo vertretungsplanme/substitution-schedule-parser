@@ -289,7 +289,7 @@ public class IndiwareParser extends BaseParser {
         if (html) {
             columnTypes = new ArrayList<>();
             for (Element th : ((HTMLDataSource) ds).headers()) {
-                columnTypes.add(th.className().replace("thplan", ""));
+                columnTypes.add(th.className().replace("thplan", "").replace("thlplan", ""));
             }
         }
 
