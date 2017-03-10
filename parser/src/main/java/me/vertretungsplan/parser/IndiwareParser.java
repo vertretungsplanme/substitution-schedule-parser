@@ -127,12 +127,12 @@ public class IndiwareParser extends BaseParser {
         for (String response : docs) {
             boolean html;
             Element doc;
-            if (response.contains("<html")) {
+            if (response.contains("<html") || response.contains("<table")) {
                 html = true;
                 doc = Jsoup.parse(response);
             } else {
                 html = false;
-                doc = Jsoup.parse(response, null, Parser.xmlParser());
+                doc = Jsoup.parse(response, "", Parser.xmlParser());
             }
             if (data.has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
                 String selector = data.getString(PARAM_EMBEDDED_CONTENT_SELECTOR);
