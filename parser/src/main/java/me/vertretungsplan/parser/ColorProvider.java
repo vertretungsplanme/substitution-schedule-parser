@@ -108,7 +108,7 @@ public class ColorProvider {
                         color = colorNames.get(color);
                     }
                     for (int i = 0; i < values.length(); i++) {
-                        colorMap.put(values.getString(i), color);
+                        colorMap.put(values.getString(i).toLowerCase(), color);
                     }
                 }
             }
