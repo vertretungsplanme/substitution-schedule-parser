@@ -13,12 +13,12 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.Nullable;
@@ -180,6 +180,10 @@ public class LoginHandler {
 							value = login;
 						else if (value.equals("_password"))
 							value = password;
+						else if (value.equals("_password_md5")) {
+							value = DigestUtils.md5Hex(password);
+						}
+
 						nvps.add(new BasicNameValuePair(name, value));
 					}
 					Request request = Request.Post(url);
