@@ -325,7 +325,7 @@ public class IndiwareParser extends BaseParser {
                         break;
                     case "fach":
                         String subject = subjectAndCourse(course, value);
-                        if (columnTypes.contains("vfach")) {
+                        if (columnTypes != null && columnTypes.contains("vfach")) {
                             substitution.setPreviousSubject(subject);
                         } else {
                             substitution.setSubject(subject);
@@ -339,7 +339,7 @@ public class IndiwareParser extends BaseParser {
                         substitution.setTeacher(value);
                         break;
                     case "raum":
-                        if (columnTypes.contains("vraum")) {
+                        if (columnTypes != null && columnTypes.contains("vraum")) {
                             substitution.setPreviousRoom(value);
                         } else {
                             substitution.setRoom(value);
