@@ -103,10 +103,10 @@ public class ColorProvider {
                 Iterator<?> keys = colors.keys();
                 while (keys.hasNext()) {
                     String color = (String) keys.next();
+                    JSONArray values = colors.getJSONArray(color);
                     if (colorNames.containsKey(color)) {
                         color = colorNames.get(color);
                     }
-                    JSONArray values = colors.getJSONArray(color);
                     for (int i = 0; i < values.length(); i++) {
                         colorMap.put(values.getString(i), color);
                     }
