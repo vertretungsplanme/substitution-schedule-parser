@@ -370,6 +370,8 @@ public class IndiwareParser extends BaseParser {
                         } else if (selfMatcher.matches()) {
                             type = "selbst.";
                             if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
+                        } else if (value.equals("fällt aus") || value.equals("Klausur") || value.equals("Aufg.")) {
+                            type = value;
                         } else {
                             substitution.setDesc(value);
                         }
