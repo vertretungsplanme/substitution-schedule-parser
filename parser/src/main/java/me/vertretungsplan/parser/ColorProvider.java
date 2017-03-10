@@ -10,6 +10,7 @@ package me.vertretungsplan.parser;
 
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,12 +102,13 @@ public class ColorProvider {
                 JSONObject colors = data.getData().getJSONObject("colors");
                 Iterator<?> keys = colors.keys();
                 while (keys.hasNext()) {
-                    String type = (String) keys.next();
-                    String value = colors.getString(type);
-                    if (colorNames.containsKey(value)) {
-                        colorMap.put(type.toLowerCase(), colorNames.get(value));
-                    } else {
-                        colorMap.put(type.toLowerCase(), value);
+                    String color = (String) keys.next();
+                    if (colorNames.containsKey(color)) {
+                        color = colorNames.get(color);
+                    }
+                    JSONArray values = colors.getJSONArray(color);
+                    for (int i = 0; i < values.length(); i++) {
+                        colorMap.put(values.getString(i), color);
                     }
                 }
             }
