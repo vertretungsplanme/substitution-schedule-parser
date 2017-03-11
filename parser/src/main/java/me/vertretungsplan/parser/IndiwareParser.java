@@ -300,7 +300,7 @@ public class IndiwareParser extends BaseParser {
             String course = null;
             int i = 0;
             for (Element info : aktion.children()) {
-                String value = info.text();
+                String value = info.text().replace("\u00a0", "");
                 if (value.equals("---")) {
                     i++;
                     continue;
