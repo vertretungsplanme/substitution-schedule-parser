@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.joda.time.LocalDate;
@@ -19,6 +20,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,6 +49,36 @@ public class IndiwareDemoTest extends BaseDemoTest {
     public void demoTestHTML() {
         SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(html), true);
         verify(schedule);
+    }
+
+    @Test
+    public void testHTMLEmbeddedContentSelector() throws JSONException, IOException {
+        String html = readResource("/indiware/indiware_embedded.html");
+
+        SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
+        final JSONObject data = new JSONObject();
+        data.put("embeddedContentSelector", ".items-leading .dd-article > table > tbody > tr > td");
+        scheduleData.setData(data);
+        IndiwareParser parser = new IndiwareParser(scheduleData, null);
+
+        SubstitutionSchedule schedule = new SubstitutionSchedule();
+        parser.parseIndiwarePage(schedule, html);
+
+        assertEquals(2, schedule.getDays().size());
+        assertEquals(new LocalDate(2017, 3, 10), schedule.getDays().get(0).getDate());
+        assertEquals(new LocalDate(2017, 3, 13), schedule.getDays().get(1).getDate());
+    }
+
+    @Test
+    public void testHTMLSplit() throws JSONException, IOException {
+        String html = readResource("/indiware/indiware_split.html");
+
+        SubstitutionSchedule schedule = new SubstitutionSchedule();
+        parser.parseIndiwarePage(schedule, html);
+
+        assertEquals(2, schedule.getDays().size());
+        assertEquals(new LocalDate(2017, 3, 10), schedule.getDays().get(0).getDate());
+        assertEquals(new LocalDate(2017, 3, 13), schedule.getDays().get(1).getDate());
     }
 
     @Test
