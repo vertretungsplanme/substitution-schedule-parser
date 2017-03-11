@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
@@ -126,25 +127,7 @@ public class IndiwareParser extends BaseParser {
         }
 
         for (String response : docs) {
-            boolean html;
-            Element doc;
-            if (response.contains("<html") || response.contains("<table")) {
-                html = true;
-                doc = Jsoup.parse(response);
-            } else {
-                html = false;
-                doc = Jsoup.parse(response, "", Parser.xmlParser());
-            }
-            if (data.has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
-                String selector = data.getString(PARAM_EMBEDDED_CONTENT_SELECTOR);
-                Elements elems = doc.select(selector);
-                if (elems.size() == 0) throw new IOException("No elements found using " + selector);
-                for (Element elem : elems) {
-                    v.addDay(parseIndiwareDay(elem, html));
-                }
-            } else {
-                v.addDay(parseIndiwareDay(doc, html));
-            }
+            parseIndiwarePage(v, response);
         }
 
         v.setWebsite(urls.getString(0));
@@ -153,6 +136,35 @@ public class IndiwareParser extends BaseParser {
         v.setTeachers(getAllTeachers());
 
         return v;
+    }
+
+    void parseIndiwarePage(SubstitutionSchedule v, String response) throws JSONException, IOException {
+        boolean html;
+        Element doc;
+        if (response.contains("<html") || response.contains("<table")) {
+            html = true;
+            doc = Jsoup.parse(response);
+        } else {
+            html = false;
+            doc = Jsoup.parse(response, "", Parser.xmlParser());
+        }
+        if (html && data.has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+            String selector = data.getString(PARAM_EMBEDDED_CONTENT_SELECTOR);
+            Elements elems = doc.select(selector);
+            if (elems.size() == 0) throw new IOException("No elements found using " + selector);
+            for (Element elem : elems) {
+                v.addDay(parseIndiwareDay(elem, true));
+            }
+        } else if (html && doc.select(".vpfuer").size() > 1) {
+            // multiple schedules after each other on one page
+            String[] htmls = doc.html().split("<span class=\"vpfuer\">");
+            for (int i = 1; i < htmls.length; i++) {
+                Document splitDoc = Jsoup.parse(htmls[i]);
+                v.addDay(parseIndiwareDay(splitDoc, true));
+            }
+        } else {
+            v.addDay(parseIndiwareDay(doc, html));
+        }
     }
 
     private interface DataSource {

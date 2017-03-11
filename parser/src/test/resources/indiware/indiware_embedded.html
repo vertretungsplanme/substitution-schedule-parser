@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="de-de">
+<head>
+    <base href="http://www.lghe.org/index.php"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="generator" content="Joomla! - Open Source Content Management"/>
+    <title>Startseite</title>
+    <link href="/index.php?format=feed&amp;type=rss" rel="alternate" type="application/rss+xml" title="RSS 2.0"/>
+    <link href="/index.php?format=feed&amp;type=atom" rel="alternate" type="application/atom+xml" title="Atom 1.0"/>
+    <link href="/templates/dd_myschool_54/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
+    <script src="/media/jui/js/jquery.min.js" type="text/javascript"></script>
+    <script src="/media/jui/js/jquery-noconflict.js" type="text/javascript"></script>
+    <script src="/media/jui/js/jquery-migrate.min.js" type="text/javascript"></script>
+    <script src="/media/system/js/caption.js" type="text/javascript"></script>
+    <script src="/media/system/js/mootools-core.js" type="text/javascript"></script>
+    <script src="/media/system/js/core.js" type="text/javascript"></script>
+    <script src="/media/system/js/mootools-more.js" type="text/javascript"></script>
+    <script src="/media/jui/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        jQuery(window).on('load', function () {
+            new JCaption('img.caption');
+        });
+        jQuery(function ($) {
+            $('.hasTip').each(function () {
+                var title = $(this).attr('title');
+                if (title) {
+                    var parts = title.split('::', 2);
+                    var mtelement = document.id(this);
+                    mtelement.store('tip:title', parts[0]);
+                    mtelement.store('tip:text', parts[1]);
+                }
+            });
+            var JTooltips = new Tips($('.hasTip').get(), {"maxTitleChars": 50, "fixed": false});
+        });
+        jQuery(function ($) {
+            $(".hasTooltip").tooltip({"html": true, "container": "body"});
+        });
+        window.setInterval(function () {
+            var r;
+            try {
+                r = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP")
+            } catch (e) {
+            }
+            if (r) {
+                r.open("GET", "/index.php?option=com_ajax&format=json", true);
+                r.send(null)
+            }
+        }, 1740000);
+    </script>
+
+    <link rel="stylesheet" href="/templates/system/css/system.css"/>
+    <link rel="stylesheet" href="/templates/system/css/general.css"/>
+
+
+    <meta name="viewport" content="initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no, width = device-width"/>
+
+    <!--[if lt IE 9]>
+    <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <link rel="stylesheet" href="/templates/dd_myschool_54/css/template.css" media="screen" type="text/css"/>
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" href="/templates/dd_myschool_54/css/template.ie7.css" media="screen"/><![endif]-->
+    <link rel="stylesheet" href="/templates/dd_myschool_54/css/template.responsive.css" media="all" type="text/css"/>
+    <link rel="stylesheet" type="text/css"
+          href="http://fonts.googleapis.com/css?family=Aguafina+Script&amp;subset=latin"/>
+    <link rel="shortcut icon" href="/templates/dd_myschool_54/favicon.ico" type="image/x-icon"/>
+    <script>if ('undefined' != typeof jQuery) document._artxJQueryBackup = jQuery;</script>
+    <script src="/templates/dd_myschool_54/jquery.js"></script>
+    <script>jQuery.noConflict();</script>
+
+    <script src="/templates/dd_myschool_54/script.js"></script>
+    <script src="/templates/dd_myschool_54/script.responsive.js"></script>
+    <script src="/templates/dd_myschool_54/modules.js"></script>
+    <script>if (document._artxJQueryBackup) jQuery = document._artxJQueryBackup;</script>
+    <!--slideshow header start-->
+
+    <script type="text/javascript" src="/templates/dd_myschool_54/js/jquery.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/templates/dd_myschool_54/js/slider/themes/default/jquery.slider.css"/>
+    <!--[if IE 6]>
+    <link rel="stylesheet" type="text/css" href="/js/slider/themes/default/jquery.slider.ie6.css"/>
+    <![endif]-->
+
+    <script type="text/javascript" src="/templates/dd_myschool_54/js/slider/jquery.slider.min.js"></script>
+    <!--hover gallery-->
+    <link rel="stylesheet" type="text/css" href="/templates/dd_myschool_54/css/style_common.css"/>
+    <link rel="stylesheet" type="text/css" href="/templates/dd_myschool_54/css/style8.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'/>
+    <!--end hover gallery-->            <!--social-->
+    <link rel="stylesheet" href="/templates/dd_myschool_54/css/social.css" type="text/css" media="screen"/>
+</head>
+<body>
+
+<div id="dd-main">
+    <header class="dd-header">
+        <div class="dd-shapes">
+            <div class="dd-object205833448"></div>
+            <div class="dd-object872652624"></div>
+            <div class="dd-object345124625">﻿
+                <div class="myslider">
+                    <div>
+                        <img src="/images/templates/dd_myschool_54/images/gallery/1.jpg" alt="foto1"/>
+                    </div>
+                    <div>
+                        <img src="/images/templates/dd_myschool_54/images/gallery/2-2016-05a.jpg" alt="foto1"/>
+                    </div>
+                    <div>
+                        <img src="/images/templates/dd_myschool_54/images/gallery/3-2016-05b.jpg" alt="foto1"/>
+                    </div>
+                    <div>
+                        <img src="/images/templates/dd_myschool_54/images/gallery/4-2016-05c.jpg" alt="foto1"/>
+                    </div>
+                    <div>
+                        <img src="/images/templates/dd_myschool_54/images/gallery/5-2016-05d.jpg" alt="foto1"/>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="dd-object1855895859"></div>
+            <div class="dd-object1327981177"></div>
+            <div class="dd-object117751212"></div>
+            <div class="dd-textblock dd-object634253897">
+                <div class="dd-object634253897-text-container">
+                    <div class="dd-object634253897-text">Der Langsamste, der sein Ziel nur nicht aus den Augen verliert,
+                        geht immer noch geschwinder als der, der ohne Ziel herumirrt.
+                        Gotthold Ephraim Lessing (1729-1781)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <h1 class="dd-headline">
+            <a href="/">G.-E.-Lessing-Gymnasium</a>
+        </h1>
+        <h2 class="dd-slogan">Hohenstein-Ernstthal</h2>
+
+
+        <div class="dd-logo dd-logo-4525103">
+            <img src="/templates/dd_myschool_54/images/logo-4525103.png" alt=""/>
+        </div>
+        <div class="dd-logo dd-logo-678893299">
+            <img src="/templates/dd_myschool_54/images/logo-678893299.png" alt=""/>
+        </div>
+        <div class="dd-logo dd-logo-1881069249">
+            <img src="/templates/dd_myschool_54/images/logo-1881069249.png" alt=""/>
+        </div>
+        <div class="dd-logo dd-logo-41488708">
+            <img src="/templates/dd_myschool_54/images/logo-41488708.png" alt=""/>
+        </div>
+        <div class="dd-textblock dd-object1344229085">
+            <form class="dd-search" name="Search" action="/index.php" method="post">
+                <input type="text" value="" name="searchword"/>
+                <input type="hidden" name="task" value="search"/>
+                <input type="hidden" name="option" value="com_search"/>
+                <input type="submit" value="" name="search" class="dd-search-button"/>
+            </form>
+        </div>
+        <nav class="dd-nav">
+            <div class="dd-nav-inner">
+
+                <ul class="dd-hmenu">
+                    <li class="item-464 active"><a class=" active" href="/index.php">Startseite</a></li>
+                    <li class="item-444"><a href="/index.php/beispiel-seiten">Kontakt</a></li>
+                    <li class="item-470"><a href="http://www.lernsax.de" target="_blank">Lernsax</a></li>
+                    <li class="item-471"><a href="/index.php/impressum">Impressum</a></li>
+                </ul>
+            </div>
+        </nav>
+
+
+    </header>
+    <div class="dd-sheet clearfix">
+        <div class="dd-layout-wrapper">﻿
+            <div class="main">
+                <!-- EIGHTH EXAMPLE -->
+                <div class="view view-eighth">
+                    <img src="/images/templates/dd_myschool_54/images/gallery/hover-1-lghe.jpg"/>
+                    <div class="mask">
+                        <h2>04.02.2017, Tag der offenen Tür</h2>
+                        <p>Wir laden recht herzlich ein zum
+                            Tag der offenen Tür am Samstag, dem 04.02.2017, 09.00 - 12.00 Uhr.</p>
+                        <a href="http://www.lghe.org/index.php/14-lghe/157-2016-01-30-tdot" class="info">Weiterlesen</a>
+                    </div>
+                </div>
+                <div class="view view-eighth">
+                    <img src="/images/templates/dd_myschool_54/images/gallery/hover-1-kl-5-2016.jpg"/>
+                    <div class="mask">
+                        <h2>Unsere neuen 5er...</h2>
+                        <p>Wir begrüßen ganz herzlich die insgesamt 104 Schülerinnen und Schüler der neuen 5. Klassen!
+                            Viel Spaß und Erfolg an unserem Gymnasium!</p>
+                        <a href="http://www.lghe.org/images/schule/2015/2015-08-klassen-5/index.htm" class="info">Weiterlesen</a>
+                    </div>
+                </div>
+                <div class="view view-eighth">
+                    <img src="/images/templates/dd_myschool_54/images/gallery/hover-2.jpg"/>
+                    <div class="mask">
+                        <h2>Benefizkonzert</h2>
+                        <p>Nach dem Konzert unseres Chores am 20. Juni 2015 in der Sachsenlandhalle Glauchau kam eine
+                            Spende von insgesamt 1700,00 Euro zusammen...</p>
+                        <a href="http://www.lghe.info/index.php/89-lghe/aktionen/chor/251-benefizkonzert-fuer-die-opfer-des-erdbebens-in-nepal"
+                           class="info">Weiterlesen</a>
+                    </div>
+                </div>
+                <div class="view view-eighth">
+                    <img src="/images/templates/dd_myschool_54/images/gallery/hover-4.jpg"/>
+                    <div class="mask">
+                        <h2>Anfahrt</h2>
+                        <p>Hauptgebäude: Schulstraße 9, 09337 Hohenstein-Ernstthal
+                            Außenstelle: ehemalige Pestalozzischule, Herrmannstraße 38, 09337 Hohenstein-Ernstthal.</p>
+                        <a href="https://www.google.de/maps/place/Lessing-+Gymnasium/@50.8016415,12.7108331,17z/data=!4m2!3m1!1s0x0000000000000000:0x1e33a34fabd7f9e7"
+                           class="info">Weiterlesen</a>
+                    </div>
+                </div>
+            </div>
+            <div class="dd-content-layout">
+                <div class="dd-content-layout-row">
+                    <div class="dd-layout-cell dd-sidebar1">
+                        <div class="dd-block clearfix_menu">
+                            <div class="dd-blockheader"><h3 class="t">Schule</h3></div>
+                            <div class="dd-blockcontent">
+                                <ul class="menu">
+                                    <li class="item-435 current active"><a href="/index.php">Startseite</a></li>
+                                    <li class="item-233 parent"><a href="/index.php/personen">Personen</a></li>
+                                    <li class="item-448"><a href="/index.php/schulportrat">Schulporträt</a></li>
+                                    <li class="item-455"><a href="/index.php/geaeude">Gebäude</a></li>
+                                    <li class="item-476 parent"><a href="/index.php/foerderverein">Förderverein</a></li>
+                                    <li class="item-501"><a href="/index.php/schuelerrat">Schülerrat</a></li>
+                                    <li class="item-514"><a href="/index.php/partner">Partnerlinks</a></li>
+                                    <li class="item-494"><a
+                                            href="https://www.lghe.org/dokumente/2016-03-hausordnung.pdf"
+                                            onclick="window.open(this.href,'targetWindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');return false;">Hausordnung</a>
+                                    </li>
+                                    <li class="item-517"><a
+                                            href="http://www.lghe.org/dokumente/benutzerordnung_2009_10.pdf"
+                                            target="_blank">PC-Benutzerordnung</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix_menu">
+                            <div class="dd-blockheader"><h3 class="t">Lernen & Freizeit</h3></div>
+                            <div class="dd-blockcontent">
+                                <ul class="menu">
+                                    <li class="item-525 parent"><a href="/index.php/1-faecher">Fächer</a></li>
+                                    <li class="item-492 parent"><a href="/index.php/chor-vorstellung">Chor</a></li>
+                                    <li class="item-528"><a href="/index.php/1-theater">Theater</a></li>
+                                    <li class="item-495"><a
+                                            href="http://www.lghe.org/dokumente/2016-2017-GTA-Angebote.pdf"
+                                            onclick="window.open(this.href,'targetWindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');return false;">AG-
+                                        und GTA-Angebote</a></li>
+                                    <li class="item-506 parent"><a
+                                            href="/index.php/2013-09-29-19-51-39">Berufsberatung</a></li>
+                                    <li class="item-540 parent"><a href="/index.php/bibliothek">Bibliothek</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix">
+                            <div class="dd-blockheader"><h3 class="t">Termine</h3></div>
+                            <div class="dd-blockcontent">
+                                <ul class="menu">
+                                    <li class="item-481"><a href="/index.php/vertretungen">Vertretungspläne</a></li>
+                                    <li class="item-559"><a
+                                            href="https://www.lghe.org/dokumente/2016-08-17-Klausurplan-11.pdf"
+                                            onclick="window.open(this.href,'targetWindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');return false;">Klausurplan
+                                        11</a></li>
+                                    <li class="item-560"><a
+                                            href="https://www.lghe.org/dokumente/2016-08-17-Klausurplan-12.pdf"
+                                            onclick="window.open(this.href,'targetWindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');return false;">Klausurplan
+                                        12</a></li>
+                                    <li class="item-512"><a
+                                            href="http://www.lghe.org/dokumente/2016_2017_fvu_termine.pdf"
+                                            target="_blank">FvU-Termine</a></li>
+                                    <li class="item-472"><a href="/index.php/ferien">Ferien und freie Tage</a></li>
+                                    <li class="item-519"><a href="/index.php/u-zeiten">Unterrichtszeiten</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix">
+                            <div class="dd-blockheader"><h3 class="t">Neueste Beiträge</h3></div>
+                            <div class="dd-blockcontent">
+                                <ul class="latestnews">
+                                    <li itemscope itemtype="https://schema.org/Article">
+                                        <a href="/index.php/23-lghe/schule/persons/schueler/328-mike-gewinnt-bei-jugend-forscht"
+                                           itemprop="url">
+			<span itemprop="name">
+				Mike gewinnt bei "Jugend forscht"			</span>
+                                        </a>
+                                    </li>
+                                    <li itemscope itemtype="https://schema.org/Article">
+                                        <a href="/index.php/14-lghe/326-studium-beruf-karriere" itemprop="url">
+			<span itemprop="name">
+				Studium - Beruf - Karriere			</span>
+                                        </a>
+                                    </li>
+                                    <li itemscope itemtype="https://schema.org/Article">
+                                        <a href="/index.php/14-lghe/325-klasse-6a-spendet-fuer-krebskranke-kinder"
+                                           itemprop="url">
+			<span itemprop="name">
+				Klasse 6a spendet für krebskranke Kinder			</span>
+                                        </a>
+                                    </li>
+                                    <li itemscope itemtype="https://schema.org/Article">
+                                        <a href="/index.php/98-lghe/termine/events/323-besuch-eines-zeitzeugen-aus-der-ns-zeit"
+                                           itemprop="url">
+			<span itemprop="name">
+				Besuch eines Zeitzeugen aus der NS- Zeit			</span>
+                                        </a>
+                                    </li>
+                                    <li itemscope itemtype="https://schema.org/Article">
+                                        <a href="/index.php/14-lghe/322-weihnachtsmusical-wundersame-weihnachtszeit"
+                                           itemprop="url">
+			<span itemprop="name">
+				Weihnachtsmusical "Wundersame Weihnachtszeit"			</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix">
+                            <div class="dd-blockheader"><h3 class="t">Anmeldung</h3></div>
+                            <div class="dd-blockcontent">
+                                <form action="/index.php" method="post" id="login-form" class="form-vertical">
+                                    <div class="login-greeting">
+                                        Hallo Max Mustermann
+                                    </div>
+                                    <div class="logout-button">
+                                        <input type="submit" name="Submit" class="btn btn-primary" value="Abmelden"/>
+                                        <input type="hidden" name="option" value="com_users"/>
+                                        <input type="hidden" name="task" value="user.logout"/>
+                                        <input type="hidden" name="return" value="XXX"/>
+                                        <input type="hidden" name="XXX" value="1"/></div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix_menu">
+                            <div class="dd-blockheader"><h3 class="t">Benutzermenü</h3></div>
+                            <div class="dd-blockcontent">
+                                <ul class="menu">
+                                    <li class="item-201"><a href="/index.php/mein-profil">Mein Profil</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dd-block clearfix">
+                            <div class="dd-blockheader"><h3 class="t">Wer ist online</h3></div>
+                            <div class="dd-blockcontent"><p>Aktuell sind 44&#160;Gäste und 8&#160;Mitglieder online</p>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="dd-layout-cell dd-content">
+                        <article class="dd-post">
+                            <div class="dd-postcontent clearfix">
+                                <div class="breadcrumbs">
+                                    <span class="showHere">Aktuelle Seite: </span><span>Startseite</span></div>
+                            </div>
+                        </article>
+                        <article class="dd-post dd-messages">
+                            <div class="dd-postcontent clearfix">
+                                <div id="system-message-container">
+                                </div>
+                            </div>
+                        </article>
+                        <div class="blog-featured">
+                            <div class="items-leading">
+                                <div class="leading-0">
+                                    <article class="dd-post">
+                                        <div class="dd-postmetadataheader"><h2 class="dd-postheader"><a
+                                                href="/index.php/vertretungen">Vertretungspläne</a></h2></div>
+                                        <div class="dd-postcontent clearfix">
+                                            <div class="dd-article"><p></p>
+                                                <table>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td><strong>Vertretungsplan<span class="vpfuer">Vertretungsplan für: </span></strong><span
+                                                                class="vpfuerdatum"><strong>Freitag, 10. März 2017</strong> </span><br/><span
+                                                                class="vpschulname">G.-E.-Lessing-Gymnasium Hohenstein-Ernstthal</span>
+                                                            <br/><span class="vpdatum">08.03.2017, 11:52</span>
+                                                            <br/><br/>
+                                                            <table>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <th class="thkopfabwesend">Abwesende Lehrer:</th>
+                                                                    <td class="thabwesend">Herr Mustermann, Frau
+                                                                        Musterfrau
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <br/><span class="ueberschrift">Geänderte Aufsichten:</span>
+                                                            <table>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td>08:40: FP - G.4/4.Et. --&gt; Frau Beispiel (für
+                                                                        Frau Muster)
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <br/><span class="ueberschrift">Geänderte Unterrichtsstunden:</span>
+                                                            <br/><br/>
+                                                            <table class="tablekopf" border="2">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <th class="thplanklasse">Klasse/Kurs</th>
+                                                                    <th class="thplanstunde">Stunde</th>
+                                                                    <th class="thplanfach">Fach</th>
+                                                                    <th class="thplanlehrer">Lehrer</th>
+                                                                    <th class="thplanraum">Raum</th>
+                                                                    <th class="thplaninfo">Info</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="tdaktionen">05a</td>
+                                                                    <td class="tdaktionen">1</td>
+                                                                    <td class="tdaktionen">---</td>
+                                                                    <td class="tdaktionen"></td>
+                                                                    <td class="tdaktionen"></td>
+                                                                    <td class="tdaktionen">Lerl Frau Beispiel fällt
+                                                                        aus
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p></p>
+                                                <table style="width: 668px;" border="1">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td style="width: 272px;"><strong>Vertretungsplan<span
+                                                                class="vpfuer">Vertretungsplan für: </span></strong><span
+                                                                class="vpfuerdatum"><strong>Montag, 13. März 2017</strong> </span><br/><span
+                                                                class="vpschulname">G.-E.-Lessing-Gymnasium Hohenstein-Ernstthal</span>
+                                                            <br/><span class="vpdatum">09.03.2017, 06:24</span>
+                                                            <br/><br/>
+                                                            <table>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <th class="thkopfabwesend">Abwesende Lehrer:</th>
+                                                                    <td class="thabwesend">Herr Mustermann, Frau
+                                                                        Musterfrau, Frau Beispiel
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <br/><span class="ueberschrift">Geänderte Aufsichten:</span>
+                                                            <table>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td>06:35: FA - G.4/4.Et. --&gt; Frau Muster (für
+                                                                        Herrn Musterfrau)
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <br/><span class="ueberschrift">Geänderte Unterrichtsstunden:</span>
+                                                            <br/><br/>
+                                                            <table class="tablekopf" border="2">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <th class="thplanklasse">Klasse/Kurs</th>
+                                                                    <th class="thplanstunde">Stunde</th>
+                                                                    <th class="thplanfach">Fach</th>
+                                                                    <th class="thplanlehrer">Lehrer</th>
+                                                                    <th class="thplanraum">Raum</th>
+                                                                    <th class="thplaninfo">Info</th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="tdaktionen">05d</td>
+                                                                    <td class="tdaktionen">3</td>
+                                                                    <td class="tdaktionenneu">MA</td>
+                                                                    <td class="tdaktionenneu">Herr Muster</td>
+                                                                    <td class="tdaktionenneu">P01</td>
+                                                                    <td class="tdaktionen">für S Herr Groß</td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p></p></div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                            <div class="items-row cols-1 row-0">
+                                <div class="item column-1">
+                                    <article class="dd-post">
+                                        <div class="dd-postmetadataheader"><h2 class="dd-postheader"><a
+                                                href="/index.php/14-lghe/326-studium-beruf-karriere">Studium - Beruf -
+                                            Karriere</a></h2></div>
+                                        <div class="dd-postcontent clearfix">
+                                            <div class="dd-article">
+                                                <table border="1">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <h2><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;"><em>Veranstaltung für Schüler der Klassen 9, 10, 11 und 12 und für Eltern</em></span>
+                                                            </h2>
+                                                            <p><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Ziel dieser am <strong><u>Dienstag<em>, dem 07.03.2017 im Lessing-Gymnasium ab 18.00 Uhr</em></u></strong>, stattfindenden Veranstaltung soll es sein, den Schülern mit ihren individuellen Vorstellungen und Wünschen bei der wohl wichtigsten Entscheidung ihres bisherigen Lebens, der Berufs - bzw. Studienwahl, mit Rat und Tat zur Seite zu stehen.</span>
+                                                            </p>
+                                                            <p><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Da rechtzeitige Orientierung und gezielte Vorbereitung sehr wichtig sind, stehen den Schülern sowie Eltern kompetente Partner</span>
+                                                            </p>
+                                                            <p><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Rede und Antwort über</span>
+                                                            </p>
+                                                            <ul>
+                                                                <li><span
+                                                                        style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Aufnahmebedingungen</span>
+                                                                </li>
+                                                                <li><span
+                                                                        style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Inhalt und Ablauf des Studiums oder Lehre</span>
+                                                                </li>
+                                                                <li><span
+                                                                        style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Studienfinanzierung</span>
+                                                                </li>
+                                                                <li><span
+                                                                        style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">derzeitige und zukünftige Chancen des jeweiligen Berufes auf dem Arbeitsmarkt.</span>
+                                                                </li>
+                                                            </ul>
+                                                            <p><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Zu Gast sind u. a. mit Informationsständen an unserer Schule folgende Einrichtungen:</span><span
+                                                                    style="font-family: arial,helvetica,sans-serif; font-size: 10pt;"> </span>
+                                                            </p>
+                                                            <table width="508">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Einrichtung</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Etage ggf. Zimmer</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Berufsberatung der Agentur für Arbeit</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">TU Dresden</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">TU Chemnitz</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">TU Bergakademie Freiberg</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">FH Mittweida</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">FH Meißen</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Work and Travel – Auslandspraktikum- Auslandsaufenthalt</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Westsächsische Hochschule (FH) Zwickau</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Eingangsbereich vor der Aula</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300"></td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;"> </span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Staatliche Studienakademie Glauchau</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Speiseraum</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Staatliche Studienakademie Gera-Eisenach</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Speiseraum</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Sparkasse Chemnitz</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Speiseraum</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Bundeswehr</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Speiseraum</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td width="300">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Bundesamt für Familie</span>
+                                                                        </p>
+                                                                    </td>
+                                                                    <td width="208">
+                                                                        <p><span
+                                                                                style="font-family: arial,helvetica,sans-serif; font-size: 10pt;">Speiseraum</span>
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p></p></div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <span class="row-separator"></span></div>
+                            <div class="items-row cols-1 row-1">
+                                <div class="item column-1">
+                                    <article class="dd-post">
+                                        <div class="dd-postmetadataheader"><h2 class="dd-postheader"><a
+                                                href="/index.php/23-lghe/schule/persons/schueler/328-mike-gewinnt-bei-jugend-forscht">Mike
+                                            gewinnt bei &quot;Jugend forscht&quot;</a></h2></div>
+                                        <div class="dd-postcontent clearfix">
+                                            <div class="dd-article">
+                                                <table border="1" width="100%">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td><img
+                                                                style="display: block; margin-left: auto; margin-right: auto;"
+                                                                src="/images/schule/2017/2017-03-jugend-forscht.jpg"
+                                                                alt="" width="515" height="668"/></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <span class="row-separator"></span></div>
+                            <div class="items-row cols-1 row-2">
+                                <div class="item column-1">
+                                    <article class="dd-post">
+                                        <div class="dd-postmetadataheader"><h2 class="dd-postheader"><a
+                                                href="/index.php/14-lghe/325-klasse-6a-spendet-fuer-krebskranke-kinder">Klasse
+                                            6a spendet für krebskranke Kinder</a></h2></div>
+                                        <div class="dd-postcontent clearfix">
+                                            <div class="dd-article">
+                                                <table border="1">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <center><img
+                                                                    style="display: block; margin-left: auto; margin-right: auto;"
+                                                                    src="/images/schule/2017/01-Krebs-1.jpg" alt=""
+                                                                    width="600" height="338"/></center>
+                                                            <p>Schon im vergangenen Schuljahr haben wir über eine
+                                                                Unterstützung bedürftiger Kinder gesprochen. Leider
+                                                                wurden wir im September in der eigenen Klasse von diesem
+                                                                Schicksal eingeholt. Eine unserer Mitschülerinnen ist an
+                                                                Krebs erkrankt. Wir versuchen stets guten Kontakt zu
+                                                                Leonie zu halten und sie freut sich über die wenige
+                                                                Zeit, die sie im Moment mit uns verbringen kann. So
+                                                                haben wir uns in großen Pausen auf unserem Schulhof
+                                                                getroffen oder sie hat an unserer Weihnachtsfeier
+                                                                teilgenommen.</p>
+                                                            <p>Traditionell haben wir im Dezember Weihnachtsplätzchen
+                                                                verkauft, dieses Mal organisiert durch die
+                                                                Elternsprecher im Finanzamt Hohenstein-Ernstthal. Vielen
+                                                                Dank für die nette Unterstützung!</p>
+                                                            <p>Gemeinsam haben alle Schüler unserer Klasse beschlossen,
+                                                                60 Prozent des Erlöses an den Elternverein krebskranker
+                                                                Kinder in Chemnitz zu spenden. Wir konnten <strong>134
+                                                                    Euro</strong> auf dessen Konto überweisen. Dieser
+                                                                Verein unterstützt mit den Spenden die schwere Zeit der
+                                                                Kinder und ihrer Familien während des Klinikaufenthaltes
+                                                                in Chemnitz. Er organisiert eine Weihnachtsfeier oder
+                                                                andere Höhepunkte für die Kinder und ihre Familien,
+                                                                kauft neue Spielzeuge und sorgt für viele kleine
+                                                                Abwechslungen im schweren Klinikalltag.</p>
+                                                            <p>Wir wünschen unserer Mitschülerin Leonie alles Gute und
+                                                                hoffen, dass sie bald wieder bei uns sein und gemeinsam
+                                                                mit uns lernen kann.</p>
+                                                            <p>Die Schüler der Klasse 6a, ihre Eltern sowie
+                                                                Klassenleiterin Frau Köhler.</p>
+                                                            <p style="text-align: center;"><img
+                                                                    src="/images/schule/2017/01-Krebs-2.jpg" width="600"
+                                                                    height="338"/></p>
+                                                            <p></p>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p></p></div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <span class="row-separator"></span></div>
+                            <div class="items-row cols-1 row-3">
+                                <div class="item column-1">
+                                    <article class="dd-post">
+                                        <div class="dd-postmetadataheader"><h2 class="dd-postheader"><a
+                                                href="/index.php/98-lghe/termine/events/323-besuch-eines-zeitzeugen-aus-der-ns-zeit">Besuch
+                                            eines Zeitzeugen aus der NS- Zeit</a></h2></div>
+                                        <div class="dd-postcontent clearfix">
+                                            <div class="dd-article"><p></p>
+                                                <table border="1">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <p>
+                                                                <img style="display: block; margin-left: auto; margin-right: auto;"
+                                                                     src="/images/schule/2016/2016-12-zeitzeuge/bild-2.jpg"
+                                                                     alt=""/></p>
+                                                            <table>
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td style="width: 10px;"><img
+                                                                            src="/images/schule/2016/2016-12-zeitzeuge/bild-1.jpg"
+                                                                            alt="" width="300" height="452"/></td>
+                                                                    <td>
+                                                                        <p></p>
+                                                                        <p></p>
+                                                                        <p>Am Freitag, dem 9. Dezember 2016, bekamen
+                                                                            wir, die Schüler des Grundkurses Geschichte
+                                                                            12, Besuch des Zeitzeugen Justin Sonder.
+                                                                            Herr Sonder ist ein Mann, der seine Jugend
+                                                                            in der NS - Zeit verbringen musste, das
+                                                                            Vernichtungslager Auschwitz und damit
+                                                                            zahlreiche Selektionen überlebte und stets
+                                                                            für Gerechtigkeit kämpft. Dies bewies er
+                                                                            auch als Zeuge bei Auschwitzprozessen bis in
+                                                                            die Gegenwart. Sein oberstes Ziel war dabei,
+                                                                            sich für die Aufklärung der Untaten in
+                                                                            dieser Zeit einzusetzen. Er wollte trotz der
+                                                                            grausamen Erlebnisse niemals Vergeltung,
+                                                                            sondern ein öffentliches Schuldbekenntnis,
+                                                                            um Gerechtigkeit zu erlangen.</p>
+                                                                        <p>Zunächst schauten wir einen Film, in dem Herr
+                                                                            Sonder über seine Erlebnisse in der
+                                                                            nationalsozialistischen Zeit erzählte. Dabei
+                                                                            hatte er seine persönlichen Erfahrungen in
+                                                                            den historischen Kontext eingebettet, womit
+                                                                            wir einen tiefen und berührenden Einblick in
+                                                                            diese Zeit bekamen. Nach diesem ergreifenden
+                                                                            Film hatten wir die Möglichkeit, Herrn
+                                                                            Sonder persönlich Fragen zu stellen. Er
+                                                                            beantwortete diese stets freundlich und
+                                                                            berichtete z.B. über die Kameradschaft unter
+                                                                            den Häftlingen, die unmenschlichen Taten der
+                                                                            SS – Männer, über den Alltag bzw. über die
+                                                                            Selektionen, von denen er 16 mehr oder
+                                                                            weniger durch Glück und Zufall überlebte,
+                                                                            aber auch über seinen weiteren Lebensweg
+                                                                            nach der Befreiung.</p>
+                                                                        <p>Die Art und Weise, wie er seine Erlebnisse
+                                                                            schildert und seine Einstellung gegenüber
+                                                                            dieser Zeit beeindruckte uns sehr. Dieses
+                                                                            Zeitzeugeninterview wird uns immer im
+                                                                            Gedächtnis bleiben, denn es war eine sehr
+                                                                            bewegende Erfahrung und wir sind sehr
+                                                                            dankbar dies erlebt haben zu dürfen.</p>
+                                                                        <p></p>
+                                                                        <p>GK Geschichte 12</p>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <span class="row-separator"></span></div>
+                            <div class="pagination"><p class="counter">Seite 1 von 10</p>
+                                <div class="dd-pager"><span class="active">Start</span><span
+                                        class="active">Zurück</span><span class="active">1</span><a
+                                        href="/index.php?start=5" class="">2</a><a href="/index.php?start=10"
+                                                                                   class="">3</a><a
+                                        href="/index.php?start=15" class="">4</a><a href="/index.php?start=20" class="">5</a><a
+                                        href="/index.php?start=25" class="">6</a><a href="/index.php?start=30" class="">7</a><a
+                                        href="/index.php?start=35" class="">8</a><a href="/index.php?start=40" class="">9</a><a
+                                        href="/index.php?start=45" class="">10</a><a title="Weiter"
+                                                                                     href="/index.php?start=5"
+                                                                                     class="hasTip ">Weiter</a><a
+                                        title="Ende" href="/index.php?start=45" class="hasTip ">Ende</a></div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="dd-footer">
+            <p><span style="color: rgb(64, 57, 48); font-size: 12px;">2017 Copyright G.-E.-Lessing-Gymnasium Hohenstein-Ernstthal Rights Reserved</span>
+            </p>
+        </footer>
+
+    </div>
+    <p class="dd-page-footer">
+        ﻿ </p>
+</div>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $(".myslider").slideshow({
+            width: 485,
+            height: 235
+
+        });
+    });
+</script>
+</body>
+</html>
