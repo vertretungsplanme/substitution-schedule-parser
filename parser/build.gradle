@@ -49,6 +49,7 @@ jacocoTestReport {
 ext {
     bintrayRepo = 'maven'
     bintrayName = 'substitution-schedule-parser'
+    bintrayOrg = 'vertretungsplanme'
 
     publishedGroupId = 'me.vertretungsplan'
     libraryName = 'Substitution schedule parser library'
