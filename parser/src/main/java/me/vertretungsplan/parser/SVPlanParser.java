@@ -129,59 +129,64 @@ public class SVPlanParser extends BaseParser {
 
     private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-        if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
+        if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
+                .startsWith("Vertretungsplan für "))) {
             setDate(svp, doc, day);
+            if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
 
-            Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
-            String lastLesson = "";
-            for (Element row : rows) {
-                if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
-                        || row.select("th").size() > 0 || row.text().trim().equals(""))
-                    continue;
-
-                Substitution substitution = new Substitution();
-
-                for (Element column : row.select("td")) {
-                    if (!hasData(column.text())) {
+                Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
+                String lastLesson = "";
+                for (Element row : rows) {
+                    if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
+                            || row.select("th").size() > 0 || row.text().trim().equals("")) {
                         continue;
                     }
-                    String type = column.className();
-                    if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
-                        substitution.setLesson(column.text());
-                        lastLesson = column.text();
-                    } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
-                        substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
-                                (PARAM_CLASS_SEPARATOR, ", "))));
-                    } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
-                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setPreviousTeacher(column.text());
-                    } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
-                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
-                            substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+
+                    Substitution substitution = new Substitution();
+
+                    for (Element column : row.select("td")) {
+                        if (!hasData(column.text())) {
+                            continue;
                         }
-                    } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
-                        substitution.setSubject(column.text());
-                    } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
-                        substitution.setDesc(column.text());
-                        String recognizedType = recognizeType(column.text());
-                        substitution.setType(recognizedType);
-                        substitution.setColor(colorProvider.getColor(recognizedType));
-                    } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
-                        substitution.setRoom(column.text());
+                        String type = column.className();
+                        if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
+                            substitution.setLesson(column.text());
+                            lastLesson = column.text();
+                        } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
+                            substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
+                                    (PARAM_CLASS_SEPARATOR, ", "))));
+                        } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setPreviousTeacher(column.text());
+                            }
+                        } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+                            }
+                        } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
+                            substitution.setSubject(column.text());
+                        } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
+                            substitution.setDesc(column.text());
+                            String recognizedType = recognizeType(column.text());
+                            substitution.setType(recognizedType);
+                            substitution.setColor(colorProvider.getColor(recognizedType));
+                        } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
+                            substitution.setRoom(column.text());
+                        }
+
+                        if (substitution.getLesson() == null) {
+                            substitution.setLesson(lastLesson);
+                        }
                     }
 
-                    if (substitution.getLesson() == null) {
-                        substitution.setLesson(lastLesson);
+                    if (substitution.getType() == null) {
+                        substitution.setType("Vertretung");
+                        substitution.setColor(colorProvider.getColor("Vertretung"));
                     }
-                }
 
-                if (substitution.getType() == null) {
-                    substitution.setType("Vertretung");
-                    substitution.setColor(colorProvider.getColor("Vertretung"));
+                    day.addSubstitution(substitution);
                 }
-
-                day.addSubstitution(substitution);
             }
-
             if (svp.select(".LehrerVerplant").size() > 0) {
                 day.addMessage("<b>Verplante Lehrer:</b> " + svp.select(".LehrerVerplant").text());
             }
@@ -207,11 +212,6 @@ public class SVPlanParser extends BaseParser {
                     }
                 }
             }
-
-            v.addDay(day);
-        } else if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
-                .startsWith("Vertretungsplan für ")) && svp.text().contains("Kein Vertretungsplan")) {
-            setDate(svp, doc, day);
             v.addDay(day);
         } else {
             throw new IOException("keine SVPlan-Tabelle gefunden");
