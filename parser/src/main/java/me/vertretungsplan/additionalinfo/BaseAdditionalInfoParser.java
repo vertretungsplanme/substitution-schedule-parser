@@ -7,9 +7,11 @@
  */
 package me.vertretungsplan.additionalinfo;
 
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilIcalParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
+import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
 import org.apache.http.client.fluent.Request;
@@ -44,8 +46,14 @@ public abstract class BaseAdditionalInfoParser {
             case "amgrottweil-messages-teacher":
                 parser = new AmgRottweilTeacherMessagesParser();
                 break;
+            case "amgrottweil-ical":
+                parser = new AmgRottweilIcalParser();
+                break;
             case "lsschleswig-rss":
                 parser = new LsSchleswigRSSParser();
+                break;
+            case "lsschleswig-ical":
+                parser = new LsSchleswigIcalParser();
                 break;
         }
         return parser;
