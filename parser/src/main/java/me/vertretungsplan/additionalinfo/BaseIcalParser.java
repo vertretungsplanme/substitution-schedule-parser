@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
-    private static final int MAX_ITEMS_COUNT = 20;
+    private static final int MAX_ITEMS_COUNT = 4;
 
     protected abstract String getIcalUrl();
 
