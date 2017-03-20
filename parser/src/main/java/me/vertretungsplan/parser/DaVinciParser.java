@@ -365,7 +365,7 @@ public class DaVinciParser extends BaseParser {
 
         for (Element p : doc.select(".row:has(h1.list-table-caption) p")) {
             for (TextNode node : p.textNodes()) {
-                if (!node.text().trim().isEmpty()) day.addMessage(node.text().trim());
+                if (!node.text().trim().isEmpty() && day != null) day.addMessage(node.text().trim());
             }
         }
         for (Element message : doc.select(".callout")) {
