@@ -78,7 +78,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             sslContext.init(null, trustManagers, null);
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                     sslContext,
-                    new String[]{"TLSv1"},
+                    new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
                     null,
                     new DefaultHostnameVerifier());
 
