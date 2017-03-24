@@ -99,7 +99,10 @@ public class UntisMonitorParser extends UntisCommonParser {
 
         for (int i = 0; i < urls.length(); i++) {
             JSONObject url = urls.getJSONObject(i);
-            loadUrl(url.getString(SUBPARAM_URL), encoding, url.getBoolean(SUBPARAM_FOLLOWING), docs);
+            final String urlStr = url.getString(SUBPARAM_URL);
+            for (String dateUrl : ParserUtils.handleUrlWithDateFormat(urlStr)) {
+                loadUrl(dateUrl, encoding, url.getBoolean(SUBPARAM_FOLLOWING), docs);
+            }
         }
 
         for (Document doc : docs) {
