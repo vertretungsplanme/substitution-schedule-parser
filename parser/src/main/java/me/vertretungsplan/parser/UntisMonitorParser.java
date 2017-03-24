@@ -94,7 +94,7 @@ public class UntisMonitorParser extends UntisCommonParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         JSONArray urls = scheduleData.getData().getJSONArray(PARAM_URLS);
-        String encoding = scheduleData.getData().getString(PARAM_ENCODING);
+        String encoding = scheduleData.getData().optString(PARAM_ENCODING, null);
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {

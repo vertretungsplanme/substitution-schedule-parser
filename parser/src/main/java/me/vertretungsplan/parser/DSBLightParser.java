@@ -213,7 +213,7 @@ public class DSBLightParser extends UntisCommonParser {
 
     private void parseDay(String url, Map<String, String> referer, SubstitutionSchedule schedule, String startUrl)
             throws IOException, JSONException, CredentialInvalidException {
-        String html = httpGet(url, data.getString(PARAM_ENCODING), referer);
+        String html = httpGet(url, data.optString(PARAM_ENCODING, null), referer);
         Document doc = Jsoup.parse(html);
         if (doc.title().toLowerCase().contains("untis")
                 || doc.html().toLowerCase().contains("untis") || doc.select(".mon_list").size() > 0) {

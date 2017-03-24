@@ -232,7 +232,7 @@ public class DSBMobileParser extends UntisCommonParser {
     private void loadScheduleFromUrl(SubstitutionSchedule v, String url, List<String> usedUrls)
             throws IOException, JSONException, CredentialInvalidException, IncompatibleScheduleException {
         usedUrls.add(url);
-        String html = httpGet(url, data.has(PARAM_ENCODING) ? data.getString(PARAM_ENCODING) : "UTF-8");
+        String html = httpGet(url, data.has(PARAM_ENCODING) ? data.optString(PARAM_ENCODING, null) : "UTF-8");
         Document doc = Jsoup.parse(html);
 
         if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")
