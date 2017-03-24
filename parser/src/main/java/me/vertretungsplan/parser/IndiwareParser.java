@@ -86,7 +86,7 @@ public class IndiwareParser extends BaseParser {
             throws IOException, JSONException, CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         JSONArray urls = data.getJSONArray(PARAM_URLS);
-        String encoding = data.getString(PARAM_ENCODING);
+        String encoding = data.optString(PARAM_ENCODING, null);
         List<String> docs = new ArrayList<>();
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);

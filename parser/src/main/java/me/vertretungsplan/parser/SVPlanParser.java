@@ -78,7 +78,7 @@ public class SVPlanParser extends BaseParser {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore); //
 
         JSONArray urls = data.getJSONArray(PARAM_URLS);
-        String encoding = data.getString(PARAM_ENCODING);
+        String encoding = data.optString(PARAM_ENCODING, null);
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {

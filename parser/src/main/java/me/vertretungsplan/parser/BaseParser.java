@@ -27,10 +27,12 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -60,12 +62,14 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected CookieStore cookieStore;
     protected ColorProvider colorProvider;
     protected CookieProvider cookieProvider;
+    protected UniversalDetector encodingDetector;
 
     BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
         this.cookieProvider = cookieProvider;
         this.cookieStore = new BasicCookieStore();
         this.colorProvider = new ColorProvider(scheduleData);
+        this.encodingDetector = new UniversalDetector(null);
 
         try {
             KeyStore ks = loadKeyStore();
@@ -259,13 +263,30 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
+        return executeRequest(encoding, request);
+    }
+
+    @Nullable private String executeRequest(String encoding, Request request)
+            throws IOException, CredentialInvalidException {
         try {
-            return new String(executor.execute(request).returnContent().asBytes(),
-                    encoding);
+            byte[] bytes = executor.execute(request).returnContent().asBytes();
+            encoding = getEncoding(encoding, bytes);
+            return new String(bytes, encoding);
         } catch (HttpResponseException e) {
             handleHttpResponseException(e);
             return null;
+        } finally {
+            encodingDetector.reset();
         }
+    }
+
+    @NotNull private String getEncoding(String defaultEncoding, byte[] bytes) {
+        encodingDetector.handleData(bytes, 0, bytes.length);
+        encodingDetector.dataEnd();
+        String encoding = encodingDetector.getDetectedCharset();
+        if (encoding == null) encoding = defaultEncoding;
+        if (encoding == null) encoding = "UTF-8";
+        return encoding;
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -284,13 +305,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        try {
-            return new String(executor.execute(request)
-                    .returnContent().asBytes(), encoding);
-        } catch (HttpResponseException e) {
-            handleHttpResponseException(e);
-            return null;
-        }
+        return executeRequest(encoding, request);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -309,13 +324,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        try {
-            return new String(executor.execute(request)
-                    .returnContent().asBytes(), encoding);
-        } catch (HttpResponseException e) {
-            handleHttpResponseException(e);
-            return null;
-        }
+        return executeRequest(encoding, request);
     }
 
     private void handleHttpResponseException(HttpResponseException e)

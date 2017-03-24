@@ -112,7 +112,7 @@ public class UntisInfoParser extends UntisCommonParser {
     private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
         if (navbarDoc == null) {
             String navbarUrl = baseUrl + "/frames/navbar.htm";
-            navbarDoc = httpGet(navbarUrl, data.getString(PARAM_ENCODING));
+            navbarDoc = httpGet(navbarUrl, data.optString(PARAM_ENCODING, null));
         }
         return navbarDoc;
     }
@@ -133,7 +133,7 @@ public class UntisInfoParser extends UntisCommonParser {
             lastChange = info.substring(info.indexOf("Stand:") + "Stand:".length()).trim();
         } catch (Exception e) {
             try {
-                String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.getString(PARAM_ENCODING));
+                String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.optString(PARAM_ENCODING, null));
                 Document infoDoc = Jsoup.parse(infoHtml);
                 String info2 = infoDoc.select(".description").text();
                 lastChange = info2.substring(info2.indexOf("Stand:") + "Stand:".length()).trim();
@@ -222,7 +222,7 @@ public class UntisInfoParser extends UntisCommonParser {
 
     private void parsePage(SubstitutionSchedule v, String lastChange, String klasse, String url, String weekName)
             throws IOException, CredentialInvalidException, JSONException {
-        Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+        Document doc = Jsoup.parse(httpGet(url, data.optString(PARAM_ENCODING, null)));
         switch (data.optString(PARAM_SCHEDULE_TYPE, "substitution")) {
             case "timetable":
                 parseTimetable(v, lastChange, doc, klasse, weekName);
