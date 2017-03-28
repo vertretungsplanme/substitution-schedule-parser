@@ -255,10 +255,10 @@ public abstract class UntisCommonParser extends BaseParser {
                                         handleRoom(v, spalte);
                                         break;
                                     case "teacher":
-                                        handleTeacher(v, spalte);
+                                        handleTeacher(v, spalte, data);
                                         break;
                                     case "previousTeacher":
-                                        v.setPreviousTeachers(splitTeachers(text));
+                                        v.setPreviousTeachers(splitTeachers(text, data));
                                         break;
                                     case "desc":
                                         v.setDesc(text);
@@ -398,10 +398,10 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setColor(colorProvider.getColor(recognizedType));
                             break;
                         case "teacher":
-                            handleTeacher(v, spalte);
+                            handleTeacher(v, spalte, data);
                             break;
                         case "previousTeacher":
-                            v.setPreviousTeachers(splitTeachers(text));
+                            v.setPreviousTeachers(splitTeachers(text, data));
                             break;
                         case "substitutionFrom":
                             v.setSubstitutionFrom(text);
@@ -542,20 +542,21 @@ public abstract class UntisCommonParser extends BaseParser {
         }
     }
 
-    private void handleTeacher(Substitution subst, Element cell) {
+    static void handleTeacher(Substitution subst, Element cell, JSONObject data) {
+        cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
-            subst.setPreviousTeachers(splitTeachers(cell.select("s").text()));
+            subst.setPreviousTeachers(splitTeachers(cell.select("s").text(), data));
             if (cell.ownText().length() > 0) {
-                subst.setTeachers(splitTeachers(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", "")));
+                subst.setTeachers(splitTeachers(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""), data));
             }
         } else {
-            subst.setTeachers(splitTeachers(cell.text()));
+            subst.setTeachers(splitTeachers(cell.text(), data));
         }
     }
 
-    private Set<String> splitTeachers(String s) {
+    private static Set<String> splitTeachers(String s, JSONObject data) {
         Set<String> teachers = new HashSet<>();
-        if (scheduleData.getData().optBoolean("splitTeachers", true)) {
+        if (data.optBoolean("splitTeachers", true)) {
             teachers.addAll(Arrays.asList(s.split(", ")));
         } else {
             teachers.add(s);
@@ -563,7 +564,8 @@ public abstract class UntisCommonParser extends BaseParser {
         return teachers;
     }
 
-    private void handleRoom(Substitution subst, Element cell) {
+    static void handleRoom(Substitution subst, Element cell) {
+        cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousRoom(cell.select("s").text());
             if (cell.ownText().length() > 0) {
@@ -574,7 +576,15 @@ public abstract class UntisCommonParser extends BaseParser {
         }
     }
 
-    private void handleSubject(Substitution subst, Element cell) {
+    private static Element getContentElement(Element cell) {
+        if (cell.ownText().isEmpty() && cell.select("> span").size() == 1) {
+            cell = cell.select("> span").first();
+        }
+        return cell;
+    }
+
+    static void handleSubject(Substitution subst, Element cell) {
+        cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousSubject(cell.select("s").text());
             if (cell.ownText().length() > 0) {
