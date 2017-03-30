@@ -34,10 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.universalchardet.UniversalDetector;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -56,6 +53,7 @@ import java.util.regex.Pattern;
  */
 public abstract class BaseParser implements SubstitutionScheduleParser {
     public static final String PARAM_CLASS_REGEX = "classRegex";
+    private static final String PARAM_SSL_HOSTNAME = "sslHostname";
     protected SubstitutionScheduleData scheduleData;
     protected Executor executor;
     protected Credential credential;
@@ -80,11 +78,18 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             TrustManager[] trustManagers = new TrustManager[]{multiTrustManager};
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagers, null);
+            final HostnameVerifier hostnameVerifier;
+
+            if (scheduleData.getData() != null && scheduleData.getData().has(PARAM_SSL_HOSTNAME)) {
+                hostnameVerifier = new CustomHostnameVerifier(scheduleData.getData().getString(PARAM_SSL_HOSTNAME));
+            } else {
+                hostnameVerifier = new DefaultHostnameVerifier();
+            }
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                     sslContext,
                     new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
                     null,
-                    new DefaultHostnameVerifier());
+                    hostnameVerifier);
 
             CloseableHttpClient httpclient = HttpClients.custom()
                     .setSSLSocketFactory(sslsf)
@@ -93,10 +98,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                             .setCookieSpec(CookieSpecs.STANDARD).build())
                     .build();
             this.executor = Executor.newInstance(httpclient).use(cookieStore);
-        } catch (GeneralSecurityException e) {
+        } catch (GeneralSecurityException | JSONException | IOException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -392,5 +395,20 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected List<String> getClassesFromJson() throws JSONException {
         final JSONObject data = scheduleData.getData();
         return ParserUtils.getClassesFromJson(data);
+    }
+
+    private class CustomHostnameVerifier implements HostnameVerifier {
+        private String host;
+        private DefaultHostnameVerifier defaultHostnameVerifier;
+
+        public CustomHostnameVerifier(String host) {
+            this.host = host;
+            this.defaultHostnameVerifier = new DefaultHostnameVerifier();
+        }
+
+        @Override public boolean verify(String s, SSLSession sslSession) {
+            return defaultHostnameVerifier.verify(host, sslSession) | defaultHostnameVerifier.verify(this.host,
+                    sslSession);
+        }
     }
 }
