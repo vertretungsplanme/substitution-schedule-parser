@@ -13,6 +13,8 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,11 +87,23 @@ public class SVPlanParser extends BaseParser {
             String url;
             if (urls.get(i) instanceof JSONObject) {
                 // backwards compatibility
-                url = urls.getJSONObject(i).getString("url");
+                final JSONObject obj = urls.getJSONObject(i);
+                url = obj.getString("url");
+                if (obj.has("postData")) {
+                    JSONObject postParams = obj.getJSONObject("postData");
+                    List<NameValuePair> nvps = new ArrayList<>();
+                    for (String name : JSONObject.getNames(postParams)) {
+                        String value = postParams.getString(name);
+                        nvps.add(new BasicNameValuePair(name, value));
+                    }
+                    docs.add(Jsoup.parse(httpPost(url, encoding, nvps).replace("&nbsp;", "")));
+                } else {
+                    docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                }
             } else {
                 url = urls.getString(i);
+                docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
             }
-            loadUrl(url, encoding, docs);
         }
 
         SubstitutionSchedule v = parseSVPlanSchedule(docs);
@@ -239,9 +253,7 @@ public class SVPlanParser extends BaseParser {
 
     private void loadUrl(String url, String encoding, List<Document> docs)
             throws IOException, CredentialInvalidException {
-        String html = httpGet(url, encoding).replace("&nbsp;", "");
-        Document doc = Jsoup.parse(html);
-        docs.add(doc);
+
     }
 
     public List<String> getAllClasses() throws JSONException {
