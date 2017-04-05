@@ -66,9 +66,11 @@ public class WebUntisParser extends BaseParser {
     public static final String PARAM_PROTOCOL = "protocol";
     private final JSONObject data;
     private String sessionId;
+    private UserData userData;
     private static final String USERAGENT = "vertretungsplan.me";
     private String sharedSecret;
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyyMMdd");
+    public static final DateTimeFormatter TIME_FORMAT = DateTimeFormat.forPattern("HHmm");
 
     WebUntisParser(SubstitutionScheduleData scheduleData,
                    CookieProvider cookieProvider) {
@@ -78,31 +80,165 @@ public class WebUntisParser extends BaseParser {
 
     @Override public SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException {
-        login();
-        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-        schedule.setLastChange(getLastImport());
+        try {
+            login();
+            SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
+            schedule.setLastChange(getLastImport());
 
-        TimeGrid timegrid = new TimeGrid(getTimeGrid());
+            TimeGrid timegrid = new TimeGrid(getTimeGrid());
+            final LocalDate today = LocalDate.now();
+            int daysToAdd = getDaysToAdd();
 
-        JSONArray holidays = getHolidays();
-        // find out if there's a holiday currently and if so, also display substitutions after it
-        int daysToAdd = 0;
-        LocalDate today = LocalDate.now();
-        for (int i = 0; i < holidays.length(); i++) {
-            LocalDate startDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
-                    ("startDate")));
-            LocalDate endDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
-                    ("endDate")));
-            if (!startDate.isAfter(today.plusDays(6)) && !endDate.isBefore(today)) {
-                if (startDate.isBefore(today)) {
-                    daysToAdd += Days.daysBetween(today, endDate).getDays() + 1;
-                } else {
-                    daysToAdd += Days.daysBetween(startDate, endDate).getDays() + 2;
+            final LocalDate endDate = today.plusDays(6 + daysToAdd);
+
+            try {
+                schedule = parseScheduleUsingSubstitutions(schedule, timegrid, today, endDate);
+            } catch (UnauthorizedException e) {
+                schedule = parseScheduleUsingTimetable(schedule, timegrid, today, endDate);
+            }
+
+            schedule.setClasses(toNamesList(getClasses()));
+            final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
+            schedule.setWebsite(protocol + data.getString(PARAM_HOST) + "/WebUntis");
+
+            try {
+                addMessagesOfDay(schedule);
+            } catch (UnauthorizedException ignored) {
+
+            }
+
+            logout();
+            return schedule;
+        } catch (UnauthorizedException e) {
+            throw new CredentialInvalidException();
+        }
+    }
+
+    private void addMessagesOfDay(SubstitutionSchedule schedule)
+            throws JSONException, CredentialInvalidException, IOException, UnauthorizedException {
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = LocalDate.now().plusDays(i);
+            JSONArray messages = getMessagesOfDay(date).getJSONObject("messageOfDayCollection")
+                    .getJSONArray("messages");
+            if (messages.length() > 0) {
+                SubstitutionScheduleDay day = getDayForDate(schedule, date);
+                for (int j = 0; j < messages.length(); j++) {
+                    day.addMessage(messages.getJSONObject(j).getString("text"));
                 }
             }
         }
+    }
 
-        JSONArray substitutions = getSubstitutions(today, today.plusDays(6 + daysToAdd));
+    /**
+     * find out if there's a holiday currently and if so, also display substitutions after it
+     *
+     * @return
+     * @throws JSONException
+     * @throws CredentialInvalidException
+     * @throws IOException
+     */
+    private int getDaysToAdd() throws JSONException, CredentialInvalidException, IOException {
+        final LocalDate today = LocalDate.now();
+        int daysToAdd = 0;
+        try {
+            //
+            JSONArray holidays = getHolidays();
+            for (int i = 0; i < holidays.length(); i++) {
+                LocalDate startDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
+                        ("startDate")));
+                LocalDate endDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
+                        ("endDate")));
+                if (!startDate.isAfter(today.plusDays(6)) && !endDate.isBefore(today)) {
+                    if (startDate.isBefore(today)) {
+                        daysToAdd += Days.daysBetween(today, endDate).getDays() + 1;
+                    } else {
+                        daysToAdd += Days.daysBetween(startDate, endDate).getDays() + 2;
+                    }
+                }
+            }
+        } catch (UnauthorizedException ignored) {
+
+        }
+        return daysToAdd;
+    }
+
+    private SubstitutionSchedule parseScheduleUsingTimetable(SubstitutionSchedule schedule, TimeGrid timegrid,
+                                                             LocalDate startDate,
+                                                             LocalDate endDate)
+            throws JSONException, UnauthorizedException, CredentialInvalidException, IOException {
+        try {
+            switch (scheduleData.getType()) {
+                case TEACHER:
+                    if (userData.getPersonType() != UserData.TYPE_TEACHER) {
+                        throw new CredentialInvalidException();
+                    }
+
+                    Map<Integer, String> teachers = idNameMap(getTeachers());
+                    for (Map.Entry<Integer, String> entry : teachers.entrySet()) {
+                        JSONArray json = getTimetable(startDate, endDate, new UserData(entry.getKey(), UserData
+                                .TYPE_TEACHER));
+                        parseTimetable(json, schedule, timegrid);
+                    }
+                    break;
+                case STUDENT:
+                    Map<Integer, String> classes = idNameMap(getClasses());
+                    for (Map.Entry<Integer, String> entry : classes.entrySet()) {
+                        JSONArray json = getTimetable(startDate, endDate, new UserData(entry.getKey(), UserData
+                                .TYPE_KLASSE));
+                        parseTimetable(json, schedule, timegrid);
+                    }
+                    break;
+            }
+        } catch (UnauthorizedException e) {
+            // access is only allowed for the own schedule
+            JSONArray json = getTimetable(startDate, endDate, userData);
+            parseTimetable(json, schedule, timegrid);
+        }
+
+        return schedule;
+    }
+
+    private void parseTimetable(JSONArray json, SubstitutionSchedule schedule, TimeGrid timegrid)
+            throws JSONException, CredentialInvalidException {
+        for (int i = 0; i < json.length(); i++) {
+            JSONObject lesson = json.getJSONObject(i);
+            if (!lesson.has("code")) continue;
+
+            Substitution subst = new Substitution();
+            subst.setType(codeToType(lesson.getString("code")));
+            subst.setColor(colorProvider.getColor(subst.getType()));
+
+            parseClasses(lesson, subst);
+            parseSubjects(lesson, subst);
+            parseRooms(lesson, subst);
+            parseTeachers(schedule, lesson, subst);
+
+            if (lesson.has("lstext") && lesson.has("substText")
+                    && !lesson.getString("lstext").equals(lesson.getString("substText"))) {
+                subst.setDesc(lesson.getString("lstext") + ", " + lesson.getString("substText"));
+            } else if (lesson.has("lstext")) {
+                subst.setDesc(lesson.getString("lstext"));
+            } else if (lesson.has("substText")) {
+                subst.setDesc(lesson.getString("substText"));
+            }
+
+            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(lesson.getInt("date")));
+            LocalTime start = TIME_FORMAT.parseLocalTime(getParseableTime(lesson.getInt("startTime")));
+            LocalTime end = TIME_FORMAT.parseLocalTime(getParseableTime(lesson.getInt("endTime")));
+
+            TimeGrid.Day timegridDay = timegrid.getDay(date.getDayOfWeek());
+            subst.setLesson(timegridDay != null ? timegridDay.getLesson(start, end) : "");
+
+            SubstitutionScheduleDay day = getDayForDate(schedule, date);
+            day.addSubstitution(subst);
+        }
+    }
+
+    @NotNull private SubstitutionSchedule parseScheduleUsingSubstitutions(SubstitutionSchedule schedule,
+                                                                          TimeGrid timegrid, LocalDate startDate,
+                                                                          LocalDate endDate)
+            throws CredentialInvalidException, IOException, JSONException, UnauthorizedException {
+        JSONArray substitutions = getSubstitutions(startDate, endDate);
 
         Map<LocalDate, SubstitutionScheduleDay> days = new HashMap<>();
 
@@ -116,163 +252,134 @@ public class WebUntisParser extends BaseParser {
                 substitution.setType(codeToType(substJson.getString("type")));
             }
             substitution.setColor(colorProvider.getColor(substitution.getType()));
-
-            Set<String> cls = new HashSet<>();
-            JSONArray classesJson = substJson.getJSONArray("kl");
-            for (int k = 0; k < classesJson.length(); k++) {
-                cls.add(classesJson.getJSONObject(k).getString("name"));
-            }
-            substitution.setClasses(cls);
-
-            JSONArray subjectsJson = substJson.getJSONArray("su");
-            String subject = null;
-            for (int k = 0; k < subjectsJson.length(); k++) {
-                JSONObject subjectJson = subjectsJson.getJSONObject(k);
-                if (subjectJson.has("name")) {
-                    if (subject == null) {
-                        subject = subjectJson.getString("name");
-                    } else {
-                        subject += ", " + subjectJson.getString("name");
-                    }
-                }
-            }
-            substitution.setSubject(subject);
-
-            JSONArray roomsJson = substJson.getJSONArray("ro");
-            String room = null;
-            String previousRoom = null;
-            for (int k = 0; k < roomsJson.length(); k++) {
-                JSONObject roomJson = roomsJson.getJSONObject(k);
-                if (roomJson.has("name")) {
-                    if (room == null) {
-                        room = roomJson.getString("name");
-                    } else {
-                        room += ", " + roomJson.getString("name");
-                    }
-                }
-                if (roomJson.has("orgname")) {
-                    if (previousRoom == null) {
-                        previousRoom = roomJson.getString("orgname");
-                    } else {
-                        previousRoom += ", " + roomJson.getString("orgname");
-                    }
-                }
-            }
-            substitution.setRoom(room);
-            substitution.setPreviousRoom(previousRoom);
-
-            JSONArray teachersJson = substJson.getJSONArray("te");
-            Set<String> teachers = new HashSet<>();
-            Set<String> previousTeachers = new HashSet<>();
-            for (int k = 0; k < teachersJson.length(); k++) {
-                JSONObject teacherJson = teachersJson.getJSONObject(k);
-
-                if (schedule.getType().equals(SubstitutionSchedule.Type.TEACHER) && !teacherJson.has("orgname") &&
-                        !teacherJson.has("name")) {
-                    // cannot access teacher names
-                    throw new CredentialInvalidException();
-                }
-
-                if (teacherJson.has("name")) {
-                    teachers.add(teacherJson.getString("name"));
-                }
-                if (teacherJson.has("orgname")) {
-                    previousTeachers.add(teacherJson.getString("orgname"));
-                }
-            }
-            substitution.setTeachers(teachers);
-            substitution.setPreviousTeachers(previousTeachers);
+            parseClasses(substJson, substitution);
+            parseSubjects(substJson, substitution);
+            parseRooms(substJson, substitution);
+            parseTeachers(schedule, substJson, substitution);
 
             substitution.setDesc(substJson.optString("txt"));
 
-            DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HHmm");
-
             LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(substJson.getInt("date")));
-            LocalTime start = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("startTime")));
-            LocalTime end = timeFormat.parseLocalTime(getParseableTime(substJson.getInt("endTime")));
+            LocalTime start = TIME_FORMAT.parseLocalTime(getParseableTime(substJson.getInt("startTime")));
+            LocalTime end = TIME_FORMAT.parseLocalTime(getParseableTime(substJson.getInt("endTime")));
 
             TimeGrid.Day timegridDay = timegrid.getDay(date.getDayOfWeek());
             substitution.setLesson(timegridDay != null ? timegridDay.getLesson(start, end) : "");
 
-            SubstitutionScheduleDay day = getDayForDate(schedule, days, date);
-
+            SubstitutionScheduleDay day = getDayForDate(schedule, date);
             day.addSubstitution(substitution);
         }
 
-        schedule.setClasses(toNamesList(getClasses()));
-        final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
-        schedule.setWebsite(protocol + data.getString(PARAM_HOST) + "/WebUntis");
-
-        logout();
-
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
-            JSONArray messages = getMessagesOfDay(date).getJSONObject("messageOfDayCollection")
-                    .getJSONArray("messages");
-            if (messages.length() > 0) {
-                SubstitutionScheduleDay day = getDayForDate(schedule, days, date);
-                for (int j = 0; j < messages.length(); j++) {
-                    day.addMessage(messages.getJSONObject(j).getString("text"));
-                }
-            }
-        }
         return schedule;
     }
 
+    private void parseTeachers(SubstitutionSchedule schedule, JSONObject substJson, Substitution substitution)
+            throws JSONException, CredentialInvalidException {
+        if (!substJson.has("te")) return;
+
+        JSONArray teachersJson = substJson.getJSONArray("te");
+        Set<String> teachers = new HashSet<>();
+        Set<String> previousTeachers = new HashSet<>();
+        for (int k = 0; k < teachersJson.length(); k++) {
+            JSONObject teacherJson = teachersJson.getJSONObject(k);
+
+            if (schedule.getType().equals(SubstitutionSchedule.Type.TEACHER) && !teacherJson.has("orgname") &&
+                    !teacherJson.has("name")) {
+                // cannot access teacher names
+                throw new CredentialInvalidException();
+            }
+
+            if (teacherJson.has("name")) {
+                teachers.add(teacherJson.getString("name"));
+            }
+            if (teacherJson.has("orgname")) {
+                previousTeachers.add(teacherJson.getString("orgname"));
+            }
+        }
+        substitution.setTeachers(teachers);
+        substitution.setPreviousTeachers(previousTeachers);
+    }
+
+    private void parseRooms(JSONObject substJson, Substitution substitution) throws JSONException {
+        JSONArray roomsJson = substJson.getJSONArray("ro");
+        StringBuilder room = null;
+        StringBuilder previousRoom = null;
+        for (int k = 0; k < roomsJson.length(); k++) {
+            JSONObject roomJson = roomsJson.getJSONObject(k);
+            if (roomJson.has("name")) {
+                if (room == null) {
+                    room = new StringBuilder(roomJson.getString("name"));
+                } else {
+                    room.append(", ").append(roomJson.getString("name"));
+                }
+            }
+            if (roomJson.has("orgname")) {
+                if (previousRoom == null) {
+                    previousRoom = new StringBuilder(roomJson.getString("orgname"));
+                } else {
+                    previousRoom.append(", ").append(roomJson.getString("orgname"));
+                }
+            }
+        }
+        substitution.setRoom(room != null ? room.toString() : null);
+        substitution.setPreviousRoom(previousRoom != null ? previousRoom.toString() : null);
+    }
+
+    private void parseSubjects(JSONObject substJson, Substitution substitution) throws JSONException {
+        JSONArray subjectsJson = substJson.getJSONArray("su");
+        StringBuilder subject = null;
+        for (int k = 0; k < subjectsJson.length(); k++) {
+            JSONObject subjectJson = subjectsJson.getJSONObject(k);
+            if (subjectJson.has("name")) {
+                if (subject == null) {
+                    subject = new StringBuilder(subjectJson.getString("name"));
+                } else {
+                    subject.append(", ").append(subjectJson.getString("name"));
+                }
+            }
+        }
+        substitution.setSubject(subject != null ? subject.toString() : null);
+    }
+
+    private void parseClasses(JSONObject substJson, Substitution substitution) throws JSONException {
+        Set<String> cls = new HashSet<>();
+        JSONArray classesJson = substJson.getJSONArray("kl");
+        for (int k = 0; k < classesJson.length(); k++) {
+            cls.add(classesJson.getJSONObject(k).getString("name"));
+        }
+        substitution.setClasses(cls);
+    }
+
     @NotNull private static SubstitutionScheduleDay getDayForDate(SubstitutionSchedule schedule,
-                                                                  Map<LocalDate, SubstitutionScheduleDay> days,
                                                                   LocalDate date) {
-        SubstitutionScheduleDay day = days.get(date);
+        SubstitutionScheduleDay day = null;
+        for (SubstitutionScheduleDay currentDay : schedule.getDays()) {
+            if (currentDay.getDate().equals(date)) {
+                day = currentDay;
+                break;
+            }
+        }
         if (day == null) {
             day = new SubstitutionScheduleDay();
             day.setDate(date);
             schedule.addDay(day);
-            days.put(date, day);
         }
         return day;
     }
 
-    private JSONObject getMessagesOfDay(LocalDate date) throws JSONException, CredentialInvalidException, IOException {
-        // messages only seem to work if they are set as "public" in WebUntis.
-        loginInternal();
-        JSONObject params = new JSONObject();
-        params.put("date", date.toString());
-        return (JSONObject) request("getMessagesOfDay", params, true);
-    }
-
-    private JSONArray getSubstitutions(LocalDate start, LocalDate end)
-            throws CredentialInvalidException, IOException, JSONException {
-        JSONObject params = new JSONObject();
-        params.put("startDate", DATE_FORMAT.print(start));
-        params.put("endDate", DATE_FORMAT.print(end));
-        params.put("departmentId", 0);
-        return (JSONArray) request("getSubstitutions", params);
-    }
-
-    private JSONArray getTimeGrid() throws JSONException, CredentialInvalidException, IOException {
-        return (JSONArray) request("getTimegridUnits");
-    }
-
-    private JSONArray getHolidays() throws JSONException, CredentialInvalidException, IOException {
-        return (JSONArray) request("getHolidays");
-    }
-
-    private LocalDateTime getLastImport() throws JSONException, CredentialInvalidException, IOException {
-        return new LocalDateTime(request("getLatestImportTime"));
-    }
-
     @NotNull
-    private Map<String, String> idNameMap(JSONArray subjects) throws JSONException {
-        Map<String, String> subjectsMap = new HashMap<>();
+    private Map<Integer, String> idNameMap(JSONArray subjects) throws JSONException {
+        Map<Integer, String> subjectsMap = new HashMap<>();
         for (int i = 0; i < subjects.length(); i++) {
             JSONObject subject = subjects.getJSONObject(i);
-            subjectsMap.put(subject.getString("id"), subject.getString("name"));
+            subjectsMap.put(subject.getInt("id"), subject.getString("name"));
         }
         return subjectsMap;
     }
 
     private String codeToType(String code) {
         switch (code) {
+            // for getSubstitutions
             case "cancel":
                 return "Entfall";
             case "subst":
@@ -286,6 +393,11 @@ public class WebUntisParser extends BaseParser {
                 return "Verlegung";
             case "free":
                 return "Freisetzung";
+            // for getTimetable
+            case "irregular":
+                return "Vertretung";
+            case "cancelled":
+                return "Entfall";
             default:
                 System.err.println("unknown type: " + code);
                 return code;
@@ -293,121 +405,25 @@ public class WebUntisParser extends BaseParser {
     }
 
     @Override public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
-        login();
-        List<String> classes = toNamesList(getClasses());
-        logout();
-        return classes;
-    }
-
-    @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
-        login();
-        List<String> teachers = toNamesList(getTeachers());
-        logout();
-        return teachers;
-    }
-
-    private void login() throws JSONException, IOException, CredentialInvalidException {
-        if (sessionId != null) return;
-
-        JSONObject params = new JSONObject();
-        params.put("user", ((UserPasswordCredential) credential).getUsername());
-        params.put("password", ((UserPasswordCredential) credential).getPassword());
-        params.put("client", USERAGENT);
-        JSONObject response = (JSONObject) request("authenticate", params);
-        if (response.has("sessionId")) {
-            sessionId = response.getString("sessionId");
-        } else {
+        try {
+            login();
+            List<String> classes = toNamesList(getClasses());
+            logout();
+            return classes;
+        } catch (UnauthorizedException e) {
             throw new CredentialInvalidException();
         }
     }
 
-    private void logout() throws IOException, JSONException, CredentialInvalidException {
-        request("logout");
-        sessionId = null;
-    }
-
-    private JSONArray getClasses() throws IOException, JSONException, CredentialInvalidException {
-        return (JSONArray) request("getKlassen");
-    }
-
-    private JSONArray getTeachers() throws IOException, JSONException, CredentialInvalidException {
-        return (JSONArray) request("getTeachers");
-    }
-
-    @NotNull private List<String> toNamesList(JSONArray classesJson) throws JSONException {
-        List<String> classes = new ArrayList<>();
-        for (int i = 0; i < classesJson.length(); i++) {
-            classes.add(classesJson.getJSONObject(i).getString("name"));
+    @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
+        try {
+            login();
+            List<String> teachers = toNamesList(getTeachers());
+            logout();
+            return teachers;
+        } catch (UnauthorizedException e) {
+            throw new CredentialInvalidException();
         }
-        return classes;
-    }
-
-    private Object request(String method) throws IOException, JSONException, CredentialInvalidException {
-        return request(method, new JSONObject());
-    }
-
-    private Object request(String method, @NotNull JSONObject params)
-            throws JSONException, IOException, CredentialInvalidException {
-        return request(method, params, false);
-    }
-
-    private Object request(String method, @NotNull JSONObject params, boolean internal)
-            throws JSONException, IOException, CredentialInvalidException {
-        String host = data.getString(PARAM_HOST);
-        String school = data.getString(PARAM_SCHOOLNAME);
-
-        final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
-        String url = protocol + host + "/WebUntis/jsonrpc" + (internal ? "_intern" : "") + ".do?school=" +
-                URLEncoder.encode(school, "UTF-8");
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("User-Agent", USERAGENT);
-
-        if (internal && !method.equals("getAppSharedSecret")) {
-            JSONObject auth = new JSONObject();
-            long time = System.currentTimeMillis();
-            auth.put("user", ((UserPasswordCredential) credential).getUsername());
-            try {
-                auth.put("otp", authCodeInternal(time));
-            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-                throw new IOException(e);
-            }
-            auth.put("clientTime", time);
-            params.put("auth", auth);
-        }
-
-        JSONObject body = new JSONObject();
-        body.put("id", ISODateTimeFormat.dateTime().print(DateTime.now()));
-        body.put("method", method);
-        if (internal) {
-            JSONArray paramsArray = new JSONArray();
-            paramsArray.put(params);
-            body.put("params", paramsArray);
-        } else {
-            body.put("params", params);
-        }
-        body.put("jsonrpc", "2.0");
-
-        JSONObject response = new JSONObject(
-                httpPost(url, "UTF-8", body.toString(), ContentType.APPLICATION_JSON, headers));
-        if (!response.getString("id").equals(body.getString("id"))) {
-            throw new IOException("wrong id returned by API");
-        } else if (!response.has("result")) {
-            JSONObject error = response.getJSONObject("error");
-            switch (error.getInt("code")) {
-                case -32601:
-                    throw new IOException("Method not found");
-                case -8504: // wrong password
-                case -8998: // user temporarily blocked
-                case -8502: // no username specified
-                    throw new CredentialInvalidException();
-                case -8520:
-                    throw new IOException("not logged in");
-                default:
-                    throw new IOException(error.toString());
-            }
-        }
-        return response.get("result");
     }
 
     private class TimeGrid {
@@ -465,7 +481,95 @@ public class WebUntisParser extends BaseParser {
         return String.format("%04d", value);
     }
 
-    private void loginInternal() throws JSONException, IOException, CredentialInvalidException {
+    @Override public boolean isPersonal() {
+        return true;
+    }
+
+    // ---------------
+    // | API methods |
+    // ---------------
+
+    private JSONObject getMessagesOfDay(LocalDate date)
+            throws JSONException, CredentialInvalidException, IOException, UnauthorizedException {
+        // messages only seem to work if they are set as "public" in WebUntis.
+        loginInternal();
+        JSONObject params = new JSONObject();
+        params.put("date", date.toString());
+        return (JSONObject) request("getMessagesOfDay", params, true);
+    }
+
+    private JSONArray getSubstitutions(LocalDate start, LocalDate end)
+            throws CredentialInvalidException, IOException, JSONException, UnauthorizedException {
+        JSONObject params = new JSONObject();
+        params.put("startDate", DATE_FORMAT.print(start));
+        params.put("endDate", DATE_FORMAT.print(end));
+        params.put("departmentId", 0);
+        return (JSONArray) request("getSubstitutions", params);
+    }
+
+    private JSONArray getTimetable(LocalDate start, LocalDate end, UserData userData)
+            throws CredentialInvalidException, IOException, JSONException, UnauthorizedException {
+        JSONObject params = new JSONObject();
+        JSONObject options = new JSONObject();
+        options.put("startDate", DATE_FORMAT.print(start));
+        options.put("endDate", DATE_FORMAT.print(end));
+        options.put("showBooking", true);
+        options.put("showInfo", true);
+        options.put("showSubstText", true);
+        options.put("showLsText", true);
+        options.put("showLsNumber", true);
+        options.put("showStudentgroup", true);
+
+        JSONArray fields = new JSONArray();
+        fields.put("name");
+        fields.put("longname");
+        fields.put("id");
+        options.put("klasseFields", fields);
+        options.put("roomFields", fields);
+        options.put("subjectFields", fields);
+        options.put("teacherFields", fields);
+
+        JSONObject element = new JSONObject();
+        element.put("id", userData.getPersonId());
+        element.put("type", userData.getPersonType());
+        options.put("element", element);
+
+        params.put("options", options);
+        return (JSONArray) request("getTimetable", params);
+    }
+
+    private JSONArray getTimeGrid() throws JSONException, CredentialInvalidException, IOException,
+            UnauthorizedException {
+        return (JSONArray) request("getTimegridUnits");
+    }
+
+    private JSONArray getHolidays() throws JSONException, CredentialInvalidException, IOException,
+            UnauthorizedException {
+        return (JSONArray) request("getHolidays");
+    }
+
+    private LocalDateTime getLastImport()
+            throws JSONException, CredentialInvalidException, IOException, UnauthorizedException {
+        return new LocalDateTime(request("getLatestImportTime"));
+    }
+
+    private void login() throws JSONException, IOException, CredentialInvalidException, UnauthorizedException {
+        if (sessionId != null && userData != null) return;
+
+        JSONObject params = new JSONObject();
+        params.put("user", ((UserPasswordCredential) credential).getUsername());
+        params.put("password", ((UserPasswordCredential) credential).getPassword());
+        params.put("client", USERAGENT);
+        JSONObject response = (JSONObject) request("authenticate", params);
+        if (response.has("sessionId")) {
+            sessionId = response.getString("sessionId");
+            userData = new UserData(response.getInt("personId"), response.getInt("personType"));
+        } else {
+            throw new CredentialInvalidException();
+        }
+    }
+
+    private void loginInternal() throws JSONException, IOException, CredentialInvalidException, UnauthorizedException {
         if (sharedSecret != null) return;
 
         JSONObject params = new JSONObject();
@@ -473,6 +577,101 @@ public class WebUntisParser extends BaseParser {
         params.put("password", ((UserPasswordCredential) credential).getPassword());
         params.put("client", USERAGENT);
         sharedSecret = (String) request("getAppSharedSecret", params, true);
+    }
+
+    private void logout() throws IOException, JSONException, CredentialInvalidException, UnauthorizedException {
+        request("logout");
+        sessionId = null;
+        userData = null;
+    }
+
+    private JSONArray getClasses() throws IOException, JSONException, CredentialInvalidException,
+            UnauthorizedException {
+        return (JSONArray) request("getKlassen");
+    }
+
+    private JSONArray getTeachers() throws IOException, JSONException, CredentialInvalidException,
+            UnauthorizedException {
+        return (JSONArray) request("getTeachers");
+    }
+
+    @NotNull private List<String> toNamesList(JSONArray classesJson) throws JSONException {
+        List<String> classes = new ArrayList<>();
+        for (int i = 0; i < classesJson.length(); i++) {
+            classes.add(classesJson.getJSONObject(i).getString("name"));
+        }
+        return classes;
+    }
+
+    private Object request(String method)
+            throws IOException, JSONException, CredentialInvalidException, UnauthorizedException {
+        return request(method, new JSONObject());
+    }
+
+    private Object request(String method, @NotNull JSONObject params)
+            throws JSONException, IOException, CredentialInvalidException, UnauthorizedException {
+        return request(method, params, false);
+    }
+
+    private Object request(String method, @NotNull JSONObject params, boolean internal)
+            throws JSONException, IOException, CredentialInvalidException, UnauthorizedException {
+        String host = data.getString(PARAM_HOST);
+        String school = data.getString(PARAM_SCHOOLNAME);
+
+        final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
+        String url = protocol + host + "/WebUntis/jsonrpc" + (internal ? "_intern" : "") + ".do?school=" +
+                URLEncoder.encode(school, "UTF-8");
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", USERAGENT);
+
+        if (internal && !method.equals("getAppSharedSecret")) {
+            JSONObject auth = new JSONObject();
+            long time = System.currentTimeMillis();
+            auth.put("user", ((UserPasswordCredential) credential).getUsername());
+            try {
+                auth.put("otp", authCodeInternal(time));
+            } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+                throw new IOException(e);
+            }
+            auth.put("clientTime", time);
+            params.put("auth", auth);
+        }
+
+        JSONObject body = new JSONObject();
+        body.put("id", ISODateTimeFormat.dateTime().print(DateTime.now()));
+        body.put("method", method);
+        if (internal) {
+            JSONArray paramsArray = new JSONArray();
+            paramsArray.put(params);
+            body.put("params", paramsArray);
+        } else {
+            body.put("params", params);
+        }
+        body.put("jsonrpc", "2.0");
+
+        JSONObject response = new JSONObject(
+                httpPost(url, "UTF-8", body.toString(), ContentType.APPLICATION_JSON, headers));
+        if (!response.getString("id").equals(body.getString("id"))) {
+            throw new IOException("wrong id returned by API");
+        } else if (!response.has("result")) {
+            JSONObject error = response.getJSONObject("error");
+            switch (error.getInt("code")) {
+                case -32601:
+                    throw new IOException("Method not found");
+                case -8504: // wrong password
+                case -8998: // user temporarily blocked
+                case -8502: // no username specified
+                    throw new CredentialInvalidException();
+                case -8520:
+                    throw new IOException("not logged in");
+                case -8509:
+                    throw new UnauthorizedException();
+                default:
+                    throw new IOException(error.toString());
+            }
+        }
+        return response.get("result");
     }
 
     private int authCodeInternal(long time) throws NoSuchAlgorithmException, InvalidKeyException {
@@ -500,5 +699,35 @@ public class WebUntisParser extends BaseParser {
             truncatedHash = (truncatedHash << 8) | ((long) (hash[offset + i2] & 255));
         }
         return (int) ((truncatedHash & 2147483647L) % 1000000);
+    }
+
+    /**
+     * Thrown when the user does not have the rights to execute an API call
+     */
+    private class UnauthorizedException extends Throwable {
+    }
+
+    private class UserData {
+        public static final int TYPE_KLASSE = 1;
+        public static final int TYPE_TEACHER = 2;
+        public static final int TYPE_SUBJECT = 3;
+        public static final int TYPE_ROOM = 4;
+        public static final int TYPE_STUDENT = 5;
+
+        public UserData(int personId, int personType) {
+            this.personId = personId;
+            this.personType = personType;
+        }
+
+        private int personId;
+        private int personType;
+
+        public int getPersonId() {
+            return personId;
+        }
+
+        public int getPersonType() {
+            return personType;
+        }
     }
 }
