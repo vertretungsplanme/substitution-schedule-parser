@@ -211,15 +211,6 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return false;
     }
 
-    /**
-     * Downloads and parses the substitution schedule
-     *
-     * @return the parsed {@link SubstitutionSchedule}
-     * @throws IOException Connection or parsing error
-     * @throws JSONException Error with the JSON configuration
-     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
-     * not correct
-     */
     public abstract SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException;
 
@@ -412,13 +403,6 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    /**
-     * Some substitution schedule systems allow the user to only see his "own" substitution schedule depending on the
-     * credentials he enters. If this is the case - i.e. the parser can return different schedules depending on the
-     * credentials - this function should be overridden to return <code>true</code>.
-     *
-     * @return whether this parser returns personal schedules
-     */
     public boolean isPersonal() {
         return false;
     }
