@@ -110,7 +110,7 @@ public class WebUntisParser extends BaseParser {
             logout();
             return schedule;
         } catch (UnauthorizedException e) {
-            throw new CredentialInvalidException();
+            throw new IOException(e);
         }
     }
 
@@ -190,9 +190,16 @@ public class WebUntisParser extends BaseParser {
                     break;
             }
         } catch (UnauthorizedException e) {
-            // access is only allowed for the own schedule
-            JSONArray json = getTimetable(startDate, endDate, userData);
-            parseTimetable(json, schedule, timegrid);
+            try {
+                // access is only allowed for the own schedule
+                JSONArray json = getTimetable(startDate, endDate, userData);
+                parseTimetable(json, schedule, timegrid);
+            } catch (UnauthorizedException e1) {
+                if (schedule.getType() != SubstitutionSchedule.Type.STUDENT || userData.klasseId == null) throw e1;
+                JSONArray json = getTimetable(startDate, endDate, new UserData(userData.klasseId, UserData
+                        .TYPE_KLASSE));
+                parseTimetable(json, schedule, timegrid);
+            }
         }
 
         return schedule;
@@ -563,7 +570,9 @@ public class WebUntisParser extends BaseParser {
         JSONObject response = (JSONObject) request("authenticate", params);
         if (response.has("sessionId")) {
             sessionId = response.getString("sessionId");
-            userData = new UserData(response.getInt("personId"), response.getInt("personType"));
+            final int klasseId = response.optInt("klasseId", -1);
+            userData = new UserData(response.getInt("personId"), response.getInt("personType"),
+                    klasseId == -1 ? null : klasseId);
         } else {
             throw new CredentialInvalidException();
         }
@@ -717,10 +726,18 @@ public class WebUntisParser extends BaseParser {
         public UserData(int personId, int personType) {
             this.personId = personId;
             this.personType = personType;
+            this.klasseId = null;
+        }
+
+        public UserData(int personId, int personType, int klasseId) {
+            this.personId = personId;
+            this.personType = personType;
+            this.klasseId = klasseId;
         }
 
         private int personId;
         private int personType;
+        private Integer klasseId;
 
         public int getPersonId() {
             return personId;
@@ -728,6 +745,10 @@ public class WebUntisParser extends BaseParser {
 
         public int getPersonType() {
             return personType;
+        }
+
+        public int getKlasseId() {
+            return klasseId;
         }
     }
 }
