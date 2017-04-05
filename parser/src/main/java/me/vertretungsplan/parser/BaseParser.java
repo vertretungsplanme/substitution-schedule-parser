@@ -411,4 +411,15 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                     sslSession);
         }
     }
+
+    /**
+     * Some substitution schedule systems allow the user to only see his "own" substitution schedule depending on the
+     * credentials he enters. If this is the case - i.e. the parser can return different schedules depending on the
+     * credentials - this function should be overridden to return <code>true</code>.
+     *
+     * @return whether this parser returns personal schedules
+     */
+    public boolean isPersonal() {
+        return false;
+    }
 }
