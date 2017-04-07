@@ -209,10 +209,14 @@ public class WebUntisParser extends BaseParser {
             throws JSONException, CredentialInvalidException {
         for (int i = 0; i < json.length(); i++) {
             JSONObject lesson = json.getJSONObject(i);
-            if (!lesson.has("code")) continue;
+            if (!lesson.has("code") && !lesson.has("substText")) continue;
 
             Substitution subst = new Substitution();
-            subst.setType(codeToType(lesson.getString("code")));
+            if (lesson.has("code")) {
+                subst.setType(codeToType(lesson.getString("code")));
+            } else {
+                subst.setType("Vertretung");
+            }
             subst.setColor(colorProvider.getColor(subst.getType()));
 
             parseClasses(lesson, subst);
