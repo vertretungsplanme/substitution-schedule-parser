@@ -251,6 +251,9 @@ public class DSBMobileParser extends UntisCommonParser {
                 DaVinciParser.parseDaVinciTable(tables.get(i), v, day, colorProvider);
                 v.addDay(day);
             }
+        } else if (doc.select(".tdaktionen").size() > 0
+                || data.optString(PARAM_TYPE, "").equals("indiware")) {
+            new IndiwareParser(scheduleData, cookieProvider).parseIndiwarePage(v, doc.html());
         } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
             return;
         } else {
