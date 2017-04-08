@@ -69,6 +69,7 @@ public class IndiwareParser extends BaseParser {
 
     private static final int MAX_DAYS = 7;
 
+    static final Pattern datePattern = Pattern.compile("\\w+, \\d\\d?\\. \\w+ \\d{4}");
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
     static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) (.+) (verlegt nach .*)");
@@ -252,7 +253,7 @@ public class IndiwareParser extends BaseParser {
         }
     }
 
-    SubstitutionScheduleDay parseIndiwareDay(Element doc, boolean html) {
+    SubstitutionScheduleDay parseIndiwareDay(Element doc, boolean html) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         DataSource ds;
@@ -262,7 +263,10 @@ public class IndiwareParser extends BaseParser {
             ds = new XMLDataSource(doc);
         }
 
-        String date = ds.titel().text().replaceAll("\\(\\w-Woche\\)", "").trim();
+
+        Matcher matcher = datePattern.matcher(ds.titel().text());
+        if (!matcher.find()) throw new IOException("malformed date: " + ds.titel().text());
+        String date = matcher.group();
         day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
                 .withLocale(Locale.GERMAN).parseLocalDate(date));
 
