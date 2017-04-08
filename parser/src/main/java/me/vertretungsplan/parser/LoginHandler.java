@@ -177,15 +177,23 @@ public class LoginHandler {
                 String postUrl = loginConfig.getString(PARAM_URL);
                 JSONObject loginData = loginConfig.getJSONObject(PARAM_DATA);
                 List<NameValuePair> nvps = new ArrayList<>();
+
+                String typo3Challenge = null;
+
+                if (loginData.has("_hiddeninputs") && preDoc != null) {
+                    for (Element hidden : preDoc.select(loginData.getString("_hiddeninputs") +
+                            " input[type=hidden]")) {
+                        nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
+                        if (hidden.attr("name").equals("challenge")) {
+                            typo3Challenge = hidden.attr("value");
+                        }
+                    }
+                }
+
                 for (String name : JSONObject.getNames(loginData)) {
                     String value = loginData.getString(name);
 
-                    if (name.equals("_hiddeninputs")) {
-                        for (Element hidden : preDoc.select(value + " input[type=hidden]")) {
-                            nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
-                        }
-                        continue;
-                    }
+                    if (name.equals("_hiddeninputs")) continue;
 
                     switch (value) {
                         case "_login":
@@ -196,6 +204,10 @@ public class LoginHandler {
                             break;
                         case "_password_md5":
                             value = DigestUtils.md5Hex(password);
+                            break;
+                        case "_password_md5_typo3":
+                            value = DigestUtils
+                                    .md5Hex(login + ":" + DigestUtils.md5Hex(password) + ":" + typo3Challenge);
                             break;
                     }
 
