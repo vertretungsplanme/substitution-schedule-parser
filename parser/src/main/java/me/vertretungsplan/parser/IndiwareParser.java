@@ -69,7 +69,7 @@ public class IndiwareParser extends BaseParser {
 
     private static final int MAX_DAYS = 7;
 
-    static final Pattern datePattern = Pattern.compile("\\w+, \\d\\d?\\. \\w+ \\d{4}");
+    static final Pattern datePattern = Pattern.compile("\\w+, \\d\\d?\\. \\w+ \\d{4}", Pattern.UNICODE_CHARACTER_CLASS);
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
     static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) (.+) (verlegt nach .*)");
