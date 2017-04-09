@@ -194,7 +194,7 @@ public class WebUntisParser extends BaseParser {
                 // access is only allowed for the own schedule
                 JSONArray json = getTimetable(startDate, endDate, userData);
                 parseTimetable(json, schedule, timegrid);
-            } catch (UnauthorizedException e1) {
+            } catch (UnauthorizedException | IOException e1) {
                 if (schedule.getType() != SubstitutionSchedule.Type.STUDENT || userData.klasseId == null) throw e1;
                 JSONArray json = getTimetable(startDate, endDate, new UserData(userData.klasseId, UserData
                         .TYPE_KLASSE));
