@@ -662,7 +662,9 @@ public abstract class UntisCommonParser extends BaseParser {
 
     void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
             JSONException, CredentialInvalidException {
-        if (next.className().equals("subst")) {
+        if (next.className().equals("subst") || next.select(".list").size() > 0
+                || next.text().contains("Vertretungen sind nicht freigegeben")
+                || next.text().contains("Keine Vertretungen")) {
             //Vertretungstabelle
             if (next.text().contains("Vertretungen sind nicht freigegeben")) {
                 return;
