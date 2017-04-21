@@ -108,7 +108,8 @@ public abstract class UntisCommonParser extends BaseParser {
             Element monHead = doc.select("table.mon_head").first();
             lastChange = findLastChangeFromMonHeadTable(monHead);
         } else if (lastChangeLeft) {
-            lastChange = doc.select("body").html().substring(0, doc.select("body").html().indexOf("<p>") - 1);
+            final String bodyHtml = doc.select("body").size() > 0 ? doc.select("body").html() : doc.html();
+            lastChange = bodyHtml.substring(0, bodyHtml.indexOf("<p>") - 1);
         } else {
             List<Node> childNodes;
             if (doc instanceof Document) {
