@@ -289,10 +289,7 @@ public abstract class UntisCommonParser extends BaseParser {
                                 i++;
                             }
 
-                            if (v.getType() == null) {
-                                v.setType("Vertretung");
-                                v.setColor(colorProvider.getColor("Vertretung"));
-                            }
+                            autoDetectType(data, zeile, v);
 
                             v.getClasses().add(className);
 
@@ -427,24 +424,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     continue;
                 }
 
-                if (v.getType() == null) {
-                    if (data.optBoolean(PARAM_TYPE_AUTO_DETECTION, true)) {
-                        if ((zeile.select("strike").size() > 0 &&
-                                equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
-                                equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
-                                || (v.getSubject() == null && v.getRoom() == null && v
-                                .getTeacher() == null && v.getPreviousSubject() != null)) {
-                            v.setType("Entfall");
-                            v.setColor(colorProvider.getColor("Entfall"));
-                        } else {
-                            v.setType("Vertretung");
-                            v.setColor(colorProvider.getColor("Vertretung"));
-                        }
-                    } else {
-                        v.setType("Vertretung");
-                        v.setColor(colorProvider.getColor("Vertretung"));
-                    }
-                }
+                autoDetectType(data, zeile, v);
 
                 List<String> affectedClasses;
 
@@ -539,6 +519,27 @@ public abstract class UntisCommonParser extends BaseParser {
                 } else {
                     day.addSubstitution(v);
                 }
+            }
+        }
+    }
+
+    private void autoDetectType(JSONObject data, Element zeile, Substitution v) {
+        if (v.getType() == null) {
+            if (data.optBoolean(PARAM_TYPE_AUTO_DETECTION, true)) {
+                if ((zeile.select("strike").size() > 0 &&
+                        equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
+                        equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
+                        || (v.getSubject() == null && v.getRoom() == null && v
+                        .getTeacher() == null && v.getPreviousSubject() != null)) {
+                    v.setType("Entfall");
+                    v.setColor(colorProvider.getColor("Entfall"));
+                } else {
+                    v.setType("Vertretung");
+                    v.setColor(colorProvider.getColor("Vertretung"));
+                }
+            } else {
+                v.setType("Vertretung");
+                v.setColor(colorProvider.getColor("Vertretung"));
             }
         }
     }
