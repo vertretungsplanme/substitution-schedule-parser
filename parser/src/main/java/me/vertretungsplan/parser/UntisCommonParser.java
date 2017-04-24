@@ -771,6 +771,11 @@ public abstract class UntisCommonParser extends BaseParser {
                             + "tr:has(td[align=center]):gt(0)")) {
                 SubstitutionScheduleDay day = null;
                 String date = line.select("td").get(dateColumn).text().trim();
+
+                if (date.indexOf("-") > 0) {
+                    date = date.substring(0, date.indexOf("-") - 1).trim();
+                }
+
                 LocalDate parsedDate = ParserUtils.parseDate(date);
                 for (SubstitutionScheduleDay search : v.getDays()) {
                     if (Objects.equals(search.getDate(), parsedDate)
