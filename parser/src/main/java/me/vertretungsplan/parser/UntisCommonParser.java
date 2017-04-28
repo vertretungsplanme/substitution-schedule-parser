@@ -755,7 +755,7 @@ public abstract class UntisCommonParser extends BaseParser {
             SubstitutionScheduleDay day = new SubstitutionScheduleDay();
             day.setLastChangeString(lastChange);
             day.setLastChange(lastChangeDate);
-            String title = doc.select("font[size=5], font[size=4]").text();
+            String title = doc.select("font[size=5], font[size=4], font[size=3] b").text();
             Matcher matcher = dayPattern.matcher(title);
             if (matcher.find()) {
                 String date = matcher.group();
