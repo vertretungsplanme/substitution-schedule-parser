@@ -748,7 +748,7 @@ public abstract class UntisCommonParser extends BaseParser {
             }
         }
 
-        Element table = doc.select("table[rules=all]").first();
+        Element table = doc.select("table[rules=all], table:has(tr:has(td[align=center]))").first();
         if (table.text().replace("\u00a0", "").trim().equals("Keine Vertretungen")) return;
 
         if (dateColumn == -1) {
