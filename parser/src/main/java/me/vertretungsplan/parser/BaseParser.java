@@ -278,8 +278,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         encodingDetector.handleData(bytes, 0, bytes.length);
         encodingDetector.dataEnd();
         String encoding = encodingDetector.getDetectedCharset();
-        if (encoding == null) encoding = defaultEncoding;
+        if (encoding == null || encoding.equals("GB18030")) encoding = defaultEncoding;
         if (encoding == null) encoding = "UTF-8";
+        encodingDetector.reset();
         return encoding;
     }
 
