@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class SVPlanDemoTest extends BaseDemoTest {
     private String html1;
     private String html2;
+    private String html3;
 
     private SVPlanParser parser;
 
@@ -38,6 +39,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
     public void setUp() throws JSONException {
         html1 = readResource("/svplan/svplan1.html");
         html2 = readResource("/svplan/svplan2.html");
+        html3 = readResource("/svplan/svplan3.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new SVPlanParser(scheduleData, null);
@@ -90,6 +92,34 @@ public class SVPlanDemoTest extends BaseDemoTest {
 
         for (Substitution subst : day.getSubstitutions()) {
             assertTrue(subst.getClasses().size() == 1);
+            assertNotEmpty(subst.getLesson());
+            assertNullOrNotEmpty(subst.getPreviousSubject());
+            assertNotEmpty(subst.getSubject());
+            assertNullOrNotEmpty(subst.getRoom());
+            assertNullOrNotEmpty(subst.getTeacher());
+            assertNullOrNotEmpty(subst.getPreviousTeacher());
+            assertNullOrNotEmpty(subst.getDesc());
+            assertNotEmpty(subst.getType());
+        }
+    }
+
+    @Test
+    public void demoTest3() throws IOException, JSONException {
+        List<Document> docs = new ArrayList<>();
+        docs.add(Jsoup.parse(html3));
+        SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
+
+        assertEquals(new LocalDateTime(2017, 5, 2, 7, 19), schedule.getLastChange());
+        assertEquals(1, schedule.getDays().size());
+
+        SubstitutionScheduleDay day = schedule.getDays().get(0);
+
+        assertEquals(new LocalDate(2017, 5, 2), day.getDate());
+        assertEquals(32, day.getSubstitutions().size());
+        assertEquals(0, day.getMessages().size());
+
+        for (Substitution subst : day.getSubstitutions()) {
+            if (!subst.getSubject().equals("Profi")) assertTrue(subst.getClasses().size() >= 1);
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
             assertNotEmpty(subst.getSubject());

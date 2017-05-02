@@ -150,6 +150,7 @@ public class SVPlanParser extends BaseParser {
 
                 Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
                 String lastLesson = "";
+                String lastClass = "";
                 for (Element row : rows) {
                     if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
                             || row.select("th").size() > 0 || row.text().trim().equals("")) {
@@ -159,16 +160,24 @@ public class SVPlanParser extends BaseParser {
                     Substitution substitution = new Substitution();
 
                     for (Element column : row.select("td")) {
+                        String type = column.className();
                         if (!hasData(column.text())) {
+                            if ((type.startsWith("svp-stunde") || type.startsWith("Stunde")) && hasData(lastLesson)) {
+                                substitution.setLesson(lastLesson);
+                            } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
+                                    && hasData(lastClass)) {
+                                substitution.getClasses().addAll(Arrays.asList(lastClass.split(data.optString
+                                        (PARAM_CLASS_SEPARATOR, ", "))));
+                            }
                             continue;
                         }
-                        String type = column.className();
                         if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
                             substitution.setLesson(column.text());
                             lastLesson = column.text();
                         } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
                             substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
                                     (PARAM_CLASS_SEPARATOR, ", "))));
+                            lastClass = column.text();
                         } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
                             if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
                                 substitution.setPreviousTeacher(column.text());
@@ -186,10 +195,6 @@ public class SVPlanParser extends BaseParser {
                             substitution.setColor(colorProvider.getColor(recognizedType));
                         } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
                             substitution.setRoom(column.text());
-                        }
-
-                        if (substitution.getLesson() == null) {
-                            substitution.setLesson(lastLesson);
                         }
                     }
 

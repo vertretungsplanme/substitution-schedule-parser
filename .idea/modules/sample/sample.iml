@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id=":sample" external.linked.project.path="$MODULE_DIR$/../../../sample" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="substitution-schedule-parser" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="true">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../../sample/build/classes/main" />
+    <output-test url="file://$MODULE_DIR$/../../../sample/build/classes/test" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../sample">
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../sample/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../../sample/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="parser" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.mangstadt:vinnie:2.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: dk.brics.automaton:automaton:1.11-8" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.googlecode.juniversalchardet:juniversalchardet:1.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.biweekly:biweekly:0.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.mifmif:generex:1.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.json:json:20090211" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpmime:4.5.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:fluent-hc:4.5.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.9.2" level="project" />
+    <orderEntry type="library" name="Gradle: joda-time:joda-time:2.8.1" level="project" />
   </component>
 </module>
