@@ -748,14 +748,14 @@ public abstract class UntisCommonParser extends BaseParser {
             }
         }
 
-        Element table = doc.select("table[rules=all]").first();
+        Element table = doc.select("table[rules=all], table:has(tr:has(td[align=center]))").first();
         if (table.text().replace("\u00a0", "").trim().equals("Keine Vertretungen")) return;
 
         if (dateColumn == -1) {
             SubstitutionScheduleDay day = new SubstitutionScheduleDay();
             day.setLastChangeString(lastChange);
             day.setLastChange(lastChangeDate);
-            String title = doc.select("font[size=5], font[size=4]").text();
+            String title = doc.select("font[size=5], font[size=4], font[size=3] b").text();
             Matcher matcher = dayPattern.matcher(title);
             if (matcher.find()) {
                 String date = matcher.group();
@@ -771,6 +771,11 @@ public abstract class UntisCommonParser extends BaseParser {
                             + "tr:has(td[align=center]):gt(0)")) {
                 SubstitutionScheduleDay day = null;
                 String date = line.select("td").get(dateColumn).text().trim();
+
+                if (date.indexOf("-") > 0) {
+                    date = date.substring(0, date.indexOf("-") - 1).trim();
+                }
+
                 LocalDate parsedDate = ParserUtils.parseDate(date);
                 for (SubstitutionScheduleDay search : v.getDays()) {
                     if (Objects.equals(search.getDate(), parsedDate)
