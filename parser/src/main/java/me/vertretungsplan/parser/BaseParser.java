@@ -335,9 +335,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             NoSuchAlgorithmException, CertificateException, IOException {
         InputStream is = null;
         try {
-            KeyStore ks = KeyStore.getInstance("JKS");
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             is = getClass().getClassLoader().getResourceAsStream(
-                    "trustStore.jks");
+                    "trustStore.bks");
             if (is == null) {
                 throw new RuntimeException();
             }
