@@ -99,7 +99,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
             JSONException, CredentialInvalidException {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
 
-        String encoding = data.getString(PARAM_ENCODING);
+        String encoding = data.optString(PARAM_ENCODING, null);
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         int successfulSchedules = 0;

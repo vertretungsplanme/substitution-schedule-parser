@@ -13,12 +13,12 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.Nullable;
@@ -110,105 +110,134 @@ public class LoginHandler {
     private static final String PARAM_CHECK_TEXT = "checkText";
     private SubstitutionScheduleData scheduleData;
     private Credential auth;
-	private CookieProvider cookieProvider;
+    private CookieProvider cookieProvider;
 
-	LoginHandler(SubstitutionScheduleData scheduleData, Credential auth,
-				 @Nullable CookieProvider cookieProvider) {
-		this.scheduleData = scheduleData;
-		this.auth = auth;
-		this.cookieProvider = cookieProvider;
-	}
+    LoginHandler(SubstitutionScheduleData scheduleData, Credential auth,
+                 @Nullable CookieProvider cookieProvider) {
+        this.scheduleData = scheduleData;
+        this.auth = auth;
+        this.cookieProvider = cookieProvider;
+    }
 
-	void handleLogin(Executor executor, CookieStore cookieStore)
-			throws JSONException, IOException, CredentialInvalidException {
-		handleLogin(executor, cookieStore, false);
-	}
+    void handleLogin(Executor executor, CookieStore cookieStore)
+            throws JSONException, IOException, CredentialInvalidException {
+        handleLogin(executor, cookieStore, false);
+    }
 
-	String handleLoginWithResponse(Executor executor, CookieStore cookieStore)
-			throws JSONException, IOException, CredentialInvalidException {
-		return handleLogin(executor, cookieStore, true);
-	}
+    String handleLoginWithResponse(Executor executor, CookieStore cookieStore)
+            throws JSONException, IOException, CredentialInvalidException {
+        return handleLogin(executor, cookieStore, true);
+    }
 
-	private String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
-			IOException, CredentialInvalidException {
-		if (auth == null) return null;
-		if (!(auth instanceof UserPasswordCredential || auth instanceof PasswordCredential)) {
-			throw new IllegalArgumentException("Wrong authentication type");
-		}
+    private String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
+            IOException, CredentialInvalidException {
+        if (auth == null) return null;
+        if (!(auth instanceof UserPasswordCredential || auth instanceof PasswordCredential)) {
+            throw new IllegalArgumentException("Wrong authentication type");
+        }
 
-		String login;
-		String password;
-		if (auth instanceof UserPasswordCredential) {
-			login = ((UserPasswordCredential) auth).getUsername();
-			password = ((UserPasswordCredential) auth).getPassword();
-		} else {
-			login = null;
-			password = ((PasswordCredential) auth).getPassword();
-		}
+        String login;
+        String password;
+        if (auth instanceof UserPasswordCredential) {
+            login = ((UserPasswordCredential) auth).getUsername();
+            password = ((UserPasswordCredential) auth).getPassword();
+        } else {
+            login = null;
+            password = ((PasswordCredential) auth).getPassword();
+        }
 
-		JSONObject data = scheduleData.getData();
+        JSONObject data = scheduleData.getData();
         JSONObject loginConfig = data.getJSONObject(LOGIN_CONFIG);
         String type = loginConfig.optString(PARAM_TYPE, "post");
         switch (type) {
-			case "post":
-				List<Cookie> cookieList = cookieProvider != null ? cookieProvider.getCookies(auth) : null;
-				if (cookieList != null && !needsResponse) {
-					for (Cookie cookie : cookieList) cookieStore.addCookie(cookie);
-				} else {
-					executor.clearCookies();
-					Document preDoc = null;
-                    if (loginConfig.has(PARAM_PRE_URL)) {
-                        String preUrl = loginConfig.getString(PARAM_PRE_URL);
-                        String preHtml = executor.execute(Request.Get(preUrl)).returnContent().asString();
-						preDoc = Jsoup.parse(preHtml);
-					}
-
-                    String url = loginConfig.getString(PARAM_URL);
-                    JSONObject loginData = loginConfig.getJSONObject(PARAM_DATA);
-                    List<NameValuePair> nvps = new ArrayList<>();
-					for (String name : JSONObject.getNames(loginData)) {
-						String value = loginData.getString(name);
-
-						if (name.equals("_hiddeninputs")) {
-							for (Element hidden:preDoc.select(value + " input[type=hidden]")) {
-								nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
-							}
-							continue;
-						}
-
-						if (value.equals("_login"))
-							value = login;
-						else if (value.equals("_password"))
-							value = password;
-						nvps.add(new BasicNameValuePair(name, value));
-					}
-					Request request = Request.Post(url);
-					if (loginConfig.optBoolean("form-data", false)) {
-						MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-						for (NameValuePair nvp:nvps) {
-							builder.addTextBody(nvp.getName(), nvp.getValue());
-						}
-						request.body(builder.build());
-					} else {
-						request.bodyForm(nvps, Charset.forName("UTF-8"));
-					}
-					String html = executor.execute(request).returnContent().asString();
-					if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
+            case "post":
+                List<Cookie> cookieList = cookieProvider != null ? cookieProvider.getCookies(auth) : null;
+                if (cookieList != null && !needsResponse) {
+                    for (Cookie cookie : cookieList) cookieStore.addCookie(cookie);
 
                     String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
                     String checkText = loginConfig.optString(PARAM_CHECK_TEXT, null);
                     if (checkUrl != null && checkText != null) {
                         String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
-                        if (response.contains(checkText)) throw new CredentialInvalidException();
-					} else if (checkText != null) {
-						if (html.contains(checkText)) throw new CredentialInvalidException();
-					}
-					return html;
-				}
-				break;
-			case "basic":
-				if (login == null) throw new IOException("wrong auth type");
-				executor.auth(login, password);
+                        if (!response.contains(checkText)) {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                }
+                executor.clearCookies();
+                Document preDoc = null;
+                if (loginConfig.has(PARAM_PRE_URL)) {
+                    String preUrl = loginConfig.getString(PARAM_PRE_URL);
+                    String preHtml = executor.execute(Request.Get(preUrl)).returnContent().asString();
+                    preDoc = Jsoup.parse(preHtml);
+                }
+
+                String postUrl = loginConfig.getString(PARAM_URL);
+                JSONObject loginData = loginConfig.getJSONObject(PARAM_DATA);
+                List<NameValuePair> nvps = new ArrayList<>();
+
+                String typo3Challenge = null;
+
+                if (loginData.has("_hiddeninputs") && preDoc != null) {
+                    for (Element hidden : preDoc.select(loginData.getString("_hiddeninputs") +
+                            " input[type=hidden]")) {
+                        nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
+                        if (hidden.attr("name").equals("challenge")) {
+                            typo3Challenge = hidden.attr("value");
+                        }
+                    }
+                }
+
+                for (String name : JSONObject.getNames(loginData)) {
+                    String value = loginData.getString(name);
+
+                    if (name.equals("_hiddeninputs")) continue;
+
+                    switch (value) {
+                        case "_login":
+                            value = login;
+                            break;
+                        case "_password":
+                            value = password;
+                            break;
+                        case "_password_md5":
+                            value = DigestUtils.md5Hex(password);
+                            break;
+                        case "_password_md5_typo3":
+                            value = DigestUtils
+                                    .md5Hex(login + ":" + DigestUtils.md5Hex(password) + ":" + typo3Challenge);
+                            break;
+                    }
+
+                    nvps.add(new BasicNameValuePair(name, value));
+                }
+                Request request = Request.Post(postUrl);
+                if (loginConfig.optBoolean("form-data", false)) {
+                    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+                    for (NameValuePair nvp : nvps) {
+                        builder.addTextBody(nvp.getName(), nvp.getValue());
+                    }
+                    request.body(builder.build());
+                } else {
+                    request.bodyForm(nvps, Charset.forName("UTF-8"));
+                }
+                String html = executor.execute(request).returnContent().asString();
+                if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
+
+                String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
+                String checkText = loginConfig.optString(PARAM_CHECK_TEXT, null);
+                if (checkUrl != null && checkText != null) {
+                    String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
+                    if (response.contains(checkText)) throw new CredentialInvalidException();
+                } else if (checkText != null) {
+                    if (html.contains(checkText)) throw new CredentialInvalidException();
+                }
+                return html;
+            case "basic":
+                if (login == null) throw new IOException("wrong auth type");
+                executor.auth(login, password);
                 if (loginConfig.has(PARAM_URL)) {
                     String url = loginConfig.getString(PARAM_URL);
                     if (executor.execute(Request.Get(url)).returnResponse().getStatusLine().getStatusCode() != 200) {
@@ -224,16 +253,16 @@ public class LoginHandler {
                     if (executor.execute(Request.Get(url)).returnResponse().getStatusLine().getStatusCode() != 200) {
                         throw new CredentialInvalidException();
                     }
-				}
-				break;
-			case "fixed":
+                }
+                break;
+            case "fixed":
                 String loginFixed = loginConfig.optString(PARAM_LOGIN, null);
                 String passwordFixed = loginConfig.getString(PARAM_PASSWORD);
                 if (!Objects.equals(loginFixed, login) || !Objects.equals(passwordFixed, password)) {
                     throw new CredentialInvalidException();
                 }
-				break;
-		}
-		return null;
-	}
+                break;
+        }
+        return null;
+    }
 }

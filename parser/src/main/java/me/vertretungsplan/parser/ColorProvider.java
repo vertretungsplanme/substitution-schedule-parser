@@ -10,6 +10,7 @@ package me.vertretungsplan.parser;
 
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,7 +40,7 @@ public class ColorProvider {
     // *** Default color values ***
     private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Entf", "Fällt aus!", "Fällt aus",
             "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb.", "Aufgaben", "selbst.", "Frei",
-            "Ausfall", "Stillarbeit"};
+            "Ausfall", "Stillarbeit", "Absenz", "-> Entfall", "Freisetzung"};
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Statt-Vertretung",
             "Betreuung", "V", "VTR", "Vertr."};
     private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",
@@ -47,7 +48,7 @@ public class ColorProvider {
     private static final String[] GREEN_VALUES =
             {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten",
                     "Raum-Vertr."};
-    private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung", "Frei/Veranstaltung"};
+    private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung", "Frei/Veranstaltung", "Hochschultag"};
     private static final String[] ORANGE_VALUES = {"Klausur"};
     private static final String[] GRAY_VALUES = {"Pausenaufsicht"};
     private static final HashMap<String, String> defaultColorMap = new HashMap<>();
@@ -101,12 +102,13 @@ public class ColorProvider {
                 JSONObject colors = data.getData().getJSONObject("colors");
                 Iterator<?> keys = colors.keys();
                 while (keys.hasNext()) {
-                    String type = (String) keys.next();
-                    String value = colors.getString(type);
-                    if (colorNames.containsKey(value)) {
-                        colorMap.put(type.toLowerCase(), colorNames.get(value));
-                    } else {
-                        colorMap.put(type.toLowerCase(), value);
+                    String color = (String) keys.next();
+                    JSONArray values = colors.getJSONArray(color);
+                    if (colorNames.containsKey(color)) {
+                        color = colorNames.get(color);
+                    }
+                    for (int i = 0; i < values.length(); i++) {
+                        colorMap.put(values.getString(i).toLowerCase(), color);
                     }
                 }
             }

@@ -142,6 +142,9 @@ public class DSBMobileParser extends UntisCommonParser {
                 if (timetablePart.getInt("ConType") != 6) continue;
 
                 String url = timetablePart.getString("Detail");
+
+                if (url.endsWith("subst_title.htm") || url.endsWith("ticker.htm")) continue;
+
                 totalUrls ++;
                 try {
                     loadScheduleFromUrl(v, url, usedUrls);
@@ -229,7 +232,7 @@ public class DSBMobileParser extends UntisCommonParser {
     private void loadScheduleFromUrl(SubstitutionSchedule v, String url, List<String> usedUrls)
             throws IOException, JSONException, CredentialInvalidException, IncompatibleScheduleException {
         usedUrls.add(url);
-        String html = httpGet(url, data.has(PARAM_ENCODING) ? data.getString(PARAM_ENCODING) : "UTF-8");
+        String html = httpGet(url, data.has(PARAM_ENCODING) ? data.optString(PARAM_ENCODING, null) : "UTF-8");
         Document doc = Jsoup.parse(html);
 
         if (doc.title().toLowerCase().contains("untis") || doc.html().toLowerCase().contains("untis")
@@ -248,6 +251,9 @@ public class DSBMobileParser extends UntisCommonParser {
                 DaVinciParser.parseDaVinciTable(tables.get(i), v, day, colorProvider);
                 v.addDay(day);
             }
+        } else if (doc.select(".tdaktionen").size() > 0
+                || data.optString(PARAM_TYPE, "").equals("indiware")) {
+            new IndiwareParser(scheduleData, cookieProvider).parseIndiwarePage(v, doc.html());
         } else if (doc.text().matches(".*Für diesen Bereich.*wurde kein Inhalt bereitgestellt\\.")) {
             return;
         } else {

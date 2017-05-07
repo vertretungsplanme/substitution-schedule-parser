@@ -80,6 +80,10 @@ import java.util.regex.Pattern;
  * <dt><code>letter</code> (String, optional, Default: <code>w</code>)</dt>
  * <dd>The letter occurring in the URL of the schedule pages. For student schedules, this is almost always a
  * <code>w</code>. Teacher schedules use a <code>v</code>.</dd>
+ *
+ * <dt><code>scheduleBaseurl</code> (String, optional, Default: same as <code>baseurl</code>)</dt>
+ * <dd>The url under which the actual schedule HTML files are hosted. In almost all cases you don't need to set it
+ * as it's the same as <code>baseurl</code>.</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules
@@ -95,6 +99,7 @@ public class UntisInfoParser extends UntisCommonParser {
     public static final String PARAM_W_AFTER_NUMBER = "wAfterNumber";
     private static final String PARAM_LETTER = "letter";
     private static final String PARAM_SCHEDULE_TYPE = "scheduleType";
+    private static final String PARAM_SCHEDULE_BASEURL = "scheduleBaseurl";
     private String baseUrl;
     private JSONObject data;
     private String navbarDoc;
@@ -112,7 +117,7 @@ public class UntisInfoParser extends UntisCommonParser {
     private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
         if (navbarDoc == null) {
             String navbarUrl = baseUrl + "/frames/navbar.htm";
-            navbarDoc = httpGet(navbarUrl, data.getString(PARAM_ENCODING));
+            navbarDoc = httpGet(navbarUrl, data.optString(PARAM_ENCODING, null));
         }
         return navbarDoc;
     }
@@ -133,7 +138,7 @@ public class UntisInfoParser extends UntisCommonParser {
             lastChange = info.substring(info.indexOf("Stand:") + "Stand:".length()).trim();
         } catch (Exception e) {
             try {
-                String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.getString(PARAM_ENCODING));
+                String infoHtml = httpGet(baseUrl + "/frames/title.htm", data.optString(PARAM_ENCODING, null));
                 Document infoDoc = Jsoup.parse(infoHtml);
                 String info2 = infoDoc.select(".description").text();
                 lastChange = info2.substring(info2.indexOf("Stand:") + "Stand:".length()).trim();
@@ -191,14 +196,14 @@ public class UntisInfoParser extends UntisCommonParser {
     static String getScheduleUrl(String week, int number, JSONObject data)
             throws JSONException {
         String paddedNumber = String.format("%05d", number);
-        String baseUrl = data.getString(PARAM_BASEURL);
+        String baseUrl = data.optString(PARAM_SCHEDULE_BASEURL, data.getString(PARAM_BASEURL) + "/");
         String letter = getLetter(data);
         String url;
         if (data.optBoolean(PARAM_W_AFTER_NUMBER,
                 data.optBoolean("w_after_number", false))) { // backwards compatibility
-            url = baseUrl + "/" + week + "/" + letter + "/" + letter + paddedNumber + ".htm";
+            url = baseUrl + week + "/" + letter + "/" + letter + paddedNumber + ".htm";
         } else {
-            url = baseUrl + "/" + letter + "/" + week + "/" + letter + paddedNumber + ".htm";
+            url = baseUrl + letter + "/" + week + "/" + letter + paddedNumber + ".htm";
         }
         return url;
     }
@@ -222,7 +227,7 @@ public class UntisInfoParser extends UntisCommonParser {
 
     private void parsePage(SubstitutionSchedule v, String lastChange, String klasse, String url, String weekName)
             throws IOException, CredentialInvalidException, JSONException {
-        Document doc = Jsoup.parse(httpGet(url, data.getString(PARAM_ENCODING)));
+        Document doc = Jsoup.parse(httpGet(url, data.optString(PARAM_ENCODING, null)));
         switch (data.optString(PARAM_SCHEDULE_TYPE, "substitution")) {
             case "timetable":
                 parseTimetable(v, lastChange, doc, klasse, weekName);
@@ -387,7 +392,7 @@ public class UntisInfoParser extends UntisCommonParser {
         if (value.startsWith("*")) {
             value = value.substring(1);
         }
-        if (value.equals("--.") || value.equals("---")) {
+        if (value.equals("---.") || value.equals("---")) {
             value = null;
         }
 
@@ -420,7 +425,7 @@ public class UntisInfoParser extends UntisCommonParser {
 
     private void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
             throws JSONException, CredentialInvalidException {
-        Elements days = doc.select("#vertretung > p > b, #vertretung > b");
+        Elements days = doc.select("#vertretung > p > b, #vertretung > b, p:has(a[href^=#]) > b");
         if (days.size() > 0) {
             for (Element dayElem : days) {
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();

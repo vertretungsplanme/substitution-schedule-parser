@@ -13,6 +13,8 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,18 +80,30 @@ public class SVPlanParser extends BaseParser {
         new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore); //
 
         JSONArray urls = data.getJSONArray(PARAM_URLS);
-        String encoding = data.getString(PARAM_ENCODING);
+        String encoding = data.optString(PARAM_ENCODING, null);
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < urls.length(); i++) {
             String url;
             if (urls.get(i) instanceof JSONObject) {
                 // backwards compatibility
-                url = urls.getJSONObject(i).getString("url");
+                final JSONObject obj = urls.getJSONObject(i);
+                url = obj.getString("url");
+                if (obj.has("postData")) {
+                    JSONObject postParams = obj.getJSONObject("postData");
+                    List<NameValuePair> nvps = new ArrayList<>();
+                    for (String name : JSONObject.getNames(postParams)) {
+                        String value = postParams.getString(name);
+                        nvps.add(new BasicNameValuePair(name, value));
+                    }
+                    docs.add(Jsoup.parse(httpPost(url, encoding, nvps).replace("&nbsp;", "")));
+                } else {
+                    docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                }
             } else {
                 url = urls.getString(i);
+                docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
             }
-            loadUrl(url, encoding, docs);
         }
 
         SubstitutionSchedule v = parseSVPlanSchedule(docs);
@@ -129,59 +143,69 @@ public class SVPlanParser extends BaseParser {
 
     private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-        if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
+        if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
+                .startsWith("Vertretungsplan für "))) {
             setDate(svp, doc, day);
+            if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
 
-            Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
-            String lastLesson = "";
-            for (Element row : rows) {
-                if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
-                        || row.select("th").size() > 0 || row.text().trim().equals(""))
-                    continue;
-
-                Substitution substitution = new Substitution();
-
-                for (Element column : row.select("td")) {
-                    if (!hasData(column.text())) {
+                Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
+                String lastLesson = "";
+                String lastClass = "";
+                for (Element row : rows) {
+                    if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
+                            || row.select("th").size() > 0 || row.text().trim().equals("")) {
                         continue;
                     }
-                    String type = column.className();
-                    if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
-                        substitution.setLesson(column.text());
-                        lastLesson = column.text();
-                    } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
-                        substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
-                                (PARAM_CLASS_SEPARATOR, ", "))));
-                    } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
-                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) substitution.setPreviousTeacher(column.text());
-                    } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
-                        if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
-                            substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+
+                    Substitution substitution = new Substitution();
+
+                    for (Element column : row.select("td")) {
+                        String type = column.className();
+                        if (!hasData(column.text())) {
+                            if ((type.startsWith("svp-stunde") || type.startsWith("Stunde")) && hasData(lastLesson)) {
+                                substitution.setLesson(lastLesson);
+                            } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
+                                    && hasData(lastClass)) {
+                                substitution.getClasses().addAll(Arrays.asList(lastClass.split(data.optString
+                                        (PARAM_CLASS_SEPARATOR, ", "))));
+                            }
+                            continue;
                         }
-                    } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
-                        substitution.setSubject(column.text());
-                    } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
-                        substitution.setDesc(column.text());
-                        String recognizedType = recognizeType(column.text());
-                        substitution.setType(recognizedType);
-                        substitution.setColor(colorProvider.getColor(recognizedType));
-                    } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
-                        substitution.setRoom(column.text());
+                        if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
+                            substitution.setLesson(column.text());
+                            lastLesson = column.text();
+                        } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
+                            substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
+                                    (PARAM_CLASS_SEPARATOR, ", "))));
+                            lastClass = column.text();
+                        } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setPreviousTeacher(column.text());
+                            }
+                        } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+                            }
+                        } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
+                            substitution.setSubject(column.text());
+                        } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
+                            substitution.setDesc(column.text());
+                            String recognizedType = recognizeType(column.text());
+                            substitution.setType(recognizedType);
+                            substitution.setColor(colorProvider.getColor(recognizedType));
+                        } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
+                            substitution.setRoom(column.text());
+                        }
                     }
 
-                    if (substitution.getLesson() == null) {
-                        substitution.setLesson(lastLesson);
+                    if (substitution.getType() == null) {
+                        substitution.setType("Vertretung");
+                        substitution.setColor(colorProvider.getColor("Vertretung"));
                     }
-                }
 
-                if (substitution.getType() == null) {
-                    substitution.setType("Vertretung");
-                    substitution.setColor(colorProvider.getColor("Vertretung"));
+                    day.addSubstitution(substitution);
                 }
-
-                day.addSubstitution(substitution);
             }
-
             if (svp.select(".LehrerVerplant").size() > 0) {
                 day.addMessage("<b>Verplante Lehrer:</b> " + svp.select(".LehrerVerplant").text());
             }
@@ -207,11 +231,6 @@ public class SVPlanParser extends BaseParser {
                     }
                 }
             }
-
-            v.addDay(day);
-        } else if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
-                .startsWith("Vertretungsplan für ")) && svp.text().contains("Kein Vertretungsplan")) {
-            setDate(svp, doc, day);
             v.addDay(day);
         } else {
             throw new IOException("keine SVPlan-Tabelle gefunden");
@@ -221,8 +240,8 @@ public class SVPlanParser extends BaseParser {
     private void setDate(Element svp, Document doc, SubstitutionScheduleDay day) {
         String date = "Unbekanntes Datum";
         if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0) {
-            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").text().replace
-                    ("Vertretungsplan für ", "").trim();
+            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").text().replaceAll
+                    ("Vertretungsplan (für )?", "").trim();
         } else if (doc.title().startsWith("Vertretungsplan für ")) {
             date = doc.title().substring("Vertretungsplan für ".length());
         }
@@ -239,9 +258,7 @@ public class SVPlanParser extends BaseParser {
 
     private void loadUrl(String url, String encoding, List<Document> docs)
             throws IOException, CredentialInvalidException {
-        String html = httpGet(url, encoding).replace("&nbsp;", "");
-        Document doc = Jsoup.parse(html);
-        docs.add(doc);
+
     }
 
     public List<String> getAllClasses() throws JSONException {

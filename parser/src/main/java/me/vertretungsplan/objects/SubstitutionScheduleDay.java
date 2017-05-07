@@ -9,6 +9,8 @@
 package me.vertretungsplan.objects;
 
 import com.paour.comparator.NaturalOrderComparator;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -318,5 +320,33 @@ public class SubstitutionScheduleDay implements Cloneable {
     @Override
     public String toString() {
         return toString(SubstitutionSchedule.Type.STUDENT);
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SubstitutionScheduleDay that = (SubstitutionScheduleDay) o;
+
+        return new EqualsBuilder()
+                .append(date, that.date)
+                .append(dateString, that.dateString)
+                .append(lastChange, that.lastChange)
+                .append(lastChangeString, that.lastChangeString)
+                .append(substitutions, that.substitutions)
+                .append(messages, that.messages)
+                .isEquals();
+    }
+
+    @Override public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(date)
+                .append(dateString)
+                .append(lastChange)
+                .append(lastChangeString)
+                .append(substitutions)
+                .append(messages)
+                .toHashCode();
     }
 }

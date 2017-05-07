@@ -7,6 +7,12 @@
  */
 package me.vertretungsplan.additionalinfo;
 
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilIcalParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
+import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
+import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
+import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
 import org.apache.http.client.fluent.Request;
 
@@ -16,27 +22,47 @@ import java.io.IOException;
  * Parser that creates {@link AdditionalInfo}s.
  */
 public abstract class BaseAdditionalInfoParser {
-	public BaseAdditionalInfoParser() {
-	}
+    protected BaseAdditionalInfoParser() {
+    }
 
-	/**
-	 * Create an additional info parser. Uses the supplied {@code type} string to create an appropriate subclass.
-	 *
-	 * @param type the type of additional info
-	 * @return A {@link BaseAdditionalInfoParser} subclass
-	 */
-	public static BaseAdditionalInfoParser getInstance(String type) {
-		BaseAdditionalInfoParser parser = null;
-		if (type.equals("winter-sh")) {
-			parser = new WinterShParser();
-		} //else if ... (other parsers)
-		return parser;
-	}
+    /**
+     * Create an additional info parser. Uses the supplied {@code type} string to create an appropriate subclass.
+     *
+     * @param type the type of additional info
+     * @return A {@link BaseAdditionalInfoParser} subclass
+     */
+    public static BaseAdditionalInfoParser getInstance(String type) {
+        BaseAdditionalInfoParser parser = null;
+        switch (type) {
+            case "winter-sh":
+                parser = new WinterShParser();
+                break;
+            case "amgrottweil-rss":
+                parser = new AmgRottweilRSSParser();
+                break;
+            case "amgrottweil-messages-student":
+                parser = new AmgRottweilStudentMessagesParser();
+                break;
+            case "amgrottweil-messages-teacher":
+                parser = new AmgRottweilTeacherMessagesParser();
+                break;
+            case "amgrottweil-ical":
+                parser = new AmgRottweilIcalParser();
+                break;
+            case "lsschleswig-rss":
+                parser = new LsSchleswigRSSParser();
+                break;
+            case "lsschleswig-ical":
+                parser = new LsSchleswigIcalParser();
+                break;
+        }
+        return parser;
+    }
 
-	public abstract AdditionalInfo getAdditionalInfo() throws IOException;
+    public abstract AdditionalInfo getAdditionalInfo() throws IOException;
 
-	@SuppressWarnings("SameParameterValue")
-	protected String httpGet(String url, String encoding) throws IOException {
-		return new String(Request.Get(url).execute().returnContent().asBytes(), encoding);
-	}
+    @SuppressWarnings("SameParameterValue")
+    protected String httpGet(String url, String encoding) throws IOException {
+        return new String(Request.Get(url).execute().returnContent().asBytes(), encoding);
+    }
 }

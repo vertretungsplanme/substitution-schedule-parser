@@ -16,6 +16,8 @@ import me.vertretungsplan.objects.credential.Credential;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
@@ -25,15 +27,14 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.universalchardet.UniversalDetector;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -52,18 +53,21 @@ import java.util.regex.Pattern;
  */
 public abstract class BaseParser implements SubstitutionScheduleParser {
     public static final String PARAM_CLASS_REGEX = "classRegex";
+    private static final String PARAM_SSL_HOSTNAME = "sslHostname";
     protected SubstitutionScheduleData scheduleData;
     protected Executor executor;
     protected Credential credential;
     protected CookieStore cookieStore;
     protected ColorProvider colorProvider;
     protected CookieProvider cookieProvider;
+    protected UniversalDetector encodingDetector;
 
     BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
         this.cookieProvider = cookieProvider;
         this.cookieStore = new BasicCookieStore();
         this.colorProvider = new ColorProvider(scheduleData);
+        this.encodingDetector = new UniversalDetector(null);
 
         try {
             KeyStore ks = loadKeyStore();
@@ -74,19 +78,28 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             TrustManager[] trustManagers = new TrustManager[]{multiTrustManager};
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagers, null);
+            final HostnameVerifier hostnameVerifier;
+
+            if (scheduleData.getData() != null && scheduleData.getData().has(PARAM_SSL_HOSTNAME)) {
+                hostnameVerifier = new CustomHostnameVerifier(scheduleData.getData().getString(PARAM_SSL_HOSTNAME));
+            } else {
+                hostnameVerifier = new DefaultHostnameVerifier();
+            }
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                     sslContext,
-                    new String[]{"TLSv1"},
+                    new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
                     null,
-                    new DefaultHostnameVerifier());
+                    hostnameVerifier);
 
             CloseableHttpClient httpclient = HttpClients.custom()
-                    .setSSLSocketFactory(sslsf).setRedirectStrategy(new LaxRedirectStrategy()).build();
+                    .setSSLSocketFactory(sslsf)
+                    .setRedirectStrategy(new LaxRedirectStrategy())
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                    .build();
             this.executor = Executor.newInstance(httpclient).use(cookieStore);
-        } catch (GeneralSecurityException e) {
+        } catch (GeneralSecurityException | JSONException | IOException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -198,15 +211,6 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return false;
     }
 
-    /**
-     * Downloads and parses the substitution schedule
-     *
-     * @return the parsed {@link SubstitutionSchedule}
-     * @throws IOException Connection or parsing error
-     * @throws JSONException Error with the JSON configuration
-     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
-     * not correct
-     */
     public abstract SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException;
 
@@ -253,13 +257,31 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
+        return executeRequest(encoding, request);
+    }
+
+    @Nullable private String executeRequest(String encoding, Request request)
+            throws IOException, CredentialInvalidException {
         try {
-            return new String(executor.execute(request).returnContent().asBytes(),
-                    encoding);
+            byte[] bytes = executor.execute(request).returnContent().asBytes();
+            encoding = getEncoding(encoding, bytes);
+            return new String(bytes, encoding);
         } catch (HttpResponseException e) {
             handleHttpResponseException(e);
             return null;
+        } finally {
+            encodingDetector.reset();
         }
+    }
+
+    @NotNull private String getEncoding(String defaultEncoding, byte[] bytes) {
+        encodingDetector.handleData(bytes, 0, bytes.length);
+        encodingDetector.dataEnd();
+        String encoding = encodingDetector.getDetectedCharset();
+        if (encoding == null || encoding.equals("GB18030")) encoding = defaultEncoding;
+        if (encoding == null) encoding = "UTF-8";
+        encodingDetector.reset();
+        return encoding;
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -278,13 +300,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        try {
-            return new String(executor.execute(request)
-                    .returnContent().asBytes(), encoding);
-        } catch (HttpResponseException e) {
-            handleHttpResponseException(e);
-            return null;
-        }
+        return executeRequest(encoding, request);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -303,13 +319,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
-        try {
-            return new String(executor.execute(request)
-                    .returnContent().asBytes(), encoding);
-        } catch (HttpResponseException e) {
-            handleHttpResponseException(e);
-            return null;
-        }
+        return executeRequest(encoding, request);
     }
 
     private void handleHttpResponseException(HttpResponseException e)
@@ -377,5 +387,24 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected List<String> getClassesFromJson() throws JSONException {
         final JSONObject data = scheduleData.getData();
         return ParserUtils.getClassesFromJson(data);
+    }
+
+    private class CustomHostnameVerifier implements HostnameVerifier {
+        private String host;
+        private DefaultHostnameVerifier defaultHostnameVerifier;
+
+        public CustomHostnameVerifier(String host) {
+            this.host = host;
+            this.defaultHostnameVerifier = new DefaultHostnameVerifier();
+        }
+
+        @Override public boolean verify(String s, SSLSession sslSession) {
+            return defaultHostnameVerifier.verify(host, sslSession) | defaultHostnameVerifier.verify(this.host,
+                    sslSession);
+        }
+    }
+
+    public boolean isPersonal() {
+        return false;
     }
 }
