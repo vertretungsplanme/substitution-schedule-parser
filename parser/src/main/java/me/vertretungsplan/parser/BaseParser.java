@@ -27,6 +27,7 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -37,10 +38,7 @@ import org.mozilla.universalchardet.UniversalDetector;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
@@ -333,9 +331,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     private KeyStore loadKeyStore() throws KeyStoreException,
             NoSuchAlgorithmException, CertificateException, IOException {
+        Security.addProvider(new BouncyCastleProvider());
         InputStream is = null;
         try {
-            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            KeyStore ks = KeyStore.getInstance("BKS");
             is = getClass().getClassLoader().getResourceAsStream(
                     "trustStore.bks");
             if (is == null) {

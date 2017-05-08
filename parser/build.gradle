@@ -21,6 +21,7 @@ dependencies {
     compile 'com.github.mifmif:generex:1.0.2'
     compile 'net.sf.biweekly:biweekly:0.6.1'
     compile group: 'com.googlecode.juniversalchardet', name: 'juniversalchardet', version: '1.0.3'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.56'
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
