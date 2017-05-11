@@ -209,6 +209,10 @@ public class WebUntisParser extends BaseParser {
             throws JSONException, CredentialInvalidException {
         for (int i = 0; i < json.length(); i++) {
             JSONObject lesson = json.getJSONObject(i);
+
+            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(lesson.getInt("date")));
+            SubstitutionScheduleDay day = getDayForDate(schedule, date);
+
             if (!lesson.has("code") && !lesson.has("substText")) continue;
 
             Substitution subst = new Substitution();
@@ -233,14 +237,12 @@ public class WebUntisParser extends BaseParser {
                 subst.setDesc(lesson.getString("substText"));
             }
 
-            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(lesson.getInt("date")));
             LocalTime start = TIME_FORMAT.parseLocalTime(getParseableTime(lesson.getInt("startTime")));
             LocalTime end = TIME_FORMAT.parseLocalTime(getParseableTime(lesson.getInt("endTime")));
 
             TimeGrid.Day timegridDay = timegrid.getDay(date.getDayOfWeek());
             subst.setLesson(timegridDay != null ? timegridDay.getLesson(start, end) : "");
 
-            SubstitutionScheduleDay day = getDayForDate(schedule, date);
             day.addSubstitution(subst);
         }
     }
