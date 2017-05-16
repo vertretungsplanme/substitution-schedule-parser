@@ -59,6 +59,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected ColorProvider colorProvider;
     protected CookieProvider cookieProvider;
     protected UniversalDetector encodingDetector;
+    protected DebuggingDataHandler debuggingDataHandler;
 
     BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
@@ -66,6 +67,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.cookieStore = new BasicCookieStore();
         this.colorProvider = new ColorProvider(scheduleData);
         this.encodingDetector = new UniversalDetector(null);
+        this.debuggingDataHandler = new NoOpDebuggingDataHandler();
 
         try {
             KeyStore ks = loadKeyStore();
@@ -242,6 +244,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.credential = credential;
     }
 
+    public void setDebuggingDataHandler(DebuggingDataHandler handler) {
+        this.debuggingDataHandler = handler;
+    }
+
     protected String httpGet(String url, String encoding) throws IOException, CredentialInvalidException {
         return httpGet(url, encoding, null);
     }
@@ -405,5 +411,11 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     public boolean isPersonal() {
         return false;
+    }
+
+    private class NoOpDebuggingDataHandler implements DebuggingDataHandler {
+        @Override public void columnTitles(List<String> columnTitles) {
+
+        }
     }
 }

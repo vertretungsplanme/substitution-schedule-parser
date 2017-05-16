@@ -173,6 +173,14 @@ public abstract class UntisCommonParser extends BaseParser {
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                                 SubstitutionScheduleDay day, String defaultClass)
             throws JSONException, CredentialInvalidException {
+        Elements headers = table.select("th");
+        List<String> columnTitles = new ArrayList<>();
+        for (Element header : headers) {
+            columnTitles.add(header.text().trim());
+        }
+
+        debuggingDataHandler.columnTitles(columnTitles);
+
         if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
                 || data.optBoolean("class_in_extra_line")) { // backwards compatibility
             for (Element element : table.select("td.inline_header")) {

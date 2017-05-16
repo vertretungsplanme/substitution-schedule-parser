@@ -15,6 +15,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
 import me.vertretungsplan.parser.BaseParser;
 import me.vertretungsplan.parser.CookieProvider;
+import me.vertretungsplan.parser.DebuggingDataHandler;
 import me.vertretungsplan.parser.SubstitutionScheduleParser;
 import org.json.JSONException;
 
@@ -25,27 +26,27 @@ import java.io.IOException;
  */
 public class ParserUtil {
     /**
-     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider)
+     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data)
             throws CredentialInvalidException, IOException, JSONException {
-        return parseSubstitutionSchedule(data, null, null);
+        return parseSubstitutionSchedule(data, null, null, null);
     }
 
     /**
-     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider)
+     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, CookieProvider cp)
             throws CredentialInvalidException, IOException, JSONException {
-        return parseSubstitutionSchedule(data, null, cp);
+        return parseSubstitutionSchedule(data, null, cp, null);
     }
 
     /**
-     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider)
+     * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, Credential credential)
             throws CredentialInvalidException, IOException, JSONException {
-        return parseSubstitutionSchedule(data, credential, null);
+        return parseSubstitutionSchedule(data, credential, null, null);
     }
 
     /**
@@ -58,15 +59,19 @@ public class ParserUtil {
      * @param cp         An optional <code>CookieProvider</code> implementation. This can be used if you want to reuse
      *                   session cookies the next time you load the schedule. If you don't need it, pass
      *                   <code>null</code>.
+     * @param handler    An optional <code>DebuggingDataHandler</code> implementation. If you don't need it, pass
+     *                   <code>null</code>.
      * @return The parsed substitution schedule.
      * @throws JSONException              When there's an error with your JSON configuration
      * @throws CredentialInvalidException When the <code>Credential</code> you supplied was invalid
      * @throws IOException                When there was another error while loading or parsing the schedule
      */
-    public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, Credential credential, CookieProvider cp)
+    public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, Credential
+            credential, CookieProvider cp, DebuggingDataHandler handler)
             throws JSONException, CredentialInvalidException, IOException {
         SubstitutionScheduleParser parser = BaseParser.getInstance(data, cp);
         if (credential != null) parser.setCredential(credential);
+        if (handler != null) ((BaseParser) parser).setDebuggingDataHandler(handler);
         SubstitutionSchedule schedule = parser.getSubstitutionSchedule();
         for (String a:data.getAdditionalInfos()) {
             BaseAdditionalInfoParser aParser = BaseAdditionalInfoParser.getInstance(a);
