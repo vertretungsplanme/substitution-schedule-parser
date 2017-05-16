@@ -87,6 +87,15 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_TYPE_AUTO_DETECTION = "typeAutoDetection";
     private static final String PARAM_MERGE_WITH_DIFFERENT_TYPE = "mergeWithDifferentType";
 
+    private static ColumnTypeDetector detector;
+
+    private static ColumnTypeDetector getDetector() throws IOException, JSONException {
+        if (detector == null) {
+            detector = new ColumnTypeDetector();
+        }
+        return detector;
+    }
+
     UntisCommonParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
     }
@@ -158,7 +167,8 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param day   the {@link SubstitutionScheduleDay} where the substitutions will be stored
      */
     void parseSubstitutionScheduleTable(Element table, JSONObject data,
-                                        SubstitutionScheduleDay day) throws JSONException, CredentialInvalidException {
+                                        SubstitutionScheduleDay day)
+            throws JSONException, CredentialInvalidException, IOException {
         parseSubstitutionScheduleTable(table, data, day, null);
     }
 
@@ -172,7 +182,7 @@ public abstract class UntisCommonParser extends BaseParser {
      */
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                                 SubstitutionScheduleDay day, String defaultClass)
-            throws JSONException, CredentialInvalidException {
+            throws JSONException, CredentialInvalidException, IOException {
         Elements headers = table.select("th");
         List<String> columnTitles = new ArrayList<>();
         for (Element header : headers) {
@@ -180,6 +190,23 @@ public abstract class UntisCommonParser extends BaseParser {
         }
 
         debuggingDataHandler.columnTitles(columnTitles);
+
+        final JSONArray columnsJson = data.optJSONArray(PARAM_COLUMNS);
+        List<String> columns = new ArrayList<>();
+        for (String title : columnTitles) {
+            String type = getDetector().getColumnType(title);
+            if (type != null) {
+                columns.add(type);
+            } else {
+                if (columnsJson != null && columnsJson.length() == columnTitles.size()) {
+                    columns.clear();
+                    for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
+                } else {
+                    throw new IOException("unknown column title: " + title);
+                }
+                break;
+            }
+        }
 
         if (data.optBoolean(PARAM_CLASS_IN_EXTRA_LINE)
                 || data.optBoolean("class_in_extra_line")) { // backwards compatibility
@@ -234,8 +261,7 @@ public abstract class UntisCommonParser extends BaseParser {
                                 }
                                 if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-                                String type = data.getJSONArray(PARAM_COLUMNS)
-                                        .getString(i);
+                                String type = columns.get(i);
 
                                 switch (type) {
                                     case "lesson":
@@ -316,8 +342,8 @@ public abstract class UntisCommonParser extends BaseParser {
             }
         } else {
             boolean hasType = false;
-            for (int i = 0; i < data.getJSONArray(PARAM_COLUMNS).length(); i++) {
-                if (data.getJSONArray(PARAM_COLUMNS).getString(i).equals("type")) {
+            for (String column : columns) {
+                if (column.equals("type")) {
                     hasType = true;
                 }
             }
@@ -337,7 +363,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
 
-                    String type = data.getJSONArray(PARAM_COLUMNS).getString(i);
+                    String type = columns.get(i);
                     if (isEmpty(text) && !type.equals("type-entfall")) {
                         i++;
                         continue;
@@ -632,7 +658,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     SubstitutionScheduleDay parseMonitorDay(Element doc, JSONObject data) throws
-            JSONException, CredentialInvalidException {
+            JSONException, CredentialInvalidException, IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
         String date = doc.select(".mon_title").first().text().replaceAll(" \\(Seite \\d+ / \\d+\\)", "");
         day.setDateString(date);
@@ -671,7 +697,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
-            JSONException, CredentialInvalidException {
+            JSONException, CredentialInvalidException, IOException {
         if (next.className().equals("subst") || next.select(".list").size() > 0
                 || next.text().contains("Vertretungen sind nicht freigegeben")
                 || next.text().contains("Keine Vertretungen")) {
@@ -690,7 +716,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     void parseMultipleMonitorDays(SubstitutionSchedule v, Document doc, JSONObject data)
-            throws JSONException, CredentialInvalidException {
+            throws JSONException, CredentialInvalidException, IOException {
         if (doc.select(".mon_head").size() > 1) {
             for (int j = 0; j < doc.select(".mon_head").size(); j++) {
                 Document doc2 = Document.createShell(doc.baseUri());
@@ -741,7 +767,7 @@ public abstract class UntisCommonParser extends BaseParser {
      * @throws CredentialInvalidException
      */
     protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc)
-            throws JSONException, CredentialInvalidException {
+            throws JSONException, CredentialInvalidException, IOException {
         JSONObject data = scheduleData.getData();
 
         LocalDateTime lastChangeDate = ParserUtils.parseDateTime(lastChange);

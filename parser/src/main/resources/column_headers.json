@@ -1,0 +1,154 @@
+{
+  "class": [
+    "(Klasse(n))",
+    "Class(es)",
+    "Kl",
+    "Kl.",
+    "Klasse",
+    "Klasse(n)",
+    "Klassen",
+    "Lerngruppe",
+    "betr. Klasse(n)"
+  ],
+  "date": [
+    "Datum"
+  ],
+  "desc": [
+    "Anmerkungen",
+    "Bem.",
+    "Bemerkung",
+    "Bemerkungen",
+    "Erg\u00c3\u00a4nzende Informationen",
+    "Hinweis",
+    "Hinweise",
+    "Hinweise !",
+    "Info",
+    "Informationen",
+    "Kommentar",
+    "Text",
+    "Unt.-Text",
+    "Unt.-Zeilentext",
+    "VText",
+    "Vertr-Text-2",
+    "Vertretungs-Text",
+    "Vertretungstext",
+    "zus\u00c3\u00a4tzl. Hinweis"
+  ],
+  "ignore": [
+    "Anlass",
+    "Benachrichtigen",
+    "Grund",
+    "Kopplung.",
+    "Kurs",
+    "Kursinfo",
+    "Mitbetreuung",
+    "N.Druck. (N)",
+    "Neu",
+    "Notiz",
+    "Tag",
+    "Verlegung",
+    "Vtr-Nr.",
+    "Zeit",
+    "Z\u00c3\u00a4hler",
+    "betroffen:",
+    "verlegt"
+  ],
+  "lesson": [
+    "Block",
+    "Lernzeit",
+    "Period",
+    "Std",
+    "Std.",
+    "Stunde",
+    "Stunden"
+  ],
+  "previousRoom": [
+    "(Raum)",
+    "statt Raum"
+  ],
+  "previousSubject": [
+    "(Fach)",
+    "(Kurs/Fach)",
+    "(Subject)",
+    "Ausfallfach",
+    "Fach alt",
+    "statt Fach",
+    "urspr\u00c3\u00bcnglich geplantes Fach",
+    "von / f\u00c3\u00bcr"
+  ],
+  "previousTeacher": [
+    "(Leh)",
+    "(Lehrer)",
+    "- f\u00c3\u00bcr -",
+    "Es fehlt",
+    "Lehrer n. Plan",
+    "abwes. Lehrer",
+    "abwesend",
+    "bei",
+    "eingesetzt in Stunde",
+    "entf. Lehrer",
+    "fehlend",
+    "f\u00c3\u00bcr",
+    "nicht bei",
+    "statt Lehrer",
+    "zu vertreten"
+  ],
+  "room": [
+    "R/Plan",
+    "Ra",
+    "Raum",
+    "Raum neu",
+    "Raum neu!",
+    "Room",
+    "neuer Raum"
+  ],
+  "subject": [
+    "Fa",
+    "Fach",
+    "Fach neu",
+    "Kurs/Fach",
+    "Neues Fach",
+    "Unterrichtsfach",
+    "Vertretungsfach",
+    "neues Fach"
+  ],
+  "substitutionFrom": [
+    "Vertr. von",
+    "verl. von:",
+    "verlegt von",
+    "verschoben von",
+    "von"
+  ],
+  "teacher": [
+    "Es vertritt",
+    "Le",
+    "Lehrer",
+    "Sub-T.",
+    "VERTRETUNG",
+    "Vertr",
+    "Vertr.",
+    "Vertreter",
+    "Vertreter(in)",
+    "Vertreter/in",
+    "Vertretung",
+    "betroffene Lehrkraft",
+    "vertreten durch"
+  ],
+  "teacherTo": [
+    "(Le.) nach",
+    "verlegt nach",
+    "verschoben nach"
+  ],
+  "type": [
+    "Art",
+    "Regelungen",
+    "Vertr./Entfall",
+    "Ver\u00c3\u00a4nderung"
+  ],
+  "type-entfall": [
+    "Entf",
+    "Entfall",
+    "frei/EA",
+    "f\u00c3\u00a4llt aus"
+  ]
+}
