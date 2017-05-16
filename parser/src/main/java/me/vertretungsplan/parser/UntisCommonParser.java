@@ -183,28 +183,47 @@ public abstract class UntisCommonParser extends BaseParser {
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                                 SubstitutionScheduleDay day, String defaultClass)
             throws JSONException, CredentialInvalidException, IOException {
-        Elements headers = table.select("th");
+        Elements headerRows = table.select("tr:has(th)");
+
         List<String> columnTitles = new ArrayList<>();
-        for (Element header : headers) {
-            columnTitles.add(header.text().trim());
+        if (headerRows.size() > 0) {
+            Elements headers = headerRows.get(0).select("th");
+            for (int i = 0; i < headers.size(); i++) {
+                StringBuilder builder = new StringBuilder();
+                boolean first = true;
+                for (Element headerRow : headerRows) {
+                    final String text = headerRow.select("th").get(i).text().replace("\u00a0", " ").trim();
+                    if (first) {
+                        if (!text.equals("")) first = false;
+                    } else {
+                        builder.append(" ");
+                    }
+                    builder.append(text);
+                }
+                columnTitles.add(builder.toString());
+            }
         }
 
         debuggingDataHandler.columnTitles(columnTitles);
 
         final JSONArray columnsJson = data.optJSONArray(PARAM_COLUMNS);
         List<String> columns = new ArrayList<>();
-        for (String title : columnTitles) {
-            String type = getDetector().getColumnType(title);
-            if (type != null) {
-                columns.add(type);
-            } else {
-                if (columnsJson != null && columnsJson.length() == columnTitles.size()) {
-                    columns.clear();
-                    for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
+        if (columnTitles.size() == 0) {
+            for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
+        } else {
+            for (String title : columnTitles) {
+                String type = getDetector().getColumnType(title);
+                if (type != null) {
+                    columns.add(type);
                 } else {
-                    throw new IOException("unknown column title: " + title);
+                    if (columnsJson != null && columnsJson.length() == columnTitles.size()) {
+                        columns.clear();
+                        for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
+                    } else {
+                        throw new IOException("unknown column title: " + title);
+                    }
+                    break;
                 }
-                break;
             }
         }
 
@@ -317,6 +336,8 @@ public abstract class UntisCommonParser extends BaseParser {
                                         break;
                                     case "date": // used by UntisSubstitutionParser
                                         break;
+                                    case "class":
+                                        break; // ignore - class is in extra line
                                     default:
                                         throw new IllegalArgumentException("Unknown column type: " + type);
                                 }
