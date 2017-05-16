@@ -55,6 +55,7 @@
   ],
   "lesson": [
     "Block",
+    "Klasse Stunde",
     "Lernzeit",
     "Period",
     "Std",
@@ -72,6 +73,7 @@
     "(Subject)",
     "Ausfallfach",
     "Fach alt",
+    "Fach / Kurs nach Plan",
     "statt Fach",
     "urspr\u00c3\u00bcnglich geplantes Fach",
     "von / f\u00c3\u00bcr"
@@ -82,6 +84,7 @@
     "- f\u00c3\u00bcr -",
     "Es fehlt",
     "Lehrer n. Plan",
+    "Lehrkraft nach Plan",
     "abwes. Lehrer",
     "abwesend",
     "bei",
@@ -109,6 +112,7 @@
     "Kurs/Fach",
     "Neues Fach",
     "Unterrichtsfach",
+    "Vertretung Fach / Kurs",
     "Vertretungsfach",
     "neues Fach"
   ],
@@ -131,6 +135,7 @@
     "Vertreter(in)",
     "Vertreter/in",
     "Vertretung",
+    "Vertretung bzw. LeiterIn der Veranst.",
     "betroffene Lehrkraft",
     "vertreten durch"
   ],
@@ -141,6 +146,7 @@
   ],
   "type": [
     "Art",
+    "Besonderheit",
     "Regelungen",
     "Vertr./Entfall",
     "Ver\u00c3\u00a4nderung"
