@@ -127,8 +127,19 @@ public class IndiwareParser extends BaseParser {
             throw lastException;
         }
 
+        successfulSchedules = 0;
+        lastException = null;
         for (String response : docs) {
-            parseIndiwarePage(v, response);
+            try {
+                parseIndiwarePage(v, response);
+                successfulSchedules++;
+            } catch (IOException e) {
+                lastException = e;
+            }
+        }
+
+        if (successfulSchedules == 0 && lastException != null) {
+            throw lastException;
         }
 
         v.setWebsite(urls.getString(0));
