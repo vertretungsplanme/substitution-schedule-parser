@@ -23,8 +23,8 @@ import java.io.IOException;
  */
 public class WinterShParser extends BaseAdditionalInfoParser {
 
-	private static final String URL = "http://phpservice.transferservice.dataport.de/newsticker/feed.php?projekt=1";
-	private static final String ENCODING = "ISO-8859-1";
+    private static final String URL = "https://phpefi.schleswig-holstein.de/lage/newsticker/feed.php?projekt=1";
+    private static final String ENCODING = "ISO-8859-1";
 	private static final String TITLE = "Witterungsbedingter Unterrichtsausfall";
 	
 	@Override
