@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -27,9 +28,17 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import sun.security.rsa.RSAPublicKeyImpl;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -179,6 +188,8 @@ public class LoginHandler {
                 List<NameValuePair> nvps = new ArrayList<>();
 
                 String typo3Challenge = null;
+                BigInteger typo3RsaN = null;
+                BigInteger typo3RsaE = null;
 
                 if (loginData.has("_hiddeninputs") && preDoc != null) {
                     for (Element hidden : preDoc.select(loginData.getString("_hiddeninputs") +
@@ -186,6 +197,10 @@ public class LoginHandler {
                         nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
                         if (hidden.attr("name").equals("challenge")) {
                             typo3Challenge = hidden.attr("value");
+                        } else if (hidden.attr("name").equals("n") && hidden.attr("id").equals("rsa_n")) {
+                            typo3RsaN = new BigInteger(hidden.attr("value"), 16);
+                        } else if (hidden.attr("name").equals("e") && hidden.attr("id").equals("rsa_e")) {
+                            typo3RsaE = new BigInteger(hidden.attr("value"), 16);
                         }
                     }
                 }
@@ -208,6 +223,18 @@ public class LoginHandler {
                         case "_password_md5_typo3":
                             value = DigestUtils
                                     .md5Hex(login + ":" + DigestUtils.md5Hex(password) + ":" + typo3Challenge);
+                            break;
+                        case "_password_rsa_typo3":
+                            try {
+                                final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                                cipher.init(Cipher.ENCRYPT_MODE, new RSAPublicKeyImpl(typo3RsaN, typo3RsaE));
+                                byte[] result = cipher.doFinal(password.getBytes());
+                                value = "rsa:" + new Base64().encodeAsString(result);
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
+                                    BadPaddingException | IllegalBlockSizeException e) {
+                                e.printStackTrace();
+                            }
+
                             break;
                     }
 
