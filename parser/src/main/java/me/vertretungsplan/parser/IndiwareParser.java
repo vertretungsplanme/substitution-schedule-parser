@@ -323,7 +323,10 @@ public class IndiwareParser extends BaseParser {
                 Set<String> classNames = th.classNames();
                 for (String className : classNames) {
                     if (className.contains("thplan") || className.contains("thlplan")) {
-                        columnTypes.add(className.replace("thplan", "").replace("thlplan", ""));
+                        columnTypes.add(className.replace("thplan", "")
+                                .replace("thlplan", "")
+                                .replace("_scheuler",
+                                        ""));  // sic! -> http://www.hildebrand-gymnasium.de/index.php/klasse-5.html
                         break;
                     }
                 }
