@@ -70,6 +70,7 @@ public class IndiwareParser extends BaseParser {
     private static final int MAX_DAYS = 7;
 
     static final Pattern datePattern = Pattern.compile("\\w+, \\d\\d?\\. \\w+ \\d{4}", Pattern.UNICODE_CHARACTER_CLASS);
+    static final Pattern lastChangePattern = Pattern.compile("\\d\\d?\\.\\d\\d?\\.\\d{4}, \\d\\d?\\:\\d\\d");
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
     static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) (.+) (verlegt nach .*)");
@@ -281,7 +282,9 @@ public class IndiwareParser extends BaseParser {
         day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
                 .withLocale(Locale.GERMAN).parseLocalDate(date));
 
-        String lastChange = ds.datum().text();
+        matcher = lastChangePattern.matcher(ds.datum().text());
+        if (!matcher.find()) throw new IOException("malformed date: " + ds.datum().text());
+        String lastChange = matcher.group();
         day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
                 .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
 
@@ -317,7 +320,13 @@ public class IndiwareParser extends BaseParser {
         if (html) {
             columnTypes = new ArrayList<>();
             for (Element th : ((HTMLDataSource) ds).headers()) {
-                columnTypes.add(th.className().replace("thplan", "").replace("thlplan", ""));
+                Set<String> classNames = th.classNames();
+                for (String className : classNames) {
+                    if (className.contains("thplan") || className.contains("thlplan")) {
+                        columnTypes.add(className.replace("thplan", "").replace("thlplan", ""));
+                        break;
+                    }
+                }
             }
         }
 
@@ -363,7 +372,7 @@ public class IndiwareParser extends BaseParser {
                     case "lehrer":
                         Matcher bracesMatcher = bracesPattern.matcher(value);
                         if (bracesMatcher.matches()) value = bracesMatcher.group(1);
-                        substitution.setTeachers(new HashSet<String>(Arrays.asList(value.split(", "))));
+                        substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
                         break;
                     case "raum":
                         if (columnTypes != null && columnTypes.contains("vraum")) {
