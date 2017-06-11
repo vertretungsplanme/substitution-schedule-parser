@@ -363,7 +363,7 @@ public class IndiwareParser extends BaseParser {
                     case "lehrer":
                         Matcher bracesMatcher = bracesPattern.matcher(value);
                         if (bracesMatcher.matches()) value = bracesMatcher.group(1);
-                        substitution.setTeacher(value);
+                        substitution.setTeachers(new HashSet<String>(Arrays.asList(value.split(", "))));
                         break;
                     case "raum":
                         if (columnTypes != null && columnTypes.contains("vraum")) {
