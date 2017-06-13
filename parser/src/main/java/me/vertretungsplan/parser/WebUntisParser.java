@@ -213,7 +213,9 @@ public class WebUntisParser extends BaseParser {
             LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(lesson.getInt("date")));
             SubstitutionScheduleDay day = getDayForDate(schedule, date);
 
-            if (!lesson.has("code") && !lesson.has("substText")) continue;
+            if (!isSubstitution(lesson)) {
+                continue;
+            }
 
             Substitution subst = new Substitution();
             if (lesson.has("code")) {
@@ -245,6 +247,24 @@ public class WebUntisParser extends BaseParser {
 
             day.addSubstitution(subst);
         }
+    }
+
+    private boolean isSubstitution(JSONObject lesson) throws JSONException {
+        if (lesson.has("code") || lesson.has("substText")) {
+            return true;
+        }
+        // check for room, teacher or subject change
+        for (String name : new String[]{"ro", "te", "su"}) {
+            JSONArray json = lesson.getJSONArray(name);
+            for (int k = 0; k < json.length(); k++) {
+                JSONObject singleJson = json.getJSONObject(k);
+                if (singleJson.has("orgname") && singleJson.has("name")
+                        && !singleJson.getString("name").equals(singleJson.getString("orgname"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @NotNull private SubstitutionSchedule parseScheduleUsingSubstitutions(SubstitutionSchedule schedule,
