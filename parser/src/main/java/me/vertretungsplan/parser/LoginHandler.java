@@ -28,7 +28,6 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import sun.security.rsa.RSAPublicKeyImpl;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -38,7 +37,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -227,11 +229,12 @@ public class LoginHandler {
                         case "_password_rsa_typo3":
                             try {
                                 final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-                                cipher.init(Cipher.ENCRYPT_MODE, new RSAPublicKeyImpl(typo3RsaN, typo3RsaE));
+                                cipher.init(Cipher.ENCRYPT_MODE, KeyFactory.getInstance("RSA").generatePublic
+                                        (new RSAPublicKeySpec(typo3RsaN, typo3RsaE)));
                                 byte[] result = cipher.doFinal(password.getBytes());
                                 value = "rsa:" + new Base64().encodeAsString(result);
                             } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                                    BadPaddingException | IllegalBlockSizeException e) {
+                                    BadPaddingException | IllegalBlockSizeException | InvalidKeySpecException e) {
                                 e.printStackTrace();
                             }
 
