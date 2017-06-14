@@ -232,12 +232,7 @@ public class DSBLightParser extends UntisCommonParser {
 
     @Override
     public List<String> getAllClasses() throws IOException, JSONException {
-        JSONArray classesJson = data.getJSONArray(PARAM_CLASSES);
-        List<String> classes = new ArrayList<>();
-        for (int i = 0; i < classesJson.length(); i++) {
-            classes.add(classesJson.getString(i));
-        }
-        return classes;
+        return getClassesFromJson();
     }
 
     @Override
