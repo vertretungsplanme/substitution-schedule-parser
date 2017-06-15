@@ -163,11 +163,12 @@ public class LoginHandler {
         switch (type) {
             case "post":
                 List<Cookie> cookieList = cookieProvider != null ? cookieProvider.getCookies(auth) : null;
-                if (cookieList != null && !needsResponse) {
+
+                String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
+                String checkText = loginConfig.optString(PARAM_CHECK_TEXT, null);
+                if (cookieList != null && !needsResponse && !(checkUrl == null && checkText != null)) {
                     for (Cookie cookie : cookieList) cookieStore.addCookie(cookie);
 
-                    String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
-                    String checkText = loginConfig.optString(PARAM_CHECK_TEXT, null);
                     if (checkUrl != null && checkText != null) {
                         String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
                         if (!response.contains(checkText)) {
@@ -256,8 +257,6 @@ public class LoginHandler {
                 String html = executor.execute(request).returnContent().asString();
                 if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
 
-                String checkUrl = loginConfig.optString(PARAM_CHECK_URL, null);
-                String checkText = loginConfig.optString(PARAM_CHECK_TEXT, null);
                 if (checkUrl != null && checkText != null) {
                     String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
                     if (response.contains(checkText)) throw new CredentialInvalidException();
