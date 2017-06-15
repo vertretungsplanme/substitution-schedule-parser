@@ -1,7 +1,7 @@
 # substitution-schedule-parser
 [![Build Status](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser)
 [![Coverage Status](https://coveralls.io/repos/github/vertretungsplanme/substitution-schedule-parser/badge.svg?branch=master)](https://coveralls.io/github/vertretungsplanme/substitution-schedule-parser?branch=master)
-[![Download](https://api.bintray.com/packages/johan12345/maven/substitution-schedule-parser/images/download.svg)](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion)
+[![Download](https://api.bintray.com/packages/vertretungsplanme/maven/substitution-schedule-parser/images/download.svg)](https://bintray.com/vertretungsplanme/maven/substitution-schedule-parser/_latestVersion)
 [![Javadocs](https://www.javadoc.io/badge/me.vertretungsplan/parser.svg)](https://www.javadoc.io/doc/me.vertretungsplan/parser)
 
 Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries.
@@ -9,11 +9,11 @@ Java library for parsing schools' substitution schedules. Supports multiple diff
 The Android and iOS App [vertretungsplan.me](https://vertretungsplan.me) is powered by this library and supports more than 100 schools. An [older version](https://github.com/johan12345/vertretungsplan) of the Android app is open source.
 
 ## Usage
-The `sample` directory contains [a simple example](https://github.com/johan12345/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. The automatically generated Javadoc is available at [javadoc.io](https://www.javadoc.io/doc/me.vertretungsplan/parser).
+The `sample` directory contains [a simple example](https://github.com/vertretungsplanme/substitution-schedule-parser/blob/master/sample/src/main/java/me/vertretungsplan/sample/Sample.java) that uses the library. The automatically generated Javadoc is available at [javadoc.io](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
 Builds of the library are available through both the JCenter and Maven Central repositories. You can find instructions
 how to use them with different build systems (such as Gradle and Maven)
-[at the Bintray website](https://bintray.com/johan12345/maven/substitution-schedule-parser/_latestVersion). It is
+[at the Bintray website](https://bintray.com/vertretungsplanme/maven/substitution-schedule-parser/_latestVersion). It is
 also possible to download the library as a JAR file from that website.
 
 When you use the library in your own project or do any modifications to it, please take note of the
