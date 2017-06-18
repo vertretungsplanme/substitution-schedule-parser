@@ -259,7 +259,7 @@ public class DaVinciParser extends BaseParser {
 
             if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
                 for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
-                    parsePage(el, schedule);
+                    parsePage(el, schedule, colorProvider);
                 }
             } else {
                 for (String dayUrl : dayUrls) {
@@ -269,7 +269,7 @@ public class DaVinciParser extends BaseParser {
                     } else {
                         dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
                     }
-                    parsePage(dayDoc, schedule);
+                    parsePage(dayDoc, schedule, colorProvider);
                 }
             }
         }
@@ -333,7 +333,7 @@ public class DaVinciParser extends BaseParser {
     }
 
     @NotNull
-    void parsePage(Element doc, SubstitutionSchedule schedule) throws IOException {
+    static void parsePage(Element doc, SubstitutionSchedule schedule, ColorProvider colorProvider) throws IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         Element titleElem;
