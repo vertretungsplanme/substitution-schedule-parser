@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * <dd>The URL of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
  * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
  *
- * <dt><code>url</code> (Array of strings, required if <code>url</code> not specified)</dt>
+ * <dt><code>urls</code> (Array of strings, required if <code>url</code> not specified)</dt>
  * <dd>The URLs of the home page of the DaVinci HTML export can be found. This can either be a schedule for a single
  * day or an overview page with a selection of classes or days (in both calendar and list views)</dd>
  *
