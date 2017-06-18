@@ -12,7 +12,6 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.authentication.SchoolNumberPasswordAuthenticationData;
 import me.vertretungsplan.objects.credential.SchoolNumberPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
@@ -27,7 +26,6 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -240,16 +238,15 @@ public class DSBMobileParser extends UntisCommonParser {
             parseMultipleMonitorDays(v, doc, data);
         } else if (doc.html().toLowerCase().contains("created by davinci")
                 || data.optString(PARAM_TYPE, "").equals("davinci")) {
-            Elements titles = doc.select("h2");
-            Elements tables = doc.select("h2 + p + table");
-            if (titles.size() != tables.size()) throw new IOException("Anzahl Überschriften != Anzahl Tabellen");
-            for (int i = 0; i < titles.size(); i++) {
-                SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-                String date = titles.get(i).text();
-                day.setDateString(date);
-                day.setDate(ParserUtils.parseDate(date));
-                DaVinciParser.parseDaVinciTable(tables.get(i), v, day, colorProvider);
-                v.addDay(day);
+            List<String> urls = DaVinciParser.getDayUrls(url, doc);
+            for (String dayUrl : urls) {
+                Document dayDoc;
+                if (dayUrl.equals(url)) {
+                    dayDoc = doc;
+                } else {
+                    dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+                }
+                DaVinciParser.parsePage(dayDoc, v, colorProvider);
             }
         } else if (doc.select(".tdaktionen").size() > 0
                 || data.optString(PARAM_TYPE, "").equals("indiware")) {
