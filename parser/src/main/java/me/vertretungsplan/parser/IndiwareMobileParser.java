@@ -61,6 +61,8 @@ public class IndiwareMobileParser extends BaseParser {
 
     @Override public SubstitutionSchedule getSubstitutionSchedule()
             throws IOException, JSONException, CredentialInvalidException {
+        new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
+
         String baseurl = data.getString(PARAM_BASEURL) + "/";
 
         List<Document> docs = new ArrayList<>();
