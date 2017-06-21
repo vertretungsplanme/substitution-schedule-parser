@@ -335,7 +335,6 @@ public class IndiwareParser extends BaseParser {
 
         for (Element aktion : ds.aktionen()) {
             Substitution substitution = new Substitution();
-            String type = "Vertretung";
             String course = null;
             int i = 0;
             for (Element info : aktion.children()) {
@@ -387,38 +386,12 @@ public class IndiwareParser extends BaseParser {
                     case "vraum":
                         substitution.setRoom(value);
                     case "info":
-                        Matcher substitutionMatcher = substitutionPattern.matcher(value);
-                        Matcher cancelMatcher = cancelPattern.matcher(value);
-                        Matcher delayMatcher = delayPattern.matcher(value);
-                        Matcher selfMatcher = selfPattern.matcher(value);
-                        if (substitutionMatcher.matches()) {
-                            substitution.setPreviousSubject(substitutionMatcher.group(1));
-                            substitution.setPreviousTeacher(substitutionMatcher.group(2));
-                            if (!substitutionMatcher.group(3).isEmpty()) {
-                                substitution.setDesc(substitutionMatcher.group(3));
-                            }
-                        } else if (cancelMatcher.matches()) {
-                            type = "Entfall";
-                            substitution.setPreviousSubject(cancelMatcher.group(1));
-                            substitution.setPreviousTeacher(cancelMatcher.group(2));
-                        } else if (delayMatcher.matches()) {
-                            type = "Verlegung";
-                            substitution.setPreviousSubject(delayMatcher.group(1));
-                            substitution.setPreviousTeacher(delayMatcher.group(2));
-                            substitution.setDesc(delayMatcher.group(3));
-                        } else if (selfMatcher.matches()) {
-                            type = "selbst.";
-                            if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
-                        } else if (value.equals("fällt aus") || value.equals("Klausur") || value.equals("Aufg.")) {
-                            type = value;
-                        } else {
-                            substitution.setDesc(value);
-                        }
+                        handleDescription(substitution, value);
                         break;
                 }
                 i++;
             }
-            substitution.setType(type);
+            if (substitution.getType() == null) substitution.setType("Vertretung");
             substitution.setColor(colorProvider.getColor(substitution.getType()));
             if (course != null && substitution.getSubject() == null) {
                 substitution.setSubject(course);
@@ -427,6 +400,38 @@ public class IndiwareParser extends BaseParser {
         }
 
         return day;
+    }
+
+    static void handleDescription(Substitution substitution, String value) {
+        if (value == null) return;
+
+        Matcher substitutionMatcher = substitutionPattern.matcher(value);
+        Matcher cancelMatcher = cancelPattern.matcher(value);
+        Matcher delayMatcher = delayPattern.matcher(value);
+        Matcher selfMatcher = selfPattern.matcher(value);
+        if (substitutionMatcher.matches()) {
+            substitution.setPreviousSubject(substitutionMatcher.group(1));
+            substitution.setPreviousTeacher(substitutionMatcher.group(2));
+            if (!substitutionMatcher.group(3).isEmpty()) {
+                substitution.setDesc(substitutionMatcher.group(3));
+            }
+        } else if (cancelMatcher.matches()) {
+            substitution.setType("Entfall");
+            substitution.setPreviousSubject(cancelMatcher.group(1));
+            substitution.setPreviousTeacher(cancelMatcher.group(2));
+        } else if (delayMatcher.matches()) {
+            substitution.setType("Verlegung");
+            substitution.setPreviousSubject(delayMatcher.group(1));
+            substitution.setPreviousTeacher(delayMatcher.group(2));
+            substitution.setDesc(delayMatcher.group(3));
+        } else if (selfMatcher.matches()) {
+            substitution.setType("selbst.");
+            if (!selfMatcher.group(1).isEmpty()) substitution.setDesc(selfMatcher.group(1));
+        } else if (value.equals("fällt aus") || value.equals("Klausur") || value.equals("Aufg.")) {
+            substitution.setType(value);
+        } else {
+            substitution.setDesc(value);
+        }
     }
 
     @NotNull private String subjectAndCourse(String course, String subject) {
