@@ -43,7 +43,9 @@ Below you find the currently supported substitution schedule softwares and the c
 * [LegionBoard](http://legionboard.org) `"legionboard"`
 * Indiware
   * XML export [example](http://burg-gymnasiumwettin.de/sites/schule/plan/mo.xml) `"indiware"`
+  * XML export converted to HTML `"indiware"`
   * Stundenplan24.de `"stundenplan24"`
+  * Indiware Mobil `"indiware-mobile"`
 
 A parser for *WebUntis* is included, but keep in mind that polling its API too often (more than once an hour) is allegedly [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
 
