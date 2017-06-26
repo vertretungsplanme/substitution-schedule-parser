@@ -96,7 +96,7 @@ public class ColorProvider {
 
     private HashMap<String, String> colorMap = new HashMap<>();
 
-    public ColorProvider(SubstitutionScheduleData data) {
+    ColorProvider(SubstitutionScheduleData data) {
         try {
             if (data.getData().has("colors")) {
                 JSONObject colors = data.getData().getJSONObject("colors");
@@ -115,6 +115,10 @@ public class ColorProvider {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    ColorProvider() {
+
     }
 
     /**
