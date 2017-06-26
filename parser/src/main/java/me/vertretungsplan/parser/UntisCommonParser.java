@@ -825,7 +825,9 @@ public abstract class UntisCommonParser extends BaseParser {
                             + "tr.list.even:not(:has(td.inline_header)), "
                             + "tr:has(td[align=center]):gt(0)")) {
                 SubstitutionScheduleDay day = null;
-                String date = line.select("td").get(dateColumn).text().trim();
+                String date = line.select("td").get(dateColumn).text().replace("\u00a0", "").trim();
+
+                if (date.isEmpty()) continue;
 
                 if (date.indexOf("-") > 0) {
                     date = date.substring(0, date.indexOf("-") - 1).trim();
