@@ -161,6 +161,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "webuntis":
                 parser = new WebUntisParser(data, cookieProvider);
                 break;
+            case "schooljoomla":
+                parser = new SchoolJoomlaParser(data, cookieProvider);
+                break;
         }
         return parser;
     }
