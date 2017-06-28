@@ -32,17 +32,25 @@ public class SVPlanDemoTest extends BaseDemoTest {
     private String html1;
     private String html2;
     private String html3;
+    private String html4;
 
     private SVPlanParser parser;
+    private SVPlanParser parserWithoutRepeat;
 
     @Before
     public void setUp() throws JSONException {
         html1 = readResource("/svplan/svplan1.html");
         html2 = readResource("/svplan/svplan2.html");
         html3 = readResource("/svplan/svplan3.html");
+        html4 = readResource("/svplan/svplan4.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
+
+        SubstitutionScheduleData scheduleData2 = new SubstitutionScheduleData();
+        scheduleData2.setData(new JSONObject("{\"repeatClass\": false}"));
+
         parser = new SVPlanParser(scheduleData, null);
+        parserWithoutRepeat = new SVPlanParser(scheduleData2, null);
     }
 
     @Test
@@ -128,6 +136,27 @@ public class SVPlanDemoTest extends BaseDemoTest {
             assertNullOrNotEmpty(subst.getPreviousTeacher());
             assertNullOrNotEmpty(subst.getDesc());
             assertNotEmpty(subst.getType());
+        }
+    }
+
+    @Test
+    public void demoTest4() throws IOException, JSONException {
+        List<Document> docs = new ArrayList<>();
+        docs.add(Jsoup.parse(html4));
+        SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
+
+        for (Substitution subst : schedule.getDays().get(0).getSubstitutions()) {
+            assertTrue(subst.getClasses().size() == 1);
+        }
+
+        SubstitutionSchedule schedule2 = parserWithoutRepeat.parseSVPlanSchedule(docs);
+
+        for (Substitution subst : schedule2.getDays().get(0).getSubstitutions()) {
+            if (subst.getSubject().equals("Netzw")) {
+                assertTrue(subst.getClasses().size() == 0);
+            } else {
+                assertTrue(subst.getClasses().size() == 1);
+            }
         }
     }
 }
