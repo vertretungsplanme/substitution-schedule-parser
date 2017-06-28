@@ -58,6 +58,10 @@ import java.util.List;
  *
  * <dt><code>excludeTeachers</code> (Boolean, optional, Default: <code>false</code>)</dt>
  * <dd>Don't show teachers on the schedule.</dd>
+ *
+ * <dt><code>repeatClass</code> (Boolean, optional, Default: <code>true</code>)</dt>
+ * <dd>Whether an empty class column means that there is no class associated with this substitution (false) or that
+ * the class from the previous row should be used (true).</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -68,6 +72,7 @@ public class SVPlanParser extends BaseParser {
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_CLASS_SEPARATOR = "classSeparator";
     private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
+    private static final String PARAM_REPEAT_CLASS = "repeatClass";
     private JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -165,7 +170,7 @@ public class SVPlanParser extends BaseParser {
                             if ((type.startsWith("svp-stunde") || type.startsWith("Stunde")) && hasData(lastLesson)) {
                                 substitution.setLesson(lastLesson);
                             } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
-                                    && hasData(lastClass)) {
+                                    && hasData(lastClass) && data.optBoolean(PARAM_REPEAT_CLASS, true)) {
                                 substitution.getClasses().addAll(Arrays.asList(lastClass.split(data.optString
                                         (PARAM_CLASS_SEPARATOR, ", "))));
                             }

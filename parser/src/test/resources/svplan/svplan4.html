@@ -1,0 +1,181 @@
+﻿<html>
+<head>
+<script type="text/javascript">
+
+var sprungweite=550                  //normales Scrollen=1 Umblaettern: Je nach Monitorgroesse, z.B. 700
+var verzoegerung=10000                //Scrollgeschwindigkeit, normal=18, hoeher=langsamer
+var verzoegerung_am_anfang=12000     //Verzoegerung am Anfang
+var verzoegerung_am_ende=000         //Verzoegerung nach dem Anzeigen der letzten Zeile
+var neuladen_nach=3                  //nach wie vielen Durchgaengen wird die Datei neu geladen
+
+var currentpos=0, alt=1, curpos1=0, curpos2=-1, i=1   //nicht aendern
+
+function AutomatischScrollen() {
+if (window.location.href == "http://bls.infoboard-schleswig.de/dav/export1.html") { document.bgColor = "white"};
+if (window.location.href == "http://bls.infoboard-schleswig.de/dav/export2.html") { document.bgColor = "#A4A4A4"};
+
+window.setTimeout("scrollwindow()", verzoegerung_am_anfang)
+}
+
+function scrollwindow(){
+if (document.all)
+temp=document.body.scrollTop
+else
+temp=window.pageYOffset
+
+if (alt==0)
+alt=1
+else
+alt=0
+
+if (alt==0)
+curpos1=temp
+else
+curpos2=temp
+
+if (curpos1!=curpos2){
+   if (document.all)
+      currentpos=document.body.scrollTop+sprungweite
+   else
+      currentpos=window.pageYOffset+sprungweite
+   window.scroll(0,currentpos)
+   window.setTimeout("scrollwindow()", verzoegerung)
+   }
+else window.setTimeout("jump_top()", verzoegerung_am_ende)
+}
+
+
+function jump_top() {
+   currentpos=0
+
+   if (i == neuladen_nach) {
+      i=1
+      self.location.reload()
+   }
+   else {
+      i++
+      window.scroll(0,currentpos)
+      AutomatischScrollen()
+   }
+}
+
+function last_change() {
+  var all_ths = document.getElementsByTagName('th');
+  var i;
+  for (i = 0; i < all_ths.length; i++)
+    if (all_ths[i].className == "TextAktuellesDatum") {
+      var datum = all_ths[i].firstChild.data;
+      parent.frames[2].document.open();
+	parent.frames[2].document.write("<html><head></head><body bgcolor='#f4f4f4'><center><font face='Verdana' size='4'><b>" + datum + "</b></font></center></body></html>");
+parent.frames[2].document.close();      
+	break; }
+}
+
+
+
+function startit() {
+//window.scroll(0,0)  fuer Firefox nach relaod
+last_change()
+AutomatischScrollen()
+}
+
+</script>
+
+<title>Vertretungsplan Bruno-Lorenzen-Schule</title>
+
+<style>
+.Titel {font-size: 26px;
+	font-family: Verdana;
+
+      }
+
+p {
+	font-size: 24px;
+	font-family: Verdana;
+} 
+table {
+    border: 1px solid grey;
+	border-spacing: 0px;
+	font-size: 24px;
+	font-family: Verdana;
+	text-align: center;
+	width: 100%;
+ } 
+ th {
+    border: 1px solid grey;
+	border-spacing: 0px;
+ } 
+ td {
+    border: 1px solid grey;
+	border-spacing: 0px;
+ } 
+.LehrerVerplant{font-size: 24px;
+	font-family: Verdana;
+
+}
+
+.Abwesenheiten{font-size: 24px;
+	font-family: Verdana;
+}
+
+.AnmerkungNeu 
+{
+color: red;
+}
+
+.KlasseNeu
+{
+color: red;
+}
+</style>
+
+
+</head>
+<body onload="AutomatischScrollen()">
+</body>
+</html>
+
+<p class="Titel">Vertretungsplan für Dienstag, 27. Juni 2017</p>
+<p class="Stand"> Stand: 27.06.2017 20:18:52</p>
+<hr class="Trennlinie">
+<p class="LehrerVerplantLabel">Die folgenden Lehrer sind verplant:</p><dl><dd><p class="LehrerVerplant">
+Ar (6.), Fl (5.), Fr (6.), Ko (1., 1., 2., 2., 5.), Lü (1., 5.), Mat (1.), Mß (1.), Mx (1.), Pe (3., 4.), Re (1., 3.), Rh (4.), St (2., 3.)
+</p></dd></dl>
+<p class="AbwesenheitenLabel">Abwesenheiten:</p>
+<p class="Abwesenheiten">
+Ka, Ke, Lß  bis 2., Mß 3. bis 4., Ni, Pi, Pp, Sw  bis 2., Wi  1., 10a, 10b, 10c, 10d, 36 3. bis 4. bis 2., Sp1  1., Sp2  1.
+</p>
+<table><tr>
+<th class="Stunde">St.</th>
+<th class="Klasse">Klasse</th>
+<th class="Fach">Fach</th>
+<th class="Lehrer">Lehrer</th>
+<th class="Vertretung">Vertretung</th>
+<th class="Raum">Raum</th>
+<th class="Anmerkung">Bemerkung</th>
+</tr>
+<tr>
+<td class="Stunde ungerade">3<br></td>
+<td class="Klasse ungerade">9b<br></td>
+<td class="Fach ungerade">SPO statt KR<br></td>
+<td class="Lehrer ungerade">Re<br></td>
+<td class="Vertretung ungerade">Re<br></td>
+<td class="Raum ungerade">Sp2<br></td>
+<td class="Anmerkung ungerade">geänderter Raum!
+<br></td>
+</tr>
+<tr>
+<td class="Stunde gerade">3<br></td>
+<td class="Klasse gerade"><br></td>
+<td class="Fach gerade">Netzw<br></td>
+<td class="Lehrer gerade">Pp<br></td>
+<td class="Vertretung gerade">Pe<br></td>
+<td class="Raum gerade">ohne<br></td>
+<td class="Anmerkung gerade"><br></td>
+</tr>
+</table>
+<p class="MitteilungenLabel">Informationen:</p>
+<p class="Mitteilungen">
+Fußball-AG fällt aus.<br>kath. Religion (Frau Wegers) fällt aus.<br>WPU 9 (GWPS, Frau Klomp) fällt aus.<br>Bili (Ka) fällt aus.
+</p>
+
