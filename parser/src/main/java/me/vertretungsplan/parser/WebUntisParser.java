@@ -116,16 +116,20 @@ public class WebUntisParser extends BaseParser {
 
     private void addMessagesOfDay(SubstitutionSchedule schedule)
             throws JSONException, CredentialInvalidException, IOException, UnauthorizedException {
-        for (int i = 0; i < 7; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
-            JSONArray messages = getMessagesOfDay(date).getJSONObject("messageOfDayCollection")
-                    .getJSONArray("messages");
-            if (messages.length() > 0) {
-                SubstitutionScheduleDay day = getDayForDate(schedule, date);
-                for (int j = 0; j < messages.length(); j++) {
-                    day.addMessage(messages.getJSONObject(j).getString("text"));
+        try {
+            for (int i = 0; i < 7; i++) {
+                LocalDate date = LocalDate.now().plusDays(i);
+                JSONArray messages = getMessagesOfDay(date).getJSONObject("messageOfDayCollection")
+                        .getJSONArray("messages");
+                if (messages.length() > 0) {
+                    SubstitutionScheduleDay day = getDayForDate(schedule, date);
+                    for (int j = 0; j < messages.length(); j++) {
+                        day.addMessage(messages.getJSONObject(j).getString("text"));
+                    }
                 }
             }
+        } catch (MethodNotFoundException ignored) {
+            // this is an old WebUntis instance that does not support getMessagesOfDay. Fail silently.
         }
     }
 
@@ -489,10 +493,14 @@ public class WebUntisParser extends BaseParser {
                 for (int i = 0; i < units.length(); i++) {
                     JSONObject unit = units.getJSONObject(i);
                     String startTime = getParseableTime(unit.getInt("startTime"));
-                    startTimes.put(fmt.parseLocalTime(startTime), unit.getString("name"));
+                    String name = unit.getString("name");
+                    if (name.equals("0")) {
+                        name = String.valueOf(i + 1);
+                    }
+                    startTimes.put(fmt.parseLocalTime(startTime), name);
 
                     String endTime = getParseableTime(unit.getInt("endTime"));
-                    endTimes.put(fmt.parseLocalTime(endTime), unit.getString("name"));
+                    endTimes.put(fmt.parseLocalTime(endTime), name);
                 }
             }
 
@@ -693,7 +701,7 @@ public class WebUntisParser extends BaseParser {
             JSONObject error = response.getJSONObject("error");
             switch (error.getInt("code")) {
                 case -32601:
-                    throw new IOException("Method not found");
+                    throw new MethodNotFoundException();
                 case -8504: // wrong password
                 case -8998: // user temporarily blocked
                 case -8502: // no username specified
@@ -776,5 +784,8 @@ public class WebUntisParser extends BaseParser {
         public int getKlasseId() {
             return klasseId;
         }
+    }
+
+    private class MethodNotFoundException extends IOException {
     }
 }
