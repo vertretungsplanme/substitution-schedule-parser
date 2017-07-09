@@ -259,6 +259,8 @@ public class WebUntisParser extends BaseParser {
         }
         // check for room, teacher or subject change
         for (String name : new String[]{"ro", "te", "su"}) {
+            if (!lesson.has(name)) continue;
+
             JSONArray json = lesson.getJSONArray(name);
             for (int k = 0; k < json.length(); k++) {
                 JSONObject singleJson = json.getJSONObject(k);
