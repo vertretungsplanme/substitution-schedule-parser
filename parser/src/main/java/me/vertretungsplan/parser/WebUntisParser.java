@@ -89,12 +89,47 @@ public class WebUntisParser extends BaseParser {
             final LocalDate today = LocalDate.now();
             int daysToAdd = getDaysToAdd();
 
-            final LocalDate endDate = today.plusDays(6 + daysToAdd);
+            LocalDate endDate = today.plusDays(6 + daysToAdd);
+
+            LocalDate startNextYear = null;
+            LocalDate endNextYear = null;
+
+            int schoolyearId = -1;
+            int nextYearId = -1;
+            JSONArray schoolyears = getSchoolyears();
+            for (int i = 0; i < schoolyears.length(); i++) {
+                JSONObject schoolyear = schoolyears.getJSONObject(i);
+                schoolyearId = schoolyear.getInt("id");
+                final LocalDate yearStart = parseDate(schoolyear.getInt("startDate"));
+                final LocalDate yearEnd = parseDate(schoolyear.getInt("endDate"));
+
+                if ((yearStart.isBefore(today) || yearStart.equals(today)) && (yearEnd.isAfter(today) || yearEnd
+                        .equals(today))) {
+                    // this is the current schoolyear
+                    if (endDate.isAfter(yearEnd)) {
+                        endDate = yearEnd;
+
+                        if (i < schoolyears.length() - 1) {
+                            JSONObject nextYear = schoolyears.getJSONObject(i + 1);
+                            startNextYear = parseDate(nextYear.getInt("startDate"));
+                            endNextYear = startNextYear.plus(Days.days(5));
+                            nextYearId = nextYear.getInt("id");
+                        }
+                    }
+                    break;
+                }
+            }
 
             try {
                 schedule = parseScheduleUsingSubstitutions(schedule, timegrid, today, endDate);
+                if (startNextYear != null && endNextYear != null) {
+                    parseScheduleUsingSubstitutions(schedule, timegrid, startNextYear, endNextYear);
+                }
             } catch (UnauthorizedException e) {
-                schedule = parseScheduleUsingTimetable(schedule, timegrid, today, endDate);
+                schedule = parseScheduleUsingTimetable(schedule, timegrid, today, endDate, schoolyearId);
+                if (startNextYear != null && endNextYear != null) {
+                    parseScheduleUsingTimetable(schedule, timegrid, startNextYear, endNextYear, nextYearId);
+                }
             }
 
             schedule.setClasses(toNamesList(getClasses()));
@@ -148,10 +183,8 @@ public class WebUntisParser extends BaseParser {
             //
             JSONArray holidays = getHolidays();
             for (int i = 0; i < holidays.length(); i++) {
-                LocalDate startDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
-                        ("startDate")));
-                LocalDate endDate = DATE_FORMAT.parseLocalDate(String.valueOf(holidays.getJSONObject(i).getInt
-                        ("endDate")));
+                LocalDate startDate = parseDate(holidays.getJSONObject(i).getInt("startDate"));
+                LocalDate endDate = parseDate(holidays.getJSONObject(i).getInt("endDate"));
                 if (!startDate.isAfter(today.plusDays(6)) && !endDate.isBefore(today)) {
                     if (startDate.isBefore(today)) {
                         daysToAdd += Days.daysBetween(today, endDate).getDays() + 1;
@@ -166,9 +199,13 @@ public class WebUntisParser extends BaseParser {
         return daysToAdd;
     }
 
+    private LocalDate parseDate(int startDate1) {
+        return DATE_FORMAT.parseLocalDate(String.valueOf(startDate1));
+    }
+
     private SubstitutionSchedule parseScheduleUsingTimetable(SubstitutionSchedule schedule, TimeGrid timegrid,
                                                              LocalDate startDate,
-                                                             LocalDate endDate)
+                                                             LocalDate endDate, int schoolyear)
             throws JSONException, UnauthorizedException, CredentialInvalidException, IOException {
         try {
             switch (scheduleData.getType()) {
@@ -185,7 +222,7 @@ public class WebUntisParser extends BaseParser {
                     }
                     break;
                 case STUDENT:
-                    Map<Integer, String> classes = idNameMap(getClasses());
+                    Map<Integer, String> classes = idNameMap(getClasses(schoolyear));
                     for (Map.Entry<Integer, String> entry : classes.entrySet()) {
                         JSONArray json = getTimetable(startDate, endDate, new UserData(entry.getKey(), UserData
                                 .TYPE_KLASSE));
@@ -214,7 +251,7 @@ public class WebUntisParser extends BaseParser {
         for (int i = 0; i < json.length(); i++) {
             JSONObject lesson = json.getJSONObject(i);
 
-            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(lesson.getInt("date")));
+            LocalDate date = parseDate(lesson.getInt("date"));
             SubstitutionScheduleDay day = getDayForDate(schedule, date);
 
             if (!isSubstitution(lesson)) {
@@ -298,7 +335,7 @@ public class WebUntisParser extends BaseParser {
 
             substitution.setDesc(substJson.optString("txt"));
 
-            LocalDate date = DATE_FORMAT.parseLocalDate(String.valueOf(substJson.getInt("date")));
+            LocalDate date = parseDate(substJson.getInt("date"));
             LocalTime start = TIME_FORMAT.parseLocalTime(getParseableTime(substJson.getInt("startTime")));
             LocalTime end = TIME_FORMAT.parseLocalTime(getParseableTime(substJson.getInt("endTime")));
 
@@ -591,6 +628,11 @@ public class WebUntisParser extends BaseParser {
         return (JSONArray) request("getHolidays");
     }
 
+    private JSONArray getSchoolyears() throws JSONException, CredentialInvalidException, IOException,
+            UnauthorizedException {
+        return (JSONArray) request("getSchoolyears");
+    }
+
     private LocalDateTime getLastImport()
             throws JSONException, CredentialInvalidException, IOException, UnauthorizedException {
         return new LocalDateTime(request("getLatestImportTime"));
@@ -632,7 +674,16 @@ public class WebUntisParser extends BaseParser {
 
     private JSONArray getClasses() throws IOException, JSONException, CredentialInvalidException,
             UnauthorizedException {
-        return (JSONArray) request("getKlassen");
+        return getClasses(null);
+    }
+
+    private JSONArray getClasses(Integer schoolyear) throws IOException, JSONException, CredentialInvalidException,
+            UnauthorizedException {
+        JSONObject params = new JSONObject();
+        if (schoolyear != null) {
+            params.put("schoolyearId", schoolyear);
+        }
+        return (JSONArray) request("getKlassen", params);
     }
 
     private JSONArray getTeachers() throws IOException, JSONException, CredentialInvalidException,
