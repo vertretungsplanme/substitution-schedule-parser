@@ -99,13 +99,13 @@ public class WebUntisParser extends BaseParser {
             JSONArray schoolyears = getSchoolyears();
             for (int i = 0; i < schoolyears.length(); i++) {
                 JSONObject schoolyear = schoolyears.getJSONObject(i);
-                schoolyearId = schoolyear.getInt("id");
                 final LocalDate yearStart = parseDate(schoolyear.getInt("startDate"));
                 final LocalDate yearEnd = parseDate(schoolyear.getInt("endDate"));
 
                 if ((yearStart.isBefore(today) || yearStart.equals(today)) && (yearEnd.isAfter(today) || yearEnd
                         .equals(today))) {
                     // this is the current schoolyear
+                    schoolyearId = schoolyear.getInt("id");
                     if (endDate.isAfter(yearEnd)) {
                         endDate = yearEnd;
 
@@ -120,6 +120,22 @@ public class WebUntisParser extends BaseParser {
                 }
             }
 
+            schedule.setClasses(toNamesList(getClasses()));
+            final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
+            schedule.setWebsite(protocol + data.getString(PARAM_HOST) + "/WebUntis");
+
+            try {
+                addMessagesOfDay(schedule);
+            } catch (UnauthorizedException ignored) {
+
+            }
+
+            if (schoolyearId == -1) {
+                // there is no current schoolyear, so we cannot get any substitutions
+                logout();
+                return schedule;
+            }
+
             try {
                 schedule = parseScheduleUsingSubstitutions(schedule, timegrid, today, endDate);
                 if (startNextYear != null && endNextYear != null) {
@@ -130,16 +146,6 @@ public class WebUntisParser extends BaseParser {
                 if (startNextYear != null && endNextYear != null) {
                     parseScheduleUsingTimetable(schedule, timegrid, startNextYear, endNextYear, nextYearId);
                 }
-            }
-
-            schedule.setClasses(toNamesList(getClasses()));
-            final String protocol = data.optString(PARAM_PROTOCOL, "https") + "://";
-            schedule.setWebsite(protocol + data.getString(PARAM_HOST) + "/WebUntis");
-
-            try {
-                addMessagesOfDay(schedule);
-            } catch (UnauthorizedException ignored) {
-
             }
 
             logout();
