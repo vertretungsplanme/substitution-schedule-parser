@@ -423,7 +423,7 @@ public class UntisInfoParser extends UntisCommonParser {
         }
     }
 
-    private void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
+    void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
             throws JSONException, CredentialInvalidException, IOException {
         Elements days = doc.select("#vertretung > p > b, #vertretung > b, p:has(a[href^=#]) > b");
         if (days.size() > 0) {
