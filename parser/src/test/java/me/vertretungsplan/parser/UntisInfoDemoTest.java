@@ -43,7 +43,5 @@ public class UntisInfoDemoTest extends BaseDemoTest {
         assertEquals(2, schedule.getDays().size());
         assertEquals(31, schedule.getDays().get(0).getSubstitutions().size());
         assertEquals(24, schedule.getDays().get(1).getSubstitutions().size());
-
-        System.out.println(schedule.toString());
     }
 }
