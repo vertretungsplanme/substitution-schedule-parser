@@ -191,7 +191,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     protected static String recognizeType(String text) {
         if (text.toLowerCase().contains("f.a.") || text.toLowerCase().contains("fällt aus")
-                || text.toLowerCase().contains("faellt aus") || text.toLowerCase().contains("entfällt")) {
+                || text.toLowerCase().contains("faellt aus") || text.toLowerCase().contains("entfällt") || text
+                .toLowerCase().contains("entfall")) {
             return "Entfall";
         } else if (equalsOneOf(text, "Raumänderung", "Klasse frei", "Unterrichtstausch", "Freistunde", "Raumverlegung",
                 "Selbstlernen", "Zusammenlegung", "HA", "Raum beachten", "Stundentausch", "Klausur", "Raum-Vertr.",
