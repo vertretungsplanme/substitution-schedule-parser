@@ -139,6 +139,7 @@ public class DaVinciParser extends BaseParser {
                     case "Pos":
                     case "Stunde":
                     case "Std.":
+                    case "Dstd.":
                         lesson = value;
                         subst.setLesson(lesson);
                         break;
