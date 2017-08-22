@@ -115,7 +115,8 @@ public class DaVinciParser extends BaseParser {
 
                 if (value.isEmpty()) {
                     if (header.equals("Klasse")) subst.setClasses(new HashSet<>(classes));
-                    if (header.equals("Pos") || header.equals("Stunde") || header.equals("Std.")) {
+                    if (header.equals("Pos") || header.equals("Stunde") || header.equals("Std.") || header.equals
+                            ("Dstd.")) {
                         subst.setLesson(lesson);
                     }
                     if (header.equals("Art") || header.equals("Merkmal")) subst.setType("Vertretung");
