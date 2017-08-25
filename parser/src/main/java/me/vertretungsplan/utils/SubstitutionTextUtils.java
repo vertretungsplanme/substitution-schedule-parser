@@ -288,15 +288,15 @@ public class SubstitutionTextUtils {
 
     private static String formatOutput(String subjectAndTeacher, String room, String desc) {
         if (!subjectAndTeacher.isEmpty() && !room.isEmpty() && !desc.isEmpty()) {
-            return String.format("%s in %s - %s", subjectAndTeacher, room, desc);
+            return String.format("%s in %s – %s", subjectAndTeacher, room, desc);
         } else if (!subjectAndTeacher.isEmpty() && !room.isEmpty()) {
             return String.format("%s in %s", subjectAndTeacher, room);
         } else if (!room.isEmpty() && !desc.isEmpty()) {
-            return String.format("%s - %s", room, desc);
+            return String.format("%s – %s", room, desc);
         } else if (!room.isEmpty()) {
             return room;
         } else if (!subjectAndTeacher.isEmpty() && !desc.isEmpty()) {
-            return String.format("%s - %s", subjectAndTeacher, desc);
+            return String.format("%s – %s", subjectAndTeacher, desc);
         } else if (!subjectAndTeacher.isEmpty()) {
             return subjectAndTeacher;
         } else if (!desc.isEmpty()) {
