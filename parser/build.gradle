@@ -1,5 +1,5 @@
 group 'me.vertretungsplan'
-version '1.0.0-beta190'
+version '1.0.0-beta191'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
