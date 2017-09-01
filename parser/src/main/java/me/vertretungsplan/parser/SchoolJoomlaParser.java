@@ -164,8 +164,11 @@ public class SchoolJoomlaParser extends BaseParser {
             }
         }
 
-        final String json = httpGet(baseurl + "/components/com_school_mobile/wserv/service" +
+        String json = httpGet(baseurl + "/components/com_school_mobile/wserv/service" +
                 ".php?select=&user=" + username + "&pw=" + password + "&task=" + task, "UTF-8");
+        if (!json.startsWith("{") && json.contains("{")) {
+            json = json.substring(json.indexOf("{")); // sometimes the server gives error messages above the JSON
+        }
         final JSONObject data = new JSONObject(json);
 
         final int error = data.getInt("error");
@@ -174,6 +177,11 @@ public class SchoolJoomlaParser extends BaseParser {
                 case 12: // wrong teacher password
                 case 17: // wrong student password
                     throw new CredentialInvalidException();
+                case 3002: // teacher auth failed
+                    if (scheduleData.getType() == SubstitutionSchedule.Type.TEACHER) {
+                        throw new CredentialInvalidException();
+                    }
+                    break;
                 default:
                     throw new IOException(data.getString("error_desc"));
             }
