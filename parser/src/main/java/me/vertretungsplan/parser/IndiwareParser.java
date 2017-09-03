@@ -71,8 +71,9 @@ public class IndiwareParser extends BaseParser {
 
     static final Pattern datePattern = Pattern.compile("\\w+, \\d\\d?\\. \\w+ \\d{4}", Pattern.UNICODE_CHARACTER_CLASS);
     static final Pattern lastChangePattern = Pattern.compile("\\d\\d?\\.\\d\\d?\\.\\d{4}, \\d\\d?\\:\\d\\d");
-    static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,).)+) ?,? ?(.*)");
-    static final Pattern cancelPattern = Pattern.compile("([^\\s]+) (.+) fällt (:?leider )?aus");
+    static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,|Frau|Herr).)+|(?:Herr|Frau) " +
+            "[^\\s]+) ?,? ?(.*)");
+    static final Pattern cancelPattern = Pattern.compile("((?!verlegt)[^\\s]+) (.+) fällt (:?leider )?aus");
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) (.+) (verlegt nach .*)");
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
@@ -415,6 +416,7 @@ public class IndiwareParser extends BaseParser {
             if (!substitutionMatcher.group(3).isEmpty()) {
                 substitution.setDesc(substitutionMatcher.group(3));
             }
+            System.out.println(substitution.toString());
         } else if (cancelMatcher.matches()) {
             substitution.setType("Entfall");
             substitution.setPreviousSubject(cancelMatcher.group(1));
