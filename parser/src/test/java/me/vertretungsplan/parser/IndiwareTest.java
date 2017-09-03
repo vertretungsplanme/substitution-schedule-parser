@@ -12,8 +12,7 @@ import org.junit.Test;
 
 import java.util.regex.Matcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class IndiwareTest {
     @Test
@@ -35,6 +34,15 @@ public class IndiwareTest {
     }
 
     @Test
+    public void testSubstitutionPatternWithDescWithoutComma() {
+        Matcher matcher = IndiwareParser.substitutionPattern.matcher("für DE Frau Friedel geändert");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "DE");
+        assertEquals(matcher.group(2), "Frau Friedel");
+        assertEquals(matcher.group(3), "geändert");
+    }
+
+    @Test
     public void testCancelPattern1() {
         Matcher matcher = IndiwareParser.cancelPattern.matcher("FR Wen fällt aus");
         assertTrue(matcher.matches());
@@ -48,6 +56,12 @@ public class IndiwareTest {
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "RE/k-st6");
         assertEquals(matcher.group(2), "GAE");
+    }
+
+    @Test
+    public void testCancelPatternShift() {
+        Matcher matcher = IndiwareParser.cancelPattern.matcher("verlegt von St.7-8; EN Herr Plietzsch fällt aus");
+        assertFalse(matcher.matches());
     }
 
     @Test
