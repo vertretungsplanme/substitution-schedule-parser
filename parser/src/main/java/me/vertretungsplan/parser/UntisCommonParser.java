@@ -584,8 +584,8 @@ public abstract class UntisCommonParser extends BaseParser {
                 if ((zeile.select("strike").size() > 0 &&
                         equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
                         equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
-                        || (v.getSubject() == null && v.getRoom() == null && v
-                        .getTeacher() == null && v.getPreviousSubject() != null)) {
+                        || (v.getSubject() == null && (v.getRoom() == null || v.getRoom().equals(v.getPreviousRoom()))
+                        && v.getTeacher() == null && v.getPreviousSubject() != null)) {
                     v.setType("Entfall");
                     v.setColor(colorProvider.getColor("Entfall"));
                 } else {
@@ -653,7 +653,8 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     private boolean isEmpty(String text) {
-        return text.replaceAll("\u00A0", "").trim().equals("") || text.replaceAll("\u00A0", "").trim().equals("---");
+        final String trim = text.replaceAll("\u00A0", "").trim();
+        return trim.equals("") || trim.equals("---") || trim.equals("+");
     }
 
     /**
