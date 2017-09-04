@@ -21,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parser for substitution schedules in HTML format served using SchoolJoomla.
@@ -38,6 +40,7 @@ import java.util.*;
  */
 public class SchoolJoomlaParser extends BaseParser {
     private static final String PARAM_BASEURL = "baseurl";
+    private static final Pattern CLASSES_REGEX = Pattern.compile("(.*) \\[<I>(.*)</I>\\]");
 
     SchoolJoomlaParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -68,10 +71,21 @@ public class SchoolJoomlaParser extends BaseParser {
                 Iterator classesIter = dayJson.keys();
                 while (classesIter.hasNext()) {
                     String klasse = (String) classesIter.next();
-                    if (klasse.equals("elementscount")) continue;
 
+                    Matcher matcher = CLASSES_REGEX.matcher(klasse);
                     Set<String> classes = new HashSet<>();
-                    classes.add(klasse);
+                    if (klasse.equals("elementscount")) {
+                        continue;
+                    } else if (matcher.matches()) {
+                        // 07 [<I>A, B, C</I>]
+                        String year = matcher.group(1);
+                        String[] letters = matcher.group(2).split(", ");
+                        for (String letter : letters) {
+                            classes.add(year + letter);
+                        }
+                    } else {
+                        classes.add(klasse);
+                    }
 
                     for (int i = 0; i < dayJson.getJSONArray(klasse).length(); i++) {
                         JSONObject subst = dayJson.getJSONArray(klasse).getJSONObject(i);
@@ -97,6 +111,8 @@ public class SchoolJoomlaParser extends BaseParser {
                             case "R":
                                 s.setType("Verlegung");
                                 break;
+                            case "A":
+                                continue;
                             default:
                                 throw new IOException("unknown: " + art);
                         }
