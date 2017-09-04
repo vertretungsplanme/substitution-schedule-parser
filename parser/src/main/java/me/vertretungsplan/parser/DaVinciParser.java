@@ -93,7 +93,7 @@ public class DaVinciParser extends BaseParser {
     static void parseDaVinciTable(Element table, SubstitutionSchedule v, String klasse, SubstitutionScheduleDay day,
                                   ColorProvider colorProvider) {
         List<String> headers = new ArrayList<>();
-        for (Element header : table.select("thead tr th, tr td[bgcolor=#9999FF]")) {
+        for (Element header : table.select("thead tr th, tr td[bgcolor=#9999FF], tr td[bgcolor=#C0C0C0]")) {
             headers.add(header.text());
         }
 
@@ -105,7 +105,7 @@ public class DaVinciParser extends BaseParser {
         Pattern previousCurrentPattern = Pattern.compile("\\+([^\\s]+) \\(([^)]+)\\)");
         Pattern previousPattern = Pattern.compile("\\(([^)]+)\\)");
 
-        for (Element row : table.select("tr:not(thead tr, tr:has(td[bgcolor=#9999FF]))")) {
+        for (Element row : table.select("tr:not(thead tr, tr:has(td[bgcolor=#9999FF]), tr:has(td[bgcolor=#C0C0C0]))")) {
             Substitution subst = new Substitution();
             LocalDate substDate = null;
             Elements columns = row.select("td");
@@ -381,27 +381,42 @@ public class DaVinciParser extends BaseParser {
             // DaVinci 5
             lastChangeElem = doc.select("h1").first();
         }
-        String lastChange = lastChangeElem.ownText();
-        Pattern pattern = Pattern.compile("(\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}) \\|");
-        Matcher matcher = pattern.matcher(lastChange);
-        if (matcher.find()) {
-            LocalDateTime lastChangeTime =
-                    DateTimeFormat.forPattern("dd-MM-yyyy HH:mm").parseLocalDateTime(matcher.group(1));
-            if (day != null) {
-                day.setLastChange(lastChangeTime);
-            } else {
-                schedule.setLastChange(lastChangeTime);
-            }
-        } else {
-            Pattern pattern2 = Pattern.compile("(\\d{2}.\\d{2}.\\d{4} \\| \\d+:\\d{2})");
-            Matcher matcher2 = pattern2.matcher(lastChange);
-            if (matcher2.find()) {
+        if (lastChangeElem != null) {
+            String lastChange = lastChangeElem.ownText();
+            Pattern pattern = Pattern.compile("(\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}) \\|");
+            Matcher matcher = pattern.matcher(lastChange);
+            if (matcher.find()) {
                 LocalDateTime lastChangeTime =
-                        DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(matcher2.group(1));
+                        DateTimeFormat.forPattern("dd-MM-yyyy HH:mm").parseLocalDateTime(matcher.group(1));
                 if (day != null) {
                     day.setLastChange(lastChangeTime);
                 } else {
                     schedule.setLastChange(lastChangeTime);
+                }
+            } else {
+                Pattern pattern2 = Pattern.compile("(\\d{2}.\\d{2}.\\d{4} \\| \\d+:\\d{2})");
+                Matcher matcher2 = pattern2.matcher(lastChange);
+                if (matcher2.find()) {
+                    LocalDateTime lastChangeTime =
+                            DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(matcher2.group(1));
+                    if (day != null) {
+                        day.setLastChange(lastChangeTime);
+                    } else {
+                        schedule.setLastChange(lastChangeTime);
+                    }
+                }
+            }
+        } else {
+            Pattern pattern = Pattern.compile("<!-- Created by daVinci 5 \\| (\\d+\\.\\d+\\.\\d+ \\| \\d+:\\d+) \\| " +
+                    "www.stueber.de -->");
+            Matcher matcher = pattern.matcher(doc.html());
+            if (matcher.find()) {
+                String str = matcher.group(1);
+                LocalDateTime date = DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(str);
+                if (day != null) {
+                    day.setLastChange(date);
+                } else {
+                    schedule.setLastChange(date);
                 }
             }
         }
