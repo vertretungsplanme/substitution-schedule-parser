@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://www.haneke.de/SvPlan.html">svPlan</a>
@@ -146,7 +148,7 @@ public class SVPlanParser extends BaseParser {
         return v;
     }
 
-    private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException {
+    private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException, JSONException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
         if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
                 .startsWith("Vertretungsplan für "))) {
@@ -171,8 +173,7 @@ public class SVPlanParser extends BaseParser {
                                 substitution.setLesson(lastLesson);
                             } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
                                     && hasData(lastClass) && data.optBoolean(PARAM_REPEAT_CLASS, true)) {
-                                substitution.getClasses().addAll(Arrays.asList(lastClass.split(data.optString
-                                        (PARAM_CLASS_SEPARATOR, ", "))));
+                                substitution.getClasses().addAll(getClasses(lastClass));
                             }
                             continue;
                         }
@@ -180,8 +181,7 @@ public class SVPlanParser extends BaseParser {
                             substitution.setLesson(column.text());
                             lastLesson = column.text();
                         } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
-                            substitution.getClasses().addAll(Arrays.asList(column.text().split(data.optString
-                                    (PARAM_CLASS_SEPARATOR, ", "))));
+                            substitution.getClasses().addAll(getClasses(column.text()));
                             lastClass = column.text();
                         } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
                             if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
@@ -239,6 +239,44 @@ public class SVPlanParser extends BaseParser {
             v.addDay(day);
         } else {
             throw new IOException("keine SVPlan-Tabelle gefunden");
+        }
+    }
+
+    @NotNull List<String> getClasses(String text) throws JSONException {
+        // Detect things like "7"
+        Pattern singlePattern = Pattern.compile("\\[(\\d+)\\]");
+        Matcher singleMatcher = singlePattern.matcher(text);
+
+        // Detect things like "5-12"
+        Pattern rangePattern = Pattern.compile("\\[(\\d+) ?- ?(\\d+)\\]");
+        Matcher rangeMatcher = rangePattern.matcher(text);
+
+        Pattern pattern2 = Pattern.compile("^(\\d+).*");
+
+        if (rangeMatcher.matches()) {
+            List<String> classes = new ArrayList<>();
+            int min = Integer.parseInt(rangeMatcher.group(1));
+            int max = Integer.parseInt(rangeMatcher.group(2));
+            for (String klasse : getAllClasses()) {
+                Matcher matcher2 = pattern2.matcher(klasse);
+                if (matcher2.matches()) {
+                    int num = Integer.parseInt(matcher2.group(1));
+                    if (min <= num && num <= max) classes.add(klasse);
+                }
+            }
+            return classes;
+        } else if (singleMatcher.matches()) {
+            List<String> classes = new ArrayList<>();
+            int grade = Integer.parseInt(singleMatcher.group(1));
+            for (String klasse : getAllClasses()) {
+                Matcher matcher2 = pattern2.matcher(klasse);
+                if (matcher2.matches() && grade == Integer.parseInt(matcher2.group(1))) {
+                    classes.add(klasse);
+                }
+            }
+            return classes;
+        } else {
+            return Arrays.asList(text.split(data.optString(PARAM_CLASS_SEPARATOR, ", ")));
         }
     }
 
