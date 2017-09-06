@@ -84,22 +84,29 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
             dayElems = doc.select("#vertretung > p > b, #vertretung > b");
         }
 
-		for (Element dayElem : dayElems) {
-			SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-			day.setLastChangeString("");
+        if (dayElems.size() > 0) {
+            // untis-info days
+            for (Element dayElem : dayElems) {
+                SubstitutionScheduleDay day = new SubstitutionScheduleDay();
+                day.setLastChangeString("");
 
-			String date = dayElem.text();
-			day.setDateString(date);
-			day.setDate(ParserUtils.parseDate(date));
+                String date = dayElem.text();
+                day.setDateString(date);
+                day.setDate(ParserUtils.parseDate(date));
 
-			Element next;
-			if (dayElem.parent().tagName().equals("p")) {
-				next = dayElem.parent().nextElementSibling().nextElementSibling();
-			} else {
-				next = dayElem.parent().select("p").first().nextElementSibling();
-			}
-			parseDay(day, next, v, null);
-		}
+                Element next;
+                if (dayElem.parent().tagName().equals("p")) {
+                    next = dayElem.parent().nextElementSibling().nextElementSibling();
+                } else {
+                    next = dayElem.parent().select("p").first().nextElementSibling();
+                }
+                parseDay(day, next, v, null);
+            }
+        } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
+            // untis-subst table
+            parseSubstitutionTable(v, null, doc);
+        }
+
 		v.setClasses(getAllClasses());
 		v.setTeachers(getAllTeachers());
 		return v;
