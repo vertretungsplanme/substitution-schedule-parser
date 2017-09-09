@@ -92,9 +92,16 @@ public class DaVinciParser extends BaseParser {
 
     static void parseDaVinciTable(Element table, SubstitutionSchedule v, String klasse, SubstitutionScheduleDay day,
                                   ColorProvider colorProvider) {
+        boolean skipRow = false;
         List<String> headers = new ArrayList<>();
-        for (Element header : table.select("thead tr th, tr td[bgcolor=#9999FF], tr td[bgcolor=#C0C0C0]")) {
+        for (Element header : table.select("thead tr th")) {
             headers.add(header.text());
+        }
+        if (headers.size() == 0) {
+            skipRow = true;
+            for (Element header : table.select(" tr:first-child td")) {
+                headers.add(header.text());
+            }
         }
 
         // These three variables can
@@ -105,7 +112,12 @@ public class DaVinciParser extends BaseParser {
         Pattern previousCurrentPattern = Pattern.compile("\\+([^\\s]+) \\(([^)]+)\\)");
         Pattern previousPattern = Pattern.compile("\\(([^)]+)\\)");
 
-        for (Element row : table.select("tr:not(thead tr, tr:has(td[bgcolor=#9999FF]), tr:has(td[bgcolor=#C0C0C0]))")) {
+        for (Element row : table.select("tr:not(thead tr)")) {
+            if (skipRow) {
+                skipRow = false;
+                continue;
+            }
+
             Substitution subst = new Substitution();
             LocalDate substDate = null;
             Elements columns = row.select("td");
