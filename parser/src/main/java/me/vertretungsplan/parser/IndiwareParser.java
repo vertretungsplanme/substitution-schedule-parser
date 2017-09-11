@@ -416,7 +416,6 @@ public class IndiwareParser extends BaseParser {
             if (!substitutionMatcher.group(3).isEmpty()) {
                 substitution.setDesc(substitutionMatcher.group(3));
             }
-            System.out.println(substitution.toString());
         } else if (cancelMatcher.matches()) {
             substitution.setType("Entfall");
             substitution.setPreviousSubject(cancelMatcher.group(1));
