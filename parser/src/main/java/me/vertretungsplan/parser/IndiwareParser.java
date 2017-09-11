@@ -330,7 +330,7 @@ public class IndiwareParser extends BaseParser {
                 if (first) {
                     first = false;
                 } else {
-                    message.append("\n");
+                    message.append("<br>\n");
                 }
                 message.append(fusszeile.text());
             }
@@ -341,7 +341,7 @@ public class IndiwareParser extends BaseParser {
             StringBuilder message = new StringBuilder();
             message.append("<b>").append("Geänderte Aufsichten:").append("</b>");
             for (Element aufsicht : ds.aufsichtzeilen()) {
-                message.append("\n");
+                message.append("<br>\n");
                 message.append(aufsicht.text());
             }
             day.addMessage(message.toString());
