@@ -192,6 +192,10 @@ public class IndiwareParser extends BaseParser {
 
         Elements fusszeilen();
 
+        Element aufsichten();
+
+        Elements aufsichtzeilen();
+
         Elements aktionen();
     }
 
@@ -222,6 +226,14 @@ public class IndiwareParser extends BaseParser {
 
         @Override public Elements fusszeilen() {
             return fuss().select("fusszeile fussinfo");
+        }
+
+        @Override public Element aufsichten() {
+            return vp.select("aufsichten").first();
+        }
+
+        @Override public Elements aufsichtzeilen() {
+            return aufsichten().select("aufsichtzeile aufsichtinfo");
         }
 
         @Override public Elements aktionen() {
@@ -255,6 +267,14 @@ public class IndiwareParser extends BaseParser {
 
         @Override public Elements fusszeilen() {
             return fuss().select("tr td");
+        }
+
+        @Override public Element aufsichten() {
+            return doc.select("span:contains(Aufsichten) + table").first();
+        }
+
+        @Override public Elements aufsichtzeilen() {
+            return aufsichten().select("tr td");
         }
 
         @Override public Elements aktionen() {
@@ -313,6 +333,16 @@ public class IndiwareParser extends BaseParser {
                     message.append("\n");
                 }
                 message.append(fusszeile.text());
+            }
+            day.addMessage(message.toString());
+        }
+
+        if (ds.aufsichten() != null) {
+            StringBuilder message = new StringBuilder();
+            message.append("<b>").append("Geänderte Aufsichten:").append("</b>");
+            for (Element aufsicht : ds.aufsichtzeilen()) {
+                message.append("\n");
+                message.append(aufsicht.text());
             }
             day.addMessage(message.toString());
         }
