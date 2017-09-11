@@ -94,7 +94,7 @@ public class IndiwareDemoTest extends BaseDemoTest {
         assertEquals(new LocalDateTime(2016, 8, 19, 12, 50), schedule.getLastChange());
         assertEquals(2, schedule.getMessages().size());
         assertEquals("<b>Klassen mit Änderung:</b> bla", schedule.getMessages().get(0));
-        assertEquals("Erste Zeile.\nZweite Zeile", schedule.getMessages().get(1));
+        assertEquals("Erste Zeile.<br>\nZweite Zeile", schedule.getMessages().get(1));
         assertEquals(1, schedule.getSubstitutions().size());
         Substitution subst = schedule.getSubstitutions().iterator().next();
         assertEquals(2, subst.getClasses().size());
