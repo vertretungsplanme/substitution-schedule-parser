@@ -156,7 +156,7 @@ public class UntisInfoParser extends UntisCommonParser {
                     data.optBoolean("single_classes", false)) // backwards compatibility
                     || data.optString(PARAM_SCHEDULE_TYPE, "substitution").equals("timetable")) {
                 int classNumber = 1;
-				for (String klasse : getAllClasses()) {
+                for (String klasse : parseClasses(getNavbarDoc(), data)) {
                     String url = getScheduleUrl(week, classNumber, data);
 					try {
                         parsePage(v, lastChange, klasse, url, weekName);
