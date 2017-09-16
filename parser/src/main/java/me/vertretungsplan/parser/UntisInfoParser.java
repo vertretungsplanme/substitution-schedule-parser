@@ -156,7 +156,9 @@ public class UntisInfoParser extends UntisCommonParser {
                     data.optBoolean("single_classes", false)) // backwards compatibility
                     || data.optString(PARAM_SCHEDULE_TYPE, "substitution").equals("timetable")) {
                 int classNumber = 1;
-                for (String klasse : parseClasses(getNavbarDoc(), data)) {
+                List<String> classesToSelect = parseClasses(getNavbarDoc(), data);
+                if (getLetter(data).equals("v")) classesToSelect = parseTeachers(getNavbarDoc(), data);
+                for (String klasse : classesToSelect) {
                     String url = getScheduleUrl(week, classNumber, data);
 					try {
                         parsePage(v, lastChange, klasse, url, weekName);
@@ -463,6 +465,16 @@ public class UntisInfoParser extends UntisCommonParser {
 
     @NotNull static List<String> parseClasses(String navbarDoc, JSONObject data) throws JSONException, IOException {
         Pattern pattern = Pattern.compile("var classes = (\\[[^\\]]*\\]);");
+        return parseJsonList(navbarDoc, data, pattern);
+    }
+
+    @NotNull static List<String> parseTeachers(String navbarDoc, JSONObject data) throws JSONException, IOException {
+        Pattern pattern = Pattern.compile("var teachers = (\\[[^\\]]*\\]);");
+        return parseJsonList(navbarDoc, data, pattern);
+    }
+
+    @NotNull private static List<String> parseJsonList(String navbarDoc, JSONObject data, Pattern pattern)
+            throws JSONException, IOException {
         Matcher matcher = pattern.matcher(navbarDoc);
         if (matcher.find()) {
             JSONArray classesJson = new JSONArray(matcher.group(1));
