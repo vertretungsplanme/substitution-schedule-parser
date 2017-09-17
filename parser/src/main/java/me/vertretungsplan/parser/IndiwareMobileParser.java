@@ -8,7 +8,6 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.ParserUtil;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
@@ -112,7 +111,8 @@ public class IndiwareMobileParser extends BaseParser {
 
                 Substitution subst = new Substitution();
                 subst.setLesson(text(lesson.select("St")));
-                subst.setTeachers(split(text(lesson.select("Te"))));
+                subst.setTeachers(split(text(lesson.select("Le"))));
+                subst.setSubject(text(lesson.select("Fa")));
                 subst.setRoom(text(lesson.select("Ra")));
                 IndiwareParser.handleDescription(subst, text(lesson.select("If")));
                 if (subst.getType() == null) subst.setType("Vertretung");
