@@ -283,7 +283,7 @@ public class SVPlanParser extends BaseParser {
     private void setDate(Element svp, Document doc, SubstitutionScheduleDay day) {
         String date = "Unbekanntes Datum";
         if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0) {
-            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").text().replaceAll
+            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").first().text().replaceAll
                     ("Vertretungsplan (für )?", "").trim();
         } else if (doc.title().startsWith("Vertretungsplan für ")) {
             date = doc.title().substring("Vertretungsplan für ".length());
