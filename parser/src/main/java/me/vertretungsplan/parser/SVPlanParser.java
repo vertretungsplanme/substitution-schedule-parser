@@ -90,6 +90,8 @@ public class SVPlanParser extends BaseParser {
         String encoding = data.optString(PARAM_ENCODING, null);
         List<Document> docs = new ArrayList<>();
 
+        int successfulSchedules = 0;
+        IOException lastException = null;
         for (int i = 0; i < urls.length(); i++) {
             String url;
             if (urls.get(i) instanceof JSONObject) {
@@ -103,14 +105,32 @@ public class SVPlanParser extends BaseParser {
                         String value = postParams.getString(name);
                         nvps.add(new BasicNameValuePair(name, value));
                     }
-                    docs.add(Jsoup.parse(httpPost(url, encoding, nvps).replace("&nbsp;", "")));
+                    try {
+                        docs.add(Jsoup.parse(httpPost(url, encoding, nvps).replace("&nbsp;", "")));
+                        successfulSchedules++;
+                    } catch (IOException e) {
+                        lastException = e;
+                    }
                 } else {
-                    docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                    try {
+                        docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                        successfulSchedules++;
+                    } catch (IOException e) {
+                        lastException = e;
+                    }
                 }
             } else {
                 url = urls.getString(i);
-                docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                try {
+                    docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
+                    successfulSchedules++;
+                } catch (IOException e) {
+                    lastException = e;
+                }
             }
+        }
+        if (successfulSchedules == 0 && lastException != null) {
+            throw lastException;
         }
 
         SubstitutionSchedule v = parseSVPlanSchedule(docs);
