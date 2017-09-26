@@ -129,7 +129,7 @@ public class Substitution implements Cloneable {
 
     /**
      * Get the type of this substitution. Something like "substitution",
-     * "sancellation", "different room" ("Vertretung", "Entfall", "anderer Raum") etc.
+     * "cancellation", "different room" ("Vertretung", "Entfall", "anderer Raum") etc.
      *
      * @return the type
      */
