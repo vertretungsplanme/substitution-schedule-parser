@@ -101,4 +101,11 @@ public class IndiwareTest {
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "Fdr");
     }
+
+    @Test
+    public void testTakeOverPattern() {
+        Matcher matcher = IndiwareParser.takeOverPattern.matcher("Herr Samuel übernimmt mit");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "Herr Samuel");
+    }
 }

@@ -78,6 +78,8 @@ public class IndiwareParser extends BaseParser {
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
     static final Pattern bracesPattern = Pattern.compile("^\\((.*)\\)$");
+    static final Pattern takeOverPattern = Pattern.compile("((?:(?! ,|Frau|Herr).)+|(?:Herr|Frau) [^\\s]+) übernimmt " +
+            "mit");
 
     public IndiwareParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -404,8 +406,12 @@ public class IndiwareParser extends BaseParser {
                         substitution.setSubject(subjectAndCourse(course, value));
                     case "lehrer":
                         Matcher bracesMatcher = bracesPattern.matcher(value);
-                        if (bracesMatcher.matches()) value = bracesMatcher.group(1);
-                        substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        if (bracesMatcher.matches()) {
+                            value = bracesMatcher.group(1);
+                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        } else {
+                            substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        }
                         break;
                     case "raum":
                         if (columnTypes != null && columnTypes.contains("vraum")) {
@@ -462,6 +468,13 @@ public class IndiwareParser extends BaseParser {
             substitution.setType(value);
         } else {
             substitution.setDesc(value);
+        }
+
+        if (substitution.getDesc() != null) {
+            Matcher takeOverMatcher = takeOverPattern.matcher(substitution.getDesc());
+            if (takeOverMatcher.find()) {
+                substitution.setTeacher(takeOverMatcher.group(1));
+            }
         }
     }
 
