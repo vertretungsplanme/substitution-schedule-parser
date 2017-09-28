@@ -190,7 +190,6 @@ public class IphisParser extends BaseParser {
             headers.put("Accept", "application/json");
 
             final String httpResponse = httpGet(url, "UTF-8", headers);
-            System.out.println(httpResponse);
             return new JSONArray(httpResponse);
         } catch (HttpResponseException httpResponseException) {
             if (httpResponseException.getStatusCode() == 404) {
