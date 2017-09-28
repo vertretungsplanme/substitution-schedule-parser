@@ -1,7 +1,6 @@
 /*
  * substitution-schedule-parser - Java library for parsing schools' substitution schedules
  * Copyright (c) 2016 Johan v. Forstner
- * Copyright (c) 2016 Nico Alt
  * Copyright (c) 2017 Tobias Knipping
  *
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
@@ -19,10 +18,10 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,8 +48,8 @@ import java.util.regex.Pattern;
  * <dt><code>kuerzel</code> (String, required)</dt>
  * <dd>The school shortcode required for IPHIS.</dd>
  *
- * <dt><code>website</code> (String, recommended)</dt>
- * <dd>The URL of the School-website.</dd>
+ * <dt><code>jwt_key</code> (String, required)</dt>
+ * <dd>The key used for signing the JWT</dd>
  * </dl>
  *
  * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
@@ -61,7 +60,6 @@ public class IphisParser extends BaseParser {
     private static final String PARAM_URL = "url";
     private static final String PARAM_JWT_KEY = "jwt_key";
     private static final String PARAM_KUERZEL = "kuerzel";
-    private static final String PARAM_WEBSITE = "website";
 
     /**
      * URL of given IPHIS instance
@@ -93,7 +91,6 @@ public class IphisParser extends BaseParser {
         try {
             api = "https://" + data.getString(PARAM_URL) + "/remote/vertretungsplan/ssp";
             kuerzel = data.getString(PARAM_KUERZEL);
-            website = data.getString(PARAM_WEBSITE);
             jwt_key = data.getString(PARAM_JWT_KEY);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -104,61 +101,56 @@ public class IphisParser extends BaseParser {
             throws IOException, JSONException, CredentialInvalidException {
         final SubstitutionSchedule substitutionSchedule = SubstitutionSchedule.fromData(scheduleData);
 
-        grades = getGrades();
-        teachers = getTeachers();
-        final JSONArray changes = getChanges();
+        if (login()) {
+            grades = getGrades();
+            teachers = getTeachers();
+            final JSONArray changes = getChanges();
 
-        substitutionSchedule.setClasses(getAllClasses());
-        substitutionSchedule.setTeachers(getAllTeachers());
-        substitutionSchedule.setWebsite(website);
+            substitutionSchedule.setClasses(getAllClasses());
+            substitutionSchedule.setTeachers(getAllTeachers());
+            substitutionSchedule.setWebsite(website);
 
-        parseIphis(substitutionSchedule, changes, grades, teachers);
+            parseIphis(substitutionSchedule, changes, grades, teachers);
+        }
         return substitutionSchedule;
     }
 
-    /**
-     * Returns authentication key
-     */
-    private String getAuthenticationHeader() throws JSONException, IOException, CredentialInvalidException {
+    private Boolean login() throws CredentialInvalidException, IOException {
         final UserPasswordCredential userPasswordCredential = (UserPasswordCredential) credential;
         final String username = userPasswordCredential.getUsername();
         final String password = userPasswordCredential.getPassword();
 
-        if (authToken == null) {
-            JSONObject payload = new JSONObject();
+        JSONObject payload = new JSONObject();
+        try {
             payload.put("school", kuerzel);
             payload.put("user", username);
             payload.put("password", password);
-
-            httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-            final String token = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-
-            try {
-                final String key = Base64.getEncoder().encodeToString(jwt_key.getBytes());
-                final Claims jwtToken = Jwts.parser().setSigningKey(key)
-                        .parseClaimsJws(token).getBody();
-                assert jwtToken.getSubject().equals("vertretungsplan.me");
-
-                authToken = token;
-                website = jwtToken.getIssuer();
-                if (username.equals("lehrer")) {
-                    getSubstitutionSchedule().setType(SubstitutionSchedule.Type.TEACHER);
-                } else {
-                    getSubstitutionSchedule().setType(SubstitutionSchedule.Type.STUDENT);
-                }
-                getSubstitutionSchedule().setLastChange(LocalDateTime.fromDateFields(jwtToken.getIssuedAt()));
-                getSubstitutionSchedule().setLastChangeString(jwtToken.getIssuedAt().toString());
-            } catch (SignatureException e) {
-                throw new CredentialInvalidException();
-            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return "Bearer " + authToken;
+
+        httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
+        final String token = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
+
+        try {
+            final String key = Base64.encodeBase64String(jwt_key.getBytes());
+            final Claims jwtToken = Jwts.parser().setSigningKey(key)
+                    .parseClaimsJws(token).getBody();
+            assert jwtToken.getSubject().equals("vertretungsplan.me");
+
+            authToken = token;
+            website = jwtToken.getIssuer();
+        } catch (SignatureException e) {
+            throw new CredentialInvalidException();
+        }
+
+        return true;
     }
 
     /**
      * Returns a JSONArray with all changes from now to in one week.
      */
-    private JSONArray getChanges() throws IOException, JSONException, CredentialInvalidException {
+    private JSONArray getChanges() throws IOException, CredentialInvalidException {
         // Date (or alias of date) when the changes start
         final String startBy = LocalDate.now().toString();
         // Date (or alias of date) when the changes end
@@ -190,10 +182,10 @@ public class IphisParser extends BaseParser {
         return teachers;
     }
 
-    private JSONArray getJSONArray(String url) throws IOException, JSONException, CredentialInvalidException {
+    private JSONArray getJSONArray(String url) throws IOException, CredentialInvalidException {
         try {
             Map<String, String> headers = new HashMap<>();
-            headers.put("Authorization", getAuthenticationHeader());
+            headers.put("Authorization", "Bearer " + authToken);
             headers.put("Content-Type", "application/json");
             headers.put("Accept", "application/json");
 
@@ -205,6 +197,8 @@ public class IphisParser extends BaseParser {
                 return null;
             }
             throw httpResponseException;
+        } catch (JSONException e) {
+            return new JSONArray();
         }
     }
 
@@ -281,7 +275,7 @@ public class IphisParser extends BaseParser {
             substitution.setClasses(classes);
         }
         // Set type
-        final String type = change.getString("aenderungsgrund");
+        final String type = change.getString("aenderungsgrund").trim();
         substitution.setType(type);
         // Set color
         substitution.setColor(colorProvider.getColor(type));
@@ -306,10 +300,17 @@ public class IphisParser extends BaseParser {
             }
 
         }
-        substitution.setDesc(change.getString("information"));
+        //Set room
+        substitution.setRoom(change.optString("raum"));
+        substitution.setPreviousRoom(change.optString("raum_orig"));
+        //Set subject
+        substitution.setSubject(change.optString("fach"));
+        substitution.setPreviousSubject(change.optString("fach_orig"));
+        //Set description
+        substitution.setDesc(change.getString("information").trim());
 
-        final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
-        final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
+        final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "").substring(0, 5);
+        final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "").substring(0, 5);
         if (!startingHour.equals("") || !endingHour.equals("")) {
             String lesson = "";
             if (!startingHour.equals("") && endingHour.equals("")) {
@@ -320,6 +321,9 @@ public class IphisParser extends BaseParser {
             }
             if (!startingHour.equals("") && !endingHour.equals("")) {
                 lesson = startingHour + " - " + endingHour;
+            }
+            if (!startingHour.equals(endingHour)) {
+                lesson = startingHour;
             }
             substitution.setLesson(lesson);
         }
