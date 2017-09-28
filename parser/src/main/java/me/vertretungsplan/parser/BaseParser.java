@@ -149,6 +149,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "legionboard":
                 parser = new LegionBoardParser(data, cookieProvider);
                 break;
+            case "iphis":
+                parser = new IphisParser(data, cookieProvider);
+                break;
             case "indiware":
                 parser = new IndiwareParser(data, cookieProvider);
                 break;
