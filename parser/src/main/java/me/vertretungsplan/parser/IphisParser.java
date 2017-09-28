@@ -300,16 +300,24 @@ public class IphisParser extends BaseParser {
 
         }
         //Set room
-        substitution.setRoom(change.optString("raum"));
-        substitution.setPreviousRoom(change.optString("raum_orig"));
+        if (!change.optString("raum").isEmpty()) {
+            substitution.setRoom(change.optString("raum"));
+        }
+        if (!change.optString("raum_orig").isEmpty()) {
+            substitution.setPreviousRoom(change.optString("raum_orig"));
+        }
         //Set subject
-        substitution.setSubject(change.optString("fach"));
-        substitution.setPreviousSubject(change.optString("fach_orig"));
+        if (!change.optString("fach").isEmpty()) {
+            substitution.setSubject(change.optString("fach"));
+        }
+        if (!change.optString("fach_orig").isEmpty()) {
+            substitution.setPreviousSubject(change.optString("fach_orig"));
+        }
         //Set description
         substitution.setDesc(change.getString("information").trim());
 
-        final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "").substring(0, 5);
-        final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "").substring(0, 5);
+        final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
+        final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
         if (!startingHour.equals("") || !endingHour.equals("")) {
             String lesson = "";
             if (!startingHour.equals("") && endingHour.equals("")) {
@@ -321,7 +329,7 @@ public class IphisParser extends BaseParser {
             if (!startingHour.equals("") && !endingHour.equals("")) {
                 lesson = startingHour + " - " + endingHour;
             }
-            if (!startingHour.equals(endingHour)) {
+            if (startingHour.equals(endingHour)) {
                 lesson = startingHour;
             }
             substitution.setLesson(lesson);
