@@ -279,22 +279,22 @@ public class IphisParser extends BaseParser {
         // Set color
         substitution.setColor(colorProvider.getColor(type));
         // Set covering teacher
-        final String coveringTeacherId = change.getString("id_person_verantwortlich");
-        if (!coveringTeacherId.equals("0")) {
+        final String[] coveringTeacherIds = getSQLArray(change.getString("id_person_verantwortlich"));
+        if (coveringTeacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a covering teacher but teachers are empty.");
             }
-            substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+            for (String coveringTeacherId : coveringTeacherIds) {
+                substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+            }
         }
         // Set teacher
-        final String teacherId = change.getString("id_person_verantwortlich_orig");
-        if (!teacherId.equals("{0}")) {
+        final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
+        if (teacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
-            if (type.equals("Vertretung") || !coveringTeacherId.equals("0")) {
-                substitution.setPreviousTeacher(teachersHashMap.get(teacherId));
-            } else {
+            for (String teacherId : teacherIds) {
                 substitution.setTeacher(teachersHashMap.get(teacherId));
             }
 
