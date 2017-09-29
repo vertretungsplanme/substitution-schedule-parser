@@ -1,0 +1,12 @@
+[
+  {
+    "titel": "Nachrichten",
+    "nachricht": "Aktuell liegen keine Nachrichten vor.",
+    "notification": false
+  },
+  {
+    "titel": "Ferientermine",
+    "nachricht": "",
+    "notification": false
+  }
+]
