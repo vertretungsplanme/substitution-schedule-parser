@@ -1,0 +1,80 @@
+[
+  {
+    "id": "23760",
+    "id_person_verantwortlich_orig": "{612}",
+    "id_person_verantwortlich": "{640}",
+    "id_klasse": "{85}",
+    "datum": "2013-11-15",
+    "zeit_von": "10:00:00",
+    "zeit_bis": "10:45:00",
+    "fach_k": "E",
+    "raum_k": "06. Kl",
+    "information": "Wochenplan",
+    "aenderungsgrund": "Vertretung "
+  },
+  {
+    "id": "23731",
+    "id_person_verantwortlich_orig": "{627}",
+    "id_person_verantwortlich": "{645}",
+    "id_klasse": "{90}",
+    "datum": "2013-11-11",
+    "zeit_von": "10:50:00",
+    "zeit_bis": "11:35:00",
+    "fach_k": "Mu",
+    "raum_k": "Mus",
+    "information": "",
+    "aenderungsgrund": "Vertretung "
+  },
+  {
+    "id": "23766",
+    "id_person_verantwortlich_orig": "{627}",
+    "id_person_verantwortlich": "{NULL}",
+    "id_klasse": "{93}",
+    "datum": "2013-11-12",
+    "zeit_von": "11:45:00",
+    "zeit_bis": "12:25:00",
+    "fach_k": "Mu",
+    "raum_k": "Mus",
+    "information": "",
+    "aenderungsgrund": "Vertretung "
+  },
+  {
+    "id": "23828",
+    "id_person_verantwortlich_orig": "{650}",
+    "id_person_verantwortlich": "{639}",
+    "id_klasse": "{82}",
+    "datum": "2013-11-15",
+    "zeit_von": "10:50:00",
+    "zeit_bis": "11:35:00",
+    "fach_k": "Re",
+    "raum_k": "04. Kl",
+    "information": "",
+    "aenderungsgrund": "F\u00e4llt Aus "
+  },
+  {
+    "id": "23719",
+    "id_person_verantwortlich_orig": "{NULL}",
+    "id_person_verantwortlich": "{NULL}",
+    "id_klasse": "{90}",
+    "datum": "2013-11-11",
+    "zeit_von": "12:30:00",
+    "zeit_bis": "13:10:00",
+    "fach_k": "HaK\u00fc",
+    "raum_k": null,
+    "information": "Bitte im B\u00fcro abh.",
+    "aenderungsgrund": "Arbeitsauftrag "
+  },
+  {
+    "id": "23805",
+    "id_person_verantwortlich_orig": "{NULL}",
+    "id_person_verantwortlich": "{NULL}",
+    "id_klasse": "{91}",
+    "datum": "2013-11-11",
+    "zeit_von": "12:30:00",
+    "zeit_bis": "13:10:00",
+    "fach_k": "HaK\u00fc",
+    "raum_k": null,
+    "information": "Hausaufgabe: ",
+    "aenderungsgrund": "F\u00e4llt Aus "
+  }
+]
