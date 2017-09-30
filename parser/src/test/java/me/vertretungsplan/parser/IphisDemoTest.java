@@ -29,26 +29,28 @@ public class IphisDemoTest extends BaseDemoTest {
     private JSONArray changes;
     private JSONArray teachers;
     private JSONArray courses;
+    private JSONArray messages;
 
     @Before
     public void setUp() throws JSONException {
         changes = new JSONArray(readResource("/iphis/changes.json"));
         teachers = new JSONArray(readResource("/iphis/teachers.json"));
         courses = new JSONArray(readResource("/iphis/grades.json"));
+        messages = new JSONArray(readResource("/iphis/messages.json"));
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new IphisParser(scheduleData, null);
-        DateTimeUtils.setCurrentMillisFixed(new LocalDate(2013, 11, 11).toDateTimeAtStartOfDay().getMillis());
+        DateTimeUtils.setCurrentMillisFixed(new LocalDate(2017, 9, 29).toDateTimeAtStartOfDay().getMillis());
     }
 
     @Test
     public void demoTest() throws IOException, JSONException {
         SubstitutionSchedule schedule = new SubstitutionSchedule();
-        parser.parseIphis(schedule, changes, courses, teachers);
-        assertEquals(3, schedule.getDays().size());
+        parser.parseIphis(schedule, changes, courses, teachers, messages);
+        assertEquals(2, schedule.getDays().size());
         SubstitutionScheduleDay firstDay = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2013, 11, 11), firstDay.getDate());
-        assertEquals(3, firstDay.getSubstitutions().size());
+        assertEquals(new LocalDate(2017, 9, 29), firstDay.getDate());
+        assertEquals(4, firstDay.getSubstitutions().size());
     }
 
     @After

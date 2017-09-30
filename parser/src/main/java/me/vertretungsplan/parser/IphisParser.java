@@ -13,15 +13,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.*;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,17 +71,29 @@ public class IphisParser extends BaseParser {
     /** */
     private String jwt_key;
 
-    /**
-     * URL of the school website
-     */
+    /**  */
     private String website;
 
-    /**  */
+    /**
+     * array of grades/classes retrieved from the api
+     */
     private JSONArray grades;
-    /**  */
+    /**
+     * array of teachers retrieved from the api
+     */
     private JSONArray teachers;
-    /**  */
+    /**
+     * array of messages retrieved from the api
+     */
+    private JSONArray messages;
+    /**
+     * hold the Authentication Token (JWT)
+     */
     private String authToken;
+    /**
+     * hold the timestamp of the last schedule-update
+     */
+    private LocalDateTime lastUpdate;
 
     public IphisParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -102,15 +112,17 @@ public class IphisParser extends BaseParser {
         final SubstitutionSchedule substitutionSchedule = SubstitutionSchedule.fromData(scheduleData);
 
         if (login()) {
-            grades = getGrades();
-            teachers = getTeachers();
+            getGrades();
+            getTeachers();
+            getMessages();
+
             final JSONArray changes = getChanges();
 
             substitutionSchedule.setClasses(getAllClasses());
             substitutionSchedule.setTeachers(getAllTeachers());
             substitutionSchedule.setWebsite(website);
 
-            parseIphis(substitutionSchedule, changes, grades, teachers);
+            parseIphis(substitutionSchedule, changes, grades, teachers, messages);
         }
         return substitutionSchedule;
     }
@@ -130,17 +142,20 @@ public class IphisParser extends BaseParser {
         }
 
         httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-        final String token = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-
+        final String httpResponse = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
+        final JSONObject token;
         try {
+            token = new JSONObject(httpResponse);
+
             final String key = Base64.encodeBase64String(jwt_key.getBytes());
             final Claims jwtToken = Jwts.parser().setSigningKey(key)
-                    .parseClaimsJws(token).getBody();
+                    .parseClaimsJws(token.getString("token")).getBody();
             assert jwtToken.getSubject().equals("vertretungsplan.me");
 
-            authToken = token;
+            authToken = token.getString("token");
             website = jwtToken.getIssuer();
-        } catch (SignatureException e) {
+            lastUpdate = new LocalDateTime(token.getLong("stand"));
+        } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }
 
@@ -161,25 +176,33 @@ public class IphisParser extends BaseParser {
     }
 
     /**
+     * Returns a JSONArray with all messages.
+     */
+    private void getMessages() throws IOException, JSONException, CredentialInvalidException {
+        if (messages == null) {
+            final String url = api + "/nachrichten";
+            messages = getJSONArray(url);
+        }
+    }
+
+    /**
      * Returns a JSONArray with all grades.
      */
-    private JSONArray getGrades() throws IOException, JSONException, CredentialInvalidException {
-        final String url = api + "/klassen";
+    private void getGrades() throws IOException, JSONException, CredentialInvalidException {
         if (grades == null) {
+            final String url = api + "/klassen";
             grades = getJSONArray(url);
         }
-        return grades;
     }
 
     /**
      * Returns a JSONArray with all teachers.
      */
-    private JSONArray getTeachers() throws IOException, JSONException, CredentialInvalidException {
-        final String url = api + "/lehrer";
+    private void getTeachers() throws IOException, JSONException, CredentialInvalidException {
         if (teachers == null) {
+            final String url = api + "/lehrer";
             teachers = getJSONArray(url);
         }
-        return teachers;
     }
 
     private JSONArray getJSONArray(String url) throws IOException, CredentialInvalidException {
@@ -202,7 +225,7 @@ public class IphisParser extends BaseParser {
     }
 
     void parseIphis(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray grades,
-                    JSONArray teachers) throws IOException, JSONException {
+                    JSONArray teachers, JSONArray messages) throws IOException, JSONException {
         if (changes == null) {
             return;
         }
@@ -224,13 +247,28 @@ public class IphisParser extends BaseParser {
                 teachersHashMap.put(teacher.getString("id"), teacher.getString("name"));
             }
         }
+
+        // Add Messages
+        List<AdditionalInfo> infos = new ArrayList<>(messages.length());
+
+        for (int i = 0; i < messages.length(); i++) {
+            JSONObject message = messages.getJSONObject(i);
+            AdditionalInfo info = new AdditionalInfo();
+            info.setHasInformation(message.getBoolean("notification"));
+            info.setTitle(message.getString("titel").trim());
+            info.setText(message.getString("nachricht").trim());
+            infos.add(info);
+        }
+
+        substitutionSchedule.getAdditionalInfos().addAll(infos);
+        substitutionSchedule.setLastChange(lastUpdate);
+
         // Add changes to SubstitutionSchedule
         LocalDate currentDate = LocalDate.now();
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
         substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
-            final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
             final LocalDate substitutionDate = new LocalDate(change.getString("datum"));
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
@@ -242,7 +280,14 @@ public class IphisParser extends BaseParser {
                 substitutionScheduleDay.setDate(substitutionDate);
                 currentDate = substitutionDate;
             }
-            substitutionScheduleDay.addSubstitution(substitution);
+
+            if (change.getInt("id") > 0) {
+                final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
+
+                substitutionScheduleDay.addSubstitution(substitution);
+            } else if (!change.optString("nachricht").isEmpty()) {
+                substitutionScheduleDay.addMessage(change.optString("nachricht"));
+            }
         }
         substitutionSchedule.addDay(substitutionScheduleDay);
     }
@@ -279,24 +324,29 @@ public class IphisParser extends BaseParser {
         // Set color
         substitution.setColor(colorProvider.getColor(type));
         // Set covering teacher
-        final String coveringTeacherId = change.getString("id_person_verantwortlich");
-        if (!coveringTeacherId.equals("0")) {
+        final String[] coveringTeacherIds = getSQLArray(change.getString("id_person_verantwortlich"));
+        if (coveringTeacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a covering teacher but teachers are empty.");
             }
-            substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+            final HashSet<String> teachers = new HashSet<>();
+            for (String coveringTeacherId : coveringTeacherIds) {
+                teachers.add(teachersHashMap.get(coveringTeacherId));
+            }
+            substitution.setTeachers(teachers);
+
         }
         // Set teacher
-        final String teacherId = change.getString("id_person_verantwortlich_orig");
-        if (!teacherId.equals("{0}")) {
+        final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
+        if (teacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
-            if (type.equals("Vertretung") || !coveringTeacherId.equals("0")) {
-                substitution.setPreviousTeacher(teachersHashMap.get(teacherId));
-            } else {
-                substitution.setTeacher(teachersHashMap.get(teacherId));
+            final HashSet<String> coveringTeachers = new HashSet<>();
+            for (String coveringTeacherId : coveringTeacherIds) {
+                coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
             }
+            substitution.setPreviousTeachers(coveringTeachers);
 
         }
         //Set room
@@ -339,31 +389,27 @@ public class IphisParser extends BaseParser {
 
     @Override
     public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
-        final List<String> classes = new ArrayList<>();
-        final JSONArray jsonClasses = getGrades();
-        if (jsonClasses == null) {
+        final List<String> classesList = new ArrayList<>();
+        if (grades == null) {
             return null;
         }
-        for (int i = 0; i < jsonClasses.length(); i++) {
-            final JSONObject grade = jsonClasses.getJSONObject(i);
-            classes.add(grade.getString("name"));
+        for (int i = 0; i < grades.length(); i++) {
+            final JSONObject grade = grades.getJSONObject(i);
+            classesList.add(grade.getString("name"));
         }
-        //Collections.sort(classes);
-        return classes;
+        return classesList;
     }
 
     @Override
     public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
-        final List<String> teachers = new ArrayList<>();
-        final JSONArray jsonTeachers = getTeachers();
-        if (jsonTeachers == null) {
+        final List<String> teachersList = new ArrayList<>();
+        if (teachers == null) {
             return null;
         }
-        for (int i = 0; i < jsonTeachers.length(); i++) {
-            final JSONObject teacher = jsonTeachers.getJSONObject(i);
-            teachers.add(teacher.getString("name"));
+        for (int i = 0; i < teachers.length(); i++) {
+            final JSONObject teacher = teachers.getJSONObject(i);
+            teachersList.add(teacher.getString("name"));
         }
-        //Collections.sort(teachers);
-        return teachers;
+        return teachersList;
     }
 }
