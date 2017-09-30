@@ -18,7 +18,6 @@ import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
@@ -128,11 +127,11 @@ public class IphisParser extends BaseParser {
         return substitutionSchedule;
     }
 
-    @Override public DateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
         if (lastUpdate == null) {
             login();
         }
-        return lastUpdate.toDateTime();
+        return lastUpdate;
     }
 
     private Boolean login() throws CredentialInvalidException, IOException {

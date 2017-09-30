@@ -30,7 +30,7 @@ import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -172,7 +172,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return parser;
     }
 
-    @Override public DateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
         // default implementation returns null
         return null;
     }
