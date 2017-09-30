@@ -162,7 +162,7 @@ public class IphisParser extends BaseParser {
 
             authToken = token.getString("token");
             website = jwtToken.getIssuer();
-            lastUpdate = new LocalDateTime(token.getLong("stand"));
+            lastUpdate = new LocalDateTime(token.getLong("stand") * 1000);
         } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }
