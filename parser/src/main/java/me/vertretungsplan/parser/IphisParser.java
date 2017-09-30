@@ -90,6 +90,10 @@ public class IphisParser extends BaseParser {
      * hold the Authentication Token (JWT)
      */
     private String authToken;
+    /**
+     * hold the timestamp of the last schedule-update
+     */
+    private LocalDateTime lastUpdate;
 
     public IphisParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -138,17 +142,20 @@ public class IphisParser extends BaseParser {
         }
 
         httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-        final String token = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
-
+        final String httpResponse = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
+        final JSONObject token;
         try {
+            token = new JSONObject(httpResponse);
+
             final String key = Base64.encodeBase64String(jwt_key.getBytes());
             final Claims jwtToken = Jwts.parser().setSigningKey(key)
-                    .parseClaimsJws(token).getBody();
+                    .parseClaimsJws(token.getString("token")).getBody();
             assert jwtToken.getSubject().equals("vertretungsplan.me");
 
-            authToken = token;
+            authToken = token.getString("token");
             website = jwtToken.getIssuer();
-        } catch (SignatureException e) {
+            lastUpdate = new LocalDateTime(token.getLong("stand"));
+        } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }
 
@@ -254,12 +261,12 @@ public class IphisParser extends BaseParser {
         }
 
         substitutionSchedule.getAdditionalInfos().addAll(infos);
+        substitutionSchedule.setLastChange(lastUpdate);
 
         // Add changes to SubstitutionSchedule
         LocalDate currentDate = LocalDate.now();
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
         substitutionScheduleDay.setDate(currentDate);
-        substitutionScheduleDay.setLastChange(LocalDateTime.now());
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
             final LocalDate substitutionDate = new LocalDate(change.getString("datum"));
@@ -281,7 +288,6 @@ public class IphisParser extends BaseParser {
             } else if (!change.optString("nachricht").isEmpty()) {
                 substitutionScheduleDay.addMessage(change.optString("nachricht"));
             }
-            substitutionScheduleDay.setLastChange(LocalDateTime.now());
         }
         substitutionSchedule.addDay(substitutionScheduleDay);
     }
@@ -323,9 +329,12 @@ public class IphisParser extends BaseParser {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a covering teacher but teachers are empty.");
             }
+            final HashSet<String> teachers = new HashSet<>();
             for (String coveringTeacherId : coveringTeacherIds) {
-                substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+                teachers.add(teachersHashMap.get(coveringTeacherId));
             }
+            substitution.setTeachers(teachers);
+
         }
         // Set teacher
         final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
@@ -333,9 +342,11 @@ public class IphisParser extends BaseParser {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
-            for (String teacherId : teacherIds) {
-                substitution.setTeacher(teachersHashMap.get(teacherId));
+            final HashSet<String> coveringTeachers = new HashSet<>();
+            for (String coveringTeacherId : coveringTeacherIds) {
+                coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
             }
+            substitution.setPreviousTeachers(coveringTeachers);
 
         }
         //Set room
