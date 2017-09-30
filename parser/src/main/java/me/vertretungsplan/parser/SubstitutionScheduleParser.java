@@ -12,6 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -31,6 +32,19 @@ public interface SubstitutionScheduleParser {
      *                                    not correct
      */
     SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException, CredentialInvalidException;
+
+    /**
+     * Returns the time when the substitution schedule was last changed. This can be used to use a previously cached
+     * schedule if nothing was changed. Should return null if this information is not available or should not be
+     * relied upon. The default implementation in {@link BaseParser} returns null.
+     *
+     * @return the time when the substitution schedule was last changed
+     * @throws IOException                Connection or parsing error
+     * @throws JSONException              Error with the JSON configuration
+     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
+     *                                    not correct
+     */
+    DateTime getLastChange() throws IOException, JSONException, CredentialInvalidException;
 
     void setCredential(Credential credential);
 
