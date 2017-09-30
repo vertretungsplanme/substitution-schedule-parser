@@ -139,6 +139,11 @@ public class IphisParser extends BaseParser {
         final String username = userPasswordCredential.getUsername();
         final String password = userPasswordCredential.getPassword();
 
+        if (scheduleData.getType() == SubstitutionSchedule.Type.STUDENT && !username.equals("schueler")
+                || scheduleData.getType() == SubstitutionSchedule.Type.TEACHER && !username.equals("lehrer")) {
+            throw new CredentialInvalidException();
+        }
+
         JSONObject payload = new JSONObject();
         try {
             payload.put("school", kuerzel);
