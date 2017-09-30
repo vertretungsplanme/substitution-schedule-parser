@@ -63,6 +63,7 @@ contribute your changes back to the original project is also welcome.
 ## Contributors
 I would like to thank the following people for their contributions to this open source project:
 - [Nico Alt](https://github.com/AltNico)
+- [Tobias Knipping](https://github.com/to-kn)
 
 ## Contributing
 When you clone the git repository, you should directly be able to run `./gradlew sample:run` to run the sample application. All dependencies will be downloaded automatically. You can also use IDEs such as IntelliJ IDEA that support the Gradle build system.
