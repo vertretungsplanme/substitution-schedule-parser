@@ -12,7 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public interface SubstitutionScheduleParser {
      * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
      *                                    not correct
      */
-    DateTime getLastChange() throws IOException, JSONException, CredentialInvalidException;
+    LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException;
 
     void setCredential(Credential credential);
 
