@@ -40,14 +40,14 @@ public class ColorProvider {
     // *** Default color values ***
     private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Entf", "Fällt aus!", "Fällt aus",
             "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb.", "Aufgaben", "selbst.", "Frei",
-            "Ausfall", "Stillarbeit", "Absenz", "-> Entfall", "Freisetzung"};
+            "Ausfall", "Stillarbeit", "Absenz", "-> Entfall", "Freisetzung", "selbstständiges Arbeiten"};
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Statt-Vertretung",
             "Betreuung", "V", "VTR", "Vertr."};
     private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",
             "Unterricht geändert", "Unterrichtstausch", "geändert", "statt", "Stundentausch"};
     private static final String[] GREEN_VALUES =
             {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten",
-                    "Raum-Vertr."};
+                    "Raum-Vertr.", "Raumwechsel"};
     private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung", "Frei/Veranstaltung", "Hochschultag"};
     private static final String[] ORANGE_VALUES = {"Klausur"};
     private static final String[] GRAY_VALUES = {"Pausenaufsicht"};
