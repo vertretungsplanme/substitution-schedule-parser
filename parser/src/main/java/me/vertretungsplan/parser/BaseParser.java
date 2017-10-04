@@ -205,7 +205,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             return "Entfall";
         } else if (equalsOneOf(text, "Raumänderung", "Klasse frei", "Unterrichtstausch", "Freistunde", "Raumverlegung",
                 "Selbstlernen", "Zusammenlegung", "HA", "Raum beachten", "Stundentausch", "Klausur", "Raum-Vertr.",
-                "Betreuung", "Frei/Veranstaltung")) {
+                "Betreuung", "Frei/Veranstaltung", "Raumwechsel", "selbstständiges Arbeiten")) {
             return text;
         } else if (text.contains("verschoben")) {
             return "Verlegung";
