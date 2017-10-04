@@ -35,6 +35,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -230,6 +231,15 @@ public class LoginHandler {
                         case "_password_rsa_typo3":
                             try {
                                 final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                                if (typo3RsaE == null && typo3RsaN == null) {
+                                    String key = executor.execute(
+                                            Request.Get(
+                                                    new URL(new URL(postUrl),
+                                                            "/index.php?eID=FrontendLoginRsaPublicKey").toString()
+                                            )).returnContent().asString();
+                                    typo3RsaN = new BigInteger(key.split(":")[0], 16);
+                                    typo3RsaE = new BigInteger(key.split(":")[1], 16);
+                                }
                                 cipher.init(Cipher.ENCRYPT_MODE, KeyFactory.getInstance("RSA").generatePublic
                                         (new RSAPublicKeySpec(typo3RsaN, typo3RsaE)));
                                 byte[] result = cipher.doFinal(password.getBytes());
