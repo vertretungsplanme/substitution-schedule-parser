@@ -138,6 +138,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "davinci":
                 parser = new DaVinciParser(data, cookieProvider);
                 break;
+            case "davinci-infoserver":
+                parser = new DaVinciInfoserverParser(data, cookieProvider);
+                break;
             case "eschool":
                 parser = new ESchoolParser(data, cookieProvider);
                 break;
