@@ -301,7 +301,9 @@ public class SubstitutionScheduleDay implements Cloneable {
         builder.append(getDateString()).append("\n");
         builder.append("----------------------\n\n");
 
-        builder.append("last change: ").append(getLastChangeString()).append("\n\n");
+        if (getLastChangeString() != null) {
+            builder.append("last change: ").append(getLastChangeString()).append("\n\n");
+        }
 
         List<Substitution> sortedSubstitutions = new ArrayList<>(substitutions);
         Collections.sort(sortedSubstitutions, new Comparator<Substitution>() {
