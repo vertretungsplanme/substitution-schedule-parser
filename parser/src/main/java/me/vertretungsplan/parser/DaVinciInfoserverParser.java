@@ -15,6 +15,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.http.client.HttpResponseException;
@@ -132,10 +133,15 @@ public class DaVinciInfoserverParser extends BaseParser {
                     timeFmt.parseLocalTime(lesson.getString("startTime")),
                     timeFmt.parseLocalTime(lesson.getString("endTime"))));
 
-            if (changes.has("lessonTitle")) {
-                substitution.setSubject(changes.getString("lessonTitle"));
-            } else if (lesson.has("courseTitle")) {
-                substitution.setSubject(lesson.getString("courseTitle"));
+            substitution.setPreviousSubject(changes.optString("subjectCode", null));
+            substitution.setSubject(changes.optString("newSubjectCode", null));
+
+            if (lesson.has("roomCodes")) {
+                substitution.setRoom(StringUtils.join(toStringList(lesson.getJSONArray("roomCodes")), ", "));
+            }
+            if (changes.has("absentRoomCodes")) {
+                substitution.setPreviousRoom(
+                        StringUtils.join(toStringList(changes.getJSONArray("absentRoomCodes")), ", "));
             }
 
             substitution.setType(changes.optString("caption", "Vertretung"));
