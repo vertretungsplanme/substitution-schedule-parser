@@ -109,12 +109,10 @@ public class DaVinciInfoserverParser extends BaseParser {
             }
 
             Substitution substitution = new Substitution();
-            if (changes.has("modified")) {
-                final LocalDateTime modified = DateTimeFormat.forPattern("yyyyMMddHHmmSS").parseLocalDateTime(
-                        changes.getString("modified"));
-                if (lastChange == null || lastChange.isBefore(modified)) {
-                    lastChange = modified;
-                }
+            final LocalDateTime modified = DateTimeFormat.forPattern("yyyyMMddHHmmSS").parseLocalDateTime(
+                    changes.getString("modified"));
+            if (lastChange == null || lastChange.isBefore(modified)) {
+                lastChange = modified;
             }
 
             if (changes.has("absentTeacherCodes")) {
