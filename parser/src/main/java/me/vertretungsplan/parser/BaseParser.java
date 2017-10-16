@@ -344,7 +344,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     private void handleHttpResponseException(HttpResponseException e)
             throws CredentialInvalidException, HttpResponseException {
-        if (e.getStatusCode() == 401) {
+        if (e.getStatusCode() == 401 || e.getStatusCode() == 403) {
             throw new CredentialInvalidException();
         } else {
             throw e;
