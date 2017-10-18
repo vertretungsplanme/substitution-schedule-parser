@@ -33,7 +33,7 @@ public class NotCompatibleParser extends BaseParser {
     @Override
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
-        SubstitutionSchedule v = new SubstitutionSchedule();
+        SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
         v.setLastChange(new LocalDateTime(2017, 10, 18, 12, 0));
         SubstitutionScheduleDay today = new SubstitutionScheduleDay();
         today.setDate(new LocalDate(2018, 1, 1));
@@ -42,7 +42,7 @@ public class NotCompatibleParser extends BaseParser {
         subst.setLesson("0");
         subst.setType("siehe Nachrichten");
         subst.setDesc("Der Vertretungsplan kann von dieser Schule nicht mehr abgerufen werden. Genauere Informationen" +
-                " findest du unter \"Nachrichten\"");
+                " findest du unter \"Nachrichten\".");
         today.addSubstitution(subst);
 
         today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
