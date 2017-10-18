@@ -127,10 +127,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 parser = new UntisSubstitutionParser(data, cookieProvider);
                 break;
             case "dsbmobile":
-                parser = new DSBMobileParser(data, cookieProvider);
+                parser = new NotCompatibleParser(data, cookieProvider);
                 break;
             case "dsblight":
-                parser = new DSBLightParser(data, cookieProvider);
+                parser = new NotCompatibleParser(data, cookieProvider);
                 break;
             case "svplan":
                 parser = new SVPlanParser(data, cookieProvider);
