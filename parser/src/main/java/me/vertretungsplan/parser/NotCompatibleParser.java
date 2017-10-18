@@ -43,6 +43,7 @@ public class NotCompatibleParser extends BaseParser {
         subst.setType("siehe Nachrichten");
         subst.setDesc("Der Vertretungsplan kann von dieser Schule nicht mehr abgerufen werden. Genauere Informationen" +
                 " findest du unter \"Nachrichten\".");
+        subst.setColor("#F44336");
         today.addSubstitution(subst);
 
         today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
