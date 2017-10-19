@@ -20,6 +20,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class NotCompatibleParser extends BaseParser {
@@ -40,6 +41,7 @@ public class NotCompatibleParser extends BaseParser {
 
         Substitution subst = new Substitution();
         subst.setLesson("0");
+        subst.setClasses(new HashSet<>(getAllClasses()));
         subst.setType("siehe Nachrichten");
         subst.setDesc("Der Vertretungsplan kann von dieser Schule nicht mehr abgerufen werden. Genauere Informationen" +
                 " findest du unter \"Nachrichten\".");
@@ -64,7 +66,7 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
-        return new ArrayList<>();
+        return getClassesFromJson();
     }
 
     @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
