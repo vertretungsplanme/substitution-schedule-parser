@@ -74,7 +74,7 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
-        return new LocalDateTime(2017, 10, 18, 12, 0);
+        return new LocalDateTime(2017, 10, 18, 12, 2);
     }
 
     @Override public void setCredential(Credential credential) {
