@@ -17,6 +17,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.cookie.Cookie;
@@ -268,8 +269,12 @@ public class LoginHandler {
                 if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
 
                 if (checkUrl != null && checkText != null) {
-                    String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
-                    if (response.contains(checkText)) throw new CredentialInvalidException();
+                    try {
+                        String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
+                        if (response.contains(checkText)) throw new CredentialInvalidException();
+                    } catch (HttpResponseException e) {
+                        throw new CredentialInvalidException();
+                    }
                 } else if (checkText != null) {
                     if (html.contains(checkText)) throw new CredentialInvalidException();
                 }
