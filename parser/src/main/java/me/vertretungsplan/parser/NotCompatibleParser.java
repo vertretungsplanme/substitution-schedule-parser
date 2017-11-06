@@ -35,7 +35,7 @@ public class NotCompatibleParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
-        v.setLastChange(new LocalDateTime(2017, 10, 18, 12, 3));
+        v.setLastChange(new LocalDateTime(2017, 10, 18, 12, 4));
         SubstitutionScheduleDay today = new SubstitutionScheduleDay();
         today.setDate(new LocalDate(2018, 1, 1));
 
@@ -59,7 +59,7 @@ public class NotCompatibleParser extends BaseParser {
 
         v.addDay(today);
 
-        v.setClasses(new ArrayList<String>());
+        v.setClasses(getAllClasses());
         v.setTeachers(new ArrayList<String>());
 
         return v;
@@ -74,7 +74,7 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
-        return new LocalDateTime(2017, 10, 18, 12, 3);
+        return new LocalDateTime(2017, 10, 18, 12, 4);
     }
 
     @Override public void setCredential(Credential credential) {
