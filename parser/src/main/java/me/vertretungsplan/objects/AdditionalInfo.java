@@ -22,6 +22,7 @@ public class AdditionalInfo {
 	private String title;
 	private String text;
 	private boolean hasInformation;
+    private boolean fromSchedule;
 
     /**
      * Get the title of this additional info
@@ -103,4 +104,22 @@ public class AdditionalInfo {
 		result = 31 * result + (hasInformation ? 1 : 0);
 		return result;
 	}
+
+    /**
+     * @return Whether this AdditionalInfo was parsed from the school's own schedule (true) or from a separate
+     * AdditionalInfoParser (false).
+     */
+    public boolean isFromSchedule() {
+        return fromSchedule;
+    }
+
+    /**
+     * Set whether this AdditionalInfo was parsed from the school's own schedule (true) or from a separate
+     * AdditionalInfoParser (false).
+     *
+     * @param fromSchedule whether this AdditionalInfo was parsed from the school's own schedule
+     */
+    public void setFromSchedule(boolean fromSchedule) {
+        this.fromSchedule = fromSchedule;
+    }
 }

@@ -136,6 +136,7 @@ public class SchoolJoomlaParser extends BaseParser {
                 info.setTitle("Newsticker");
                 info.setText(builder.toString());
                 info.setHasInformation(false);
+                info.setFromSchedule(true);
                 schedule.addAdditionalInfo(info);
             }
         } else if (scheduleData.getType() == SubstitutionSchedule.Type.TEACHER) {
