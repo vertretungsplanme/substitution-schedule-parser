@@ -265,6 +265,7 @@ public class IphisParser extends BaseParser {
             info.setHasInformation(message.getBoolean("notification"));
             info.setTitle(message.getString("titel").trim());
             info.setText(message.getString("nachricht").trim());
+            info.setFromSchedule(true);
             infos.add(info);
         }
 
