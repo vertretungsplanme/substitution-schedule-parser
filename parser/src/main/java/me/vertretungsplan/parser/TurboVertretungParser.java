@@ -121,9 +121,15 @@ public class TurboVertretungParser extends BaseParser {
             day.addMessage(doc.select(".Abwesenheiten-KlassenLabel").text() + "\n" +
                     doc.select(".Abwesenheiten-Klassen").text());
         }
+        if (doc.select(".Abwesenheiten").size() > 0) {
+            day.addMessage(doc.select(".AbwesenheitenLabel").text() + "\n" +
+                    doc.select(".Abwesenheiten").text());
+        }
 
         Element table = doc.select("table").first();
         for (Element row : table.select("tr:has(td)")) {
+            if (row.select(".Klasseleer").size() > 0) continue;
+
             Substitution substitution = new Substitution();
             substitution.setLesson(row.select(query("Stunde")).text());
             substitution.setPreviousTeacher(row.select(query("Lehrer")).text());
