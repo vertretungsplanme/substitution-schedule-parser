@@ -28,8 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Contains common code used by {@link DSBLightParser}, {@link DSBMobileParser}, {@link UntisInfoParser},
- * {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser} and {@link UntisSubstitutionParser}.
+ * Contains common code used by {@link UntisInfoParser}, {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser}
+ * and {@link UntisSubstitutionParser}.
  *
  * <h4>Configuration parameters</h4>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} in addition to the
