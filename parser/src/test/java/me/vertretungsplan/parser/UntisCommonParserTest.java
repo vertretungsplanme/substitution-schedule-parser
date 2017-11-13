@@ -8,10 +8,16 @@
 
 package me.vertretungsplan.parser;
 
+import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,5 +64,19 @@ public class UntisCommonParserTest {
         UntisCommonParser.handleRoom(subst, cell);
         assertEquals("248", subst.getPreviousRoom());
         assertEquals("236", subst.getRoom());
+    }
+
+    @Test
+    public void testHandleClasses() throws JSONException, CredentialInvalidException {
+        JSONObject data = new JSONObject("{\"classesSeparated\": false}");
+
+        Substitution subst = new Substitution();
+        UntisCommonParser.handleClasses(data, subst, "1112", Arrays.asList("11", "12"));
+        assertEquals(new HashSet<>(Arrays.asList("11", "12")), subst.getClasses());
+
+        subst = new Substitution();
+        UntisCommonParser.handleClasses(data, subst, "11abc12b", Arrays.asList("11a", "11b", "11c", "12a", "12b",
+                "12c"));
+        assertEquals(new HashSet<>(Arrays.asList("11a", "11b", "11c", "12b")), subst.getClasses());
     }
 }

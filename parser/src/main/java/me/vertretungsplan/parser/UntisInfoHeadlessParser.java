@@ -84,6 +84,7 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
             dayElems = doc.select("#vertretung > p > b, #vertretung > b");
         }
 
+        final List<String> allClasses = getAllClasses();
         if (dayElems.size() > 0) {
             // untis-info days
             for (Element dayElem : dayElems) {
@@ -100,15 +101,15 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
                 } else {
                     next = dayElem.parent().select("p").first().nextElementSibling();
                 }
-                parseDay(day, next, v, null);
+                parseDay(day, next, v, null, allClasses);
             }
         } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
             // untis-subst table
             parseSubstitutionTable(v, null, doc);
         }
 
-		v.setClasses(getAllClasses());
-		v.setTeachers(getAllTeachers());
+        v.setClasses(allClasses);
+        v.setTeachers(getAllTeachers());
 		return v;
 	}
 
