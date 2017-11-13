@@ -45,7 +45,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
             rawdata = pattern.matcher(rawdata).replaceAll("");
         }
 
-        DateTime now = DateTime.now();
+        DateTime now = DateTime.now().withTimeAtStartOfDay();
         List<ICalendar> icals = Biweekly.parse(rawdata).all();
 
         List<Event> events = new ArrayList<>();
