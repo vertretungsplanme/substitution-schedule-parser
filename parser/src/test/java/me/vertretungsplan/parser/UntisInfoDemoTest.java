@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,7 +40,7 @@ public class UntisInfoDemoTest extends BaseDemoTest {
     @Test
     public void demoTest() throws IOException, JSONException, CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-        parser.parseSubstitutionDays(schedule, "29.06.2017 12:10", doc, null);
+        parser.parseSubstitutionDays(schedule, "29.06.2017 12:10", doc, null, new ArrayList<String>());
         assertEquals(2, schedule.getDays().size());
         assertEquals(31, schedule.getDays().get(0).getSubstitutions().size());
         assertEquals(24, schedule.getDays().get(1).getSubstitutions().size());

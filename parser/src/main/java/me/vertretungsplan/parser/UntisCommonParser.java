@@ -172,7 +172,7 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param day   the {@link SubstitutionScheduleDay} where the substitutions will be stored
      */
     void parseSubstitutionScheduleTable(Element table, JSONObject data,
-                                        SubstitutionScheduleDay day)
+                                        SubstitutionScheduleDay day, List<String> allClasses)
             throws JSONException, CredentialInvalidException, IOException {
         parseSubstitutionScheduleTable(table, data, day, null);
     }
@@ -186,7 +186,8 @@ public abstract class UntisCommonParser extends BaseParser {
      * @param defaultClass the class that should be set if there is no class column in the table
      */
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
-                                                SubstitutionScheduleDay day, String defaultClass)
+                                                SubstitutionScheduleDay day, String defaultClass, List<String>
+                                                        allClasses)
             throws JSONException, CredentialInvalidException, IOException {
         Elements headerRows = table.select("tr:has(th)");
 
@@ -236,7 +237,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 || data.optBoolean("class_in_extra_line")) { // backwards compatibility
             for (Element element : table.select("td.inline_header")) {
                 String className = getClassName(element.text(), data);
-                if (isValidClass(className)) {
+                if (isValidClass(className, data)) {
                     parseWithExtraLine(data, day, columns, element, className, null);
                 }
             }
@@ -365,7 +366,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                 autoDetectType(data, zeile, v);
 
-                handleClasses(data, v, klassen);
+                handleClasses(data, v, klassen, allClasses);
 
                 if (data.optBoolean(PARAM_MERGE_WITH_DIFFERENT_TYPE, false)) {
                     boolean found = false;
@@ -391,7 +392,7 @@ public abstract class UntisCommonParser extends BaseParser {
         }
     }
 
-    private void handleClasses(JSONObject data, Substitution v, String klassen)
+    static void handleClasses(JSONObject data, Substitution v, String klassen, List<String> allClasses)
             throws JSONException, CredentialInvalidException {
         List<String> affectedClasses;
 
@@ -409,29 +410,21 @@ public abstract class UntisCommonParser extends BaseParser {
             affectedClasses = new ArrayList<>();
             int min = Integer.parseInt(rangeMatcher.group(1));
             int max = Integer.parseInt(rangeMatcher.group(2));
-            try {
-                for (String klasse : getAllClasses()) {
-                    Matcher matcher2 = pattern2.matcher(klasse);
-                    if (matcher2.matches()) {
-                        int num = Integer.parseInt(matcher2.group(1));
-                        if (min <= num && num <= max) affectedClasses.add(klasse);
-                    }
+            for (String klasse : allClasses) {
+                Matcher matcher2 = pattern2.matcher(klasse);
+                if (matcher2.matches()) {
+                    int num = Integer.parseInt(matcher2.group(1));
+                    if (min <= num && num <= max) affectedClasses.add(klasse);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } else if (singleMatcher.matches()) {
             affectedClasses = new ArrayList<>();
             int grade = Integer.parseInt(singleMatcher.group(1));
-            try {
-                for (String klasse : getAllClasses()) {
-                    Matcher matcher2 = pattern2.matcher(klasse);
-                    if (matcher2.matches() && grade == Integer.parseInt(matcher2.group(1))) {
-                        affectedClasses.add(klasse);
-                    }
+            for (String klasse : allClasses) {
+                Matcher matcher2 = pattern2.matcher(klasse);
+                if (matcher2.matches() && grade == Integer.parseInt(matcher2.group(1))) {
+                    affectedClasses.add(klasse);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } else {
             if (data.optBoolean(PARAM_CLASSES_SEPARATED, true)
@@ -439,29 +432,25 @@ public abstract class UntisCommonParser extends BaseParser {
                 affectedClasses = Arrays.asList(klassen.split(", "));
             } else {
                 affectedClasses = new ArrayList<>();
-                try {
-                    for (String klasse : getAllClasses()) { // TODO: is there a better way?
-                        StringBuilder regex = new StringBuilder();
-                        for (char character : klasse.toCharArray()) {
-                            if (character == '?') {
-                                regex.append("\\?");
-                            } else {
-                                regex.append(character);
-                            }
-                            regex.append(".*");
+                for (String klasse : allClasses) { // TODO: is there a better way?
+                    StringBuilder regex = new StringBuilder();
+                    for (char character : klasse.toCharArray()) {
+                        if (character == '?') {
+                            regex.append("\\?");
+                        } else {
+                            regex.append(character);
                         }
-                        if (klassen.matches(regex.toString())) {
-                            affectedClasses.add(klasse);
-                        }
+                        regex.append(".*");
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    if (klassen.matches(regex.toString())) {
+                        affectedClasses.add(klasse);
+                    }
                 }
             }
         }
 
         for (String klasse : affectedClasses) {
-            if (isValidClass(klasse)) {
+            if (isValidClass(klasse, data)) {
                 v.getClasses().add(klasse);
             }
         }
@@ -592,7 +581,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 if (className != null) {
                     v.getClasses().add(className);
                 } else {
-                    handleClasses(data, v, klassen);
+                    handleClasses(data, v, klassen, getAllClasses());
                 }
                 if (teacherName != null) {
                     v.setTeacher(teacherName);
@@ -732,18 +721,18 @@ public abstract class UntisCommonParser extends BaseParser {
 
         // VERTRETUNGSPLAN
         if (doc.select("table:has(tr.list)").size() > 0) {
-            parseSubstitutionScheduleTable(doc.select("table:has(tr.list)").first(), data, day);
+            parseSubstitutionScheduleTable(doc.select("table:has(tr.list)").first(), data, day, getAllClasses());
         }
 
         return day;
     }
 
-    private boolean isValidClass(String klasse) throws JSONException {
+    private static boolean isValidClass(String klasse, JSONObject data) throws JSONException {
         return klasse != null && !Arrays.asList(EXCLUDED_CLASS_NAMES).contains(klasse) &&
-                !(scheduleData.getData().has(PARAM_EXCLUDE_CLASSES) &&
-                        contains(scheduleData.getData().getJSONArray(PARAM_EXCLUDE_CLASSES), klasse)) &&
-                !(scheduleData.getData().has("exclude_classes") && // backwards compatibility
-                        contains(scheduleData.getData().getJSONArray("exclude_classes"), klasse));
+                !(data.has(PARAM_EXCLUDE_CLASSES) &&
+                        contains(data.getJSONArray(PARAM_EXCLUDE_CLASSES), klasse)) &&
+                !(data.has("exclude_classes") && // backwards compatibility
+                        contains(data.getJSONArray("exclude_classes"), klasse));
     }
 
     @Override
@@ -751,7 +740,8 @@ public abstract class UntisCommonParser extends BaseParser {
         return getClassesFromJson();
     }
 
-    void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse) throws
+    void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse, List<String>
+            allClasses) throws
             JSONException, CredentialInvalidException, IOException {
         if (next.children().size() == 0) {
             next = next.nextElementSibling();
@@ -763,12 +753,12 @@ public abstract class UntisCommonParser extends BaseParser {
             if (next.text().contains("Vertretungen sind nicht freigegeben")) {
                 return;
             }
-            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse);
+            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse, allClasses);
         } else {
             //Nachrichten
             parseMessages(next, day);
             next = next.nextElementSibling().nextElementSibling();
-            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse);
+            parseSubstitutionScheduleTable(next, scheduleData.getData(), day, klasse, allClasses);
         }
         v.addDay(day);
     }
@@ -854,7 +844,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 day.setDateString(date);
                 day.setDate(ParserUtils.parseDate(date));
             }
-            parseSubstitutionScheduleTable(table, data, day);
+            parseSubstitutionScheduleTable(table, data, day, getAllClasses());
             v.addDay(day);
         } else {
             for (Element line : table
@@ -886,7 +876,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     day.setLastChange(lastChangeDate);
                     v.addDay(day);
                 }
-                parseSubstitutionScheduleTable(line, data, day);
+                parseSubstitutionScheduleTable(line, data, day, getAllClasses());
             }
         }
     }

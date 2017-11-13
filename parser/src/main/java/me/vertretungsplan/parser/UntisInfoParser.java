@@ -147,6 +147,8 @@ public class UntisInfoParser extends UntisCommonParser {
             }
         }
 
+        final List<String> allClasses = getAllClasses();
+
         int successfulWeeks = 0;
         HttpResponseException lastException = null;
 		for (Element option : select.children()) {
@@ -161,7 +163,7 @@ public class UntisInfoParser extends UntisCommonParser {
                 for (String klasse : classesToSelect) {
                     String url = getScheduleUrl(week, classNumber, data);
 					try {
-                        parsePage(v, lastChange, klasse, url, weekName);
+                        parsePage(v, lastChange, klasse, url, weekName, allClasses);
                     } catch (HttpResponseException e) {
                         if (e.getStatusCode() == 500) {
                             // occurs in Hannover_MMBS
@@ -178,7 +180,7 @@ public class UntisInfoParser extends UntisCommonParser {
 			} else {
 				String url = getScheduleUrl(week, 0,data);
                 try {
-                    parsePage(v, lastChange,  null, url, weekName);
+                    parsePage(v, lastChange, null, url, weekName, allClasses);
                     successfulWeeks++;
                 } catch (HttpResponseException e) {
                     lastException = e;
@@ -188,7 +190,8 @@ public class UntisInfoParser extends UntisCommonParser {
         if (successfulWeeks == 0 && lastException != null) {
             throw lastException;
         }
-        v.setClasses(getAllClasses());
+
+        v.setClasses(allClasses);
         v.setTeachers(getAllTeachers());
         v.setWebsite(baseUrl + "/default.htm");
         return v;
@@ -227,7 +230,8 @@ public class UntisInfoParser extends UntisCommonParser {
         return data.optString(PARAM_LETTER, letter);
     }
 
-    private void parsePage(SubstitutionSchedule v, String lastChange, String klasse, String url, String weekName)
+    private void parsePage(SubstitutionSchedule v, String lastChange, String klasse, String url, String weekName,
+                           List<String> allClasses)
             throws IOException, CredentialInvalidException, JSONException {
         Document doc = Jsoup.parse(httpGet(url, data.optString(PARAM_ENCODING, null)));
         switch (data.optString(PARAM_SCHEDULE_TYPE, "substitution")) {
@@ -237,7 +241,7 @@ public class UntisInfoParser extends UntisCommonParser {
             case "substitution":
             case "substitutionTeacher":
             default:
-                parseSubstitutionDays(v, lastChange, doc, klasse);
+                parseSubstitutionDays(v, lastChange, doc, klasse, allClasses);
                 break;
         }
 
@@ -425,7 +429,8 @@ public class UntisInfoParser extends UntisCommonParser {
         }
     }
 
-    void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse)
+    void parseSubstitutionDays(SubstitutionSchedule v, String lastChange, Document doc, String klasse, List<String>
+            allClasses)
             throws JSONException, CredentialInvalidException, IOException {
         Elements days = doc.select("#vertretung > p > b, #vertretung > b, p:has(a[href^=#]) > b");
         if (days.size() > 0) {
@@ -445,7 +450,7 @@ public class UntisInfoParser extends UntisCommonParser {
                 } else {
                     next = dayElem.parent().select("p").first().nextElementSibling();
                 }
-                parseDay(day, next, v, klasse);
+                parseDay(day, next, v, klasse, allClasses);
             }
         } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
             parseSubstitutionTable(v, null, doc);

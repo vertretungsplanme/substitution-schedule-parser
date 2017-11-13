@@ -394,7 +394,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    protected boolean contains(JSONArray array, String string) throws JSONException {
+    protected static boolean contains(JSONArray array, String string) throws JSONException {
         for (int i = 0; i < array.length(); i++) {
             if (array.getString(i).equals(string)) {
                 return true;
