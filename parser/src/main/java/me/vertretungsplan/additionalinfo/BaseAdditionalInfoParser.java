@@ -11,6 +11,8 @@ import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilIcalParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
+import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenIcalParser;
+import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenRSSParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
@@ -54,6 +56,12 @@ public abstract class BaseAdditionalInfoParser {
                 break;
             case "lsschleswig-ical":
                 parser = new LsSchleswigIcalParser();
+                break;
+            case "gymholthausenhattingen-rss":
+                parser = new GymHolthausenRSSParser();
+                break;
+            case "gymholthausenhattingen-ical":
+                parser = new GymHolthausenIcalParser();
                 break;
         }
         return parser;
