@@ -174,7 +174,7 @@ public abstract class UntisCommonParser extends BaseParser {
     void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                         SubstitutionScheduleDay day, List<String> allClasses)
             throws JSONException, CredentialInvalidException, IOException {
-        parseSubstitutionScheduleTable(table, data, day, null);
+        parseSubstitutionScheduleTable(table, data, day, null, allClasses);
     }
 
     /**
