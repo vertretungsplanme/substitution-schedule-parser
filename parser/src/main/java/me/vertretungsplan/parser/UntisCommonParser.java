@@ -396,7 +396,7 @@ public abstract class UntisCommonParser extends BaseParser {
         List<String> affectedClasses;
 
         // Detect things like "7"
-        Pattern singlePattern = Pattern.compile("(\\d+)");
+        Pattern singlePattern = Pattern.compile("(\\d{1,2})");
         Matcher singleMatcher = singlePattern.matcher(klassen);
 
         // Detect things like "5-12"
