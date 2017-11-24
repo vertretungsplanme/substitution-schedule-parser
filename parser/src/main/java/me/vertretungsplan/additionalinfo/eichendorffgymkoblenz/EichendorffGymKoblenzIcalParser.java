@@ -15,4 +15,8 @@ public class EichendorffGymKoblenzIcalParser extends BaseIcalParser {
     protected String getIcalUrl() {
         return "https://calendar.google.com/calendar/ical/eichendorff.koblenz@googlemail.com/public/basic.ics";
     }
+
+    @Override protected int getMaxItemsCount() {
+        return 5;
+    }
 }

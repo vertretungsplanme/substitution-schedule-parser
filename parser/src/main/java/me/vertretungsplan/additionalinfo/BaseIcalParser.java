@@ -25,12 +25,14 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
-    private static final int MAX_ITEMS_COUNT = 4;
-
     protected abstract String getIcalUrl();
 
     protected String getTitle() {
         return "Termine";
+    }
+
+    protected int getMaxItemsCount() {
+        return 4;
     }
 
     @Override
@@ -146,7 +148,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
         DateTimeFormatter fmtD = DateTimeFormat.shortDate().withLocale(Locale.GERMANY);
 
         for (Event item : events) {
-            if (count >= MAX_ITEMS_COUNT) {
+            if (count >= getMaxItemsCount()) {
                 break;
             } else if (count != 0) {
                 content.append("<br><br>\n\n");
