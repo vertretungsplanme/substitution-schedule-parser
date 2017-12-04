@@ -218,7 +218,7 @@ public abstract class UntisCommonParser extends BaseParser {
             for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
         } else {
             for (String title : columnTitles) {
-                String type = getDetector().getColumnType(title);
+                String type = getDetector().getColumnType(title, columnTitles);
                 if (type != null) {
                     columns.add(type);
                 } else {

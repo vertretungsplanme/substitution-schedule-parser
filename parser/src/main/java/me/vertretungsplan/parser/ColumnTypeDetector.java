@@ -15,8 +15,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class ColumnTypeDetector {
     private HashMap<String, String> columns;
@@ -35,7 +37,18 @@ public class ColumnTypeDetector {
         }
     }
 
-    public String getColumnType(String title) {
-        return columns.get(title);
+    public String getColumnType(String title, List<String> allTitles) {
+        final String s = columns.get(title);
+        if (title.equals("Kurs")) {
+            // special case: if there is no other column for the class, this is the right one
+            List<String> allTypes = new ArrayList<>();
+            for (String t : allTitles) {
+                if (!t.equals(title)) allTypes.add(getColumnType(t, allTitles));
+            }
+            if (!allTypes.contains("class")) {
+                return "class";
+            }
+        }
+        return s;
     }
 }
