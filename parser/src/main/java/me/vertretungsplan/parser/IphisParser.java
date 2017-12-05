@@ -340,7 +340,7 @@ public class IphisParser extends BaseParser {
             }
             final HashSet<String> teachers = new HashSet<>();
             for (String coveringTeacherId : coveringTeacherIds) {
-                teachers.add(teachersHashMap.get(coveringTeacherId));
+                if (!coveringTeacherId.equals("NULL")) teachers.add(teachersHashMap.get(coveringTeacherId));
             }
             substitution.setTeachers(teachers);
 
