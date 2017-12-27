@@ -11,6 +11,14 @@ package me.vertretungsplan.objects.credential;
 public class SchoolNumberPasswordCredential extends BaseCredential {
     private String password;
 
+    public SchoolNumberPasswordCredential() {
+
+    }
+
+    public SchoolNumberPasswordCredential(String password) {
+        this.password = password;
+    }
+
     public String getPassword() {
         return password;
     }
