@@ -24,6 +24,7 @@ dependencies {
     compile 'org.bouncycastle:bcprov-jdk15on:1.56'
     compile 'io.jsonwebtoken:jjwt:0.7.0'
     testCompile 'junit:junit:4.11'
+    testCompile 'com.github.tomakehurst:wiremock:2.12.0'
 }
 
 task javadoc(overwrite: true, type: Javadoc) {
