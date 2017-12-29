@@ -25,10 +25,12 @@ public class LoginHandlerTest {
     public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT);
 
     private SubstitutionScheduleData dataBasic;
+    private SubstitutionScheduleData dataBasicUrl;
     private SubstitutionScheduleData dataFixed;
     private SubstitutionScheduleData dataPost;
     private SubstitutionScheduleData dataPostCheckText;
     private SubstitutionScheduleData dataPostCheckUrl;
+    private SubstitutionScheduleData dataPostFormData;
     
     private UserPasswordCredential wrong;
     private UserPasswordCredential correct;
@@ -45,6 +47,11 @@ public class LoginHandlerTest {
         JSONObject loginBasic = new JSONObject();
         loginBasic.put("type", "basic");
         dataBasic = getSubstitutionScheduleData(loginBasic);
+
+        JSONObject loginBasicUrl = new JSONObject();
+        loginBasicUrl.put("type", "basic");
+        loginBasicUrl.put("url", baseurl + "/index.html");
+        dataBasicUrl = getSubstitutionScheduleData(loginBasicUrl);
 
         JSONObject loginFixed = new JSONObject();
         loginFixed.put("type", "fixed");
@@ -75,6 +82,13 @@ public class LoginHandlerTest {
         loginPostCheckText.put("checkText", "wrong");
         loginPostCheckText.put("data", postData);
         dataPostCheckText = getSubstitutionScheduleData(loginPostCheckText);
+
+        JSONObject loginPostFormData = new JSONObject();
+        loginPostFormData.put("type", "post");
+        loginPostFormData.put("url", baseurl + "/index.html");
+        loginPostFormData.put("form-data", true);
+        loginPostFormData.put("data", postData);
+        dataPostFormData = getSubstitutionScheduleData(loginPostFormData);
     }
 
     @Test
@@ -105,6 +119,15 @@ public class LoginHandlerTest {
         assertEquals(401, status);
     }
 
+    @Test(expected = CredentialInvalidException.class)
+    public void testBasicAuthFailUrl() throws JSONException, IOException, CredentialInvalidException {
+        stubBasicAuth();
+        Executor exec = newExecutor();
+
+        LoginHandler handler = new LoginHandler(dataBasicUrl, wrong, null);
+        handler.handleLogin(exec, null);
+    }
+
     @Test
     public void testFixedAuth() throws JSONException, IOException, CredentialInvalidException {
         LoginHandler handler = new LoginHandler(dataFixed, correct, null);
@@ -127,6 +150,8 @@ public class LoginHandlerTest {
 
         // loading page should succeed
         String content = exec.execute(Request.Get(baseurl + "/index.html")).returnContent().asString();
+
+        System.out.println(Request.Get(baseurl + "/__admin/requests").execute().returnContent().asString());
         assertEquals("content", content);
     }
 
@@ -161,6 +186,20 @@ public class LoginHandlerTest {
         handler.handleLogin(exec, null); // should throw CredentialInvalidException
     }
 
+    @Test
+    public void testPostAuthFormData() throws JSONException, IOException, CredentialInvalidException {
+        stubPostAuthFormData();
+        Executor exec = newExecutor();
+
+        LoginHandler handler = new LoginHandler(dataPostFormData, correct, null);
+        handler.handleLogin(exec, null);
+
+        // loading page should succeed
+        String content = exec.execute(Request.Get(baseurl + "/index.html")).returnContent().asString();
+        System.out.println(Request.Get(baseurl + "/__admin/requests").execute().returnContent().asString());
+        assertEquals("content", content);
+    }
+
     @NotNull private Executor newExecutor() {
         return Executor.newInstance(HttpClientBuilder.create().build());
     }
@@ -193,8 +232,39 @@ public class LoginHandlerTest {
                         .withBody("wrong")));
 
         stubFor(post(urlEqualTo("/index.html")).atPriority(1)
-                //.withRequestBody(equalTo("user=" + correct.getUsername() + "&password=" + correct.getPassword()))
                 .withRequestBody(equalTo("password=" + correct.getPassword() + "&user=" + correct.getUsername()))
+                .withHeader("Content-Type", equalTo("application/x-www-form-urlencoded; charset=UTF-8"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withHeader("Set-Cookie", "authenticated=true")
+                        .withBody("content")));
+
+        stubFor(get(urlEqualTo("/index.html")).atPriority(1)
+                .withCookie("authenticated", equalTo("true"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("content")));
+    }
+
+    private void stubPostAuthFormData() {
+        wireMockRule.stubFor(get(urlEqualTo("/index.html")).atPriority(5)
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("please login")));
+
+        wireMockRule.stubFor(post(urlEqualTo("/index.html")).atPriority(5)
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("wrong")));
+
+        stubFor(post(urlEqualTo("/index.html")).atPriority(1)
+                .withRequestBody(matching("(.|\\n)*name=\"password\"(?:(?!--)(.|\\n))*" + correct.getPassword()
+                        + "(.|\\n)*name=\"user\"(?:(?!--)(.|\\n))*" + correct.getUsername() + "(.|\\n)*"))
+                .withHeader("Content-Type", matching("multipart/form-data; boundary=.*"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/plain")
