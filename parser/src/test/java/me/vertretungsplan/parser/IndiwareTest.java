@@ -8,8 +8,12 @@
 
 package me.vertretungsplan.parser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 
 import static org.junit.Assert.*;
@@ -107,5 +111,31 @@ public class IndiwareTest {
         Matcher matcher = IndiwareParser.takeOverPattern.matcher("Herr Samuel übernimmt mit");
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "Herr Samuel");
+    }
+
+    @Test
+    public void testClassAndCourse() throws JSONException {
+        IndiwareParser.ClassAndCourse cac = new IndiwareParser.ClassAndCourse("5a,5b", null);
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        assertEquals(null, cac.course);
+
+        cac = new IndiwareParser.ClassAndCourse("5a,5b/ Deu1", null);
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        assertEquals("Deu1", cac.course);
+
+        JSONObject data = new JSONObject();
+        JSONObject classRanges = new JSONObject();
+        classRanges.put("gradeRegex", "\\d+");
+        classRanges.put("classRegex", "[a-z]");
+        classRanges.put("format", "gc-c");
+        data.put("classRanges", classRanges);
+        cac = new IndiwareParser.ClassAndCourse("5a-d/ Deu1", null);
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        assertEquals("Deu1", cac.course);
+
+        data.put("classRegex", "\\d");
+        cac = new IndiwareParser.ClassAndCourse("5/1-5/3/ Deu1", null);
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        assertEquals("Deu1", cac.course);
     }
 }

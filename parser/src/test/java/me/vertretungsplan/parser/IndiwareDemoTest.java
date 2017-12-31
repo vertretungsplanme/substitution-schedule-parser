@@ -40,13 +40,13 @@ public class IndiwareDemoTest extends BaseDemoTest {
     }
 
     @Test
-    public void demoTestXML() throws IOException {
+    public void demoTestXML() throws IOException, JSONException {
         SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()), false);
         verify(schedule);
     }
 
     @Test
-    public void demoTestHTML() throws IOException {
+    public void demoTestHTML() throws IOException, JSONException {
         SubstitutionScheduleDay schedule = parser.parseIndiwareDay(Jsoup.parse(html), true);
         verify(schedule);
     }
@@ -82,7 +82,7 @@ public class IndiwareDemoTest extends BaseDemoTest {
     }
 
     @Test
-    public void testEquals() throws IOException {
+    public void testEquals() throws IOException, JSONException {
         SubstitutionScheduleDay scheduleXML = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()),
                 false);
         SubstitutionScheduleDay scheduleHTML = parser.parseIndiwareDay(Jsoup.parse(html), true);
