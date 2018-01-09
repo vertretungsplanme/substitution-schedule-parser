@@ -1,5 +1,5 @@
 group 'me.vertretungsplan'
-version '1.0.0-beta231'
+version '1.0.0-beta232'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -24,6 +24,7 @@ dependencies {
     compile 'org.bouncycastle:bcprov-jdk15on:1.56'
     compile 'io.jsonwebtoken:jjwt:0.7.0'
     testCompile 'junit:junit:4.11'
+    testCompile 'com.github.tomakehurst:wiremock:2.12.0'
 }
 
 task javadoc(overwrite: true, type: Javadoc) {
