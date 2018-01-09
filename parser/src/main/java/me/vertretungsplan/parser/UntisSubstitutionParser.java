@@ -118,7 +118,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
                         Document classDoc = Jsoup.parse(httpGet(baseUrl.substring(0, baseUrl.lastIndexOf("/"))
                                 + "/" + klasse.attr("href"), encoding));
 
-                        parseSubstitutionTable(v, lastChange, classDoc);
+                        parseSubstitutionTable(v, lastChange, classDoc, klasse.text());
                         successfulClasses++;
                     } catch (HttpResponseException e) {
                         lastExceptionClass = e;

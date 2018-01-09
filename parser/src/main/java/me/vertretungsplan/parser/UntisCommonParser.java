@@ -805,6 +805,11 @@ public abstract class UntisCommonParser extends BaseParser {
         }
     }
 
+    protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc)
+            throws CredentialInvalidException, IOException, JSONException {
+        parseSubstitutionTable(v, lastChange, doc, null);
+    }
+
     /**
      * Parses an Untis substitution table ({@link UntisSubstitutionParser}).
      *
@@ -814,7 +819,7 @@ public abstract class UntisCommonParser extends BaseParser {
      * @throws JSONException
      * @throws CredentialInvalidException
      */
-    protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc)
+    protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc, String className)
             throws JSONException, CredentialInvalidException, IOException {
         JSONObject data = scheduleData.getData();
 
@@ -844,7 +849,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 day.setDateString(date);
                 day.setDate(ParserUtils.parseDate(date));
             }
-            parseSubstitutionScheduleTable(table, data, day, getAllClasses());
+            parseSubstitutionScheduleTable(table, data, day, className, getAllClasses());
             v.addDay(day);
         } else {
             for (Element line : table
@@ -876,7 +881,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     day.setLastChange(lastChangeDate);
                     v.addDay(day);
                 }
-                parseSubstitutionScheduleTable(line, data, day, getAllClasses());
+                parseSubstitutionScheduleTable(line, data, day, className, getAllClasses());
             }
         }
     }
