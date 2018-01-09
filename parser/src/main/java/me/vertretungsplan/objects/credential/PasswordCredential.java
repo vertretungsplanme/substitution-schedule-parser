@@ -11,6 +11,14 @@ package me.vertretungsplan.objects.credential;
 public class PasswordCredential extends BaseCredential {
     private String password;
 
+    public PasswordCredential() {
+
+    }
+
+    public PasswordCredential(String password) {
+        this.password = password;
+    }
+
     public String getPassword() {
         return password;
     }
