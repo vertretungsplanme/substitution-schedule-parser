@@ -125,17 +125,20 @@ public class IndiwareTest {
 
         JSONObject data = new JSONObject();
         JSONObject classRanges = new JSONObject();
-        classRanges.put("gradeRegex", "\\d+");
-        classRanges.put("classRegex", "[a-z]");
-        classRanges.put("format", "gc-c");
-        data.put("classRanges", classRanges);
-        cac = new IndiwareParser.ClassAndCourse("5a-d/ Deu1", null);
-        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        classRanges.put(BaseParser.CLASS_RANGES_GRADE_REGEX, "\\d+");
+        classRanges.put(BaseParser.CLASS_RANGES_CLASS_REGEX, "[a-z]");
+        classRanges.put(BaseParser.CLASS_RANGES_RANGE_FORMAT, "gc-c");
+        classRanges.put(BaseParser.CLASS_RANGES_SINGLE_FORMAT, "gc");
+        data.put(BaseParser.PARAM_CLASS_RANGES, classRanges);
+        cac = new IndiwareParser.ClassAndCourse("5a-d/ Deu1", data);
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b", "5c", "5d")), cac.classes);
         assertEquals("Deu1", cac.course);
 
-        data.put("classRegex", "\\d");
-        cac = new IndiwareParser.ClassAndCourse("5/1-5/3/ Deu1", null);
-        assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
+        classRanges.put(BaseParser.CLASS_RANGES_CLASS_REGEX, "\\d");
+        classRanges.put(BaseParser.CLASS_RANGES_RANGE_FORMAT, "g/c-g/c");
+        classRanges.put(BaseParser.CLASS_RANGES_SINGLE_FORMAT, "g/c");
+        cac = new IndiwareParser.ClassAndCourse("5/1-5/3,10/1/ Deu1", data);
+        assertEquals(new HashSet<>(Arrays.asList("5/1", "5/2", "5/3", "10/1")), cac.classes);
         assertEquals("Deu1", cac.course);
     }
 }

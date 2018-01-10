@@ -426,7 +426,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     static Set<String> handleClassRanges(Set<String> classes, JSONObject data) throws JSONException {
-        if (!data.has(PARAM_CLASS_RANGES)) return classes;
+        if (data == null || !data.has(PARAM_CLASS_RANGES)) return classes;
         JSONObject options = data.getJSONObject(PARAM_CLASS_RANGES);
         String rangeFormat = options.getString(CLASS_RANGES_RANGE_FORMAT);
         String singleFormat = options.getString(CLASS_RANGES_SINGLE_FORMAT);
