@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import com.mifmif.common.regex.Generex;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.networking.MultiTrustManager;
 import me.vertretungsplan.objects.SubstitutionSchedule;
@@ -41,9 +42,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +56,12 @@ import java.util.regex.Pattern;
 public abstract class BaseParser implements SubstitutionScheduleParser {
     public static final String PARAM_CLASS_REGEX = "classRegex";
     private static final String PARAM_SSL_HOSTNAME = "sslHostname";
+    static final String PARAM_CLASS_RANGES = "classRanges";
+    static final String CLASS_RANGES_CLASS_REGEX = "classRegex";
+    static final String CLASS_RANGES_GRADE_REGEX = "gradeRegex";
+    static final String CLASS_RANGES_RANGE_FORMAT = "rangeFormat";
+    static final String CLASS_RANGES_SINGLE_FORMAT = "singleFormat";
+
     protected SubstitutionScheduleData scheduleData;
     protected Executor executor;
     protected Credential credential;
@@ -408,6 +417,86 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected List<String> getClassesFromJson() throws JSONException {
         final JSONObject data = scheduleData.getData();
         return ParserUtils.getClassesFromJson(data);
+    }
+
+    static Set<String> handleClassRanges(String klasse, JSONObject data) throws JSONException {
+        HashSet<String> classes = new HashSet<>();
+        classes.add(klasse);
+        return handleClassRanges(classes, data);
+    }
+
+    static Set<String> handleClassRanges(Set<String> classes, JSONObject data) throws JSONException {
+        if (!data.has(PARAM_CLASS_RANGES)) return classes;
+        JSONObject options = data.getJSONObject(PARAM_CLASS_RANGES);
+        String rangeFormat = options.getString(CLASS_RANGES_RANGE_FORMAT);
+        String singleFormat = options.getString(CLASS_RANGES_SINGLE_FORMAT);
+        String classRegex = options.getString(CLASS_RANGES_CLASS_REGEX);
+        String gradeRegex = options.getString(CLASS_RANGES_GRADE_REGEX);
+
+        int gradePos = -1;
+        int minClassPos = -1;
+        int maxClassPos = -1;
+
+        StringBuilder regex = new StringBuilder();
+        int i = 0;
+        for (char c: rangeFormat.toCharArray()) {
+            switch (c) {
+                case 'g':
+                    if (gradePos == -1) {
+                        regex.append("(").append(gradeRegex).append(")");
+                        i++;
+                        gradePos = i;
+                    } else {
+                        regex.append("\\").append(gradePos);
+                    }
+                    break;
+                case 'c':
+                    regex.append("(").append(classRegex).append(")");
+                    i++;
+                    if (minClassPos == -1) {
+                        minClassPos = i;
+                    } else if (maxClassPos == -1) {
+                        maxClassPos = i;
+                    } else {
+                        throw new IllegalArgumentException("more than two classes in classRanges.rangeFormat");
+                    }
+                    break;
+                default:
+                    regex.append(c);
+                    break;
+            }
+        }
+        Pattern pattern = Pattern.compile(regex.toString());
+
+        Set<String> processedClasses = new HashSet<>();
+        for (String klasse:classes) {
+            Matcher matcher = pattern.matcher(klasse);
+            if (matcher.matches()) {
+                String grade = matcher.group(gradePos);
+                String minClass = matcher.group(minClassPos);
+                String maxClass = matcher.group(maxClassPos);
+
+                StringBuilder rangeRegex = new StringBuilder();
+                for (char c: singleFormat.toCharArray()) {
+                    switch (c) {
+                        case 'g':
+                            rangeRegex.append(grade);
+                            break;
+                        case 'c':
+                            rangeRegex.append("[").append(minClass).append("-").append(maxClass).append("]");
+                            break;
+                        default:
+                            rangeRegex.append(c);
+                            break;
+                    }
+                }
+                processedClasses.addAll(new Generex(rangeRegex.toString()).getAllMatchedStrings());
+            } else {
+                processedClasses.add(klasse);
+            }
+        }
+
+        return processedClasses;
     }
 
     private class CustomHostnameVerifier implements HostnameVerifier {

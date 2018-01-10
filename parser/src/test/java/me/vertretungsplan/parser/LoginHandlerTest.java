@@ -150,8 +150,6 @@ public class LoginHandlerTest {
 
         // loading page should succeed
         String content = exec.execute(Request.Get(baseurl + "/index.html")).returnContent().asString();
-
-        System.out.println(Request.Get(baseurl + "/__admin/requests").execute().returnContent().asString());
         assertEquals("content", content);
     }
 
@@ -196,7 +194,6 @@ public class LoginHandlerTest {
 
         // loading page should succeed
         String content = exec.execute(Request.Get(baseurl + "/index.html")).returnContent().asString();
-        System.out.println(Request.Get(baseurl + "/__admin/requests").execute().returnContent().asString());
         assertEquals("content", content);
     }
 

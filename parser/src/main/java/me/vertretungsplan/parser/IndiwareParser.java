@@ -288,7 +288,7 @@ public class IndiwareParser extends BaseParser {
         }
     }
 
-    SubstitutionScheduleDay parseIndiwareDay(Element doc, boolean html) throws IOException {
+    SubstitutionScheduleDay parseIndiwareDay(Element doc, boolean html) throws IOException, JSONException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         DataSource ds;
@@ -379,17 +379,9 @@ public class IndiwareParser extends BaseParser {
                 final String columnType = html ? columnTypes.get(i) : info.tagName();
                 switch (columnType) {
                     case "klasse":
-                        Set<String> classes = new HashSet<>();
-                        for (String klasse : value.split(",")) {
-                            Matcher courseMatcher = coursePattern.matcher(klasse);
-                            if (courseMatcher.matches()) {
-                                classes.add(courseMatcher.group(1));
-                                course = courseMatcher.group(2);
-                            } else {
-                                classes.add(klasse);
-                            }
-                        }
-                        substitution.setClasses(classes);
+                        ClassAndCourse cac = new ClassAndCourse(value, data);
+                        course = cac.course;
+                        substitution.setClasses(cac.classes);
                         break;
                     case "stunde":
                         substitution.setLesson(value);
@@ -512,5 +504,24 @@ public class IndiwareParser extends BaseParser {
     @Override
     public List<String> getAllTeachers() throws IOException, JSONException {
         return null;
+    }
+
+    static class ClassAndCourse {
+        public String course = null;
+        public Set<String> classes;
+
+        public ClassAndCourse(String value, JSONObject data) throws JSONException {
+            String classesString;
+            Matcher courseMatcher = coursePattern.matcher(value);
+            if (courseMatcher.matches()) {
+                classesString = courseMatcher.group(1);
+                course = courseMatcher.group(2);
+            } else {
+                classesString = value;
+            }
+
+            classes = new HashSet<>(Arrays.asList(classesString.split(",")));
+            classes = BaseParser.handleClassRanges(classes, data);
+        }
     }
 }
