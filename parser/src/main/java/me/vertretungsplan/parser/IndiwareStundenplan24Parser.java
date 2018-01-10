@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
- * software and hosted on <a href="http://www.stundenplan24.de/">Stundenplan24.de</a>. Schools only providing the
+ * software and hosted on <a href="https://www.stundenplan24.de/">Stundenplan24.de</a>. Schools only providing the
  * mobile version ("Indiware mobil") of the schedule instead of the desktop version ("Vertretungsplan") are currently
  * not supported. The parser also supports schedules in the same format hosted on different URLs.
  * <p>
@@ -69,7 +69,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
 
         String baseurl;
         if (data.has("schoolNumber")) {
-            baseurl = "http://www.stundenplan24.de/" + data.getString("schoolNumber") + "/vplan/";
+            baseurl = "https://www.stundenplan24.de/" + data.getString("schoolNumber") + "/vplan/";
             if (credential == null || !(credential instanceof UserPasswordCredential)) {
                 throw new IOException("no login");
             }
