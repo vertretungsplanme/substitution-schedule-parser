@@ -147,7 +147,15 @@ public class UntisInfoParser extends UntisCommonParser {
             }
         }
 
-        final List<String> allClasses = getAllClasses();
+        List<String> allClasses = new ArrayList<>();
+        try {
+            allClasses = getAllClasses();
+        } catch (IOException e) {
+            // we only really need this for teacher schedules
+            if (!getLetter(data).equals("v")) {
+                throw e;
+            }
+        }
 
         int successfulWeeks = 0;
         HttpResponseException lastException = null;
@@ -158,8 +166,12 @@ public class UntisInfoParser extends UntisCommonParser {
                     data.optBoolean("single_classes", false)) // backwards compatibility
                     || data.optString(PARAM_SCHEDULE_TYPE, "substitution").equals("timetable")) {
                 int classNumber = 1;
-                List<String> classesToSelect = parseClasses(getNavbarDoc(), data);
-                if (getLetter(data).equals("v")) classesToSelect = parseTeachers(getNavbarDoc(), data);
+                List<String> classesToSelect;
+                if (getLetter(data).equals("v")) {
+                    classesToSelect = parseTeachers(getNavbarDoc(), data);
+                } else {
+                    classesToSelect = parseClasses(getNavbarDoc(), data);
+                }
                 for (String klasse : classesToSelect) {
                     String url = getScheduleUrl(week, classNumber, data);
 					try {
