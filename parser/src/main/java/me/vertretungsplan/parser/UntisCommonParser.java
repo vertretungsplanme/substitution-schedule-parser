@@ -270,7 +270,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     String text = spalte.text();
 
                     String type = columns.get(i);
-                    if (isEmpty(text) && !type.equals("type-entfall")) {
+                    if (isEmpty(text) && !type.equals("type-entfall") && !type.equals("teacher")) {
                         i++;
                         continue;
                     }
@@ -315,7 +315,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             if (text.equals("x")) {
                                 v.setType("Entfall");
                                 v.setColor(colorProvider.getColor("Entfall"));
-                            } else if (!hasType) {
+                            } else if (!hasType && v.getType() == null) {
                                 v.setType("Vertretung");
                                 v.setColor(colorProvider.getColor("Vertretung"));
                             }
@@ -336,7 +336,11 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setColor(colorProvider.getColor(recognizedType));
                             break;
                         case "teacher":
-                            handleTeacher(v, spalte, data);
+                            if (text.equals("+")) {
+                                v.setType("Eigenverantw. Arbeiten");
+                            } else if (!text.isEmpty()) {
+                                handleTeacher(v, spalte, data);
+                            }
                             break;
                         case "previousTeacher":
                             v.setPreviousTeachers(splitTeachers(text, data));
@@ -480,7 +484,9 @@ public abstract class UntisCommonParser extends BaseParser {
                 int i = 0;
                 for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
-                    if (isEmpty(text)) {
+                    String type = columns.get(i);
+
+                    if (isEmpty(text) && !type.equals("teacher")) {
                         i++;
                         continue;
                     }
@@ -507,8 +513,6 @@ public abstract class UntisCommonParser extends BaseParser {
                     }
                     if (skipLinesForThisColumn > skipLines) skipLines = skipLinesForThisColumn;
 
-                    String type = columns.get(i);
-
                     switch (type) {
                         case "lesson":
                             v.setLesson(text);
@@ -527,7 +531,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             if (text.equals("x")) {
                                 v.setType("Entfall");
                                 v.setColor(colorProvider.getColor("Entfall"));
-                            } else {
+                            } else if (v.getType() == null) {
                                 v.setType("Vertretung");
                                 v.setColor(colorProvider.getColor("Vertretung"));
                             }
@@ -536,7 +540,9 @@ public abstract class UntisCommonParser extends BaseParser {
                             handleRoom(v, spalte);
                             break;
                         case "teacher":
-                            if (teacherName == null) {
+                            if (text.equals("+")) {
+                                v.setType("Eigenverantw. Arbeiten");
+                            } else if (!text.isEmpty() && teacherName == null) {
                                 handleTeacher(v, spalte, data);
                             } // otherwise ignore - teacher is in extra line
                             break;
