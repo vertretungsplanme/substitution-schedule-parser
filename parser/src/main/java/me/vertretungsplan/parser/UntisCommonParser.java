@@ -339,7 +339,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             if (text.equals("+")) {
                                 v.setType("Eigenverantw. Arbeiten");
                                 v.setColor(colorProvider.getColor(v.getType()));
-                            } else if (!text.isEmpty()) {
+                            } else if (!isEmpty(text)) {
                                 handleTeacher(v, spalte, data);
                             }
                             break;
@@ -544,7 +544,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             if (text.equals("+")) {
                                 v.setType("Eigenverantw. Arbeiten");
                                 v.setColor(colorProvider.getColor(v.getType()));
-                            } else if (!text.isEmpty() && teacherName == null) {
+                            } else if (!isEmpty(text) && teacherName == null) {
                                 handleTeacher(v, spalte, data);
                             } // otherwise ignore - teacher is in extra line
                             break;
