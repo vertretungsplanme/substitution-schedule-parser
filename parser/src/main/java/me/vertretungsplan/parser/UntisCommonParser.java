@@ -305,7 +305,7 @@ public abstract class UntisCommonParser extends BaseParser {
                         case "subject":
                             handleSubject(v, spalte);
                             if (course != null) {
-                                v.setSubject(v.getSubject() + " " + course);
+                                v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
                             }
                             break;
@@ -538,7 +538,7 @@ public abstract class UntisCommonParser extends BaseParser {
                         case "subject":
                             handleSubject(v, spalte);
                             if (course != null) {
-                                v.setSubject(v.getSubject() + " " + course);
+                                v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
                             }
                             break;
