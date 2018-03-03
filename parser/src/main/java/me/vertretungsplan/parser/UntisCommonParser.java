@@ -265,6 +265,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                 Substitution v = new Substitution();
                 String klassen = defaultClass != null ? defaultClass : "";
+                String course = null;
                 int i = 0;
                 for (Element spalte : zeile.select("td")) {
                     String text = spalte.text();
@@ -303,6 +304,17 @@ public abstract class UntisCommonParser extends BaseParser {
                             break;
                         case "subject":
                             handleSubject(v, spalte);
+                            if (course != null) {
+                                v.setSubject(v.getSubject() + " " + course);
+                                course = null;
+                            }
+                            break;
+                        case "course":
+                            if (v.getSubject() != null) {
+                                v.setSubject(v.getSubject() + " " + text);
+                            } else {
+                                course = text;
+                            }
                             break;
                         case "previousSubject":
                             v.setPreviousSubject(text);
@@ -363,6 +375,10 @@ public abstract class UntisCommonParser extends BaseParser {
                             throw new IllegalArgumentException("Unknown column type: " + type);
                     }
                     i++;
+                }
+
+                if (course != null) {
+                    v.setSubject(course);
                 }
 
                 if (v.getLesson() == null || v.getLesson().equals("")) {
@@ -481,6 +497,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                 Substitution v = new Substitution();
                 String klassen = null;
+                String course = null;
 
                 int i = 0;
                 for (Element spalte : zeile.select("td")) {
@@ -520,6 +537,17 @@ public abstract class UntisCommonParser extends BaseParser {
                             break;
                         case "subject":
                             handleSubject(v, spalte);
+                            if (course != null) {
+                                v.setSubject(v.getSubject() + " " + course);
+                                course = null;
+                            }
+                            break;
+                        case "course":
+                            if (v.getSubject() != null) {
+                                v.setSubject(v.getSubject() + " " + text);
+                            } else {
+                                course = text;
+                            }
                             break;
                         case "previousSubject":
                             v.setPreviousSubject(text);
@@ -582,6 +610,10 @@ public abstract class UntisCommonParser extends BaseParser {
                             throw new IllegalArgumentException("Unknown column type: " + type);
                     }
                     i++;
+                }
+
+                if (course != null) {
+                    v.setSubject(course);
                 }
 
                 autoDetectType(data, zeile, v);
