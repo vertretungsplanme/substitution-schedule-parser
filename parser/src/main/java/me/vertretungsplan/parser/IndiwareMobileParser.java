@@ -69,11 +69,12 @@ public class IndiwareMobileParser extends BaseParser {
         for (int i = 0; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
-            String url = baseurl + "mobdaten/PlanKl" + dateStr + ".xml?_=" + System.currentTimeMillis();
+            String filePrefix = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER ? "PlanLe" : "PlanKl";
+            String url = baseurl + "mobdaten/" + filePrefix + dateStr + "" + ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, "UTF-8");
                 Document doc = Jsoup.parse(xml, url, Parser.xmlParser());
-                if (doc.select("kopf datei").text().equals("PlanKl" + dateStr + ".xml")) {
+                if (doc.select("kopf datei").text().equals(filePrefix + dateStr + ".xml")) {
                     docs.add(doc);
                 }
             } catch (HttpResponseException e) {
@@ -147,12 +148,20 @@ public class IndiwareMobileParser extends BaseParser {
     }
 
     @Override public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
-        String baseurl = data.getString(PARAM_BASEURL) + "/";
+        if (scheduleData.getType() == SubstitutionSchedule.Type.STUDENT) {
+            return parseClasses("PlanKl");
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
+    @NotNull private List<String> parseClasses(String filePrefix)
+            throws JSONException, IOException, CredentialInvalidException {
+        String baseurl = data.getString(PARAM_BASEURL) + "/";
         for (int i = -4; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
-            String url = baseurl + "mobdaten/PlanKl" + dateStr + ".xml?_=" + System.currentTimeMillis();
+            String url = baseurl + "mobdaten/" + filePrefix + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, "UTF-8");
                 Document doc = Jsoup.parse(xml, url, Parser.xmlParser());
@@ -170,6 +179,10 @@ public class IndiwareMobileParser extends BaseParser {
     }
 
     @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
-        return null;
+        if (scheduleData.getType() == SubstitutionSchedule.Type.TEACHER) {
+            return parseClasses("PlanLe");
+        } else {
+            return null;
+        }
     }
 }
