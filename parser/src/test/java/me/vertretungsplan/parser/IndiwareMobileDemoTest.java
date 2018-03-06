@@ -33,7 +33,9 @@ public class IndiwareMobileDemoTest extends BaseDemoTest {
     @Test
     public void demoTest() throws IOException, JSONException {
         Document doc = Jsoup.parse(readResource("/indiware-mobile/indiware-mobile.xml"), "", Parser.xmlParser());
-        SubstitutionScheduleDay day = IndiwareMobileParser.parseDay(doc, new ColorProvider());
+        SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
+        scheduleData.setType(SubstitutionSchedule.Type.STUDENT);
+        SubstitutionScheduleDay day = IndiwareMobileParser.parseDay(doc, new ColorProvider(), scheduleData);
 
         assertEquals(new LocalDate(2017, 6, 21), day.getDate());
         assertEquals(new LocalDateTime(2017, 6, 20, 10, 28), day.getLastChange());
