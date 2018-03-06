@@ -84,7 +84,7 @@ public class IndiwareMobileParser extends BaseParser {
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
         for (Document doc:docs) {
-            v.addDay(parseDay(doc, colorProvider));
+            v.addDay(parseDay(doc, colorProvider, scheduleData));
         }
 
         v.setClasses(getAllClasses());
@@ -94,7 +94,7 @@ public class IndiwareMobileParser extends BaseParser {
         return v;
     }
 
-    static SubstitutionScheduleDay parseDay(Document doc, ColorProvider colorProvider) {
+    static SubstitutionScheduleDay parseDay(Document doc, ColorProvider colorProvider, SubstitutionScheduleData scheduleData) {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         day.setDate(ParserUtils.parseDate(doc.select("Kopf > DatumPlan").text()));
@@ -112,13 +112,18 @@ public class IndiwareMobileParser extends BaseParser {
 
                 Substitution subst = new Substitution();
                 subst.setLesson(text(lesson.select("St")));
-                subst.setTeachers(split(text(lesson.select("Le"))));
+                if (scheduleData.getType() == SubstitutionSchedule.Type.STUDENT) {
+                    subst.setTeachers(split(text(lesson.select("Le"))));
+                    subst.setClasses(classes);
+                } else {
+                    subst.setClasses(split(text(lesson.select("Le"))));
+                    subst.setTeachers(classes);
+                }
                 subst.setSubject(text(lesson.select("Fa")));
                 subst.setRoom(text(lesson.select("Ra")));
-                IndiwareParser.handleDescription(subst, text(lesson.select("If")));
+                IndiwareParser.handleDescription(subst, text(lesson.select("If")), scheduleData.getType() == SubstitutionSchedule.Type.TEACHER);
                 if (subst.getType() == null) subst.setType("Vertretung");
                 subst.setColor(colorProvider.getColor(subst.getType()));
-                subst.setClasses(classes);
                 day.addSubstitution(subst);
             }
         }
