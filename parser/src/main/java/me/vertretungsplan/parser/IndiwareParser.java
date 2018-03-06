@@ -432,6 +432,10 @@ public class IndiwareParser extends BaseParser {
     }
 
     static void handleDescription(Substitution substitution, String value) {
+        handleDescription(substitution, value, false);
+    }
+
+    static void handleDescription(Substitution substitution, String value, boolean teacher) {
         if (value == null) return;
 
         Matcher substitutionMatcher = substitutionPattern.matcher(value);
@@ -447,7 +451,11 @@ public class IndiwareParser extends BaseParser {
         } else if (cancelMatcher.matches()) {
             substitution.setType("Entfall");
             substitution.setPreviousSubject(cancelMatcher.group(1));
-            substitution.setPreviousTeacher(cancelMatcher.group(2));
+            if (teacher) {
+                substitution.setClasses(Collections.singleton(cancelMatcher.group(2)));
+            } else {
+                substitution.setPreviousTeacher(cancelMatcher.group(2));
+            }
         } else if (delayMatcher.matches()) {
             substitution.setType("Verlegung");
             substitution.setPreviousSubject(delayMatcher.group(1));
