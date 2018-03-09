@@ -250,7 +250,6 @@ public class IphisParser extends BaseParser {
         HashMap<String, String> teachersHashMap = null;
         if (teachers != null) {
             teachersHashMap = new HashMap<>();
-            teachersHashMap.put("", "Keine Angabe");
             for (int i = 0; i < teachers.length(); i++) {
                 JSONObject teacher = teachers.getJSONObject(i);
                 teachersHashMap.put(teacher.getString("id"), teacher.getString("name"));
@@ -333,7 +332,7 @@ public class IphisParser extends BaseParser {
         if (!type.isEmpty() && !type.toLowerCase().equals("null")) {
             substitution.setType(type);
         } else {
-            substitution.setType("");
+            substitution.setType("Vertretung");
         }
 
         // Set color
