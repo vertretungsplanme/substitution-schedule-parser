@@ -206,7 +206,7 @@ public class IphisParser extends BaseParser {
     /**
      * Returns a JSONArray with all teachers.
      */
-    private void getTeachers() throws IOException, JSONException, CredentialInvalidException {
+    private void getTeachers() throws IOException, CredentialInvalidException {
         if (teachers == null) {
             final String url = api + "/lehrer";
             teachers = getJSONArray(url);
@@ -329,7 +329,12 @@ public class IphisParser extends BaseParser {
         }
         // Set type
         final String type = change.getString("aenderungsgrund").trim();
-        substitution.setType(type);
+        if (!type.isEmpty() && !type.toLowerCase().equals("null")) {
+            substitution.setType(type);
+        } else {
+            substitution.setType("Vertretung");
+        }
+
         // Set color
         substitution.setColor(colorProvider.getColor(type));
         // Set covering teacher
@@ -340,40 +345,52 @@ public class IphisParser extends BaseParser {
             }
             final HashSet<String> teachers = new HashSet<>();
             for (String coveringTeacherId : coveringTeacherIds) {
-                if (!coveringTeacherId.equals("NULL")) teachers.add(teachersHashMap.get(coveringTeacherId));
+                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
+                    teachers.add(teachersHashMap.get(coveringTeacherId));
+                }
             }
             substitution.setTeachers(teachers);
-
         }
         // Set teacher
         final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
+        final HashSet<String> coveringTeachers = new HashSet<>();
         if (teacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
-            final HashSet<String> coveringTeachers = new HashSet<>();
             for (String coveringTeacherId : coveringTeacherIds) {
-                coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
+                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
+                    coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
+                }
             }
             substitution.setPreviousTeachers(coveringTeachers);
+        }
 
-        }
         //Set room
-        if (!change.optString("raum").isEmpty()) {
+        if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
             substitution.setRoom(change.optString("raum"));
+        } else if (!change.optString("raum_orig").isEmpty() &&
+                !change.optString("raum_orig").toLowerCase().equals("null")) {
+            substitution.setRoom(change.optString("raum_orig"));
         }
-        if (!change.optString("raum_orig").isEmpty()) {
+        if (!change.optString("raum_orig").isEmpty() && !change.optString("raum_orig").toLowerCase().equals("null")) {
             substitution.setPreviousRoom(change.optString("raum_orig"));
+        } else if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
+            substitution.setPreviousRoom(change.optString("raum"));
         }
         //Set subject
-        if (!change.optString("fach").isEmpty()) {
+        if (!change.optString("fach").isEmpty() && !change.optString("fach").toLowerCase().equals("null")) {
             substitution.setSubject(change.optString("fach"));
         }
-        if (!change.optString("fach_orig").isEmpty()) {
+        if (!change.optString("fach_orig").isEmpty() && !change.optString("fach_orig").toLowerCase().equals("null")) {
             substitution.setPreviousSubject(change.optString("fach_orig"));
         }
+
         //Set description
-        substitution.setDesc(change.getString("information").trim());
+        if (!change.getString("information").isEmpty() &&
+                !change.getString("information").toLowerCase().equals("null")) {
+            substitution.setDesc(change.getString("information").trim());
+        }
 
         final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
         final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
