@@ -199,6 +199,8 @@ public class LoginHandler {
                 if (loginData.has("_hiddeninputs") && preDoc != null) {
                     for (Element hidden : preDoc.select(loginData.getString("_hiddeninputs") +
                             " input[type=hidden]")) {
+                        if (loginData.has(hidden.attr("name"))) continue;
+
                         nvps.add(new BasicNameValuePair(hidden.attr("name"), hidden.attr("value")));
                         if (hidden.attr("name").equals("challenge")) {
                             typo3Challenge = hidden.attr("value");
