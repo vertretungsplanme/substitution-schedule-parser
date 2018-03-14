@@ -241,7 +241,9 @@ public class LegionBoardParser extends BaseParser {
 			if (teachersHashMap == null) {
 				throw new IOException("Change references a covering teacher but teachers are empty.");
 			}
-			substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+			if (!teachersHashMap.get(coveringTeacherId).equals("-")) {
+				substitution.setTeacher(teachersHashMap.get(coveringTeacherId));
+			}
 		}
 		// Set teacher
 		final String teacherId = change.getString("teacher");
@@ -249,12 +251,13 @@ public class LegionBoardParser extends BaseParser {
 			if (teachersHashMap == null) {
 				throw new IOException("Change references a teacher but teachers are empty.");
 			}
-			if (type.equals("Vertretung") || !coveringTeacherId.equals("0")) {
-				substitution.setPreviousTeacher(teachersHashMap.get(teacherId));
-			} else {
-				substitution.setTeacher(teachersHashMap.get(teacherId));
+			if (!teachersHashMap.get(teacherId).equals("-")) {
+				if (type.equals("Vertretung") || substitution.getTeacher() != null) {
+					substitution.setPreviousTeacher(teachersHashMap.get(teacherId));
+				} else {
+					substitution.setTeacher(teachersHashMap.get(teacherId));
+				}
 			}
-				
 		}
 		// Set description
 		substitution.setDesc(change.getString("text"));
@@ -270,7 +273,11 @@ public class LegionBoardParser extends BaseParser {
 				lesson = "Bis " + endingHour;
 			}
 			if (!startingHour.equals("") && !endingHour.equals("")) {
-				lesson = startingHour + " - " + endingHour;
+				if (startingHour.equals(endingHour)) {
+					lesson = startingHour;
+				} else {
+					lesson = startingHour + " - " + endingHour;
+				}
 			}
 			substitution.setLesson(lesson);
 		}
