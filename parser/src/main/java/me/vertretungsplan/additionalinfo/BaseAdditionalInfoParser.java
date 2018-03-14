@@ -12,6 +12,7 @@ import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
 import me.vertretungsplan.additionalinfo.eichendorffgymkoblenz.EichendorffGymKoblenzIcalParser;
+import me.vertretungsplan.additionalinfo.evsschwalmstadt.EvsSchwalmstadtIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenRSSParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
@@ -66,6 +67,9 @@ public abstract class BaseAdditionalInfoParser {
                 break;
             case "eichendorffgymkoblenz-ical":
                 parser = new EichendorffGymKoblenzIcalParser();
+                break;
+            case "evsschwalmstadt-ical":
+                parser = new EvsSchwalmstadtIcalParser();
                 break;
         }
         return parser;
