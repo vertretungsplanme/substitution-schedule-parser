@@ -71,6 +71,7 @@ public class IndiwareMobileParser extends BaseParser {
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
             String filePrefix = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER ? "PlanLe" : "PlanKl";
             String url = baseurl + "mobdaten/" + filePrefix + dateStr + "" + ".xml?_=" + System.currentTimeMillis();
+            HttpResponseException lastException = null;
             try {
                 String xml = httpGet(url, "UTF-8");
                 Document doc = Jsoup.parse(xml, url, Parser.xmlParser());
@@ -78,7 +79,10 @@ public class IndiwareMobileParser extends BaseParser {
                     docs.add(doc);
                 }
             } catch (HttpResponseException e) {
-                if (e.getStatusCode() != 404 && e.getStatusCode() != 300) throw e;
+                lastException = e;
+            }
+            if (docs.size() == 0 && lastException != null) {
+                throw lastException;
             }
         }
 
