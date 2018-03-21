@@ -167,6 +167,7 @@ public class IndiwareMobileParser extends BaseParser {
     @NotNull private List<String> parseClasses(String filePrefix)
             throws JSONException, IOException, CredentialInvalidException {
         String baseurl = data.getString(PARAM_BASEURL) + "/";
+        HttpResponseException lastException = null;
         for (int i = -4; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
@@ -181,10 +182,14 @@ public class IndiwareMobileParser extends BaseParser {
                 }
                 return classes;
             } catch (HttpResponseException e) {
-                if (e.getStatusCode() != 404 && e.getStatusCode() != 300) throw e;
+                lastException = e;
             }
         }
-        return new ArrayList<>();
+        if (lastException != null) {
+            throw lastException;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
