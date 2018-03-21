@@ -111,8 +111,22 @@ public class SchoolJoomlaParser extends BaseParser {
                             case "R":
                                 s.setType("Verlegung");
                                 break;
+                            case "FC":
+                                s.setType("Entfällt - Verlegung");
+                                break;
+                            case "EVA":
+                                s.setType("EVA");
+                                break;
+                            case "F":
+                                s.setType("Verlegt");
+                                break;
                             case "A":
-                                continue;
+                            case "S":
+                                s.setType("Sondereinsatz");
+                                break;
+                            case "E":
+                                s.setType("Klausur");
+                                break;
                             default:
                                 throw new IOException("unknown: " + art);
                         }
