@@ -30,6 +30,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -173,9 +174,17 @@ public class SVPlanParser extends BaseParser {
         if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
                 .startsWith("Vertretungsplan für "))) {
             setDate(svp, doc, day);
-            if (svp.select(".svp-tabelle, table:has(.Klasse)").size() > 0) {
+            final Elements tables = svp.select(".svp-tabelle, table:has(.Klasse)");
+            if (tables.size() > 0) {
+                Iterator<Element> iter = tables.iterator();
+                while (iter.hasNext()) {
+                    Element table = iter.next();
+                    if (!table.hasClass("svp-tabelle") && table.select("> tbody > tr > td.Klasse").size() == 0) {
+                        iter.remove();
+                    }
+                }
 
-                Elements rows = svp.select(".svp-tabelle tr, table:has(.Klasse) tr");
+                Elements rows = tables.select("tr");
                 String lastLesson = "";
                 String lastClass = "";
                 for (Element row : rows) {
