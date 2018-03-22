@@ -15,6 +15,7 @@ import me.vertretungsplan.additionalinfo.eichendorffgymkoblenz.EichendorffGymKob
 import me.vertretungsplan.additionalinfo.evsschwalmstadt.EvsSchwalmstadtIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenRSSParser;
+import me.vertretungsplan.additionalinfo.kantschulefalkensee.KantschuleFalkenseeRSSParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
@@ -70,6 +71,9 @@ public abstract class BaseAdditionalInfoParser {
                 break;
             case "evsschwalmstadt-ical":
                 parser = new EvsSchwalmstadtIcalParser();
+                break;
+            case "kantschulefalksensee-rss":
+                parser = new KantschuleFalkenseeRSSParser();
                 break;
         }
         return parser;
