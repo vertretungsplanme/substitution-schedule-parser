@@ -72,7 +72,7 @@ public abstract class BaseAdditionalInfoParser {
             case "evsschwalmstadt-ical":
                 parser = new EvsSchwalmstadtIcalParser();
                 break;
-            case "kantschulefalksensee-rss":
+            case "kantschulefalkensee-rss":
                 parser = new KantschuleFalkenseeRSSParser();
                 break;
         }
