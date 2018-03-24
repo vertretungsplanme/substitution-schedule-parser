@@ -171,9 +171,6 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "indiware-mobile":
                 parser = new IndiwareMobileParser(data, cookieProvider);
                 break;
-            case "webuntis":
-                parser = new WebUntisParser(data, cookieProvider);
-                break;
             case "schooljoomla":
                 parser = new SchoolJoomlaParser(data, cookieProvider);
                 break;
