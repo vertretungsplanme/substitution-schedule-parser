@@ -34,7 +34,6 @@ Below you find the currently supported substitution schedule softwares and the c
     * Substitution tables: good support
     * Timetables with substitution entries: experimental
   * Info-Stundenplan without header ([example](http://www.egwerther.de/vertretungsplan/w00000.htm)) `"untis-info-headless"`
-  * WebUntis `"webuntis"` (see note below)
 * svPlan ([example](http://www.ratsschule.de/Vplan/PH_heute.htm)) `"svplan"`
 * DaVinci ([example](http://hochtaunusschule.de/hts-vertretungsplan/)) `"davinci"`
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
@@ -44,8 +43,6 @@ Below you find the currently supported substitution schedule softwares and the c
   * XML export converted to HTML `"indiware"`
   * Stundenplan24.de `"stundenplan24"`
   * Indiware Mobil `"indiware-mobile"`
-
-A parser for *WebUntis* is included, but keep in mind that polling its API too often (more than once an hour) is allegedly [prohibited](http://www.grupet.at/phpBB3/viewtopic.php?f=2&t=5643#p15568).
 
 Depending on the type of software, different options need to be supplied in `SubstitutionScheduleData.setData()`. Documentation about these parameters can be found on each parser's page in the [Javadoc](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
