@@ -172,8 +172,12 @@ public class LoginHandler {
                     for (Cookie cookie : cookieList) cookieStore.addCookie(cookie);
 
                     if (checkUrl != null && checkText != null) {
-                        String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
-                        if (!response.contains(checkText)) {
+                        try {
+                            String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
+                            if (!response.contains(checkText)) {
+                                return null;
+                            }
+                        } catch (HttpResponseException e) {
                             return null;
                         }
                     } else {

@@ -13,7 +13,6 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.authentication.NoAuthenticationData;
-import me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
