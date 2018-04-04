@@ -72,6 +72,10 @@ import java.util.regex.Pattern;
  * requests needed to load the schedule. Default: <code>"false"</code>
  * </dd>
  *
+ * <dt><code>website</code> (String, optional)</dt>
+ * <dd>The URL of a website where the substitution schedule can be seen online (defaults to baseurl + "/default.htm")
+ * </dd>
+ *
  * <dt><code>wAfterNumber</code> (Boolean, optional)</dt>
  * <dd>Set this to <code>true</code> if the URL of the actual schedules (displayed in a frame) end with
  * <code>36/w/w00000.htm</code> instead of <code>w/36/w00000.htm</code>. Default: <code>"false"</code>
@@ -205,7 +209,7 @@ public class UntisInfoParser extends UntisCommonParser {
 
         v.setClasses(allClasses);
         v.setTeachers(getAllTeachers());
-        v.setWebsite(baseUrl + "/default.htm");
+        v.setWebsite(data.optString("website", baseUrl + "/default.htm"));
         return v;
     }
 
