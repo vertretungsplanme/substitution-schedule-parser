@@ -323,7 +323,9 @@ public class IphisParser extends BaseParser {
             }
             final HashSet<String> classes = new HashSet<>();
             for (String classId : classIds) {
-                classes.add(gradesHashMap.get(classId));
+                if (!classId.toLowerCase().equals("null")) {
+                    classes.add(gradesHashMap.get(classId));
+                }
             }
             substitution.setClasses(classes);
         }
