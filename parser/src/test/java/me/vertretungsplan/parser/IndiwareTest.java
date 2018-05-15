@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import me.vertretungsplan.objects.Substitution;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -111,6 +112,15 @@ public class IndiwareTest {
         Matcher matcher = IndiwareParser.takeOverPattern.matcher("Herr Samuel übernimmt mit");
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "Herr Samuel");
+    }
+
+    @Test
+    public void testNewPattern() {
+        Substitution substitution = new Substitution();
+        String input = "neu, Prüfung; Sm Herr Weise fällt aus";
+        IndiwareParser.handleDescription(substitution, input);
+        assertEquals("Prüfung", substitution.getType());
+        assertEquals("Sm Herr Weise fällt aus", substitution.getDesc());
     }
 
     @Test

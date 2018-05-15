@@ -80,6 +80,8 @@ public class IndiwareParser extends BaseParser {
     static final Pattern bracesPattern = Pattern.compile("^\\((.*)\\)$");
     static final Pattern takeOverPattern = Pattern.compile("((?:(?! ,|Frau|Herr).)+|(?:Herr|Frau) [^\\s]+) übernimmt " +
             "mit");
+    static final Pattern newPattern = Pattern.compile("^neu(?:, )?(.*)$");
+    static final Pattern examPattern = Pattern.compile("^Prüfung(?:; )?(.*)$");
 
     public IndiwareParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -438,11 +440,20 @@ public class IndiwareParser extends BaseParser {
     static void handleDescription(Substitution substitution, String value, boolean teacher) {
         if (value == null) return;
 
+        Matcher newMatcher = newPattern.matcher(value);
+        if (newMatcher.matches()) {
+            value = newMatcher.group(1);
+        }
+
+        Matcher examMatcher = examPattern.matcher(value);
         Matcher substitutionMatcher = substitutionPattern.matcher(value);
         Matcher cancelMatcher = cancelPattern.matcher(value);
         Matcher delayMatcher = delayPattern.matcher(value);
         Matcher selfMatcher = selfPattern.matcher(value);
-        if (substitutionMatcher.matches()) {
+        if (examMatcher.matches()) {
+            substitution.setType("Prüfung");
+            substitution.setDesc(examMatcher.group(1));
+        } else if (substitutionMatcher.matches()) {
             substitution.setPreviousSubject(substitutionMatcher.group(1));
             substitution.setPreviousTeacher(substitutionMatcher.group(2));
             if (!substitutionMatcher.group(3).isEmpty()) {
