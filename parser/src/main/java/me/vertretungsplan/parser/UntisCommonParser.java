@@ -174,7 +174,14 @@ public abstract class UntisCommonParser extends BaseParser {
     void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                         SubstitutionScheduleDay day, List<String> allClasses)
             throws JSONException, CredentialInvalidException, IOException {
-        parseSubstitutionScheduleTable(table, data, day, null, allClasses);
+        parseSubstitutionScheduleTable(table, data, day, null, allClasses, false);
+    }
+
+    private void parseSubstitutionScheduleTable(Element table, JSONObject data,
+                                                SubstitutionScheduleDay day, String defaultClass, List<String>
+                                                        allClasses)
+            throws CredentialInvalidException, IOException, JSONException {
+        parseSubstitutionScheduleTable(table, data, day, defaultClass, allClasses, false);
     }
 
     /**
@@ -187,7 +194,7 @@ public abstract class UntisCommonParser extends BaseParser {
      */
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                                 SubstitutionScheduleDay day, String defaultClass, List<String>
-                                                        allClasses)
+                                                        allClasses, boolean untisSubst)
             throws JSONException, CredentialInvalidException, IOException {
         Elements headerRows = table.select("tr:has(th)");
 
@@ -283,12 +290,21 @@ public abstract class UntisCommonParser extends BaseParser {
                         if (nextLine != null && nextLine.children().size() == zeile.children().size()) {
                             Element columnInNextLine = nextLine.child(spalte
                                     .elementSiblingIndex());
-                            if (columnInNextLine.text().replaceAll("\u00A0", "").trim().equals(
+                            String nextLineText = columnInNextLine.text().replaceAll("\u00A0", "").trim();
+                            if (nextLineText.equals(
                                     nextLine.text().replaceAll("\u00A0", "").trim())) {
-                                // Continued in the next line
-                                text += " " + columnInNextLine.text();
-                                skipLinesForThisColumn++;
-                                nextLine = nextLine.nextElementSibling();
+                                if (untisSubst && i == 0) {
+                                    // this is a message, not a continuation of the first column
+                                    if (!day.getMessages().contains(nextLineText)) {
+                                        day.addMessage(nextLineText);
+                                        continueSkippingLines = false;
+                                    }
+                                } else {
+                                    // Continued in the next line
+                                    text += " " + columnInNextLine.text();
+                                    skipLinesForThisColumn++;
+                                    nextLine = nextLine.nextElementSibling();
+                                }
                             } else {
                                 continueSkippingLines = false;
                             }
@@ -891,7 +907,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 day.setDateString(date);
                 day.setDate(ParserUtils.parseDate(date));
             }
-            parseSubstitutionScheduleTable(table, data, day, className, getAllClasses());
+            parseSubstitutionScheduleTable(table, data, day, className, getAllClasses(), true);
             v.addDay(day);
         } else {
             for (Element line : table
@@ -923,7 +939,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     day.setLastChange(lastChangeDate);
                     v.addDay(day);
                 }
-                parseSubstitutionScheduleTable(line, data, day, className, getAllClasses());
+                parseSubstitutionScheduleTable(line, data, day, className, getAllClasses(), true);
             }
         }
     }
