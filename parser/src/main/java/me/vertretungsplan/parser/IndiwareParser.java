@@ -148,7 +148,7 @@ public class IndiwareParser extends BaseParser {
             throw lastException;
         }
 
-        v.setWebsite(urls.getString(0));
+        v.setWebsite(urls.optString(0, data.optString("website", null)));
 
         v.setClasses(getAllClasses());
         v.setTeachers(getAllTeachers());
