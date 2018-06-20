@@ -293,7 +293,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             String nextLineText = columnInNextLine.text().replaceAll("\u00A0", "").trim();
                             if (nextLineText.equals(
                                     nextLine.text().replaceAll("\u00A0", "").trim())) {
-                                if (untisSubst && i == 0) {
+                                if (untisSubst && i == 0 && !allClasses.contains(nextLineText.split(",")[0])) {
                                     // this is a message, not a continuation of the first column
                                     if (!day.getMessages().contains(nextLineText)) {
                                         day.addMessage(nextLineText);
