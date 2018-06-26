@@ -511,6 +511,18 @@ public abstract class UntisCommonParser extends BaseParser {
                     continue;
                 }
 
+                if (zeile.select("td").size() == 1 && zeile.select("td").first().hasAttr("colspan")) {
+                    String message = zeile.select("td").first().text();
+                    if (className != null) {
+                        message = className + ": " + message;
+                    } else if (teacherName != null) {
+                        message = teacherName + ": " + message;
+                    }
+                    day.addMessage(message);
+                    zeile = zeile.nextElementSibling();
+                    continue;
+                }
+
                 Substitution v = new Substitution();
                 String klassen = null;
                 String course = null;
@@ -636,7 +648,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                 if (className != null) {
                     v.getClasses().add(className);
-                } else {
+                } else if (klassen != null) {
                     handleClasses(data, v, klassen, getAllClasses());
                 }
                 if (teacherName != null) {
