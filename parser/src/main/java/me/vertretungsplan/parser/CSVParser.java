@@ -19,6 +19,7 @@ import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.LocalDateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -104,6 +105,10 @@ public class CSVParser extends BaseParser {
                 List<DavResource> files = client.list(httpUrl);
                 for (DavResource file : files) {
                     if (!file.isDirectory()) {
+                        LocalDateTime modified = new LocalDateTime(file.getModified());
+                        if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
+                            schedule.setLastChange(modified);
+                        }
                         InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
                         parseCSV(IOUtils.toString(stream, "UTF-8"), schedule);
                     }
