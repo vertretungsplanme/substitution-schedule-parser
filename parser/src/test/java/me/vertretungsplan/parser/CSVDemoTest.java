@@ -27,11 +27,12 @@ import static org.junit.Assert.assertEquals;
 public class CSVDemoTest extends BaseDemoTest {
     private String csv;
     private CSVParser parser;
+    private SubstitutionScheduleData scheduleData;
 
     @Before
     public void setUp() throws JSONException {
         csv = readResource("/csv/csv.csv");
-        SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
+        scheduleData = new SubstitutionScheduleData();
         JSONObject data = new JSONObject();
         data.put("skipLines", 1);
         data.put("separator", "\\|");
@@ -46,7 +47,8 @@ public class CSVDemoTest extends BaseDemoTest {
 
     @Test
     public void demoTest() throws IOException, JSONException {
-        SubstitutionSchedule schedule = parser.parseCSV(csv);
+        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
+        parser.parseCSV(csv, schedule);
         assertEquals(2, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);

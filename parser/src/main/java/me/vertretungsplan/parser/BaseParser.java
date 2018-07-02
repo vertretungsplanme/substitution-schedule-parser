@@ -8,12 +8,15 @@
 
 package me.vertretungsplan.parser;
 
+import com.github.sardine.Sardine;
+import com.github.sardine.impl.SardineImpl;
 import com.mifmif.common.regex.Generex;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.networking.MultiTrustManager;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
@@ -21,6 +24,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
@@ -70,6 +74,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected CookieProvider cookieProvider;
     protected UniversalDetector encodingDetector;
     protected DebuggingDataHandler debuggingDataHandler;
+    protected Sardine sardine;
 
     BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
@@ -78,28 +83,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.colorProvider = new ColorProvider(scheduleData);
         this.encodingDetector = new UniversalDetector(null);
         this.debuggingDataHandler = new NoOpDebuggingDataHandler();
+        this.sardine = null;
 
         try {
-            KeyStore ks = loadKeyStore();
-            MultiTrustManager multiTrustManager = new MultiTrustManager();
-            multiTrustManager.addTrustManager(getDefaultTrustManager());
-            multiTrustManager.addTrustManager(trustManagerFromKeystore(ks));
-
-            TrustManager[] trustManagers = new TrustManager[]{multiTrustManager};
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagers, null);
-            final HostnameVerifier hostnameVerifier;
-
-            if (scheduleData.getData() != null && scheduleData.getData().has(PARAM_SSL_HOSTNAME)) {
-                hostnameVerifier = new CustomHostnameVerifier(scheduleData.getData().getString(PARAM_SSL_HOSTNAME));
-            } else {
-                hostnameVerifier = new DefaultHostnameVerifier();
-            }
-            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-                    sslContext,
-                    new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
-                    null,
-                    hostnameVerifier);
+            SSLConnectionSocketFactory sslsf = getSslConnectionSocketFactory(scheduleData);
 
             CloseableHttpClient httpclient = HttpClients.custom()
                     .setSSLSocketFactory(sslsf)
@@ -111,6 +98,30 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         } catch (GeneralSecurityException | JSONException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull private SSLConnectionSocketFactory getSslConnectionSocketFactory(SubstitutionScheduleData scheduleData)
+            throws IOException, GeneralSecurityException, JSONException {
+        KeyStore ks = loadKeyStore();
+        MultiTrustManager multiTrustManager = new MultiTrustManager();
+        multiTrustManager.addTrustManager(getDefaultTrustManager());
+        multiTrustManager.addTrustManager(trustManagerFromKeystore(ks));
+
+        TrustManager[] trustManagers = new TrustManager[]{multiTrustManager};
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagers, null);
+        final HostnameVerifier hostnameVerifier;
+
+        if (scheduleData.getData() != null && scheduleData.getData().has(PARAM_SSL_HOSTNAME)) {
+            hostnameVerifier = new CustomHostnameVerifier(scheduleData.getData().getString(PARAM_SSL_HOSTNAME));
+        } else {
+            hostnameVerifier = new DefaultHostnameVerifier();
+        }
+        return new SSLConnectionSocketFactory(
+                sslContext,
+                new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
+                null,
+                hostnameVerifier);
     }
 
     /**
@@ -176,6 +187,22 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 break;
         }
         return parser;
+    }
+
+    protected Sardine getWebdavClient(UserPasswordCredential credential)
+            throws JSONException, GeneralSecurityException, IOException {
+        if (sardine == null) {
+            final SSLConnectionSocketFactory sslsf = getSslConnectionSocketFactory(scheduleData);
+            sardine = new SardineImpl() {
+                @Override protected ConnectionSocketFactory createDefaultSecureSocketFactory() {
+                    return sslsf;
+                }
+            };
+            if (credential != null) {
+                sardine.setCredentials(credential.getUsername(), credential.getPassword());
+            }
+        }
+        return sardine;
     }
 
     @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
@@ -268,6 +295,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     public void setDebuggingDataHandler(DebuggingDataHandler handler) {
         this.debuggingDataHandler = handler;
+    }
+
+    protected String httpGet(String url) throws IOException, CredentialInvalidException {
+        return httpGet(url, null, null);
     }
 
     protected String httpGet(String url, String encoding) throws IOException, CredentialInvalidException {
@@ -507,7 +538,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
         @Override public boolean verify(String s, SSLSession sslSession) {
             return defaultHostnameVerifier.verify(host, sslSession) | defaultHostnameVerifier.verify(this.host,
-                    sslSession);
+                    sslSession) | true;
         }
     }
 

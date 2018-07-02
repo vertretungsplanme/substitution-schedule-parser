@@ -90,6 +90,11 @@ class ParserUtils {
         dateTimeFormatters.clear();
 
         for (String date : dateFormats) {
+            if (date.contains("yyyy")) {
+                String shortYearDate = date.replace("yyyy", "yy");
+                dateFormatters.add(DateTimeFormat.forPattern(shortYearDate)
+                        .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+            }
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
             for (String time : timeFormats) {
@@ -242,4 +247,6 @@ class ParserUtils {
             return null;
         }
     }
+
+
 }

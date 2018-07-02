@@ -8,18 +8,25 @@
 
 package me.vertretungsplan.parser;
 
+import com.github.sardine.DavResource;
+import com.github.sardine.Sardine;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -86,17 +93,35 @@ public class CSVParser extends BaseParser {
     @Override
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
-        new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         String url = data.getString(PARAM_URL);
-        String response = executor.execute(Request.Get(url)).returnContent().asString();
+        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
-        return parseCSV(response);
+        if (url.startsWith("webdav")) {
+            UserPasswordCredential credential = (UserPasswordCredential) this.credential;
+            try {
+                Sardine client = getWebdavClient(credential);
+                String httpUrl = url.replaceFirst("webdav", "http");
+                List<DavResource> files = client.list(httpUrl);
+                for (DavResource file : files) {
+                    if (!file.isDirectory()) {
+                        InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
+                        parseCSV(IOUtils.toString(stream, "UTF-8"), schedule);
+                    }
+                }
+                return schedule;
+            } catch (GeneralSecurityException | URISyntaxException e) {
+                throw new IOException(e);
+            }
+        } else {
+            new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
+            String response = httpGet(url);
+            return parseCSV(response, schedule);
+        }
     }
 
     @NotNull
-    SubstitutionSchedule parseCSV(String response) throws JSONException, IOException {
-        SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-
+    SubstitutionSchedule parseCSV(String response, SubstitutionSchedule schedule)
+            throws JSONException, IOException, CredentialInvalidException {
         String[] lines = response.split("\n");
 
         String separator = data.getString(PARAM_SEPARATOR);
@@ -154,7 +179,7 @@ public class CSVParser extends BaseParser {
                         v.setPreviousRoom(column);
                         break;
                     case "class":
-                        v.getClasses().add(getClassName(column, data));
+                        UntisCommonParser.handleClasses(data, v, column, getAllClasses());
                         break;
                     case "day":
                         dayName = column;
@@ -165,7 +190,7 @@ public class CSVParser extends BaseParser {
                     case "ignore":
                         break;
                     default:
-                        throw new IllegalArgumentException("Unknown column type: " + column);
+                        throw new IllegalArgumentException("Unknown column type: " + type);
                 }
                 j++;
             }
@@ -174,7 +199,7 @@ public class CSVParser extends BaseParser {
                 v.setColor(colorProvider.getColor("Vertretung"));
             }
 
-            if (dayName != null) {
+            if (dayName != null && !dayName.isEmpty()) {
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();
                 day.setDateString(dayName);
                 day.setDate(ParserUtils.parseDate(dayName));
@@ -206,12 +231,7 @@ public class CSVParser extends BaseParser {
             }
             return classes;
         } else {
-            JSONArray classesJson = data.getJSONArray(PARAM_CLASSES);
-            List<String> classes = new ArrayList<>();
-            for (int i = 0; i < classesJson.length(); i++) {
-                classes.add(classesJson.getString(i));
-            }
-            return classes;
+            return getClassesFromJson();
         }
     }
 
