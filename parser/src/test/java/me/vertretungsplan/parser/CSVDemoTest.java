@@ -8,6 +8,7 @@
 
 package me.vertretungsplan.parser;
 
+import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
@@ -46,7 +47,7 @@ public class CSVDemoTest extends BaseDemoTest {
     }
 
     @Test
-    public void demoTest() throws IOException, JSONException {
+    public void demoTest() throws IOException, JSONException, CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
         parser.parseCSV(csv, schedule);
         assertEquals(2, schedule.getDays().size());

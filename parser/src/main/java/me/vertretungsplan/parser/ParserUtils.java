@@ -34,40 +34,56 @@ class ParserUtils {
     private static List<DateTimeFormatter> dateTimeFormatters = new ArrayList<>();
     private static List<DateTimeFormatter> dateFormatters = new ArrayList<>();
     private static String[] dateFormats = new String[]{
+            "dd.M.yy EEEE",
             "dd.M.yyyy EEEE",
             "dd.M. EEEE",
             "d.M. EEEE",
+            "EEEE, dd.M.yy",
             "EEEE, dd.M.yyyy",
             "EEEE, dd.M",
+            "EEEE dd.M.yy",
             "EEEE dd.M.yyyy",
             "EEEE dd.M",
+            "EEEE', den 'dd.M.yy",
             "EEEE', den 'dd.M.yyyy",
             "EEEE', den 'dd.M",
+            "dd.M.yy",
             "dd.M.yyyy",
             "dd.M.",
+            "dd.MM.yy EEEE",
             "dd.MM.yyyy EEEE",
             "dd.MM EEEE",
+            "EEEE, dd.MM.yy",
             "EEEE, dd.MM.yyyy",
             "EEEE, dd.MM",
+            "EEEE dd.MM.yy",
             "EEEE dd.MM.yyyy",
             "EEEE dd.MM",
+            "EEEE', den 'dd.MM.yy",
             "EEEE', den 'dd.MM.yyyy",
             "EEEE', den 'dd.MM",
+            "dd.MM.yy",
             "dd.MM.yyyy",
             "dd.MM.",
+            "d.M.yy EEEE",
             "d.M.yyyy EEEE",
             "d.M. EEEE",
             "dd.MM. EEEE",
             "d.M. / EEEE",
             "dd.MM. / EEEE",
+            "EEEE, d.M.yy",
             "EEEE, d.M.yyyy",
             "EEEE, d.M",
+            "EEEE d.M.yy",
             "EEEE d.M.yyyy",
             "EEEE d.M",
+            "EEEE', den 'd.M.yy",
             "EEEE', den 'd.M.yyyy",
             "EEEE', den 'd.M",
+            "d.M.yy",
             "d.M.yyyy",
             "d.M.",
+            "EEEE, d. MMMM yy",
             "EEEE, d. MMMM yyyy"
     };
     private static String[] separators = new String[]{
@@ -90,11 +106,6 @@ class ParserUtils {
         dateTimeFormatters.clear();
 
         for (String date : dateFormats) {
-            if (date.contains("yyyy")) {
-                String shortYearDate = date.replace("yyyy", "yy");
-                dateFormatters.add(DateTimeFormat.forPattern(shortYearDate)
-                        .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
-            }
             dateFormatters.add(DateTimeFormat.forPattern(date)
                     .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
             for (String time : timeFormats) {
