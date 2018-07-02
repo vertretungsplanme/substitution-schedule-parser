@@ -26,6 +26,7 @@ import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -60,6 +61,7 @@ import java.util.regex.Pattern;
 public abstract class BaseParser implements SubstitutionScheduleParser {
     public static final String PARAM_CLASS_REGEX = "classRegex";
     private static final String PARAM_SSL_HOSTNAME = "sslHostname";
+    private static final String PARAM_SSL_VERIFY_HOSTNAME = "sslVerifyHostname";
     static final String PARAM_CLASS_RANGES = "classRanges";
     static final String CLASS_RANGES_CLASS_REGEX = "classRegex";
     static final String CLASS_RANGES_GRADE_REGEX = "gradeRegex";
@@ -114,6 +116,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
         if (scheduleData.getData() != null && scheduleData.getData().has(PARAM_SSL_HOSTNAME)) {
             hostnameVerifier = new CustomHostnameVerifier(scheduleData.getData().getString(PARAM_SSL_HOSTNAME));
+        } else if (scheduleData.getData() != null &&
+                !scheduleData.getData().optBoolean(PARAM_SSL_VERIFY_HOSTNAME, true)) {
+            hostnameVerifier = new NoopHostnameVerifier();
         } else {
             hostnameVerifier = new DefaultHostnameVerifier();
         }
@@ -537,8 +542,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
 
         @Override public boolean verify(String s, SSLSession sslSession) {
-            return defaultHostnameVerifier.verify(host, sslSession) | defaultHostnameVerifier.verify(this.host,
-                    sslSession) | true;
+            return defaultHostnameVerifier.verify(host, sslSession) |
+                    defaultHostnameVerifier.verify(this.host, sslSession);
         }
     }
 
