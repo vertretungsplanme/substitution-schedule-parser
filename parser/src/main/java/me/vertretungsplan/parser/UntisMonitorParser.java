@@ -65,6 +65,11 @@ import java.util.regex.Pattern;
  * specify which HTML elements should be considered as the containers for the Untis schedule. The CSS selector
  * syntax is supported as specified by
  * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
+ *
+ * <dt><code>forceAllPages</code> (Boolean, optional, default: false)</dt>
+ * <dd>If the first page was loaded successfully, but additional pages failed due to HTTP error codes, don't ignore
+ * these errors
+ * </dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules
@@ -78,6 +83,7 @@ public class UntisMonitorParser extends UntisCommonParser {
     private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
     private static final String PARAM_LAST_CHANGE_SELECTOR = "lastChangeSelector";
     private static final String PARAM_WEBSITE = "website";
+    private static final String PARAM_FORCE_ALL_PAGES = "forceAllPages";
     private static final String SUBPARAM_FOLLOWING = "following";
     private static final String SUBPARAM_URL = "url";
     private static final String VALUE_URL_LOGIN_RESPONSE = "loginResponse";
@@ -154,7 +160,7 @@ public class UntisMonitorParser extends UntisCommonParser {
             try {
                 html = httpGet(url, encoding).replace("&nbsp;", "");
             } catch (HttpResponseException e) {
-                if (docs.size() == 0) {
+                if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
                     throw e;
                 } else {
                     return; // ignore if first page was loaded and redirect didn't work
