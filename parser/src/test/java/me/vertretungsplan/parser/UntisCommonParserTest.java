@@ -71,6 +71,10 @@ public class UntisCommonParserTest {
         JSONObject data = new JSONObject("{\"classesSeparated\": false}");
 
         Substitution subst = new Substitution();
+        UntisCommonParser.handleClasses(data, subst, "11a", Arrays.asList("11a", "11b", "12a"));
+        assertEquals(new HashSet<>(Arrays.asList("11a")), subst.getClasses());
+
+        subst = new Substitution();
         UntisCommonParser.handleClasses(data, subst, "1112", Arrays.asList("11", "12"));
         assertEquals(new HashSet<>(Arrays.asList("11", "12")), subst.getClasses());
 
@@ -78,5 +82,13 @@ public class UntisCommonParserTest {
         UntisCommonParser.handleClasses(data, subst, "11abc12b", Arrays.asList("11a", "11b", "11c", "12a", "12b",
                 "12c"));
         assertEquals(new HashSet<>(Arrays.asList("11a", "11b", "11c", "12b")), subst.getClasses());
+
+        subst = new Substitution();
+        UntisCommonParser.handleClasses(data, subst, "1abc2b", Arrays.asList("1a", "1b", "1c", "2a", "2b", "2c"));
+        assertEquals(new HashSet<>(Arrays.asList("1a", "1b", "1c", "2b")), subst.getClasses());
+
+        subst = new Substitution();
+        UntisCommonParser.handleClasses(data, subst, "5-6", Arrays.asList("5a", "5b", "5c", "6a", "6b", "6c", "7a"));
+        assertEquals(new HashSet<>(Arrays.asList("5a", "5b", "5c", "6a", "6b", "6c")), subst.getClasses());
     }
 }

@@ -469,18 +469,35 @@ public abstract class UntisCommonParser extends BaseParser {
                 affectedClasses = Arrays.asList(klassen.split(", "));
             } else {
                 affectedClasses = new ArrayList<>();
-                for (String klasse : allClasses) { // TODO: is there a better way?
-                    StringBuilder regex = new StringBuilder();
-                    for (char character : klasse.toCharArray()) {
-                        if (character == '?') {
-                            regex.append("\\?");
-                        } else {
-                            regex.append(character);
+
+                if (klassen.matches("([\\d]{1,2}[a-zA-Z]+)+")) {
+                    // we have something like 8abcde9abcd
+                    Pattern pattern = Pattern.compile("([\\d]{1,2})([a-zA-Z]+)");
+                    Matcher matcher = pattern.matcher(klassen);
+                    while (matcher.find()) {
+                        String base = matcher.group(1);
+                        for (char letter : matcher.group(2).toCharArray()) {
+                            if (allClasses.contains(base + letter)) {
+                                affectedClasses.add(base + letter);
+                            }
                         }
-                        regex.append(".*");
                     }
-                    if (klassen.matches(regex.toString())) {
-                        affectedClasses.add(klasse);
+
+                } else {
+                    // fallback solution for backwards compatibility
+                    for (String klasse : allClasses) { // TODO: is there a better way?
+                        StringBuilder regex = new StringBuilder();
+                        for (char character : klasse.toCharArray()) {
+                            if (character == '?') {
+                                regex.append("\\?");
+                            } else {
+                                regex.append(character);
+                            }
+                            regex.append(".*");
+                        }
+                        if (klassen.matches(regex.toString())) {
+                            affectedClasses.add(klasse);
+                        }
                     }
                 }
             }
