@@ -128,7 +128,7 @@ public class DaVinciParser extends BaseParser {
                 if (value.isEmpty()) {
                     if (header.equals("Klasse")) subst.setClasses(new HashSet<>(classes));
                     if (header.equals("Pos") || header.equals("Stunde") || header.equals("Std.") || header.equals
-                            ("Dstd.")) {
+                            ("Dstd.") || header.equals("UE")) {
                         subst.setLesson(lesson);
                     }
                     if (header.equals("Art") || header.equals("Merkmal")) subst.setType("Vertretung");
@@ -152,6 +152,7 @@ public class DaVinciParser extends BaseParser {
                     case "Stunde":
                     case "Std.":
                     case "Dstd.":
+                    case "UE":
                         lesson = value;
                         subst.setLesson(lesson);
                         break;
