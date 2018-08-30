@@ -278,6 +278,16 @@ public class LoginHandler {
                     try {
                         String response = executor.execute(Request.Get(checkUrl)).returnContent().asString();
                         if (response.contains(checkText)) throw new CredentialInvalidException();
+
+                        if (checkUrl.contains("tfk.msd")) {
+                            // "Schulen intern" login system
+                            Document doc = Jsoup.parse(response);
+                            doc.setBaseUri(checkUrl);
+                            String url = doc.select("iframe").first().absUrl("src");
+                            if (url != null && !url.equals("")) {
+                                executor.execute(Request.Get(url)).discardContent();
+                            }
+                        }
                     } catch (HttpResponseException e) {
                         throw new CredentialInvalidException();
                     }
