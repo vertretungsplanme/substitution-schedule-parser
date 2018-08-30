@@ -1,0 +1,32 @@
+{
+  "error": 0,
+  "error_type": 0,
+  "error_desc": "Alles OK, keine Fehler!",
+  "errors": [],
+  "configuration": {
+    "enable_app_pupil": "1",
+    "enable_app_teacher": "1",
+    "vertretung_use_pupil_password": "1",
+    "vertretung_edit_klassenarbeiten": "1",
+    "vertretung_teacher_config_screen": "2",
+    "vertretung_pupil_config_screen": "9",
+    "show_terminal_saturday": "0",
+    "show_terminal_reservierungen": "1",
+    "show_terminal_klassenarbeiten": "2",
+    "show_terminal_vertretungen": "2",
+    "show_terminal_vertretungsmaterial": "1",
+    "show_terminal_timetable_classes": "1",
+    "show_terminal_timetable_rooms": "1",
+    "show_terminal_timetable_teachers": "1",
+    "show_terminal_messages": "0",
+    "show_terminal_documents": "0",
+    "show_terminal_history": "0",
+    "show_terminal_helpdesk": "0",
+    "enable_terminal_push_notifications": "0",
+    "reservation_starthour": "1",
+    "reservation_endhour": "9",
+    "reservation_show_next_weeks": "-1",
+    "vertretung_verzeichnis_material": "images/vertretungsmaterial"
+  },
+  "request_task": "getConfiguration"
+}

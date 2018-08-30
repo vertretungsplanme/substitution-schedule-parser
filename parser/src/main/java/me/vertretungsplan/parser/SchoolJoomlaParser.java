@@ -52,6 +52,13 @@ public class SchoolJoomlaParser extends BaseParser {
         JSONObject config = getConfiguration();
         JSONObject data = getData();
 
+        SubstitutionSchedule schedule = parse(data);
+
+        return schedule;
+    }
+
+    @NotNull SubstitutionSchedule parse(JSONObject data)
+            throws JSONException, IOException, CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
         schedule.setLastChange(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseLocalDateTime(data.getString
                 ("lastupdate")));
@@ -164,7 +171,6 @@ public class SchoolJoomlaParser extends BaseParser {
 
         schedule.setClasses(getClasses(data));
         schedule.setTeachers(getAllTeachers());
-
         return schedule;
     }
 
