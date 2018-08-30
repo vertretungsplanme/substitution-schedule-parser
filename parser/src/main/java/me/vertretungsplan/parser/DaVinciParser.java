@@ -207,16 +207,20 @@ public class DaVinciParser extends BaseParser {
                         break;
                     case "Art":
                     case "Merkmal":
+                    case "Information":
                         subst.setType(value);
                         break;
                     case "Info":
                     case "Mitteilung":
+                    case "Bemerkung":
                         subst.setDesc(value);
                         break;
                     case "Datum":
                         substDate = ParserUtils.parseDate(value);
                         currentDate = substDate;
                         break;
+                    default:
+                        System.out.println("unknown DaVinci header: " + header);
                 }
             }
             if (klasse != null) {
