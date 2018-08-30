@@ -109,7 +109,7 @@ public class SubstitutionTextUtils {
         throw new MissingCaseException();
     }
 
-    private static String joinClasses(Set<String> classes) {
+    public static String joinClasses(Set<String> classes) {
         List<String> list = new ArrayList<>(classes);
         Collections.sort(list, new NaturalOrderComparator());
         StringBuilder builder = new StringBuilder();

@@ -12,6 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.*;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.SubstitutionTextUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -127,6 +128,10 @@ public class SchoolJoomlaParser extends BaseParser {
                             case "E":
                                 s.setType("Klausur");
                                 break;
+                            case "NOTES":
+                                day.addMessage(SubstitutionTextUtils.joinClasses(classes) + ": " +
+                                        subst.getString("kommentar"));
+                                continue;
                             default:
                                 throw new IOException("unknown: " + art);
                         }
