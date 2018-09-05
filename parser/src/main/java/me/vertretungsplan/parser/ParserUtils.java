@@ -100,7 +100,7 @@ class ParserUtils {
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
     @TestOnly
-    static void init() {
+    static synchronized void init() {
         int i = 0;
         dateFormatters.clear();
         dateTimeFormatters.clear();
@@ -119,7 +119,7 @@ class ParserUtils {
         }
     }
 
-    private static void reinitIfNeeded() {
+    private static synchronized void reinitIfNeeded() {
         if (dateFormatters.size() == 0 || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
             init();
         }
