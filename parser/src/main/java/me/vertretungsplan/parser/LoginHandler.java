@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -46,6 +47,8 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility class used by most parsers to access schedules protected by a login page. This can be used with both
@@ -239,10 +242,23 @@ public class LoginHandler {
                             try {
                                 final Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
                                 if (typo3RsaE == null && typo3RsaN == null) {
+                                    String publicKeyUrl = "/index.php?eID=FrontendLoginRsaPublicKey";
+
+                                    if (preDoc != null) {
+                                        Elements scripts = preDoc.select("head script:not([src])");
+                                        for (Element script : scripts) {
+                                            if (script.html().contains("TYPO3RsaEncryptionPublicKeyUrl")) {
+                                                Pattern pattern = Pattern.compile(
+                                                        "var TYPO3RsaEncryptionPublicKeyUrl = '([^']+)';");
+                                                Matcher matcher = pattern.matcher(script.html());
+                                                if (matcher.find()) {
+                                                    publicKeyUrl = matcher.group(1).replace("\\/", "/");
+                                                }
+                                            }
+                                        }
+                                    }
                                     String key = executor.execute(
-                                            Request.Get(
-                                                    new URL(new URL(postUrl),
-                                                            "/index.php?eID=FrontendLoginRsaPublicKey").toString()
+                                            Request.Get(new URL(new URL(postUrl), publicKeyUrl).toString()
                                             )).returnContent().asString();
                                     typo3RsaN = new BigInteger(key.split(":")[0], 16);
                                     typo3RsaE = new BigInteger(key.split(":")[1], 16);
