@@ -379,6 +379,7 @@ public class IndiwareParser extends BaseParser {
                     continue;
                 }
                 final String columnType = html ? columnTypes.get(i) : info.tagName();
+                Matcher bracesMatcher = bracesPattern.matcher(value);
                 switch (columnType) {
                     case "klasse":
                         ClassAndCourse cac = new ClassAndCourse(value, data);
@@ -390,7 +391,8 @@ public class IndiwareParser extends BaseParser {
                         break;
                     case "fach":
                         String subject = subjectAndCourse(course, value);
-                        if (columnTypes != null && columnTypes.contains("vfach")) {
+                        if (html ? columnTypes.contains("vfach") :
+                                aktion.getElementsByTag("vfach").size() > 0) {
                             substitution.setPreviousSubject(subject);
                         } else {
                             substitution.setSubject(subject);
@@ -398,8 +400,19 @@ public class IndiwareParser extends BaseParser {
                         break;
                     case "vfach":
                         substitution.setSubject(subjectAndCourse(course, value));
+                        break;
                     case "lehrer":
-                        Matcher bracesMatcher = bracesPattern.matcher(value);
+                        if (bracesMatcher.matches()) {
+                            value = bracesMatcher.group(1);
+                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        } else if (html ? columnTypes.contains("vlehrer") :
+                                aktion.getElementsByTag("vlehrer").size() > 0) {
+                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        } else {
+                            substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                        }
+                        break;
+                    case "vlehrer":
                         if (bracesMatcher.matches()) {
                             value = bracesMatcher.group(1);
                             substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
