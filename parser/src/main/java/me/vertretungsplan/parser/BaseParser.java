@@ -312,8 +312,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     protected String httpGet(String url, String encoding,
                              Map<String, String> headers) throws IOException, CredentialInvalidException {
-        Request request = Request.Get(url).connectTimeout(15000)
-                .socketTimeout(15000);
+        Request request = Request.Get(url).connectTimeout(getTimeout())
+                .socketTimeout(getTimeout());
         if (headers != null) {
             for (Entry<String, String> entry : headers.entrySet()) {
                 request.addHeader(entry.getKey(), entry.getValue());
@@ -356,13 +356,17 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                               List<NameValuePair> formParams, Map<String, String> headers)
             throws IOException, CredentialInvalidException {
         Request request = Request.Post(url).bodyForm(formParams)
-                .connectTimeout(15000).socketTimeout(15000);
+                .connectTimeout(getTimeout()).socketTimeout(getTimeout());
         if (headers != null) {
             for (Entry<String, String> entry : headers.entrySet()) {
                 request.addHeader(entry.getKey(), entry.getValue());
             }
         }
         return executeRequest(encoding, request);
+    }
+
+    private int getTimeout() {
+        return 30000;
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -375,7 +379,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected String httpPost(String url, String encoding, String body, ContentType contentType,
                               Map<String, String> headers) throws IOException, CredentialInvalidException {
         Request request = Request.Post(url).bodyString(body, contentType)
-                .connectTimeout(15000).socketTimeout(15000);
+                .connectTimeout(getTimeout()).socketTimeout(getTimeout());
         if (headers != null) {
             for (Entry<String, String> entry : headers.entrySet()) {
                 request.addHeader(entry.getKey(), entry.getValue());

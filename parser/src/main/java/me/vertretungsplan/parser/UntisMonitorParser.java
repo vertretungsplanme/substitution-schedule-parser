@@ -183,7 +183,7 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.text().contains("registriert")) {
                 throw new CredentialInvalidException();
             } else {
-                if (docs.size() == 0) {
+                if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
                     // ignore if first page was loaded and redirect didn't work
                     throw new IOException("Could not find .mon-title, seems like there is no Untis " +
                             "schedule here");
