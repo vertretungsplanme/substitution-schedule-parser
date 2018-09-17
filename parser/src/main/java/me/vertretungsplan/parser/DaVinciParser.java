@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -273,25 +274,35 @@ public class DaVinciParser extends BaseParser {
             urls.add(scheduleData.getData().getString(PARAM_URL));
         }
 
+        int successfulSchedules = 0;
+        IOException lastException = null;
         for (String url:urls) {
-            Document doc = Jsoup.parse(httpGet(url, ENCODING));
-            List<String> dayUrls = getDayUrls(url, doc);
+            try {
+                Document doc = Jsoup.parse(httpGet(url, ENCODING));
+                List<String> dayUrls = getDayUrls(url, doc);
 
-            if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
-                for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
-                    parsePage(el, schedule, colorProvider);
-                }
-            } else {
-                for (String dayUrl : dayUrls) {
-                    Document dayDoc;
-                    if (dayUrl.equals(url)) {
-                        dayDoc = doc;
-                    } else {
-                        dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+                if (scheduleData.getData().has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
+                    for (Element el : doc.select(scheduleData.getData().getString(PARAM_EMBEDDED_CONTENT_SELECTOR))) {
+                        parsePage(el, schedule, colorProvider);
                     }
-                    parsePage(dayDoc, schedule, colorProvider);
+                } else {
+                    for (String dayUrl : dayUrls) {
+                        Document dayDoc;
+                        if (dayUrl.equals(url)) {
+                            dayDoc = doc;
+                        } else {
+                            dayDoc = Jsoup.parse(httpGet(dayUrl, ENCODING));
+                        }
+                        parsePage(dayDoc, schedule, colorProvider);
+                    }
                 }
+                successfulSchedules ++;
+            } catch (IOException e) {
+                lastException = e;
             }
+        }
+        if (successfulSchedules == 0 && lastException != null) {
+            throw lastException;
         }
 
         if (scheduleData.getData().has(PARAM_WEBSITE)) {
