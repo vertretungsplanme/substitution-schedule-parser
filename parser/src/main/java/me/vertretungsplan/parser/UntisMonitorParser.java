@@ -120,8 +120,10 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.title().contains("Untis") || doc.html().contains("<!--<title>Untis")) {
                 SubstitutionScheduleDay day = parseMonitorDay(doc, scheduleData.getData());
                 v.addDay(day);
+            } else if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
+                // error
+                throw new IOException("Seems like there is no Untis schedule here");
             }
-            // else Error
 
             if (scheduleData.getData().has(PARAM_LAST_CHANGE_SELECTOR)
                     && doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).size() > 0) {
