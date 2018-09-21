@@ -64,8 +64,14 @@ public class IndiwareTest {
     }
 
     @Test
-    public void testCancelPatternShift() {
+    public void testCancelPatternShift1() {
         Matcher matcher = IndiwareParser.cancelPattern.matcher("verlegt von St.7-8; EN Herr Plietzsch fällt aus");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
+    public void testCancelPatternShift2() {
+        Matcher matcher = IndiwareParser.cancelPattern.matcher("statt Mo (10.09.) St.7; GEO Herr Maschke  fällt aus");
         assertFalse(matcher.matches());
     }
 
