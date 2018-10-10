@@ -32,7 +32,8 @@
     "Vertr-Text-2",
     "Vertretungs-Text",
     "Vertretungstext",
-    "zus\u00c3\u00a4tzl. Hinweis"
+    "zus\u00c3\u00a4tzl. Hinweis",
+    "zus\u00e4tzl. Hinweis"
   ],
   "ignore": [
     "Anlass",
@@ -51,6 +52,7 @@
     "Vtr-Nr.",
     "Zeit",
     "Z\u00c3\u00a4hler",
+    "Z\u00e4hler",
     "betroffen:",
     "verlegt"
   ],
