@@ -270,6 +270,12 @@ public abstract class UntisCommonParser extends BaseParser {
                     continue;
                 }
 
+                final Element previousLine = zeile.previousElementSibling();
+                if (isGroupMessage(zeile) && previousLine != null && previousLine.select(".inline_header").size() > 0) {
+                    addGroupMessage(day, getClassName(previousLine.text(), data), zeile);
+                    continue;
+                }
+
                 Substitution v = new Substitution();
                 String klassen = defaultClass != null ? defaultClass : "";
                 String course = null;
@@ -528,14 +534,8 @@ public abstract class UntisCommonParser extends BaseParser {
                     continue;
                 }
 
-                if (zeile.select("td").size() == 1 && zeile.select("td").first().hasAttr("colspan")) {
-                    String message = zeile.select("td").first().text();
-                    if (className != null) {
-                        message = className + ": " + message;
-                    } else if (teacherName != null) {
-                        message = teacherName + ": " + message;
-                    }
-                    day.addMessage(message);
+                if (isGroupMessage(zeile)) {
+                    addGroupMessage(day, className != null ? className : teacherName, zeile);
                     zeile = zeile.nextElementSibling();
                     continue;
                 }
@@ -683,6 +683,15 @@ public abstract class UntisCommonParser extends BaseParser {
 
             e.printStackTrace();
         }
+    }
+
+    private void addGroupMessage(SubstitutionScheduleDay day, String groupName, Element zeile) {
+        String message = "<b>" + groupName + ":</b> " + zeile.select("td").first().text();
+        day.addMessage(message);
+    }
+
+    private boolean isGroupMessage(Element zeile) {
+        return zeile.select("td").size() == 1 && zeile.select("td").first().hasAttr("colspan");
     }
 
     private void autoDetectType(JSONObject data, Element zeile, Substitution v) {
