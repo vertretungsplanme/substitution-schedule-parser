@@ -87,6 +87,7 @@ public class UntisMonitorParser extends UntisCommonParser {
     private static final String SUBPARAM_FOLLOWING = "following";
     private static final String SUBPARAM_URL = "url";
     private static final String VALUE_URL_LOGIN_RESPONSE = "loginResponse";
+    private static final Pattern VALUE_URL_LOGIN_RESPONSE_LINK_SELECTOR = Pattern.compile("loginResponse\\((.*)\\)");
     private String loginResponse;
 
     public UntisMonitorParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -156,8 +157,17 @@ public class UntisMonitorParser extends UntisCommonParser {
     private void loadUrl(String url, String encoding, boolean following, List<Document> docs, String startUrl,
                          int recursionDepth) throws IOException, CredentialInvalidException {
         String html;
+        final Matcher matcher = VALUE_URL_LOGIN_RESPONSE_LINK_SELECTOR.matcher(url);
         if (url.equals(VALUE_URL_LOGIN_RESPONSE)) {
             html = loginResponse;
+        } else if (matcher.matches()) {
+            Document doc = Jsoup.parse(loginResponse);
+            try {
+                doc.setBaseUri(scheduleData.getData().getJSONObject("login").getString("url"));
+                html = httpGet(doc.select(matcher.group(1)).first().absUrl("href"));
+            } catch (JSONException e) {
+                throw new IOException(e);
+            }
         } else {
             try {
                 html = httpGet(url, encoding).replace("&nbsp;", "");
