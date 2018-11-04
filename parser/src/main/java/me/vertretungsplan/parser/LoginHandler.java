@@ -92,6 +92,10 @@ import java.util.regex.Pattern;
  * checkUrl is not specified, the response from the login request is used (only for POST).
  * </dd>
  *
+ * <dt><code>encoding</code> (String, optional, default: UTF-8)</dt>
+ *  <dd>Specify the encoding which is used for the URL Encoded POST parameters
+ *  </dd>
+ *
  * <dt><code>form-data</code> (Boolean, optional, Default: <code>false</code>)</dt>
  * <dd>Whether to use <code>multipart/form-data</code> instead of <code>application/x-www-form-urlencoded</code>.</dd>
  * </dl>
@@ -124,6 +128,7 @@ public class LoginHandler {
     private static final String PARAM_PASSWORD = "password";
     private static final String PARAM_CHECK_URL = "checkUrl";
     private static final String PARAM_CHECK_TEXT = "checkText";
+    private static final String PARAM_ENCODING = "encoding";
     private SubstitutionScheduleData scheduleData;
     private Credential auth;
     private CookieProvider cookieProvider;
@@ -285,7 +290,8 @@ public class LoginHandler {
                     }
                     request.body(builder.build());
                 } else {
-                    request.bodyForm(nvps, Charset.forName("UTF-8"));
+                    final String charset = loginConfig.optString(PARAM_ENCODING, "UTF-8");
+                    request.bodyForm(nvps, Charset.forName(charset));
                 }
                 String html = executor.execute(request).returnContent().asString();
                 if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
