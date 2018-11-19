@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDateTime;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +47,9 @@ import java.util.regex.Matcher;
  *
  * <dt><code>separator</code> (String, required)</dt>
  * <dd>The separator used in the CSV file (such as <code>","</code>, <code>";"</code> or <code>"\t"</code>)</dd>
+ *
+ * <dt><code>quote</code> (String, optional, default: ")</dt>
+ * <dd>The quote character used in the CSV file to denote the start and end of strings in which additional separator characters should be ignored</dd>
  *
  * <dt><code>columns</code> (Array of Strings, required)</dt>
  * <dd>The order of columns used in the CSV file. Entries can be: <code>"lesson", "subject",
@@ -84,6 +88,7 @@ public class CSVParser extends BaseParser {
     private static final String PARAM_CLASSES_URL = "classesUrl";
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_URL = "url";
+    private static final String PARAM_QUOTE = "quote";
     private JSONObject data;
 
     public CSVParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -130,15 +135,20 @@ public class CSVParser extends BaseParser {
         String[] lines = response.split("\n");
 
         String separator = data.getString(PARAM_SEPARATOR);
+        String quote = data.optString(PARAM_QUOTE, "\"");
+        String regex = separator + "(?=([^" + quote + "]*\"[^" + quote + "]*" + quote + ")" + "*[^" + quote + "]*$)";
+        JSONArray columnsArray = data.getJSONArray(PARAM_COLUMNS);
         for (int i = data.optInt(PARAM_SKIP_LINES, 0); i < lines.length; i++) {
-            String[] columns = lines[i].split(separator);
+            String[] columns = lines[i].split(regex);
             Substitution v = new Substitution();
             String dayName = null;
             String stand = "";
             int j = 0;
             for (String column:columns) {
-                String type = data.getJSONArray(PARAM_COLUMNS)
-                        .getString(j);
+                // ignore blank columns after last valid column
+                if (j >= columnsArray.length() && column.trim().isEmpty()) continue;
+
+                String type = columnsArray.getString(j);
                 switch (type) {
                     case "lesson":
                         v.setLesson(column);
