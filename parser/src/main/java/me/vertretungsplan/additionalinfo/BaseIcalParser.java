@@ -146,6 +146,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
 
         DateTimeFormatter fmtDt = DateTimeFormat.shortDateTime().withLocale(Locale.GERMANY);
         DateTimeFormatter fmtD = DateTimeFormat.shortDate().withLocale(Locale.GERMANY);
+        DateTimeFormatter fmtT = DateTimeFormat.shortTime().withLocale(Locale.GERMANY);
 
         for (Event item : events) {
             if (count >= getMaxItemsCount()) {
@@ -166,7 +167,11 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
                 content.append((item.startHasTime ? fmtDt : fmtD).print(start));
                 if (!end.equals(start)) {
                     content.append(" - ");
-                    content.append((item.endHasTime ? fmtDt : fmtD).print(end));
+                    if (item.startHasTime && item.endHasTime && end.toLocalDate().equals(start.toLocalDate())) {
+                        content.append(fmtT.print(end));
+                    } else {
+                        content.append((item.endHasTime ? fmtDt : fmtD).print(end));
+                    }
                 }
             } else {
                 content.append(fmtDt.print(start));

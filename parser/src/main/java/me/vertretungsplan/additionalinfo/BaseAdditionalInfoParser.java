@@ -12,6 +12,8 @@ import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
 import me.vertretungsplan.additionalinfo.eichendorffgymkoblenz.EichendorffGymKoblenzIcalParser;
+import me.vertretungsplan.additionalinfo.esbkgelsenkirchen.lsschleswig.EsbkGelsenkirchenIcalParser;
+import me.vertretungsplan.additionalinfo.esbkgelsenkirchen.lsschleswig.EsbkGelsenkirchenRSSParser;
 import me.vertretungsplan.additionalinfo.evsschwalmstadt.EvsSchwalmstadtIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenRSSParser;
@@ -74,6 +76,12 @@ public abstract class BaseAdditionalInfoParser {
                 break;
             case "kantschulefalkensee-rss":
                 parser = new KantschuleFalkenseeRSSParser();
+                break;
+            case "esbkgelsenkirchen-ical":
+                parser = new EsbkGelsenkirchenIcalParser();
+                break;
+            case "esbkgelsenkirchen-rss":
+                parser = new EsbkGelsenkirchenRSSParser();
                 break;
         }
         return parser;
