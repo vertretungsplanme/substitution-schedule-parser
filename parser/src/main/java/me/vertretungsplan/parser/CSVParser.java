@@ -109,7 +109,7 @@ public class CSVParser extends BaseParser {
                 String httpUrl = url.replaceFirst("webdav", "http");
                 List<DavResource> files = client.list(httpUrl);
                 for (DavResource file : files) {
-                    if (!file.isDirectory()) {
+                    if (!file.isDirectory() && !file.getName().startsWith(".")) {
                         LocalDateTime modified = new LocalDateTime(file.getModified());
                         if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
                             schedule.setLastChange(modified);
