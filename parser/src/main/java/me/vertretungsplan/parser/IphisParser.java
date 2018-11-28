@@ -282,7 +282,8 @@ public class IphisParser extends BaseParser {
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
-                if (!substitutionScheduleDay.getSubstitutions().isEmpty()) {
+                if (!substitutionScheduleDay.getSubstitutions().isEmpty()
+                        || !substitutionScheduleDay.getMessages().isEmpty()) {
                     substitutionSchedule.addDay(substitutionScheduleDay);
                 }
                 substitutionScheduleDay = new SubstitutionScheduleDay();
