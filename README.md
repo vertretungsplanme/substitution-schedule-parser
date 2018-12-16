@@ -34,15 +34,15 @@ Below you find the currently supported substitution schedule softwares and the c
     * Substitution tables: good support
     * Timetables with substitution entries: experimental
   * Info-Stundenplan without header ([example](http://www.egwerther.de/vertretungsplan/w00000.htm)) `"untis-info-headless"`
-* svPlan ([example](http://www.ratsschule.de/Vplan/PH_heute.htm)) `"svplan"`
-* DaVinci ([example](http://hochtaunusschule.de/hts-vertretungsplan/)) `"davinci"`
+* svPlan ([example](http://bls.infoboard-schleswig.de/dav/schueler1.html)) `"svplan"`
+* DaVinci ([example](http://hochtaunusschule.de/Vertretungsplan/)) `"davinci"`
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
-* [LegionBoard](http://legionboard.org) `"legionboard"`
+* [LegionBoard](https://legionboard.dorfbrunnen.eu/) `"legionboard"`
 * Indiware
-  * XML export [example](http://burg-gymnasiumwettin.de/sites/schule/plan/mo.xml) `"indiware"`
-  * XML export converted to HTML `"indiware"`
-  * Stundenplan24.de `"stundenplan24"`
-  * Indiware Mobil `"indiware-mobile"`
+  * XML export ([example](https://francisceum.de/vertretung/mo.xml)) `"indiware"`
+  * XML export converted to HTML ([example](http://v-plan.gymnasium-nossen.de/v_plan_komplett/vplan_sch_html.html)) `"indiware"`
+  * Stundenplan24.de format ([example](http://vertretungsplan.bebe-dresden.de/vplan/)) `"stundenplan24"`
+  * Indiware Mobil ([example](https://www.cjd-droyssig.de/fileadmin/assets/droyssig/2014/Termine/VPmobilKlassen/)) `"indiware-mobile"`
 
 Depending on the type of software, different options need to be supplied in `SubstitutionScheduleData.setData()`. Documentation about these parameters can be found on each parser's page in the [Javadoc](https://www.javadoc.io/doc/me.vertretungsplan/parser).
 
