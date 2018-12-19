@@ -305,7 +305,9 @@ public class LoginHandler {
                             // "Schulen intern" login system
                             Document doc = Jsoup.parse(response);
                             doc.setBaseUri(checkUrl);
-                            String url = doc.select("iframe").first().absUrl("src");
+                            Element iframe = doc.select("iframe").first();
+                            if (iframe == null) throw new CredentialInvalidException();
+                            String url = iframe.absUrl("src");
                             if (url != null && !url.equals("")) {
                                 executor.execute(Request.Get(url)).discardContent();
                             }
