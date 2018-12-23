@@ -148,6 +148,11 @@ public class CSVParser extends BaseParser {
                 // ignore blank columns after last valid column
                 if (j >= columnsArray.length() && column.trim().isEmpty()) continue;
 
+                // remove quotes
+                if (column.startsWith(quote) && column.endsWith(quote)) {
+                    column = column.substring(quote.length(), column.length() - quote.length());
+                }
+
                 String type = columnsArray.getString(j);
                 switch (type) {
                     case "lesson":
