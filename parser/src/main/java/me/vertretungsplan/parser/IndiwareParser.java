@@ -180,6 +180,16 @@ public class IndiwareParser extends BaseParser {
                 Document splitDoc = Jsoup.parse(htmls[i]);
                 v.addDay(parseIndiwareDay(splitDoc, true));
             }
+        } else if (!html && doc.select("kopf").size() > 1) {
+            String[] xmls = doc.html().split("<kopf>");
+            for (int i = 1; i < xmls.length; i++) {
+                String xml = "<vp><kopf>" + xmls[i];
+                if (i < xmls.length - 1) {
+                    xml += "</vp>";
+                }
+                Document splitDoc = Jsoup.parse(xml);
+                v.addDay(parseIndiwareDay(splitDoc, false));
+            }
         } else {
             v.addDay(parseIndiwareDay(doc, html));
         }

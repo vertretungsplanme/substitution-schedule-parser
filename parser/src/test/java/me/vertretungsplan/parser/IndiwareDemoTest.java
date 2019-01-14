@@ -82,6 +82,18 @@ public class IndiwareDemoTest extends BaseDemoTest {
     }
 
     @Test
+    public void testXMLSplit() throws JSONException, IOException {
+        String xml = readResource("/indiware/indiware_split.xml");
+
+        SubstitutionSchedule schedule = new SubstitutionSchedule();
+        parser.parseIndiwarePage(schedule, xml);
+
+        assertEquals(2, schedule.getDays().size());
+        assertEquals(new LocalDate(2019, 1, 14), schedule.getDays().get(0).getDate());
+        assertEquals(new LocalDate(2019, 1, 15), schedule.getDays().get(1).getDate());
+    }
+
+    @Test
     public void testEquals() throws IOException, JSONException {
         SubstitutionScheduleDay scheduleXML = parser.parseIndiwareDay(Jsoup.parse(xml, "", Parser.xmlParser()),
                 false);

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="vplank.xsl"?>
+<vp>
+    <kopf>
+        <datei>Vertretungsplan_Klassen.xml</datei>
+        <titel>Montag, 14. Januar 2019 (A-Woche)</titel>
+        <schulname>Gymnasium Beetzendorf</schulname>
+        <datum>14.01.2019, 14:27</datum>
+        <kopfinfo>
+
+        </kopfinfo>
+    </kopf>
+    <haupt>
+        <aktion>
+            <klasse>05 A</klasse>
+            <stunde>1</stunde>
+            <fach>ABC</fach>
+            <lehrer>DEF</lehrer>
+            <raum rageaendert="ae"></raum>
+            <info>Probe Tag der offenen Tür (Aula)</info>
+        </aktion>
+    </haupt>
+    <kopf>
+        <datei>Vertretungsplan_Klassen.xml</datei>
+        <titel>Dienstag, 15. Januar 2019 (A-Woche)</titel>
+        <schulname>Gymnasium Beetzendorf</schulname>
+        <datum>14.01.2019, 14:27</datum>
+        <kopfinfo>
+
+        </kopfinfo>
+    </kopf>
+    <haupt>
+        <aktion>
+            <klasse>05 A</klasse>
+            <stunde>6</stunde>
+            <fach fageaendert="ae">ABC</fach>
+            <lehrer legeaendert="ae">DEF</lehrer>
+            <raum>H03</raum>
+            <info>für Ges GHI</info>
+        </aktion>
+    </haupt>
+</vp>
