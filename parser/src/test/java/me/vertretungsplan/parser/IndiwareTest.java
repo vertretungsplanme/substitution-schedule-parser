@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 
@@ -127,6 +128,14 @@ public class IndiwareTest {
         IndiwareParser.handleDescription(substitution, input);
         assertEquals("Prüfung", substitution.getType());
         assertEquals("Sm Herr Weise fällt aus", substitution.getDesc());
+    }
+
+    @Test
+    public void testSplitTeacher() {
+        assertEquals(new HashSet<>(Arrays.asList("Müller", "Meier")),
+                IndiwareParser.splitTeachers("Müller, Meier", true));
+        assertEquals(new HashSet<>(Collections.singletonList("H. Müller, Michael")),
+                IndiwareParser.splitTeachers("H. Müller, Michael", false));
     }
 
     @Test

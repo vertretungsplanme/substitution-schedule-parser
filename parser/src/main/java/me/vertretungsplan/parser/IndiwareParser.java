@@ -57,6 +57,9 @@ import java.util.regex.Pattern;
  * specify which HTML elements should be considered as the containers for the Indiware HTML schedule. The CSS selector
  * syntax is supported as specified by
  * <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">JSoup</a>.</dd>
+ *
+ * <dt><code>splitTeachers</code> (boolean, optional, default: true)</dt>
+ * <dd>Whether strings with a comma in the teacher column denote multiple teachers</dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -65,6 +68,7 @@ public class IndiwareParser extends BaseParser {
     private static final String PARAM_URLS = "urls";
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
+    private static final String PARAM_SPLIT_TEACHERS = "splitTeachers";
     protected JSONObject data;
 
     private static final int MAX_DAYS = 7;
@@ -382,6 +386,7 @@ public class IndiwareParser extends BaseParser {
             Substitution substitution = new Substitution();
             String course = null;
             int i = 0;
+            boolean splitTeachers = data.optBoolean(PARAM_SPLIT_TEACHERS, true);
             for (Element info : aktion.children()) {
                 String value = info.text().replace("\u00a0", "");
                 if (value.equals("---")) {
@@ -414,20 +419,20 @@ public class IndiwareParser extends BaseParser {
                     case "lehrer":
                         if (bracesMatcher.matches()) {
                             value = bracesMatcher.group(1);
-                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                            substitution.setPreviousTeachers(splitTeachers(value, splitTeachers));
                         } else if (html ? columnTypes.contains("vlehrer") :
                                 aktion.getElementsByTag("vlehrer").size() > 0) {
-                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                            substitution.setPreviousTeachers(splitTeachers(value, splitTeachers));
                         } else {
-                            substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                            substitution.setTeachers(splitTeachers(value, splitTeachers));
                         }
                         break;
                     case "vlehrer":
                         if (bracesMatcher.matches()) {
                             value = bracesMatcher.group(1);
-                            substitution.setPreviousTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                            substitution.setPreviousTeachers(splitTeachers(value, splitTeachers));
                         } else {
-                            substitution.setTeachers(new HashSet<>(Arrays.asList(value.split(", "))));
+                            substitution.setTeachers(splitTeachers(value, splitTeachers));
                         }
                         break;
                     case "raum":
@@ -454,6 +459,14 @@ public class IndiwareParser extends BaseParser {
         }
 
         return day;
+    }
+
+    @NotNull static HashSet<String> splitTeachers(String value, boolean split) {
+        if (split) {
+            return new HashSet<>(Arrays.asList(value.split(", ")));
+        } else {
+            return new HashSet<>(Collections.singletonList(value));
+        }
     }
 
     static void handleDescription(Substitution substitution, String value) {
