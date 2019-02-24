@@ -51,7 +51,7 @@ public class ColorProvider {
             {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten",
                     "Raum-Vertr.", "Raumwechsel"};
     private static final String[] BROWN_VALUES = {"Veranst.", "Veranstaltung", "Frei/Veranstaltung", "Hochschultag"};
-    private static final String[] ORANGE_VALUES = {"Klausur"};
+    private static final String[] ORANGE_VALUES = {"Klausur", "Prüfung", "Klassenarbeit"};
     private static final String[] GRAY_VALUES = {"Pausenaufsicht"};
     private static final HashMap<String, String> defaultColorMap = new HashMap<>();
 
