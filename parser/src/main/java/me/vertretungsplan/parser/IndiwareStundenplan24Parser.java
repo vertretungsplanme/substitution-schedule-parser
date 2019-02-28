@@ -68,8 +68,10 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
             throws IOException, JSONException, CredentialInvalidException {
 
         String baseurl;
+        boolean isTeacher = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER;
         if (data.has("schoolNumber")) {
-            baseurl = "https://www.stundenplan24.de/" + data.getString("schoolNumber") + "/vplan/";
+            baseurl = "https://www.stundenplan24.de/" + data.getString("schoolNumber") +
+                    (isTeacher ? "/vplanle/" : "/vplan/");
             if (credential == null || !(credential instanceof UserPasswordCredential)) {
                 throw new IOException("no login");
             }
@@ -86,8 +88,8 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
         for (int i = 0; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
-            String url = baseurl + "vdaten/VplanKl" + dateStr +
-                    ".xml?_=" + System.currentTimeMillis();
+            String url = baseurl + "vdaten/Vplan" + (isTeacher ? "Le" : "Kl")
+                    + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, ENCODING);
                 Document doc = Jsoup.parse(xml, url, Parser.xmlParser());
