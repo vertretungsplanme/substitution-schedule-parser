@@ -88,12 +88,12 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
         for (int i = 0; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
             String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
-            String url = baseurl + "vdaten/Vplan" + (isTeacher ? "Le" : "Kl")
-                    + dateStr + ".xml?_=" + System.currentTimeMillis();
+            String suffix = isTeacher ? "Le" : "Kl";
+            String url = baseurl + "vdaten/Vplan" + suffix + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, ENCODING);
                 Document doc = Jsoup.parse(xml, url, Parser.xmlParser());
-                if (doc.select("kopf datei").text().equals("VplanKl" + dateStr + ".xml")) {
+                if (doc.select("kopf datei").text().equals("Vplan" + suffix + dateStr + ".xml")) {
                     docs.add(doc);
                 }
             } catch (HttpResponseException e) {
