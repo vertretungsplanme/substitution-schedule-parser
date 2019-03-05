@@ -68,8 +68,9 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
             throws IOException, JSONException, CredentialInvalidException {
 
         String baseurl;
-        boolean isTeacher = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER;
+        boolean isTeacher;
         if (data.has("schoolNumber")) {
+            isTeacher = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER
             baseurl = "https://www.stundenplan24.de/" + data.getString("schoolNumber") +
                     (isTeacher ? "/vplanle/" : "/vplan/");
             if (credential == null || !(credential instanceof UserPasswordCredential)) {
@@ -80,6 +81,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
             executor.auth(login, password);
         } else {
             baseurl = data.getString("baseurl") + "/";
+            isTeacher = data.getString("baseurl").endsWith("vplanle")
             new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         }
 
