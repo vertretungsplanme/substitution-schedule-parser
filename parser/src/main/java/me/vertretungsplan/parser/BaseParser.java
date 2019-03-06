@@ -63,6 +63,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     private static final String PARAM_SSL_HOSTNAME = "sslHostname";
     private static final String PARAM_SSL_VERIFY_HOSTNAME = "sslVerifyHostname";
     static final String PARAM_CLASS_RANGES = "classRanges";
+    static final String PARAM_HEADERS = "headers";
     static final String CLASS_RANGES_CLASS_REGEX = "classRegex";
     static final String CLASS_RANGES_GRADE_REGEX = "gradeRegex";
     static final String CLASS_RANGES_RANGE_FORMAT = "rangeFormat";
@@ -317,6 +318,12 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         if (headers != null) {
             for (Entry<String, String> entry : headers.entrySet()) {
                 request.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+        JSONObject jsonHeaders = scheduleData.getData().optJSONObject(PARAM_HEADERS);
+        if (jsonHeaders != null) {
+            for (String key : JSONObject.getNames(jsonHeaders)) {
+                request.addHeader(key, jsonHeaders.optString(key));
             }
         }
         return executeRequest(encoding, request);
