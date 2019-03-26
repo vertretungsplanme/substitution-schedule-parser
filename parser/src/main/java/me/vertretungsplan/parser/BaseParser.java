@@ -246,6 +246,12 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 "Selbstlernen", "Zusammenlegung", "HA", "Raum beachten", "Stundentausch", "Klausur", "Raum-Vertr.",
                 "Betreuung", "Frei/Veranstaltung", "Raumwechsel", "selbstständiges Arbeiten")) {
             return text;
+        } else if (text.startsWith("Ausfallstunde:")) {
+            return "Ausfallstunde";
+        } else if (text.startsWith("Raumwechsel/ Stillarbeit:")) {
+            return "Raumwechsel/ Stillarbeit";
+        } else if (text.startsWith("Stillarbeit:")) {
+            return "Stillarbeit";
         } else if (text.contains("verschoben")) {
             return "Verlegung";
         } else if (text.contains("geänderter Raum")) {

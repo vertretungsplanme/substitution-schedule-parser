@@ -41,7 +41,7 @@ public class ColorProvider {
     private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Entf", "Fällt aus!", "Fällt aus",
             "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb.", "Aufgabe", "Aufgaben",
             "selbst.", "Frei", "Ausfall", "Stillarbeit", "Absenz", "-> Entfall", "Freisetzung",
-            "selbstständiges Arbeiten",
+            "selbstständiges Arbeiten", "Ausfallstunde",
             "Eigenverantw. Arbeiten", "fällt aus.", "Entfällt - Verlegung"};
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Sondereinsatz", "Statt-Vertretung",
             "Betreuung", "V", "VTR", "Vertr."};
