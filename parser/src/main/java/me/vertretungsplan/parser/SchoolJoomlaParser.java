@@ -101,7 +101,7 @@ public class SchoolJoomlaParser extends BaseParser {
                         s.setClasses(classes);
                         s.setLesson(subst.getString("stunden"));
                         s.setPreviousSubject(emptyToNull(subst.getString("fach")));
-                        s.setSubject(emptyToNull(subst.getString("vfach")));
+                        s.setSubject(emptyToNull(subst.optString("vfach")));
                         s.setPreviousRoom(emptyToNull(subst.getString("raum")));
                         s.setRoom(emptyToNull(subst.getString("vraum")));
                         s.setPreviousTeacher(emptyToNull(subst.getString("lehrerkuerzel")));
