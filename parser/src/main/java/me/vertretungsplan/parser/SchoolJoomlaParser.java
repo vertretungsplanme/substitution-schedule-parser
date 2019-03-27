@@ -108,9 +108,14 @@ public class SchoolJoomlaParser extends BaseParser {
                         s.setTeacher(emptyToNull(subst.getString("verlehrerkuerzel")));
                         s.setDesc(emptyToNull(subst.getString("kommentar")));
 
+                        if ("--".equals(s.getTeacher())) {
+                            s.setTeacher(null);
+                        }
+
                         String art = subst.getString("art");
                         switch (art) {
                             case "V":
+                            case "W":
                                 s.setType("Vertretung");
                                 break;
                             case "C":
