@@ -33,6 +33,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
     private String html2;
     private String html3;
     private String html4;
+    private String html5;
 
     private SVPlanParser parser;
     private SVPlanParser parserWithoutRepeat;
@@ -43,6 +44,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         html2 = readResource("/svplan/svplan2.html");
         html3 = readResource("/svplan/svplan3.html");
         html4 = readResource("/svplan/svplan4.html");
+        html5 = readResource("/svplan/svplan5.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
 
@@ -158,5 +160,15 @@ public class SVPlanDemoTest extends BaseDemoTest {
                 assertTrue(subst.getClasses().size() == 1);
             }
         }
+    }
+
+    @Test
+    public void demoTest5() throws IOException, JSONException {
+        List<Document> docs = new ArrayList<>();
+        docs.add(Jsoup.parse(html5));
+        SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
+
+        assertEquals(new LocalDate(2019, 3, 28), schedule.getDays().get(0).getDate());
+        assertEquals(new LocalDate(2019, 3, 29), schedule.getDays().get(1).getDate());
     }
 }

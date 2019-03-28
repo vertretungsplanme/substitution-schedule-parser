@@ -1,0 +1,1061 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=windows-1252">
+
+    <title>Vertretungsplan Donnerstag, den 28.03.2019</title>
+
+    <style type="text/css">
+        <!--
+        /*
+
+              Im folgenden Block befinden sich die Format-Angaben zu der Plan-Ausgabe
+
+              Eine Beschreibung der Optionen finden Sie unter
+              http://de.selfhtml.org/css/eigenschaften/index.htm
+        */
+        html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            font-size: 100%;
+            vertical-align: baseline;
+            background: transparent;
+        }
+
+        body {
+            line-height: 1;
+            background-color: #ffffff;
+            margin: 1em;
+        }
+
+        ol, ul {
+            list-style: none;
+        }
+
+        blockquote, q {
+            quotes: none;
+        }
+
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+
+        /* remember to define focus styles! */
+        :focus {
+            outline: 0;
+        }
+
+        /* remember to highlight inserts somehow! */
+        ins {
+            text-decoration: none;
+        }
+
+        del {
+            text-decoration: line-through;
+        }
+
+        /* tables still need 'cellspacing="0"' in the markup */
+        table {
+            border-collapse: collapse;
+            border: thin solid white;
+            border-spacing: 0px;
+            empty-cells: show;
+            width: 100%;
+        }
+
+        dl {
+            margin-top: 0px;
+            margin-bottom: 2px;
+        }
+
+        /* Definitionen fr alle Spalten */
+        th {
+            border: thin solid white;
+            border-spacing: 0px;
+            font-weight: bold;
+            font-size: 100%;
+            background-color: #4a5984;
+            text-align: left;
+            padding: 4px;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Abweichungen fr einzelne Spalten */
+        th.Klasse {
+        }
+
+        th.Stunde {
+        }
+
+        th.Fach {
+        }
+
+        th.Lehrer {
+        }
+
+        th.Vertretung {
+        }
+
+        th.Raum {
+        }
+
+        th.Anmerkung {
+        }
+
+        /*
+          Formatierung der Daten-Eintragungen
+        */
+        /* Definitionen fr alle Zellen */
+        td {
+            border: thin solid white;
+            border-spacing: 0px;
+            font-weight: bold;
+            font-size: 100%;
+            color: Black;
+            height: 20px;
+            padding: 0.5em;
+            background-color: white;
+        }
+
+        td.gerade {
+            background-color: #dedfef;
+        }
+
+        td.ungerade {
+            background-color: #b5bede;
+        }
+
+        /* Abweichungen fr einzelne Spalten */
+        td.Klasse {
+        }
+
+        td.Stunde {
+        }
+
+        td.Fach {
+        }
+
+        td.Lehrer {
+        }
+
+        td.Vertretung {
+        }
+
+        td.Raum {
+        }
+
+        td.Anmerkung {
+        }
+
+        /* Spalten der als "neu" markierten Eintragungen */
+        td.KlasseNeu {
+        }
+
+        td.StundeNeu {
+            background-color: #00c0f0;
+            color: Black;
+        }
+
+        td.FachNeu {
+        }
+
+        td.LehrerNeu {
+            background-color: #00c0f0;
+            color: Black;
+        }
+
+        td.VertretungNeu {
+            background-color: #ff3000;
+            color: #000000;
+        }
+
+        td.RaumNeu {
+        }
+
+        td.AnmerkungNeu {
+        }
+
+        /*
+          Formatierung der Text-Abstze
+        */
+        p {
+            font-weight: normal;
+            font-size: 100%;
+            color: Black;
+            background-color: White;
+            margin-top: 0pt;
+            margin-bottom: 0pt;
+            background: transparent;
+        }
+
+        /* Formatierung der berschriften */
+        p.Titel {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            background-color: #6dbc5f;
+            padding: 0.88em;
+            border-top: 2px solid #ccc;
+            border-left: 2px solid #ccc;
+            border-bottom: 2px solid #888;
+            border-right: 2px solid #888;
+        }
+
+        p.UnterTitel {
+        }
+
+        p.UnterTitel2 {
+            font-size: 80%;
+        }
+
+        p.Stand {
+        }
+
+        /* Listen */
+        p.LehrerFrueherLabel {
+            color: brown;
+            padding: 0.5em;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.LehrerFrueher {
+            padding-left: 1.5em;
+        }
+
+        p.LehrerVerplantLabel {
+            color: brown;
+            padding: 0.5em;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.LehrerVerplant {
+            padding-left: 1.5em;
+        }
+
+        /* Liste der Abwesenen Lehrer, Klassen Rume */
+        p.Abwesenheiten-LehrerLabel {
+            color: royalblue;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.Abwesenheiten-Lehrer {
+            padding-left: 1.5em;
+        }
+
+        p.Abwesenheiten-KlassenLabel {
+            color: olivedrab;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.Abwesenheiten-Klassen {
+            padding-left: 1.5em;
+        }
+
+        p.Abwesenheiten-RaeumeLabel {
+            color: chocolate;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.Abwesenheiten-Raeume {
+            padding-left: 1.5em;
+        }
+
+        p.AbwesenheitenLabel {
+            color: brown;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.Abwesenheiten {
+            padding-left: 1.5em;
+        }
+
+        /* Ausgabe der Planzustze/Mitteilungen */
+        p.MitteilungenLabel {
+            color: black;
+            font-weight: bold;
+            line-height: 1.33em;
+            margin-top: 0.6em;
+        }
+
+        p.Mitteilungen {
+            padding-left: 1.5em;
+            margin-bottom: 0.6em;
+        }
+
+        /* Verweis auf den nchsten Teilplan */
+        p.Weiter {
+        }
+
+        /*
+            Trennlinie zwischen den Tagen wenn mehrere in eine HTML-Datei ausgegeben werden
+        */
+        hr.Trennlinie {
+            noshade: noshade;
+            margin-top: 16pt;
+            margin-bottom: 16pt;
+        }
+
+        /*
+
+
+              Ende der Formatierungs-Angaben
+
+        */
+        -->
+    </style>
+
+    <!-- Dieses Script sorgt dafr, dass die angezeigte Seite in Browsern
+    automatisch scrollt, wenn es notwendig ist -->
+    <script type="text/javascript">
+        var sprungweite = 1                 //normales Scrollen = 1; Umblaettern: Je nach Monitorauflsung, z.B. 700;
+        var geschwindigkeit = 25            //Scrollgeschwindigkeit = 25 (desto hher der Wert desto langsamer)
+        var verzoegerung_am_anfang = 3000   //Verzgerung am Anfang in ms -> 3s = 3000ms
+        var verzoegerung_am_ende = 10000     //Verzgerung nach dem Anzeigen der letzten Zeile in ms -> 10s = 10000ms
+        var neuladen_nach = 30              //nach wie vielen Durchgaengen wird die Datei neu geladen = 30
+
+        //nicht aendern
+        var currentpos = 0, alt = 1, curpos1 = 0, curpos2 = -1, i = 1
+
+        function wait_on_top() {
+            if (currentpos == 0) window.setTimeout("scrollwindow()", verzoegerung_am_anfang)
+        }
+
+        function scrollwindow() {
+            if (document.all)
+                temp = document.body.scrollTop
+            else
+                temp = window.pageYOffset
+            if (alt == 0)
+                alt = 1
+            else
+                alt = 0
+            if (alt == 0)
+                curpos1 = temp
+            else
+                curpos2 = temp
+            if (curpos1 != curpos2) {
+                if (document.all)
+                    currentpos = document.body.scrollTop + sprungweite
+                else
+                    currentpos = window.pageYOffset + sprungweite
+                window.scroll(0, currentpos)
+                window.setTimeout("scrollwindow()", geschwindigkeit)
+            }
+            else window.setTimeout("jump_top()", verzoegerung_am_ende)
+        }
+
+        function jump_top() {
+            currentpos = 0
+            if (i == neuladen_nach) {
+                i = 1
+                self.location.reload()
+            }
+            else {
+                i++
+                window.scroll(0, currentpos)
+                wait_on_top()
+            }
+        }
+
+        function startit() {
+            window.scroll(0, 0)
+            wait_on_top()
+        }
+    </script>
+
+</head>
+
+<body onload="startit()">
+
+<!-- Die folgende Zeie wird durch den Vertretungsplan ersetzt. -->
+
+<p class="Titel">Alex-Deutsch-Schule Donnerstag, 28. März 2019</p>
+<br>
+<p class="UnterTitel">Vertretungsplan für Schüler</p>
+<p class="UnterTitel2">Probeversion</p>
+<p class="Stand"> Stand: 28.03.2019 18:17</p>
+<hr class="Trennlinie">
+<table>
+    <tr>
+        <th class="Stunde">Stunde</th>
+        <th class="Lehrer">Lehrer</th>
+        <th class="Vertretung">Vertretung</th>
+        <th class="Klasse">Klasse</th>
+        <th class="Fach">Fach</th>
+        <th class="Anmerkung">Anmerkung</th>
+        <th class="Raum">Raum</th>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">5.<br></td>
+        <td class="LehrerNeu ungerade">Ka<br></td>
+        <td class="VertretungNeu ungerade">Sa<br></td>
+        <td class="KlasseNeu ungerade">5A<br></td>
+        <td class="FachNeu ungerade">GW<br></td>
+        <td class="AnmerkungNeu ungerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu ungerade">.R-510<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">6.<br></td>
+        <td class="LehrerNeu gerade">Ka<br></td>
+        <td class="VertretungNeu gerade">Sa<br></td>
+        <td class="KlasseNeu gerade">5A<br></td>
+        <td class="FachNeu gerade">GW<br></td>
+        <td class="AnmerkungNeu gerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu gerade">.R-510<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Sch<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade">5A 5B<br></td>
+        <td class="FachNeu ungerade">FÖM<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Sch<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">5A 5B<br></td>
+        <td class="FachNeu gerade">FÖM<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Wa<br></td>
+        <td class="VertretungNeu ungerade">Rin<br></td>
+        <td class="KlasseNeu ungerade">6B<br></td>
+        <td class="FachNeu ungerade">GW statt M<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-36<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Wa<br></td>
+        <td class="VertretungNeu gerade">Rin<br></td>
+        <td class="KlasseNeu gerade">6B<br></td>
+        <td class="FachNeu gerade">GW statt M<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-36<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Wa<br></td>
+        <td class="VertretungNeu ungerade">La<br></td>
+        <td class="KlasseNeu ungerade">7A 7B<br></td>
+        <td class="FachNeu ungerade">M-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-29<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">5.<br></td>
+        <td class="LehrerNeu gerade">Kf<br></td>
+        <td class="VertretungNeu gerade">Mo<br></td>
+        <td class="KlasseNeu gerade">7A 7B<br></td>
+        <td class="FachNeu gerade">E-E<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">R-11<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">5.<br></td>
+        <td class="LehrerNeu ungerade">Mo<br></td>
+        <td class="VertretungNeu ungerade">Ro<br></td>
+        <td class="KlasseNeu ungerade">7A 7B<br></td>
+        <td class="FachNeu ungerade">E-G<br></td>
+        <td class="AnmerkungNeu ungerade">Mitaufsicht
+            <br></td>
+        <td class="RaumNeu ungerade">.R-29<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">6.<br></td>
+        <td class="LehrerNeu gerade">Kf<br></td>
+        <td class="VertretungNeu gerade">Mo<br></td>
+        <td class="KlasseNeu gerade">7A 7B<br></td>
+        <td class="FachNeu gerade">E-E<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">R-11<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">6.<br></td>
+        <td class="LehrerNeu ungerade">Mo<br></td>
+        <td class="VertretungNeu ungerade">Ro<br></td>
+        <td class="KlasseNeu ungerade">7A 7B<br></td>
+        <td class="FachNeu ungerade">E-G<br></td>
+        <td class="AnmerkungNeu ungerade">Mitaufsicht
+            <br></td>
+        <td class="RaumNeu ungerade">.R-29<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">0.<br></td>
+        <td class="LehrerNeu gerade">Wa<br></td>
+        <td class="VertretungNeu gerade">Ei<br></td>
+        <td class="KlasseNeu gerade">7B<br></td>
+        <td class="FachNeu gerade">IL4<br></td>
+        <td class="AnmerkungNeu gerade">Mitaufsicht (7A)
+            <br></td>
+        <td class="RaumNeu gerade">.R-29<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Gr<br></td>
+        <td class="VertretungNeu ungerade">Rs<br></td>
+        <td class="KlasseNeu ungerade">8A 8B 8C<br></td>
+        <td class="FachNeu ungerade">ER<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">R-45<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Gr<br></td>
+        <td class="VertretungNeu gerade">Rs<br></td>
+        <td class="KlasseNeu gerade">8A 8B 8C<br></td>
+        <td class="FachNeu gerade">ER<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">R-45<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">0.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Rs<br></td>
+        <td class="KlasseNeu ungerade">8C<br></td>
+        <td class="FachNeu ungerade">IL4 statt IL3<br></td>
+        <td class="AnmerkungNeu ungerade">Mitaufsicht (8A)
+            <br></td>
+        <td class="RaumNeu ungerade">R-58<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Bi<br></td>
+        <td class="VertretungNeu gerade">Rin<br></td>
+        <td class="KlasseNeu gerade">9A<br></td>
+        <td class="FachNeu gerade">GW-1<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Sch<br></td>
+        <td class="KlasseNeu ungerade">9A<br></td>
+        <td class="FachNeu ungerade">F-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Bi<br></td>
+        <td class="VertretungNeu gerade">Sch<br></td>
+        <td class="KlasseNeu gerade">9A<br></td>
+        <td class="FachNeu gerade">F-G<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Gr<br></td>
+        <td class="VertretungNeu ungerade">Sa<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">ER<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">R-45<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">5.<br></td>
+        <td class="LehrerNeu gerade">Wa<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">PH-G<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            Klasse 9a!!
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">6.<br></td>
+        <td class="LehrerNeu ungerade">Wa<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">PH-G<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            Klasse 9a!!
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">Kf<br></td>
+        <td class="VertretungNeu gerade">Mo<br></td>
+        <td class="KlasseNeu gerade">10A<br></td>
+        <td class="FachNeu gerade">EN<br></td>
+        <td class="AnmerkungNeu gerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu gerade">.R-512<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">Kf<br></td>
+        <td class="VertretungNeu ungerade">Mo<br></td>
+        <td class="KlasseNeu ungerade">10A<br></td>
+        <td class="FachNeu ungerade">EN<br></td>
+        <td class="AnmerkungNeu ungerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu ungerade">.R-512<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Rin<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade"><br></td>
+        <td class="FachNeu gerade">FÖU<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">An<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade"><br></td>
+        <td class="FachNeu ungerade">FÖU<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+</table>
+<hr class="Trennlinie">
+<p class="Titel">Alex-Deutsch-Schule Freitag, 29. März 2019</p>
+<br>
+<p class="UnterTitel">Vertretungsplan für Schüler</p>
+<p class="UnterTitel2">Probeversion</p>
+<p class="Stand"> Stand: 28.03.2019 18:17</p>
+<hr class="Trennlinie">
+<p class="AbwesenheitenLabel">Abwesenheiten
+    <dl>
+        <dd>
+<p class="Abwesenheiten">
+    5A ab v1. (Picobello)
+</p></dd>
+<dd><p class="Abwesenheiten">
+    5B ab v1. (Picobello)
+</p></dd>
+</dl></p>
+<table>
+    <tr>
+        <th class="Stunde">Stunde</th>
+        <th class="Lehrer">Lehrer</th>
+        <th class="Vertretung">Vertretung</th>
+        <th class="Klasse">Klasse</th>
+        <th class="Fach">Fach</th>
+        <th class="Anmerkung">Anmerkung</th>
+        <th class="Raum">Raum</th>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">0.<br></td>
+        <td class="LehrerNeu ungerade">Kf<br></td>
+        <td class="VertretungNeu ungerade">Ei<br></td>
+        <td class="KlasseNeu ungerade">5A<br></td>
+        <td class="FachNeu ungerade">IL5<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-510<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">Wa<br></td>
+        <td class="VertretungNeu gerade">Gr<br></td>
+        <td class="KlasseNeu gerade">6B<br></td>
+        <td class="FachNeu gerade">M<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-36<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">Wa<br></td>
+        <td class="VertretungNeu ungerade">Gr<br></td>
+        <td class="KlasseNeu ungerade">6B<br></td>
+        <td class="FachNeu ungerade">M<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-36<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">Ei<br></td>
+        <td class="VertretungNeu gerade">Rin<br></td>
+        <td class="KlasseNeu gerade">7A 7B<br></td>
+        <td class="FachNeu gerade">F<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-25<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">Ei<br></td>
+        <td class="VertretungNeu ungerade">Rin<br></td>
+        <td class="KlasseNeu ungerade">7A 7B<br></td>
+        <td class="FachNeu ungerade">F<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-25<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">5.<br></td>
+        <td class="LehrerNeu gerade">Wa<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">7A 7B<br></td>
+        <td class="FachNeu gerade">M-G<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">6.<br></td>
+        <td class="LehrerNeu ungerade">Wa<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade">7A 7B<br></td>
+        <td class="FachNeu ungerade">M-G<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Ko<br></td>
+        <td class="VertretungNeu gerade">An<br></td>
+        <td class="KlasseNeu gerade">8A 8B 8C<br></td>
+        <td class="FachNeu gerade">F-G<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-55<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">1.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Rie<br></td>
+        <td class="KlasseNeu ungerade">8A 8B 8C<br></td>
+        <td class="FachNeu ungerade">F-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-56<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">2.<br></td>
+        <td class="LehrerNeu gerade">Ko<br></td>
+        <td class="VertretungNeu gerade">An<br></td>
+        <td class="KlasseNeu gerade">8A 8B 8C<br></td>
+        <td class="FachNeu gerade">F-G<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-55<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Rie<br></td>
+        <td class="KlasseNeu ungerade">8A 8B 8C<br></td>
+        <td class="FachNeu ungerade">F-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-56<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">We<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">8A 8B 8C<br></td>
+        <td class="FachNeu gerade">FÖD<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            in Klasse!
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">We<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade">8A 8B 8C<br></td>
+        <td class="FachNeu ungerade">FÖD<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            in Klasse!
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">0.<br></td>
+        <td class="LehrerNeu gerade">Bi<br></td>
+        <td class="VertretungNeu gerade">Sch<br></td>
+        <td class="KlasseNeu gerade">8C<br></td>
+        <td class="FachNeu gerade">IL5 statt IL4<br></td>
+        <td class="AnmerkungNeu gerade">Mitaufsicht (8A)
+            <br></td>
+        <td class="RaumNeu gerade">R-58<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">5.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Bas<br></td>
+        <td class="KlasseNeu ungerade">8C<br></td>
+        <td class="FachNeu ungerade">GW8<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">R-58<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">6.<br></td>
+        <td class="LehrerNeu gerade">Bi<br></td>
+        <td class="VertretungNeu gerade">Bas<br></td>
+        <td class="KlasseNeu gerade">8C<br></td>
+        <td class="FachNeu gerade">GW8<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">R-58<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">0.<br></td>
+        <td class="LehrerNeu ungerade">Ko<br></td>
+        <td class="VertretungNeu ungerade">Hn<br></td>
+        <td class="KlasseNeu ungerade">9A<br></td>
+        <td class="FachNeu ungerade">BI statt IL5<br></td>
+        <td class="AnmerkungNeu ungerade">Mitaufsicht (9B)
+            <br></td>
+        <td class="RaumNeu ungerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Sch<br></td>
+        <td class="VertretungNeu gerade">Gei<br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">M-E statt CH-E<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">Chemie- 37<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">1.<br></td>
+        <td class="LehrerNeu ungerade">Kf<br></td>
+        <td class="VertretungNeu ungerade">Sa<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">D-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-52<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Ur<br></td>
+        <td class="VertretungNeu gerade">Sa<br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">D-G<br></td>
+        <td class="AnmerkungNeu gerade">Mitaufsicht
+            <br></td>
+        <td class="RaumNeu gerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Sch<br></td>
+        <td class="VertretungNeu ungerade">Gei<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">M-E statt CH-E<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">Chemie- 37<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">2.<br></td>
+        <td class="LehrerNeu gerade">Kf<br></td>
+        <td class="VertretungNeu gerade">Sa<br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">D-G<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-52<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Ur<br></td>
+        <td class="VertretungNeu ungerade">Sa<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">D-G<br></td>
+        <td class="AnmerkungNeu ungerade">Mitaufsicht
+            <br></td>
+        <td class="RaumNeu ungerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">Th<br></td>
+        <td class="VertretungNeu gerade">Bas<br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">PH-E<br></td>
+        <td class="AnmerkungNeu gerade">geänderter Raum!
+            <br></td>
+        <td class="RaumNeu gerade">.R-54<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Bi<br></td>
+        <td class="VertretungNeu ungerade">Sa<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">F-G<br></td>
+        <td class="AnmerkungNeu ungerade"><br></td>
+        <td class="RaumNeu ungerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Bi<br></td>
+        <td class="VertretungNeu gerade">Sa<br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">F-G<br></td>
+        <td class="AnmerkungNeu gerade"><br></td>
+        <td class="RaumNeu gerade">.R-51<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">4.<br></td>
+        <td class="LehrerNeu ungerade">Th<br></td>
+        <td class="VertretungNeu ungerade">Sch<br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">PH-E<br></td>
+        <td class="AnmerkungNeu ungerade">geänderter Raum!
+            <br></td>
+        <td class="RaumNeu ungerade">.R-54<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">5.<br></td>
+        <td class="LehrerNeu gerade">Ko<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">9A 9B<br></td>
+        <td class="FachNeu gerade">EN<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">6.<br></td>
+        <td class="LehrerNeu ungerade">Ko<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade">9A 9B<br></td>
+        <td class="FachNeu ungerade">EN<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">We<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">10A<br></td>
+        <td class="FachNeu gerade">FÖD10<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            in Klasse!
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">1.<br></td>
+        <td class="LehrerNeu ungerade">Sa<br></td>
+        <td class="VertretungNeu ungerade">Ka<br></td>
+        <td class="KlasseNeu ungerade">10A<br></td>
+        <td class="FachNeu ungerade">D<br></td>
+        <td class="AnmerkungNeu ungerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu ungerade">.R-512<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">2.<br></td>
+        <td class="LehrerNeu gerade">We<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade">10A<br></td>
+        <td class="FachNeu gerade">FÖD10<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            in Klasse!
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Sa<br></td>
+        <td class="VertretungNeu ungerade">Ka<br></td>
+        <td class="KlasseNeu ungerade">10A<br></td>
+        <td class="FachNeu ungerade">D<br></td>
+        <td class="AnmerkungNeu ungerade">Zusammenlegung
+            <br></td>
+        <td class="RaumNeu ungerade">.R-512<br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">1.<br></td>
+        <td class="LehrerNeu gerade">Rie<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade"><br></td>
+        <td class="FachNeu gerade">FÖU<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">2.<br></td>
+        <td class="LehrerNeu ungerade">Rie<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade"><br></td>
+        <td class="FachNeu ungerade">FÖU<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">3.<br></td>
+        <td class="LehrerNeu gerade">Sa<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade"><br></td>
+        <td class="FachNeu gerade">FÖD8<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu ungerade">3.<br></td>
+        <td class="LehrerNeu ungerade">Bas<br></td>
+        <td class="VertretungNeu ungerade"><br></td>
+        <td class="KlasseNeu ungerade"><br></td>
+        <td class="FachNeu ungerade">FÖU<br></td>
+        <td class="AnmerkungNeu ungerade">fällt aus
+            <br></td>
+        <td class="RaumNeu ungerade"><br></td>
+    </tr>
+    <tr>
+        <td class="StundeNeu gerade">4.<br></td>
+        <td class="LehrerNeu gerade">Sa<br></td>
+        <td class="VertretungNeu gerade"><br></td>
+        <td class="KlasseNeu gerade"><br></td>
+        <td class="FachNeu gerade">FÖD8<br></td>
+        <td class="AnmerkungNeu gerade">fällt aus
+            <br></td>
+        <td class="RaumNeu gerade"><br></td>
+    </tr>
+</table>
+
+<!-- Manuelles Umblttern zur nchsten Seite
+  Die Zeichenfolge "Schüler.html" wird gegen den Dateinamen der Folgeseite ausgetauscht
+-->
+<p class="Weiter"><a href="Schüler.html">Weiter</a></p>
+<!-- Ende -->
+<hr>
+<p>
+    <small>
+
+        Erstellt mit: svPlan2019, Copyright &copy; 1988-2018,
+        <a href="https://www.haneke.de">Haneke Software, Siegburg</a>
+
+    </small>
+</p>
+
+</body>
+</html>
+

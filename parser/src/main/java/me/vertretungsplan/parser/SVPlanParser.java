@@ -314,12 +314,18 @@ public class SVPlanParser extends BaseParser {
     private void setDate(Element svp, Document doc, SubstitutionScheduleDay day) {
         String date = "Unbekanntes Datum";
         if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0) {
-            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").first().text().replaceAll
-                    ("Vertretungsplan( für)?:?", "").trim();
+            date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").first().text();
         } else if (doc.title().startsWith("Vertretungsplan für ")) {
             date = doc.title().substring("Vertretungsplan für ".length());
         }
-        date = date.replaceAll("\\s+", " ");
+        date = date.replaceAll("\\s+", " ").trim();
+
+        Pattern pattern = Pattern.compile("[^\\s]+, (?:den )?\\d+. [^\\s]+ \\d+");
+        Matcher matcher = pattern.matcher(date);
+        if (matcher.find()) {
+            date = matcher.group();
+        }
+
         day.setDateString(date);
         day.setDate(ParserUtils.parseDate(date));
         if (svp.select(".svp-uploaddatum, .Stand").size() > 0) {
