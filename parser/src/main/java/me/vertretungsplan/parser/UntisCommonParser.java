@@ -374,11 +374,11 @@ public abstract class UntisCommonParser extends BaseParser {
                                 v.setType("Eigenverantw. Arbeiten");
                                 v.setColor(colorProvider.getColor(v.getType()));
                             } else if (!isEmpty(text)) {
-                                handleTeacher(v, spalte, data);
+                                handleTeacher(v, spalte, data, false);
                             }
                             break;
                         case "previousTeacher":
-                            v.setPreviousTeachers(splitTeachers(text, data));
+                            handleTeacher(v, spalte, data, true);
                             break;
                         case "substitutionFrom":
                             v.setSubstitutionFrom(text);
@@ -618,11 +618,11 @@ public abstract class UntisCommonParser extends BaseParser {
                                 v.setType("Eigenverantw. Arbeiten");
                                 v.setColor(colorProvider.getColor(v.getType()));
                             } else if (!isEmpty(text) && teacherName == null) {
-                                handleTeacher(v, spalte, data);
+                                handleTeacher(v, spalte, data, false);
                             } // otherwise ignore - teacher is in extra line
                             break;
                         case "previousTeacher":
-                            v.setPreviousTeachers(splitTeachers(text, data));
+                            handleTeacher(v, spalte, data, true);
                             break;
                         case "desc":
                             v.setDesc(text);
@@ -715,7 +715,7 @@ public abstract class UntisCommonParser extends BaseParser {
         }
     }
 
-    static void handleTeacher(Substitution subst, Element cell, JSONObject data) {
+    static void handleTeacher(Substitution subst, Element cell, JSONObject data, boolean previousTeacher) {
         cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousTeachers(splitTeachers(cell.select("s").text(), data));
@@ -723,7 +723,11 @@ public abstract class UntisCommonParser extends BaseParser {
                 subst.setTeachers(splitTeachers(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""), data));
             }
         } else {
-            subst.setTeachers(splitTeachers(cell.text(), data));
+            if (previousTeacher) {
+                subst.setPreviousTeachers(splitTeachers(cell.text(), data));
+            } else {
+                subst.setTeachers(splitTeachers(cell.text(), data));
+            }
         }
     }
 
