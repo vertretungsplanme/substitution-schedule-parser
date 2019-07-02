@@ -45,6 +45,8 @@ import org.mozilla.universalchardet.UniversalDetector;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.HashSet;
@@ -78,6 +80,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     protected UniversalDetector encodingDetector;
     protected DebuggingDataHandler debuggingDataHandler;
     protected Sardine sardine;
+    private Path localSource;
 
     BaseParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         this.scheduleData = scheduleData;
@@ -321,20 +324,27 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
     protected String httpGet(String url, String encoding,
                              Map<String, String> headers) throws IOException, CredentialInvalidException {
-        Request request = Request.Get(url).connectTimeout(getTimeout())
-                .socketTimeout(getTimeout());
-        if (headers != null) {
-            for (Entry<String, String> entry : headers.entrySet()) {
-                request.addHeader(entry.getKey(), entry.getValue());
+        if (url.startsWith("local://")) {
+            Path file = localSource.resolve(url.substring("local://".length()));
+            byte[] bytes = Files.readAllBytes(file);
+            encoding = getEncoding(encoding, bytes);
+            return new String(bytes, encoding);
+        } else {
+            Request request = Request.Get(url).connectTimeout(getTimeout())
+                    .socketTimeout(getTimeout());
+            if (headers != null) {
+                for (Entry<String, String> entry : headers.entrySet()) {
+                    request.addHeader(entry.getKey(), entry.getValue());
+                }
             }
-        }
-        JSONObject jsonHeaders = scheduleData.getData().optJSONObject(PARAM_HEADERS);
-        if (jsonHeaders != null) {
-            for (String key : JSONObject.getNames(jsonHeaders)) {
-                request.addHeader(key, jsonHeaders.optString(key));
+            JSONObject jsonHeaders = scheduleData.getData().optJSONObject(PARAM_HEADERS);
+            if (jsonHeaders != null) {
+                for (String key : JSONObject.getNames(jsonHeaders)) {
+                    request.addHeader(key, jsonHeaders.optString(key));
+                }
             }
+            return executeRequest(encoding, request);
         }
-        return executeRequest(encoding, request);
     }
 
     @Nullable private String executeRequest(String encoding, Request request)
@@ -549,6 +559,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
 
         return processedClasses;
+    }
+
+    public void setLocalSource(Path localSource) {
+        this.localSource = localSource;
     }
 
     private class CustomHostnameVerifier implements HostnameVerifier {

@@ -26,6 +26,7 @@ dependencies {
     compile 'com.github.lookfirst:sardine:5.8'
     testCompile 'junit:junit:4.11'
     testCompile 'com.github.tomakehurst:wiremock:2.12.0'
+    testCompile 'com.google.jimfs:jimfs:1.1'
 }
 
 task javadoc(overwrite: true, type: Javadoc) {
