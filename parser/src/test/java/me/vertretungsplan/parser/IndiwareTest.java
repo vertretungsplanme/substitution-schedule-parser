@@ -54,6 +54,10 @@ public class IndiwareTest {
         assertTrue(matcher.matches());
         assertEquals(matcher.group(1), "FR");
         assertEquals(matcher.group(2), "Wen");
+
+        matcher = IndiwareParser.cancelPattern.matcher("DE fällt aus");
+        assertTrue(matcher.matches());
+        assertEquals(matcher.group(1), "DE");
     }
 
     @Test
