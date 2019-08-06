@@ -123,7 +123,7 @@ public class IndiwareParser extends BaseParser {
                     lastException = e;
                 }
             } else {
-                for (String url : ParserUtils.handleUrlWithDateFormat(urls.getString(i))) {
+                for (String url : ParserUtils.handleUrl(urls.getString(i))) {
                     try {
                         docs.add(httpGet(url, encoding));
                         successfulSchedules++;

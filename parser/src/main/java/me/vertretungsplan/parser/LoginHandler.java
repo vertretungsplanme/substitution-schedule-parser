@@ -18,6 +18,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.cookie.Cookie;
@@ -129,6 +130,7 @@ public class LoginHandler {
     private static final String PARAM_CHECK_URL = "checkUrl";
     private static final String PARAM_CHECK_TEXT = "checkText";
     private static final String PARAM_ENCODING = "encoding";
+    private static final String PARAM_HIDRIVE_SHARE_ID = "hidrive_share_id";
     private SubstitutionScheduleData scheduleData;
     private Credential auth;
     private CookieProvider cookieProvider;
@@ -152,6 +154,18 @@ public class LoginHandler {
 
     private String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
             IOException, CredentialInvalidException {
+        JSONObject data = scheduleData.getData();
+        if (data.has(PARAM_HIDRIVE_SHARE_ID)) {
+            // get token for Strato HiDrive shares
+            String hidriveId = data.getString(PARAM_HIDRIVE_SHARE_ID);
+            List<BasicNameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("id", hidriveId));
+            String response =
+                    executor.execute(Request.Post("https://my.hidrive.com/api/share/token")
+                            .body(new UrlEncodedFormEntity(params))).returnContent().asString();
+            return new JSONObject(response).getString("access_token");
+        }
+
         if (auth == null) return null;
         if (!(auth instanceof UserPasswordCredential || auth instanceof PasswordCredential)) {
             throw new IllegalArgumentException("Wrong authentication type");
@@ -167,7 +181,6 @@ public class LoginHandler {
             password = ((PasswordCredential) auth).getPassword();
         }
 
-        JSONObject data = scheduleData.getData();
         JSONObject loginConfig = data.getJSONObject(LOGIN_CONFIG);
         String type = loginConfig.optString(PARAM_TYPE, "post");
         switch (type) {

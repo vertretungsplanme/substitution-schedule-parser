@@ -12,8 +12,6 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import org.apache.http.client.HttpResponseException;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,8 +23,6 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://untis.de/">Untis</a> software
@@ -104,7 +100,7 @@ public class UntisSubstitutionParser extends UntisCommonParser {
 
         int successfulSchedules = 0;
         HttpResponseException lastExceptionSchedule = null;
-        for (String baseUrl:ParserUtils.handleUrlsWithDateFormat(urls)) {
+        for (String baseUrl : ParserUtils.handleUrls(urls)) {
             try {
                 Document doc = Jsoup.parse(this.httpGet(baseUrl, encoding));
                 Elements classes = doc.select("td a");

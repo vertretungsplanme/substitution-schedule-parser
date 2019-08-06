@@ -10,6 +10,7 @@ package me.vertretungsplan.parser;
 
 import com.mifmif.common.regex.Generex;
 import com.paour.comparator.NaturalOrderComparator;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.joda.time.DateTime;
@@ -208,7 +209,31 @@ class ParserUtils {
         return null;
     }
 
-    static List<String> handleUrlWithDateFormat(String url) {
+    static List<String> handleUrl(String inputUrl) {
+        return handleUrl(inputUrl, null);
+    }
+
+    static List<String> handleUrl(String inputUrl, String loginResponse) {
+        List<String> urls = handleUrlWithDateFormat(inputUrl);
+        List<String> urlsWithHidrive = new ArrayList<>();
+        for (String url : urls) {
+            urlsWithHidrive.add(handleUrlWithHidriveToken(url, loginResponse));
+        }
+        return urlsWithHidrive;
+    }
+
+    private static String handleUrlWithHidriveToken(String url, String loginResponse) {
+        if (loginResponse == null) return url;
+        Pattern hidrivePattern = Pattern.compile("\\{hidrive-token\\}");
+        Matcher matcher = hidrivePattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.replaceFirst(loginResponse);
+        } else {
+            return url;
+        }
+    }
+
+    @NotNull private static List<String> handleUrlWithDateFormat(String url) {
         List<String> urls = new ArrayList<>();
         Pattern dateFormatPattern = Pattern.compile("\\{date\\(([^)]+)\\)\\}");
         Matcher matcher = dateFormatPattern.matcher(url);
@@ -226,12 +251,16 @@ class ParserUtils {
         return urls;
     }
 
-    static List<String> handleUrlsWithDateFormat(List<String> urls) {
+    static List<String> handleUrls(List<String> urls, String loginResponse) {
         List<String> urlsWithDate = new ArrayList<>();
         for (String url:urls) {
-            urlsWithDate.addAll(handleUrlWithDateFormat(url));
+            urlsWithDate.addAll(handleUrl(url, loginResponse));
         }
         return urlsWithDate;
+    }
+
+    static List<String> handleUrls(List<String> urls) {
+        return handleUrls(urls, null);
     }
 
 
