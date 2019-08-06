@@ -80,4 +80,8 @@ ext {
     developerEmail = 'info@vertretungsplan.me'
 }
 
+test {
+    maxHeapSize = "1g"
+}
+
 apply from: 'bintray.gradle'
