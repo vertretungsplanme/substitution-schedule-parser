@@ -155,15 +155,15 @@ public class LoginHandler {
     private String handleLogin(Executor executor, CookieStore cookieStore, boolean needsResponse) throws JSONException,
             IOException, CredentialInvalidException {
         JSONObject data = scheduleData.getData();
+        String hidriveResponse = null;
         if (data.has(PARAM_HIDRIVE_SHARE_ID)) {
             // get token for Strato HiDrive shares
             String hidriveId = data.getString(PARAM_HIDRIVE_SHARE_ID);
             List<BasicNameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("id", hidriveId));
-            String response =
+            hidriveResponse =
                     executor.execute(Request.Post("https://my.hidrive.com/api/share/token")
                             .body(new UrlEncodedFormEntity(params))).returnContent().asString();
-            return new JSONObject(response).getString("access_token");
         }
 
         if (auth == null) return null;
@@ -360,6 +360,6 @@ public class LoginHandler {
                 }
                 break;
         }
-        return null;
+        return hidriveResponse;
     }
 }
