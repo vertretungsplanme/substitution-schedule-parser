@@ -161,9 +161,9 @@ public class LoginHandler {
             String hidriveId = data.getString(PARAM_HIDRIVE_SHARE_ID);
             List<BasicNameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("id", hidriveId));
-            hidriveResponse =
-                    executor.execute(Request.Post("https://my.hidrive.com/api/share/token")
-                            .body(new UrlEncodedFormEntity(params))).returnContent().asString();
+            String resp = executor.execute(Request.Post("https://my.hidrive.com/api/share/token")
+                    .body(new UrlEncodedFormEntity(params))).returnContent().asString();
+            hidriveResponse = new JSONObject(resp).getString("access_token");
         }
 
         if (auth == null) return null;
