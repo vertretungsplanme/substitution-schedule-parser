@@ -228,7 +228,7 @@ public class IphisParser extends BaseParser {
             }
             throw httpResponseException;
         } catch (JSONException e) {
-            return new JSONArray();
+            throw new IOException(e);
         }
     }
 
