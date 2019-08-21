@@ -77,6 +77,11 @@ import java.util.regex.Pattern;
  * automatically set to "Entfall" (cancellation) depending on the values of other columns.
  * Default: <code>true</code></dd>
  *
+ * <dt><code>allClassesCourses</code> (Array of Strings, optional)</dt>
+ * <dd>If a class included in this array is given on the schedule, this will be replaced by a list of all classes.
+ * This is useful for courses that all or multiple classes can attend, but that are saved as a separate class in Untis.
+ * Default: empty</dd>
+ *
  * </dl>
  */
 public abstract class UntisCommonParser extends BaseParser {
@@ -91,6 +96,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_EXCLUDE_CLASSES = "excludeClasses";
     private static final String PARAM_TYPE_AUTO_DETECTION = "typeAutoDetection";
     private static final String PARAM_MERGE_WITH_DIFFERENT_TYPE = "mergeWithDifferentType";
+    private static final String PARAM_ALL_CLASSES_COURSES = "allClassesCourses";
 
     private static ColumnTypeDetector detector;
 
@@ -438,6 +444,17 @@ public abstract class UntisCommonParser extends BaseParser {
     static void handleClasses(JSONObject data, Substitution v, String klassen, List<String> allClasses)
             throws JSONException, CredentialInvalidException {
         List<String> affectedClasses;
+
+        if (data.has(PARAM_ALL_CLASSES_COURSES)) {
+            JSONArray arr = data.getJSONArray(PARAM_ALL_CLASSES_COURSES);
+            for (int i = 0; i < arr.length(); i++) {
+                String s = arr.getString(i);
+                if (klassen.equals(s)) {
+                    v.getClasses().addAll(allClasses);
+                    return;
+                }
+            }
+        }
 
         // Detect things like "7"
         Pattern singlePattern = Pattern.compile("(\\d{1,2})");
