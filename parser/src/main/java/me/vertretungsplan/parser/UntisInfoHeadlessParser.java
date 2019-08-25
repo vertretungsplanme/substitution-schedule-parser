@@ -83,9 +83,8 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
             doc = Jsoup.parse(httpGet(frames.get(0).absUrl("src"), data.optString(PARAM_ENCODING, null)));
             dayElems = doc.select("#vertretung > p > b, #vertretung > b");
         } else if (dayElems.size() == 0) {
-            // seen at GHS Berlin
-            dayElems = doc.select("body > center > font > p > b, " +
-                    "body > center > font > #vertretung > center > font > p > b");
+            // seen at GHS Berlin, different kinds of center > font > center ... stacked (sometimes within #vertretung)
+            dayElems = doc.select("center > font > p > b");
         }
 
         final List<String> allClasses = getAllClasses();
