@@ -464,11 +464,13 @@ public abstract class UntisCommonParser extends BaseParser {
         Pattern rangePattern = Pattern.compile("(\\d+) ?- ?(\\d+)");
         Matcher rangeMatcher = rangePattern.matcher(klassen);
         boolean singleClassLooksLikeRange = false;
-        for (String klass: allClasses) {
-            // disable range detection if single classes (e.g. "05-1") look like a range
-            if (rangePattern.matcher(klass).matches()) {
-                singleClassLooksLikeRange = true;
-                break;
+        if (allClasses != null) {
+            for (String klass : allClasses) {
+                // disable range detection if single classes (e.g. "05-1") look like a range
+                if (rangePattern.matcher(klass).matches()) {
+                    singleClassLooksLikeRange = true;
+                    break;
+                }
             }
         }
 
