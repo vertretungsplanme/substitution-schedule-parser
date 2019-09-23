@@ -503,8 +503,11 @@ public abstract class UntisCommonParser extends BaseParser {
             } else {
                 affectedClasses = new ArrayList<>();
 
+                if (allClasses.contains(klassen)) {
+                    affectedClasses.add(klassen);
+                }
                 if (klassen.matches("([\\d]{1,2}[a-zA-Z]+)+")) {
-                    // we have something like 8abcde9abcd
+                    // we have something like 8ab9abc -> 8a, 8b, 9a, 9b, 9c
                     Pattern pattern = Pattern.compile("([\\d]{1,2})([a-zA-Z]+)");
                     Matcher matcher = pattern.matcher(klassen);
                     while (matcher.find()) {
@@ -515,7 +518,20 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                         }
                     }
-
+                } else if (singleClassLooksLikeRange && klassen.matches("(\\d{1,2})-(\\d+)")) {
+                    // we have something like 09-234 -> 09-2, 09-3, 09-4
+                    Pattern pattern = Pattern.compile("(\\d{1,2})-(\\d+)");
+                    Matcher matcher = pattern.matcher(klassen);
+                    if (matcher.find()) {
+                        String base = matcher.group(1);
+                        for (char number : matcher.group(2).toCharArray()) {
+                            if (allClasses.contains(base + "-" + number)) {
+                                affectedClasses.add(base + "-" + number);
+                            }
+                        }
+                    } else {
+                        affectedClasses.add(klassen);
+                    }
                 } else {
                     // fallback solution for backwards compatibility
                     for (String klasse : allClasses) { // TODO: is there a better way?
