@@ -207,7 +207,15 @@ public class UntisMonitorParser extends UntisCommonParser {
             if (following && doc.select("meta[http-equiv=refresh]").size() > 0) {
                 Element meta = doc.select("meta[http-equiv=refresh]").first();
                 String attr = meta.attr("content").toLowerCase();
-                String redirectUrl = url.substring(0, url.lastIndexOf("/") + 1) + attr.substring(attr.indexOf("url=") + 4);
+                String redirectUrl = attr.substring(attr.indexOf("url=") + 4);
+                Matcher ownCloudMatcher =
+                        Pattern.compile("index\\.php/s/[\\w]+/download\\?path=([^&]+)&files=([^&]+)").matcher(url);
+                if (ownCloudMatcher.find()) {
+                    redirectUrl = url.substring(0, ownCloudMatcher.start(2)) + redirectUrl
+                            + url.substring(ownCloudMatcher.end(2));
+                } else {
+                    redirectUrl = url.substring(0, url.lastIndexOf("/") + 1) + redirectUrl;
+                }
                 if (!redirectUrl.equals(startUrl) && recursionDepth < MAX_RECURSION_DEPTH) {
                     loadUrl(redirectUrl, encoding, true, docs, startUrl, recursionDepth + 1);
                 }
