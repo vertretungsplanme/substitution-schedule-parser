@@ -97,6 +97,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_TYPE_AUTO_DETECTION = "typeAutoDetection";
     private static final String PARAM_MERGE_WITH_DIFFERENT_TYPE = "mergeWithDifferentType";
     private static final String PARAM_ALL_CLASSES_COURSES = "allClassesCourses";
+    private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
 
     private static ColumnTypeDetector detector;
 
@@ -711,7 +712,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 } else if (klassen != null) {
                     handleClasses(data, v, klassen, getAllClasses());
                 }
-                if (teacherName != null) {
+                if (teacherName != null && !data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
                     v.setTeacher(teacherName);
                 }
 
@@ -759,6 +760,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     static void handleTeacher(Substitution subst, Element cell, JSONObject data, boolean previousTeacher) {
+        if (data.optBoolean(PARAM_EXCLUDE_TEACHERS)) return;
         cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousTeachers(splitTeachers(cell.select("s").text(), data));
