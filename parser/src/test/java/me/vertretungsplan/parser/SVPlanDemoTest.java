@@ -67,20 +67,22 @@ public class SVPlanDemoTest extends BaseDemoTest {
         SubstitutionScheduleDay day = schedule.getDays().get(0);
 
         assertEquals(new LocalDate(2016, 9, 2), day.getDate());
-        assertEquals(14, day.getSubstitutions().size());
+        assertEquals(16, day.getSubstitutions().size());
         assertEquals(1, day.getMessages().size());
         assertEquals("Ordnungsdienst:9BR<br>", day.getMessages().get(0));
 
         for (Substitution subst : day.getSubstitutions()) {
-            assertTrue(subst.getClasses().size() == 1);
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
-            assertNotEmpty(subst.getSubject());
             assertNullOrNotEmpty(subst.getRoom());
             assertNullOrNotEmpty(subst.getTeacher());
             assertNullOrNotEmpty(subst.getPreviousTeacher());
             assertNullOrNotEmpty(subst.getDesc());
             assertNotEmpty(subst.getType());
+            if (!subst.getType().equals("Pausenaufsicht")) {
+                assertEquals(1, subst.getClasses().size());
+                assertNotEmpty(subst.getSubject());
+            }
         }
     }
 
