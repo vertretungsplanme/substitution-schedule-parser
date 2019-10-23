@@ -276,6 +276,7 @@ public class SVPlanParser extends BaseParser {
                     if (row.hasClass("svp-aufs-header")) continue;
                     Substitution substitution = new Substitution();
                     substitution.setType("Pausenaufsicht");
+                    substitution.setColor(colorProvider.getColor("Pausenaufsicht"));
 
                     for (Element column : row.select("td")) {
                         String type = column.className();
