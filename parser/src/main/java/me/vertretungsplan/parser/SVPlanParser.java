@@ -267,6 +267,43 @@ public class SVPlanParser extends BaseParser {
                     }
                 }
             }
+
+            Elements aufsichtTable = svp.select(".svp-pausenaufsicht");
+            if (aufsichtTable.size() > 0) {
+                Elements rows = aufsichtTable.select("tr");
+                String lastTime = "";
+                for (Element row : rows) {
+                    if (row.hasClass("svp-aufs-header")) continue;
+                    Substitution substitution = new Substitution();
+                    substitution.setType("Pausenaufsicht");
+
+                    for (Element column : row.select("td")) {
+                        String type = column.className();
+                        if (!hasData(column.text())) {
+                            if ((type.startsWith("svp-aufs-zeit")) && hasData(lastTime)) {
+                                substitution.setLesson(lastTime);
+                            }
+                            continue;
+                        }
+                        if (type.startsWith("svp-aufs-zeit")) {
+                            substitution.setLesson(column.text());
+                            lastTime = column.text();
+                        } else if (type.startsWith("svp-aufs-esfehlt")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setPreviousTeacher(column.text());
+                            }
+                        } else if (type.startsWith("svp-esvertritt")) {
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+                            }
+                        } else if (type.startsWith("svp-aufs-ort")) {
+                            substitution.setRoom(column.text());
+                        }
+                    }
+
+                    day.addSubstitution(substitution);
+                }
+            }
             v.addDay(day);
         } else {
             throw new IOException("keine SVPlan-Tabelle gefunden");
