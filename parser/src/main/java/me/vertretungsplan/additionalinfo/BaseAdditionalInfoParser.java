@@ -30,6 +30,9 @@ import java.io.IOException;
  * Parser that creates {@link AdditionalInfo}s.
  */
 public abstract class BaseAdditionalInfoParser {
+
+    public static final int TIMEOUT = 10 * 1000;
+
     protected BaseAdditionalInfoParser() {
     }
 
@@ -95,6 +98,9 @@ public abstract class BaseAdditionalInfoParser {
 
     @SuppressWarnings("SameParameterValue")
     protected String httpGet(String url, String encoding) throws IOException {
-        return new String(Request.Get(url).execute().returnContent().asBytes(), encoding);
+        return new String(Request.Get(url)
+                .connectTimeout(TIMEOUT)
+                .socketTimeout(TIMEOUT)
+                .execute().returnContent().asBytes(), encoding);
     }
 }
