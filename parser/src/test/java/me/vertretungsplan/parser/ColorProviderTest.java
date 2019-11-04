@@ -25,6 +25,7 @@ public class ColorProviderTest {
         final ColorProvider provider = new ColorProvider(scheduleData);
 
         assertEquals("#2196F3", provider.getColor("Vertretung"));
+        assertEquals("#9C27B0", provider.getColor("XYZ"));
     }
 
     @Test
@@ -55,5 +56,20 @@ public class ColorProviderTest {
         final ColorProvider provider = new ColorProvider(scheduleData);
 
         assertEquals("#123456", provider.getColor("Vertretung"));
+    }
+
+    @Test
+    public void testCustomDefaultColor() throws JSONException {
+        final SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
+        final JSONObject data = new JSONObject();
+        final JSONObject colors = new JSONObject();
+        final JSONArray values = new JSONArray();
+        values.put("_default");
+        colors.put("#123456", values);
+        data.put("colors", colors);
+        scheduleData.setData(data);
+        final ColorProvider provider = new ColorProvider(scheduleData);
+
+        assertEquals("#123456", provider.getColor("XYZ"));
     }
 }

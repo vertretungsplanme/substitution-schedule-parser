@@ -97,6 +97,7 @@ public class ColorProvider {
     }
 
     private HashMap<String, String> colorMap = new HashMap<>();
+    private String defaultColor = colorNames.get("purple");
 
     ColorProvider(SubstitutionScheduleData data) {
         try {
@@ -110,7 +111,12 @@ public class ColorProvider {
                         color = colorNames.get(color);
                     }
                     for (int i = 0; i < values.length(); i++) {
-                        colorMap.put(values.getString(i).toLowerCase(), color);
+                        String name = values.getString(i).toLowerCase();
+                        if (name.equals("_default")) {
+                            defaultColor = color;
+                        } else {
+                            colorMap.put(name, color);
+                        }
                     }
                 }
             }
@@ -137,7 +143,7 @@ public class ColorProvider {
         } else if (defaultColorMap.containsKey(type.toLowerCase())) {
             return defaultColorMap.get(type.toLowerCase());
         } else {
-            return colorNames.get("purple");
+            return defaultColor;
         }
     }
 }
