@@ -28,6 +28,7 @@ public class SubstitutionScheduleDay implements Cloneable {
     private String lastChangeString;
     private Set<Substitution> substitutions;
     private List<String> messages;
+    private String comment;
 
     public SubstitutionScheduleDay() {
         substitutions = new HashSet<>();
@@ -174,6 +175,24 @@ public class SubstitutionScheduleDay implements Cloneable {
     }
 
     /**
+     * Get the comment for this day (displayed next to the date - e.g. "A-Woche")
+     *
+     * @return the comment for this day
+     */
+    public String getComment() {
+        return comment;
+    }
+
+    /**
+     * Set the comment for this day (displayed next to the date - e.g. "A-Woche")
+     *
+     * @param comment the comment for this day
+     */
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    /**
      * Add a substitution for this day
      *
      * @param substitution the substitution to add
@@ -299,6 +318,7 @@ public class SubstitutionScheduleDay implements Cloneable {
         StringBuilder builder = new StringBuilder();
 
         builder.append(getDateString()).append("\n");
+        if (getComment() != null) builder.append(getComment()).append("\n");
         builder.append("----------------------\n\n");
 
         if (getLastChangeString() != null) {
@@ -338,6 +358,7 @@ public class SubstitutionScheduleDay implements Cloneable {
                 .append(lastChangeString, that.lastChangeString)
                 .append(substitutions, that.substitutions)
                 .append(messages, that.messages)
+                .append(comment, that.comment)
                 .isEquals();
     }
 
@@ -349,6 +370,7 @@ public class SubstitutionScheduleDay implements Cloneable {
                 .append(lastChangeString)
                 .append(substitutions)
                 .append(messages)
+                .append(comment)
                 .toHashCode();
     }
 }
