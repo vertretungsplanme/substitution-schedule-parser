@@ -851,6 +851,12 @@ public abstract class UntisCommonParser extends BaseParser {
         day.setDateString(date);
         day.setDate(ParserUtils.parseDate(date));
 
+        Pattern weekTypePattern = Pattern.compile("Woche [A-Z]");
+        Matcher matcher = weekTypePattern.matcher(date);
+        if (matcher.find()) {
+            day.setComment(matcher.group());
+        }
+
         if (!scheduleData.getData().has(PARAM_LAST_CHANGE_SELECTOR)) {
             String lastChange = findLastChange(doc, scheduleData);
             day.setLastChangeString(lastChange);
