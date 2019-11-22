@@ -446,7 +446,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    String getClassName(String text, JSONObject data) throws JSONException {
+    static String getClassName(String text, JSONObject data) throws JSONException {
         text = text.replace("(", "").replace(")", "");
         if (data.has(PARAM_CLASS_REGEX)) {
             Pattern pattern = Pattern.compile(data.getString(PARAM_CLASS_REGEX));

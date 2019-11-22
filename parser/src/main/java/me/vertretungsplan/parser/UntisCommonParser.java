@@ -394,7 +394,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setTeacherTo(text);
                             break;
                         case "class":
-                            klassen = getClassName(text, data);
+                            klassen = text;
                             break;
                         case "ignore":
                             break;
@@ -554,8 +554,9 @@ public abstract class UntisCommonParser extends BaseParser {
         }
 
         for (String klasse : affectedClasses) {
-            if (isValidClass(klasse, data)) {
-                v.getClasses().add(klasse);
+            String name = getClassName(klasse, data);
+            if (isValidClass(name, data)) {
+                v.getClasses().add(name);
             }
         }
     }
