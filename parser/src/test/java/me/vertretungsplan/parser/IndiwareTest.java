@@ -90,6 +90,13 @@ public class IndiwareTest {
     }
 
     @Test
+    public void testDelayPatternShift() {
+        // complicated case, we do not want delayPattern to match here
+        Matcher matcher = IndiwareParser.delayPattern.matcher("statt Fr (06.12.) St.5; EN BÄR verlegt nach Fr (06.12.) St.5, Klassenarbeit");
+        assertFalse(matcher.matches());
+    }
+
+    @Test
     public void testSelfPattern() {
         Matcher matcher = IndiwareParser.selfPattern.matcher("selbst.");
         assertTrue(matcher.matches());
