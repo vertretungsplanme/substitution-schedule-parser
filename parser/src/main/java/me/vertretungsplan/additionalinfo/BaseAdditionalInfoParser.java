@@ -11,6 +11,8 @@ import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilIcalParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilRSSParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilStudentMessagesParser;
 import me.vertretungsplan.additionalinfo.amgrottweil.AmgRottweilTeacherMessagesParser;
+import me.vertretungsplan.additionalinfo.blsschleswig.lsschleswig.BlsSchleswigIcalParser;
+import me.vertretungsplan.additionalinfo.blsschleswig.lsschleswig.BlsSchleswigRSSParser;
 import me.vertretungsplan.additionalinfo.bmrtrier.BmrTrierRSSParser;
 import me.vertretungsplan.additionalinfo.eichendorffgymkoblenz.EichendorffGymKoblenzIcalParser;
 import me.vertretungsplan.additionalinfo.esbkgelsenkirchen.EsbkGelsenkirchenIcalParser;
@@ -59,6 +61,12 @@ public abstract class BaseAdditionalInfoParser {
                 break;
             case "amgrottweil-ical":
                 parser = new AmgRottweilIcalParser();
+                break;
+            case "blsschleswig-rss":
+                parser = new BlsSchleswigRSSParser();
+                break;
+            case "blsschleswig-ical":
+                parser = new BlsSchleswigIcalParser();
                 break;
             case "lsschleswig-rss":
                 parser = new LsSchleswigRSSParser();
