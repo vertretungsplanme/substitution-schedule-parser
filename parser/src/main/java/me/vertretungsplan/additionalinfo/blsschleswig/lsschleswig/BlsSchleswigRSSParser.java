@@ -12,6 +12,6 @@ import me.vertretungsplan.additionalinfo.BaseRSSFeedParser;
 
 public class BlsSchleswigRSSParser extends BaseRSSFeedParser {
     @Override protected String getRSSUrl() {
-        return "http://bruno-lorenzen-schule.de/feed";
+        return "http://bruno-lorenzen-schule.de/?feed=rss2";
     }
 }
