@@ -86,6 +86,16 @@ public class TurboVertretungParser extends BaseParser {
             String[] parts = html.split("<p class=\"Titel\">");
             for (int i = 1; i < parts.length; i++) {
                 Document partDoc = Jsoup.parse("<p class=\"Titel\">" + parts[i]);
+
+                if (partDoc.select(".Trennlinie").size() == 2) {
+                    Element nextElement = partDoc.select(".Trennlinie").first().nextElementSibling();
+                    if ("Trennlinie".equals(nextElement.className())) {
+                        // empty part. This can happen when the maximum page size is extremely small...
+                        continue;
+                    }
+                }
+
+
                 parseTurboVertretungDay(v, partDoc);
             }
         }
