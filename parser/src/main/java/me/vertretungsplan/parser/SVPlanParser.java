@@ -65,6 +65,11 @@ import java.util.regex.Pattern;
  * <dt><code>repeatClass</code> (Boolean, optional, Default: <code>true</code>)</dt>
  * <dd>Whether an empty class column means that there is no class associated with this substitution (false) or that
  * the class from the previous row should be used (true).</dd>
+ *
+ * <dt><code>forceAllPages</code> (Boolean, optional, default: false)</dt>
+ * <dd>If one page was loaded successfully, but additional pages failed due to HTTP error codes, don't ignore
+ * these errors
+ * </dd>
  * </dl>
  *
  * Additionally, this parser supports the parameters specified in {@link LoginHandler} for login-protected schedules.
@@ -76,6 +81,7 @@ public class SVPlanParser extends BaseParser {
     private static final String PARAM_CLASS_SEPARATOR = "classSeparator";
     private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
     private static final String PARAM_REPEAT_CLASS = "repeatClass";
+    private static final String PARAM_FORCE_ALL_PAGES = "forceAllPages";
     private JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
@@ -110,14 +116,22 @@ public class SVPlanParser extends BaseParser {
                         docs.add(Jsoup.parse(httpPost(url, encoding, nvps).replace("&nbsp;", "")));
                         successfulSchedules++;
                     } catch (IOException e) {
-                        lastException = e;
+                        if (data.optBoolean(PARAM_FORCE_ALL_PAGES)) {
+                            throw e;
+                        } else {
+                            lastException = e;
+                        }
                     }
                 } else {
                     try {
                         docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
                         successfulSchedules++;
                     } catch (IOException e) {
-                        lastException = e;
+                        if (data.optBoolean(PARAM_FORCE_ALL_PAGES)) {
+                            throw e;
+                        } else {
+                            lastException = e;
+                        }
                     }
                 }
             } else {
@@ -126,7 +140,11 @@ public class SVPlanParser extends BaseParser {
                     docs.add(Jsoup.parse(httpGet(url, encoding).replace("&nbsp;", "")));
                     successfulSchedules++;
                 } catch (IOException e) {
-                    lastException = e;
+                    if (data.optBoolean(PARAM_FORCE_ALL_PAGES)) {
+                        throw e;
+                    } else {
+                        lastException = e;
+                    }
                 }
             }
         }
