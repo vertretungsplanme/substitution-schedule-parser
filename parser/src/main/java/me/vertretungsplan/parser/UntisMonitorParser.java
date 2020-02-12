@@ -195,8 +195,10 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.text().contains("registriert")) {
                 throw new CredentialInvalidException();
             } else {
-                if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
-                    // ignore if first page was loaded and redirect didn't work
+                if ((docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) &&
+                        !doc.select(".alert-danger").text().contains("Kein Inhalt verfügbar")) {
+                    // ignore if first page was loaded and redirect didn't work,
+                    // or on IServ with message "Kein Inhalt verfügbar"
                     throw new IOException("Could not find .mon-title, seems like there is no Untis " +
                             "schedule here");
                 }
