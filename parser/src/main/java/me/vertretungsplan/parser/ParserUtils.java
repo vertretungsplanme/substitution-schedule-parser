@@ -10,6 +10,7 @@ package me.vertretungsplan.parser;
 
 import com.mifmif.common.regex.Generex;
 import com.paour.comparator.NaturalOrderComparator;
+import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -23,10 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.io.IOException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -224,13 +223,40 @@ class ParserUtils {
 
     private static String handleUrlWithHidriveToken(String url, String loginResponse) {
         if (loginResponse == null) return url;
-        Pattern hidrivePattern = Pattern.compile("\\{hidrive-token\\}");
-        Matcher matcher = hidrivePattern.matcher(url);
+        Pattern hidriveTokenPattern = Pattern.compile("\\{hidrive-token\\}");
+        Matcher matcher = hidriveTokenPattern.matcher(url);
         if (matcher.find()) {
-            return matcher.replaceFirst(loginResponse);
-        } else {
-            return url;
+            url = matcher.replaceFirst(loginResponse);
         }
+
+        Pattern hidrivePattern = Pattern.compile("\\{hidrive-pid\\(([^)]+)\\)\\}");
+        matcher = hidrivePattern.matcher(url);
+        if (matcher.find()) {
+            String[] path = matcher.group(1).split("/");
+            String filename = path[path.length - 1];
+            String filepath = String.join("/", Arrays.copyOfRange(path, 0, path.length - 1));
+
+            String apiUrl = "https://my.hidrive.com/api/dir?path=" + filepath + "&fields=members.name%2Cmembers" +
+                    ".id&members=all&limit=0%2C5000";
+            Request request = Request.Get(apiUrl).connectTimeout(1000).socketTimeout(1000)
+                    .addHeader("Authorization", "Bearer " + loginResponse);
+            try {
+                JSONObject result = new JSONObject(request.execute().returnContent().asString());
+                JSONArray members = result.getJSONArray("members");
+                for (int i = 0; i < members.length(); i++) {
+                    JSONObject file = members.getJSONObject(i);
+                    if (file.getString("name").equals(filename)) {
+                        url = matcher.replaceFirst(file.getString("id"));
+                        break;
+                    }
+                }
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return url;
     }
 
     @NotNull private static List<String> handleUrlWithDateFormat(String url) {
