@@ -72,7 +72,12 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
-        return getClassesFromJson();
+        List<String> classes = getClassesFromJson();
+        if (classes == null) {
+            classes = new ArrayList<>();
+            classes.add("");
+        }
+        return classes;
     }
 
     @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
