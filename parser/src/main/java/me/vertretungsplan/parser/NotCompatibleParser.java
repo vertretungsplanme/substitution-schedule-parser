@@ -48,10 +48,16 @@ public class NotCompatibleParser extends BaseParser {
         subst.setColor("#F44336");
         today.addSubstitution(subst);
 
+        String appName = null;
+        if (scheduleData.getApi().equals("dsbmobile")) {
+            appName = "DSBmobile";
+        } else if (scheduleData.getApi().equals("webuntis")) {
+            appName = "Untis Mobile";
+        }
         today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
                 "abgerufen werden. " +
-                (scheduleData.getApi().equals("dsbmobile") ? "Als Alternative kannst du vorerst die offizielle " +
-                        "App \"DSBmobile\" nutzen. " : "") +
+                (appName != null ? "Als Alternative kannst du vorerst die offizielle " +
+                        "App \"" + appName + "\" nutzen. " : "") +
                 "Falls Sie eine Lehrkraft oder Schulleiter/-in an der Schule sind, melden Sie sich " +
                 "bitte unter info@vertretungsplan.me bei uns, um herauszufinden, wie der Plan wieder in die App " +
                 "aufgenommen werden kann. Falls Sie die Pro-Version der App gekauft haben, können wir " +
