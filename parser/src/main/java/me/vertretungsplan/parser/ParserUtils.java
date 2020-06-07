@@ -174,7 +174,12 @@ class ParserUtils {
         if (string == null) return null;
         reinitIfNeeded();
 
-        string = string.replace("Stand:", "").replace("Import:", "").replaceAll(", Woche [A-Z]", "").trim();
+        string = string
+                .replace("Stand:", "")
+                .replace("Import:", "")
+                .replaceAll(", Woche [A-Z]", "")
+                .replaceAll(", .*unterricht Gruppe .*", "")
+                .trim();
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
             try {

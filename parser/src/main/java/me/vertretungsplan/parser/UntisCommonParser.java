@@ -852,7 +852,7 @@ public abstract class UntisCommonParser extends BaseParser {
         day.setDateString(date);
         day.setDate(ParserUtils.parseDate(date));
 
-        Pattern weekTypePattern = Pattern.compile("Woche [A-Z]");
+        Pattern weekTypePattern = Pattern.compile("Woche [A-Z]|[^\\s]*unterricht Gruppe .*");
         Matcher matcher = weekTypePattern.matcher(date);
         if (matcher.find()) {
             day.setComment(matcher.group());
