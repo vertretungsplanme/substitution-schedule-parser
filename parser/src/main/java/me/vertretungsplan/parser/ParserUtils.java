@@ -179,6 +179,7 @@ class ParserUtils {
                 .replace("Import:", "")
                 .replaceAll(", Woche [A-Z]", "")
                 .replaceAll(", .*unterricht Gruppe .*", "")
+                .replaceAll(", Unterrichts.* Gruppe .*", "")
                 .trim();
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
