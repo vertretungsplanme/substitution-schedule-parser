@@ -28,7 +28,7 @@ public class UntisCommonParserTest {
         Element cell = Jsoup.parse("<table><td>224</td></table>")
                 .select("td").first();
 
-        UntisCommonParser.handleRoom(subst, cell);
+        UntisCommonParser.handleRoom(subst, cell, false);
         assertEquals(null, subst.getPreviousRoom());
         assertEquals("224", subst.getRoom());
     }
@@ -39,7 +39,7 @@ public class UntisCommonParserTest {
         Element cell = Jsoup.parse("<table><td><s>264</s></td></table>")
                 .select("td").first();
 
-        UntisCommonParser.handleRoom(subst, cell);
+        UntisCommonParser.handleRoom(subst, cell, false);
         assertEquals("264", subst.getPreviousRoom());
         assertEquals(null, subst.getRoom());
     }
@@ -50,7 +50,7 @@ public class UntisCommonParserTest {
         Element cell = Jsoup.parse("<table><td><s>248</s>?236</td></table>")
                 .select("td").first();
 
-        UntisCommonParser.handleRoom(subst, cell);
+        UntisCommonParser.handleRoom(subst, cell, false);
         assertEquals("248", subst.getPreviousRoom());
         assertEquals("236", subst.getRoom());
     }
@@ -61,7 +61,7 @@ public class UntisCommonParserTest {
         Element cell = Jsoup.parse("<table><td><span style=\"color: #010101\"><s>248</s>?236</span></td></table>")
                 .select("td").first();
 
-        UntisCommonParser.handleRoom(subst, cell);
+        UntisCommonParser.handleRoom(subst, cell, false);
         assertEquals("248", subst.getPreviousRoom());
         assertEquals("236", subst.getRoom());
     }
