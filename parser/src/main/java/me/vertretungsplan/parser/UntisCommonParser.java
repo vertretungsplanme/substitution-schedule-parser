@@ -332,7 +332,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setLesson(text);
                             break;
                         case "subject":
-                            handleSubject(v, spalte);
+                            handleSubject(v, spalte, false);
                             if (course != null) {
                                 v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
@@ -346,7 +346,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "previousSubject":
-                            v.setPreviousSubject(text);
+                            handleSubject(v, spalte, true);
                             break;
                         case "type":
                             v.setType(text);
@@ -362,10 +362,10 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "room":
-                            handleRoom(v, spalte);
+                            handleRoom(v, spalte, false);
                             break;
                         case "previousRoom":
-                            v.setPreviousRoom(text);
+                            handleRoom(v, spalte, true);
                             break;
                         case "desc":
                             v.setDesc(text);
@@ -626,7 +626,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setLesson(text);
                             break;
                         case "subject":
-                            handleSubject(v, spalte);
+                            handleSubject(v, spalte, false);
                             if (course != null) {
                                 v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
@@ -640,7 +640,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "previousSubject":
-                            v.setPreviousSubject(text);
+                            handleSubject(v, spalte, true);
                             break;
                         case "type":
                             v.setType(text);
@@ -656,7 +656,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "room":
-                            handleRoom(v, spalte);
+                            handleRoom(v, spalte, false);
                             break;
                         case "teacher":
                             if (text.equals("+")) {
@@ -679,7 +679,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setColor(colorProvider.getColor(recognizedType));
                             break;
                         case "previousRoom":
-                            v.setPreviousRoom(text);
+                            handleRoom(v, spalte, true);
                             break;
                         case "substitutionFrom":
                             v.setSubstitutionFrom(text);
@@ -787,7 +787,7 @@ public abstract class UntisCommonParser extends BaseParser {
         return teachers;
     }
 
-    static void handleRoom(Substitution subst, Element cell) {
+    static void handleRoom(Substitution subst, Element cell, boolean previousRoom) {
         cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousRoom(cell.select("s").text());
@@ -795,7 +795,11 @@ public abstract class UntisCommonParser extends BaseParser {
                 subst.setRoom(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
             }
         } else {
-            subst.setRoom(cell.text());
+            if (previousRoom) {
+                subst.setPreviousRoom(cell.text());
+            } else {
+                subst.setRoom(cell.text());
+            }
         }
     }
 
@@ -806,7 +810,7 @@ public abstract class UntisCommonParser extends BaseParser {
         return cell;
     }
 
-    static void handleSubject(Substitution subst, Element cell) {
+    static void handleSubject(Substitution subst, Element cell, boolean previousSubject) {
         cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
             subst.setPreviousSubject(cell.select("s").text());
@@ -814,7 +818,11 @@ public abstract class UntisCommonParser extends BaseParser {
                 subst.setSubject(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
             }
         } else {
-            subst.setSubject(cell.text());
+            if (previousSubject) {
+                subst.setPreviousSubject(cell.text());
+            } else {
+                subst.setSubject(cell.text());
+            }
         }
     }
 
