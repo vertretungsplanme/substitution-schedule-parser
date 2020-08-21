@@ -306,6 +306,10 @@ public class LoginHandler {
                     final String charset = loginConfig.optString(PARAM_ENCODING, "UTF-8");
                     request.bodyForm(nvps, Charset.forName(charset));
                 }
+                final String referer = loginConfig.optString("referer", null);
+                if (referer != null) {
+                    request.addHeader("Referer", referer);
+                }
                 String html = executor.execute(request).returnContent().asString();
                 if (cookieProvider != null) cookieProvider.saveCookies(auth, cookieStore.getCookies());
 
