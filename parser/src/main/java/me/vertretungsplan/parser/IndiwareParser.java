@@ -77,7 +77,10 @@ public class IndiwareParser extends BaseParser {
     static final Pattern lastChangePattern = Pattern.compile("\\d\\d?\\.\\d\\d?\\.\\d{4}, \\d\\d?\\:\\d\\d");
     static final Pattern substitutionPattern = Pattern.compile("für ([^\\s]+) ((?:(?! ,|Frau|Herr).)+|(?:Herr|Frau) " +
             "[^\\s]+) ?,? ?(.*)");
-    static final Pattern cancelPattern = Pattern.compile("((?!verlegt|statt)[^\\s]+) (?:(.+) )?fällt (:?leider )?aus");
+    static final Pattern cancelPattern = Pattern.compile("((?!verlegt|statt|Klassenleiter)[^\\s]+) (?:(.+) )?fällt " +
+            "(:?leider )?aus");
+    static final Pattern classTeacherLesson = Pattern.compile("(Klassenleiterstunden?); ([^\\s]+) (?:(.+) )?fällt " +
+            "(:?leider )?aus");
     static final Pattern delayPattern = Pattern.compile("([^\\s]+) ([^\\s]+) (verlegt nach .*)");
     static final Pattern selfPattern = Pattern.compile("selbst\\. ?,? ?(.*)");
     static final Pattern coursePattern = Pattern.compile("(.*)/ (.*)");
@@ -486,6 +489,7 @@ public class IndiwareParser extends BaseParser {
         Matcher cancelMatcher = cancelPattern.matcher(value);
         Matcher delayMatcher = delayPattern.matcher(value);
         Matcher selfMatcher = selfPattern.matcher(value);
+        Matcher classTeacherMatcher = classTeacherLesson.matcher(value);
         if (examMatcher.matches()) {
             substitution.setType("Prüfung");
             substitution.setDesc(examMatcher.group(1));
@@ -494,6 +498,16 @@ public class IndiwareParser extends BaseParser {
             substitution.setPreviousTeacher(substitutionMatcher.group(2));
             if (!substitutionMatcher.group(3).isEmpty()) {
                 substitution.setDesc(substitutionMatcher.group(3));
+            }
+        } else if (classTeacherMatcher.matches()) {
+            substitution.setType(classTeacherMatcher.group(1));
+            substitution.setPreviousSubject(classTeacherMatcher.group(2));
+            if (classTeacherMatcher.groupCount() > 2) {
+                if (teacher) {
+                    substitution.setClasses(Collections.singleton(classTeacherMatcher.group(2)));
+                } else {
+                    substitution.setPreviousTeacher(classTeacherMatcher.group(2));
+                }
             }
         } else if (cancelMatcher.matches()) {
             substitution.setType("Entfall");

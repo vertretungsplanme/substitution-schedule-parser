@@ -81,6 +81,19 @@ public class IndiwareTest {
     }
 
     @Test
+    public void testClassTeacherLesson() {
+        final String input = "Klassenleiterstunden; Mat HEL fällt aus";
+        Matcher matcher = IndiwareParser.cancelPattern.matcher(input);
+        assertFalse(matcher.matches());
+
+        matcher = IndiwareParser.classTeacherLesson.matcher(input);
+        assertTrue(matcher.matches());
+        assertEquals("Klassenleiterstunden", matcher.group(1));
+        assertEquals("Mat", matcher.group(2));
+        assertEquals("HEL", matcher.group(3));
+    }
+
+    @Test
     public void testDelayPattern() {
         Matcher matcher = IndiwareParser.delayPattern.matcher("INF KNE verlegt nach St.8");
         assertTrue(matcher.matches());
