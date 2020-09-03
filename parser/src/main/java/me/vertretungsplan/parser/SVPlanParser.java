@@ -161,8 +161,8 @@ public class SVPlanParser extends BaseParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         for (Document doc : docs) {
-            if (doc.select(".svp").size() > 0) {
-                for (Element svp : doc.select(".svp")) {
+            if (doc.select(".svp, .scheduler").size() > 0) {
+                for (Element svp : doc.select(".svp, .scheduler")) {
                     parseSvPlanDay(v, svp, doc);
                 }
             } else if (doc.select(".Trennlinie").size() > 0) {
