@@ -197,9 +197,11 @@ public class SVPlanParser extends BaseParser {
                 Iterator<Element> iter = tables.iterator();
                 while (iter.hasNext()) {
                     Element table = iter.next();
+                    Element sibling = table.previousElementSibling();
                     if (!table.hasClass("svp-tabelle") &&
                             table.select("> tbody > tr > td.Klasse").size() == 0 &&
-                            table.select("> tbody > tr > td.KlasseNeu").size() == 0) {
+                            table.select("> tbody > tr > td.KlasseNeu").size() == 0
+                            || sibling != null && sibling.hasClass("AufsichtTitel")) {
                         iter.remove();
                     }
                 }
