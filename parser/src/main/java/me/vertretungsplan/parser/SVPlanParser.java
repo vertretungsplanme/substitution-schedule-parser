@@ -286,12 +286,12 @@ public class SVPlanParser extends BaseParser {
                 }
             }
 
-            Elements aufsichtTable = svp.select(".svp-pausenaufsicht");
+            Elements aufsichtTable = svp.select(".svp-pausenaufsicht, .AufsichtTitel + table");
             if (aufsichtTable.size() > 0) {
                 Elements rows = aufsichtTable.select("tr");
                 String lastTime = "";
                 for (Element row : rows) {
-                    if (row.hasClass("svp-aufs-header")) continue;
+                    if (row.hasClass("svp-aufs-header") || row.select("td").size() == 0) continue;
                     Substitution substitution = new Substitution();
                     substitution.setType("Pausenaufsicht");
                     substitution.setColor(colorProvider.getColor("Pausenaufsicht"));
@@ -304,19 +304,21 @@ public class SVPlanParser extends BaseParser {
                             }
                             continue;
                         }
-                        if (type.startsWith("svp-aufs-zeit")) {
+                        if (type.startsWith("svp-aufs-zeit") || type.startsWith("Stunde")) {
                             substitution.setLesson(column.text());
                             lastTime = column.text();
-                        } else if (type.startsWith("svp-aufs-esfehlt")) {
+                        } else if (type.startsWith("svp-aufs-esfehlt") || type.startsWith("Lehrer")) {
                             if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
                                 substitution.setPreviousTeacher(column.text());
                             }
-                        } else if (type.startsWith("svp-esvertritt")) {
+                        } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
                             if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
                                 substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
                             }
-                        } else if (type.startsWith("svp-aufs-ort")) {
+                        } else if (type.startsWith("svp-aufs-ort") || type.startsWith("Raum")) {
                             substitution.setRoom(column.text());
+                        } else if (type.startsWith("Anmerkung")) {
+                            substitution.setDesc(column.text());
                         }
                     }
 
