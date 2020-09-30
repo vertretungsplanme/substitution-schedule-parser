@@ -198,8 +198,8 @@ public class LoginHandler {
                             if (!response.contains(checkText)) {
                                 return null;
                             }
-                        } catch (HttpResponseException e) {
-                            return null;
+                        } catch (IOException ignored) {
+                            // error when checking login, continue below.
                         }
                     } else {
                         return null;
