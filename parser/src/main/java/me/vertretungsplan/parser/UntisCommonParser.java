@@ -228,7 +228,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
         final JSONArray columnsJson = data.optJSONArray(PARAM_COLUMNS);
         List<String> columns = new ArrayList<>();
-        if (columnTitles.size() == 0) {
+        if (columnsJson != null && (columnTitles.size() == 0 || columnTitles.size() == columnsJson.length())) {
             for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
         } else {
             for (String title : columnTitles) {
@@ -371,9 +371,13 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setDesc(text);
                             break;
                         case "desc-type":
-                            v.setDesc(text);
                             String recognizedType = recognizeType(text);
                             v.setType(recognizedType);
+                            if (text.equals(recognizedType)) {
+                                v.setDesc(null);
+                            } else {
+                                v.setDesc(text);
+                            }
                             v.setColor(colorProvider.getColor(recognizedType));
                             break;
                         case "teacher":
@@ -673,9 +677,13 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setDesc(text);
                             break;
                         case "desc-type":
-                            v.setDesc(text);
                             String recognizedType = recognizeType(text);
                             v.setType(recognizedType);
+                            if (text.equals(recognizedType)) {
+                                v.setDesc(null);
+                            } else {
+                                v.setDesc(text);
+                            }
                             v.setColor(colorProvider.getColor(recognizedType));
                             break;
                         case "previousRoom":
