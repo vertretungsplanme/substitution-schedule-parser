@@ -510,8 +510,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
                 if (allClasses.contains(klassen)) {
                     affectedClasses.add(klassen);
-                }
-                if (klassen.matches("([\\d]{1,2}[a-zA-Z]+)+")) {
+                } else if (klassen.matches("([\\d]{1,2}[a-zA-Z]+)+")) {
                     // we have something like 8ab9abc -> 8a, 8b, 9a, 9b, 9c
                     Pattern pattern = Pattern.compile("([\\d]{1,2})([a-zA-Z]+)");
                     Matcher matcher = pattern.matcher(klassen);
@@ -539,7 +538,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     }
                 } else {
                     // fallback solution for backwards compatibility
-                    for (String klasse : allClasses) { // TODO: is there a better way?
+                    for (String klasse : allClasses) {
                         StringBuilder regex = new StringBuilder();
                         for (char character : klasse.toCharArray()) {
                             if (character == '?') {
