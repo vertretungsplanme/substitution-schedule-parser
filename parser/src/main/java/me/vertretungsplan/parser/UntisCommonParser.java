@@ -753,7 +753,8 @@ public abstract class UntisCommonParser extends BaseParser {
                         equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
                         equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
                         || (v.getSubject() == null && (v.getRoom() == null || v.getRoom().equals(v.getPreviousRoom()))
-                        && v.getTeacher() == null && v.getPreviousSubject() != null)) {
+                        && v.getTeacher() == null &&
+                        (v.getPreviousSubject() != null || v.getPreviousTeacher() != null))) {
                     v.setType("Entfall");
                     v.setColor(colorProvider.getColor("Entfall"));
                 } else {
