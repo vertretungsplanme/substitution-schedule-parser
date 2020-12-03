@@ -13,7 +13,6 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -394,14 +393,17 @@ public class DaVinciParser extends BaseParser {
             }
         }
 
-        for (Element p : doc.select(".row:has(h1.list-table-caption) p")) {
+        List<String> messages = new ArrayList<>();
+        for (Element p : doc.select(".row:has(h1.list-table-caption) p, .callout")) {
             for (TextNode node : p.textNodes()) {
-                if (!node.text().trim().isEmpty() && day != null) day.addMessage(node.text().trim());
-            }
-        }
-        for (Element message : doc.select(".callout")) {
-            for (TextNode node : message.textNodes()) {
-                if (!node.text().trim().isEmpty()) day.addMessage(node.text().trim());
+                String msg = node.text().trim();
+                if (!msg.isEmpty()) {
+                    if (day != null) {
+                        day.addMessage(msg);
+                    } else {
+                        messages.add(msg);
+                    }
+                }
             }
         }
 
@@ -456,6 +458,7 @@ public class DaVinciParser extends BaseParser {
         }
 
         if (day != null) {
+            for (String msg : messages) day.addMessage(msg);
             schedule.addDay(day);
         }
     }
