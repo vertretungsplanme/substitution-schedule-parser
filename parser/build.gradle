@@ -4,6 +4,8 @@ version '1.0.0-beta355'
 apply plugin: 'java'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 sourceCompatibility = 1.7
 compileJava.options.encoding = 'UTF-8'
@@ -29,59 +31,97 @@ dependencies {
     testCompile 'com.google.jimfs:jimfs:1.1'
 }
 
-task javadoc(overwrite: true, type: Javadoc) {
-    source fileTree(dir: 'src/main/java/me/vertretungsplan').matching {
-        exclude 'utils/**'
-        exclude 'networking/**'
-    }
-    options.encoding = 'UTF-8'
-    options.links("http://docs.oracle.com/javase/7/docs/api/");
-    options.overview = "src/main/java/overview.html"
-
-    classpath = sourceSets.main.output + sourceSets.main.compileClasspath
-}
-
 jacocoTestReport {
     reports {
         xml.enabled = true // coveralls plugin depends on xml format report
         html.enabled = true
     }
     afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
+        classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: ['com/paour/comparator/**', 'name/fraser/neil/plaintext/**'])
-        })
+        }))
     }
 }
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'substitution-schedule-parser'
-    bintrayOrg = 'vertretungsplanme'
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
 
-    publishedGroupId = 'me.vertretungsplan'
-    libraryName = 'Substitution schedule parser library'
-    artifact = 'parser'
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
-    libraryDescription = "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
+artifacts {
+    archives javadocJar, sourcesJar
+}
 
-    siteUrl = 'https://github.com/johan12345/substitution-schedule-parser'
-    gitHubUrl = 'https://github.com/johan12345/substitution-schedule-parser'
-    gitUrl = 'https://github.com/johan12345/substitution-schedule-parser.git'
-    gitSshUrl = 'git@github.com:johan12345/substitution-schedule-parser.git'
 
-    libraryVersion = version
+Properties properties = new Properties()
 
-    allLicenses = ["MPL-2.0"]
-    licenseName = 'Mozilla Public License Version 2.0'
-    licenseUrl = 'https://www.mozilla.org/media/MPL/2.0/index.txt'
+if (project.rootProject.file('local.properties').exists()) {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+String ossrhUsername = properties.getProperty("mavenCentral.user")
+String ossrhPassword = properties.getProperty("mavenCentral.apikey")
+String signingPassword = properties.getProperty("signing.password")
+String signingKeyFile = properties.getProperty("signing.keyFile")
 
-    developerId = 'johan12345'
-    developerName = 'Johan von Forstner'
-    developerEmail = 'info@vertretungsplan.me'
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    if (signingKeyFile != null && new File(signingKeyFile).exists()) {
+        useInMemoryPgpKeys(new File(signingKeyFile).text, signingPassword)
+    }
+    sign configurations.archives
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Substitution schedule parser library'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
+                url 'https://github.com/johan12345/substitution-schedule-parser'
+
+                scm {
+                    connection 'scm:git:hhttps://github.com/johan12345/substitution-schedule-parser.git'
+                    developerConnection 'scm:git:https://github.com/johan12345/substitution-schedule-parser.git'
+                    url 'https://github.com/johan12345/substitution-schedule-parser'
+                }
+
+                licenses {
+                    license {
+                        name 'Mozilla Public License Version 2.0'
+                        url 'https://www.mozilla.org/media/MPL/2.0/index.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'johan12345'
+                        name 'Johan von Forstner'
+                        email 'info@vertretungsplan.app'
+                    }
+                }
+            }
+        }
+    }
 }
 
 test {
     maxHeapSize = "1g"
 }
-
-apply from: 'bintray.gradle'
