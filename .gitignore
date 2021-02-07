@@ -31,3 +31,4 @@ crashlytics-build.properties
 fabric.properties
 
 local.properties
+mavencentral_key.gpg

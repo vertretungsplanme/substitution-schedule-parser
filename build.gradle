@@ -9,6 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3'
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
     }
 }
 
@@ -19,4 +20,27 @@ if (JavaVersion.current().isJava8Compatible()) {
             options.addStringOption('Xdoclint:none', '-quiet')
         }
     }
+}
+
+apply plugin: 'io.codearte.nexus-staging'
+
+Properties properties = new Properties()
+if (project.rootProject.file('local.properties').exists()) {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+String nexusUsername = properties.getProperty("mavenCentral.nexusUser")
+String nexusPassword = properties.getProperty("mavenCentral.nexusPassword")
+
+nexusStaging {
+    packageGroup = 'me.vertretungsplan'
+    stagingProfileId = '1a6e7d4d864d11'
+    username = nexusUsername
+    password = nexusPassword
+}
+
+task uploadAndReleaseParser {
+    // uploads the parser to Maven Central and releases from staging repository into maven central repo
+    dependsOn ':parser:publish'
+    dependsOn 'closeAndReleaseRepository'
+    tasks.findByName('closeAndReleaseRepository').mustRunAfter ':parser:publish'
 }
