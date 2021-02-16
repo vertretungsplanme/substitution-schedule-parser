@@ -81,7 +81,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
             executor.auth(login, password);
         } else {
             baseurl = data.getString("baseurl") + "/";
-            isTeacher = data.getString("baseurl").endsWith("vplanle");
+            isTeacher = data.getString("baseurl").endsWith("vplanle") || data.optBoolean("teacher");
             new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
         }
 
