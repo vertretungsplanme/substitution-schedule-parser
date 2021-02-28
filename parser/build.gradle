@@ -1,5 +1,5 @@
 group 'me.vertretungsplan'
-version '1.0.0-beta355'
+version '1.0.0-beta356'
 
 apply plugin: 'java'
 apply plugin: 'jacoco'
@@ -67,33 +67,36 @@ String ossrhPassword = properties.getProperty("mavenCentral.apikey")
 String signingPassword = properties.getProperty("signing.password")
 String signingKeyFile = properties.getProperty("signing.keyFile")
 
-signing {
-    required { gradle.taskGraph.hasTask(":parser:publishMavenJavaPublicationToMavenRepository") }
-    if (signingKeyFile != null) {
-        def file = project.parent.file(signingKeyFile)
-        if (file.exists()) {
-            useInMemoryPgpKeys(file.text, signingPassword)
-        }
-    }
-    sign configurations.archives
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            customizePom(pom)
-
             artifactId 'parser'
             from components.java
 
-            // create the sign pom artifact
-            pom.withXml {
-                def pomFile = file("${project.buildDir}/generated-pom.xml")
-                writeTo(pomFile)
-                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
-                artifact(pomAscFile) {
-                    classifier = null
-                    extension = 'pom.asc'
+            pom {
+                name = 'Substitution schedule parser library'
+                description = "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
+                url = 'https://github.com/johan12345/substitution-schedule-parser'
+
+                scm {
+                    connection = 'scm:git:hhttps://github.com/johan12345/substitution-schedule-parser.git'
+                    developerConnection = 'scm:git:https://github.com/johan12345/substitution-schedule-parser.git'
+                    url = 'https://github.com/johan12345/substitution-schedule-parser'
+                }
+
+                licenses {
+                    license {
+                        name = 'Mozilla Public License Version 2.0'
+                        url = 'https://www.mozilla.org/media/MPL/2.0/index.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'johan12345'
+                        name = 'Johan von Forstner'
+                        email = 'info@vertretungsplan.app'
+                    }
                 }
             }
 
@@ -102,19 +105,6 @@ publishing {
             }
             artifact(javadocJar) {
                 classifier = 'javadoc'
-            }
-
-            // create the signed artifacts
-            project.tasks.signArchives.signatureFiles.each {
-                artifact(it) {
-                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
-                    if (matcher.find()) {
-                        classifier = matcher.group(1)
-                    } else {
-                        classifier = null
-                    }
-                    extension = 'jar.asc'
-                }
             }
         }
     }
@@ -131,59 +121,23 @@ publishing {
     }
 }
 
-test {
-    maxHeapSize = "1g"
+signing {
+    required { gradle.taskGraph.hasTask(":parser:publishMavenJavaPublicationToMavenRepository") }
+    if (signingKeyFile != null) {
+        def file = project.parent.file(signingKeyFile)
+        if (file.exists()) {
+            useInMemoryPgpKeys(file.text, signingPassword)
+        }
+    }
+    sign publishing.publications.mavenJava
 }
 
 model {
     tasks.generatePomFileForMavenJavaPublication {
         destination = file("$buildDir/generated-pom.xml")
     }
-    tasks.publishMavenJavaPublicationToMavenLocal {
-        dependsOn project.tasks.signArchives
-    }
-    tasks.publishMavenJavaPublicationToMavenRepository {
-        dependsOn project.tasks.signArchives
-    }
 }
 
-def customizePom(pom) {
-    pom.withXml {
-        def root = asNode()
-
-        // eliminate test-scoped dependencies (no need in maven central POMs)
-        root.dependencies.removeAll { dep ->
-            dep.scope == "test"
-        }
-
-        // add all items necessary for maven central publication
-        root.children().last() + {
-            resolveStrategy = Closure.DELEGATE_FIRST
-
-            name 'Substitution schedule parser library'
-            description "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
-            url 'https://github.com/johan12345/substitution-schedule-parser'
-
-            scm {
-                connection 'scm:git:hhttps://github.com/johan12345/substitution-schedule-parser.git'
-                developerConnection 'scm:git:https://github.com/johan12345/substitution-schedule-parser.git'
-                url 'https://github.com/johan12345/substitution-schedule-parser'
-            }
-
-            licenses {
-                license {
-                    name 'Mozilla Public License Version 2.0'
-                    url 'https://www.mozilla.org/media/MPL/2.0/index.txt'
-                }
-            }
-
-            developers {
-                developer {
-                    id 'johan12345'
-                    name 'Johan von Forstner'
-                    email 'info@vertretungsplan.app'
-                }
-            }
-        }
-    }
+test {
+    maxHeapSize = "1g"
 }
