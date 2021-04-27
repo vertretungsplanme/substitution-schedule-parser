@@ -104,12 +104,21 @@ public class UntisMonitorParser extends UntisCommonParser {
         String encoding = scheduleData.getData().optString(PARAM_ENCODING, null);
         List<Document> docs = new ArrayList<>();
 
+        IOException lastException = null;
         for (int i = 0; i < urls.length(); i++) {
             JSONObject url = urls.getJSONObject(i);
             final String urlStr = url.getString(SUBPARAM_URL);
             for (String dateUrl : ParserUtils.handleUrl(urlStr, loginResponse)) {
-                loadUrl(dateUrl, encoding, url.getBoolean(SUBPARAM_FOLLOWING), docs);
+                try {
+                    loadUrl(dateUrl, encoding, url.getBoolean(SUBPARAM_FOLLOWING), docs);
+                } catch (HttpResponseException e) {
+                    lastException = e;
+                }
             }
+        }
+        if (lastException != null &&
+                (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES))) {
+            throw lastException;
         }
 
         for (Document doc : docs) {
@@ -169,15 +178,7 @@ public class UntisMonitorParser extends UntisCommonParser {
                 throw new IOException(e);
             }
         } else {
-            try {
-                html = httpGet(url, encoding).replace("&nbsp;", "");
-            } catch (HttpResponseException e) {
-                if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
-                    throw e;
-                } else {
-                    return; // ignore if first page was loaded and redirect didn't work
-                }
-            }
+            html = httpGet(url, encoding).replace("&nbsp;", "");
         }
         Document doc = Jsoup.parse(html);
         doc.setBaseUri(url);
