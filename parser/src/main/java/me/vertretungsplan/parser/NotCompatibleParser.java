@@ -60,9 +60,7 @@ public class NotCompatibleParser extends BaseParser {
                         "App \"" + appName + "\" nutzen. " : "") +
                 "Falls Sie eine Lehrkraft oder Schulleiter/-in an der Schule sind, melden Sie sich " +
                 "bitte unter info@vertretungsplan.me bei uns, um herauszufinden, wie der Plan wieder in die App " +
-                "aufgenommen werden kann. Falls Sie die Pro-Version der App in den letzten 6 Monaten gekauft haben, " +
-                "können wir " +
-                "Ihnen das Geld zurückerstatten, wenn Sie sich per E-Mail an info@vertretungsplan.me bei uns melden.");
+                "aufgenommen werden kann.");
 
         v.addDay(today);
 

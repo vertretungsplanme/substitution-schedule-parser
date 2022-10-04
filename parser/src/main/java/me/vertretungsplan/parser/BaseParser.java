@@ -163,6 +163,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "dsblight":
                 parser = new NotCompatibleParser(data, cookieProvider);
                 break;
+            case "not-compatible":
+                parser = new NotCompatibleParser(data, cookieProvider);
+                break;
             case "svplan":
                 parser = new SVPlanParser(data, cookieProvider);
                 break;
