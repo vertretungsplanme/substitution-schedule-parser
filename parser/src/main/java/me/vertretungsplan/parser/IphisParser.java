@@ -346,31 +346,31 @@ public class IphisParser extends BaseParser {
         substitution.setColor(colorProvider.getColor(type));
         // Set covering teacher
         final String[] coveringTeacherIds = getSQLArray(change.getString("id_person_verantwortlich"));
+        final HashSet<String> coveringTeachers = new HashSet<>();
         if (coveringTeacherIds.length > 0) {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a covering teacher but teachers are empty.");
-            }
-            final HashSet<String> teachers = new HashSet<>();
-            for (String coveringTeacherId : coveringTeacherIds) {
-                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
-                    teachers.add(teachersHashMap.get(coveringTeacherId));
-                }
-            }
-            substitution.setTeachers(teachers);
-        }
-        // Set teacher
-        final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
-        final HashSet<String> coveringTeachers = new HashSet<>();
-        if (teacherIds.length > 0) {
-            if (teachersHashMap == null) {
-                throw new IOException("Change references a teacher but teachers are empty.");
             }
             for (String coveringTeacherId : coveringTeacherIds) {
                 if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
                     coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
                 }
             }
-            substitution.setPreviousTeachers(coveringTeachers);
+            substitution.setTeachers(coveringTeachers);
+        }
+        // Set teacher
+        final String[] teacherIds = getSQLArray(change.getString("id_person_verantwortlich_orig"));
+        final HashSet<String> teachers = new HashSet<>();
+        if (teacherIds.length > 0) {
+            if (teachersHashMap == null) {
+                throw new IOException("Change references a teacher but teachers are empty.");
+            }
+            for (String teacherId : teacherIds) {
+                if (!teacherId.toLowerCase().equals("null") && teachersHashMap.get(teacherId) != null) {
+                    teachers.add(teachersHashMap.get(teacherId));
+                }
+            }
+            substitution.setPreviousTeachers(teachers);
         }
 
         //Set room
