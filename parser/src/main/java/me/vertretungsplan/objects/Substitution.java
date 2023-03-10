@@ -308,9 +308,6 @@ public class Substitution implements Cloneable {
      * @return the description
      */
     public String getDesc() {
-        if (getSubstitutionFrom() != null) {
-            return desc + "\nVerlegt von " + getSubstitutionFrom();
-        }
         return desc;
     }
 
@@ -320,6 +317,9 @@ public class Substitution implements Cloneable {
      * @param desc the description to set
      */
     public void setDesc(String desc) {
+        if (getSubstitutionFrom() != null) {
+            this.desc + "\nVerlegt von " + getSubstitutionFrom();
+        }
         this.desc = desc;
     }
 
