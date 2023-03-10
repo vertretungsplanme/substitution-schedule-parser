@@ -361,6 +361,7 @@ public class Substitution implements Cloneable {
      * @param substitutionFrom the substitution from to set
      */
     public void setSubstitutionFrom(String substitutionFrom) {
+        this.desc = desc + "\nVerlegt von " + substitutionFrom;
         this.substitutionFrom = substitutionFrom;
     }
 
