@@ -308,6 +308,9 @@ public class Substitution implements Cloneable {
      * @return the description
      */
     public String getDesc() {
+        if (getSubstitutionFrom() != null) {
+            return desc + "\nVerlegt von " + getSubstitutionFrom();
+        }
         return desc;
     }
 
