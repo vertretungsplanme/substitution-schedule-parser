@@ -308,7 +308,18 @@ public class Substitution implements Cloneable {
      * @return the description
      */
     public String getDesc() {
-        return desc;
+        if (getSubstitutionFrom() == null) {
+            return desc;
+        else {
+            String appendSubstitutionFrom = "Verlegt von " + getSubstitutionFrom();
+            if (desc == null) {
+                return appendSubstitutionFrom;
+            } else if (desc.indexOf(appendSubstitutionFrom) == -1) {
+                return desc + "\n" + appendSubstitutionFrom;
+            } else {
+                return desc
+            }
+        }
     }
 
     /**
