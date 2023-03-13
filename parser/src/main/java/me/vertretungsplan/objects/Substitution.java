@@ -417,7 +417,7 @@ public class Substitution implements Cloneable {
                 .append(previousTeachers, that.previousTeachers)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
-                .append(desc, that.desc)
+                .append(getDesc(), that.getDesc())
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
     }
@@ -445,7 +445,7 @@ public class Substitution implements Cloneable {
                 .append(previousTeachers, that.previousTeachers)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
-                .append(desc, that.desc)
+                .append(getDesc(), that.getDesc())
                 .append(color, that.color)
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
@@ -474,7 +474,7 @@ public class Substitution implements Cloneable {
                 .append(previousTeachers, that.previousTeachers)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
-                .append(desc, that.desc)
+                .append(getDesc(), that.getDesc())
                 .append(color, that.color)
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
@@ -504,7 +504,7 @@ public class Substitution implements Cloneable {
                 .append(classes, that.classes)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
-                .append(desc, that.desc)
+                .append(getDesc(), that.getDesc())
                 .append(color, that.color)
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
@@ -527,7 +527,7 @@ public class Substitution implements Cloneable {
                 .append(classes, that.classes)
                 .append(room, that.room)
                 .append(previousRoom, that.previousRoom)
-                .append(desc, that.desc)
+                .append(getDesc(), that.getDesc())
                 .append(color, that.color)
                 .append(substitutionFrom, that.substitutionFrom)
                 .append(teacherTo, that.teacherTo).isEquals();
