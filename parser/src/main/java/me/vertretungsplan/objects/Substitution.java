@@ -323,7 +323,7 @@ public class Substitution implements Cloneable {
             String appendSubstitutionFrom = "Verlegt von " + getSubstitutionFrom();
             if (desc == null) {
                 this.desc = appendSubstitutionFrom;
-            } else if (this.desc.indexOf(appendSubstitutionFrom) == -1) {
+            } else if (this.desc != null && this.desc.indexOf(appendSubstitutionFrom) == -1) {
                 this.desc = desc + "\n" + appendSubstitutionFrom;
             } else {
                 this.desc = desc;
