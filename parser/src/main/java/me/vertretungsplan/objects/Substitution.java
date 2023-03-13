@@ -316,9 +316,8 @@ public class Substitution implements Cloneable {
                 return appendSubstitutionFrom;
             } else if (desc.indexOf(appendSubstitutionFrom) == -1) {
                 return desc + "\n" + appendSubstitutionFrom;
-            } else {
-                return desc;
             }
+            return desc;
         }
     }
 
