@@ -361,11 +361,11 @@ public class Substitution implements Cloneable {
      * @param substitutionFrom the substitution from to set
      */
     public void setSubstitutionFrom(String substitutionFrom) {
-        String append = "Verlegt von ";
+        String appendSubstitutionFrom = "Verlegt von " + substitutionFrom;
         if (this.desc == null) {
-            this.desc = append + substitutionFrom;
-        } else if (this.desc.indexOf(append) == -1) {
-            this.desc = this.desc + "\n" + append + substitutionFrom;
+            this.desc = appendSubstitutionFrom;
+        } else if (this.desc.indexOf(appendSubstitutionFrom) == -1) {
+            this.desc = this.desc + "\n" + appendSubstitutionFrom;
         }
         this.substitutionFrom = substitutionFrom;
     }
