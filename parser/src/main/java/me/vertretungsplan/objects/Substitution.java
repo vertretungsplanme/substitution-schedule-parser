@@ -310,7 +310,7 @@ public class Substitution implements Cloneable {
     public String getDesc() {
         if (getSubstitutionFrom() == null) {
             return desc;
-        else {
+        } else {
             String appendSubstitutionFrom = "Verlegt von " + getSubstitutionFrom();
             if (desc == null) {
                 return appendSubstitutionFrom;
