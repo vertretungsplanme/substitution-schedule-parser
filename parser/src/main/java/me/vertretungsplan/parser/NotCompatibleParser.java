@@ -35,9 +35,9 @@ public class NotCompatibleParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
-        v.setLastChange(new LocalDateTime(2017, 10, 18, 12, 4));
+        v.setLastChange(new LocalDateTime(2000, 1, 1, 0, 0));
         SubstitutionScheduleDay today = new SubstitutionScheduleDay();
-        today.setDate(new LocalDate(2018, 1, 1));
+        today.setDate(new LocalDate(2999, 1, 1));
 
         Substitution subst = new Substitution();
         subst.setLesson("0");
