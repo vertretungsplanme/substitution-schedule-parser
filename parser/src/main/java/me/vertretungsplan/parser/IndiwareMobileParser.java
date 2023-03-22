@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
@@ -87,6 +88,16 @@ public class IndiwareMobileParser extends BaseParser {
         }
 
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
+
+        final AdditionalInfo info = new AdditionalInfo();
+        info.setTitle("Achtung");
+        info.setText("Für diese Schule können wir den Vertretungsplan aufgrund Beschränkungen seitens des " +
+                "Herstellers von Indiware stundenplan24.de nur noch alle 2 Stunden aktualisieren. Push-Benachrichtigungen werden " +
+                "dementsprechend auch nur verspätet ankommen. Bitte achte auf das oben angegebene " +
+                "Aktualisierungsdatum!");
+        info.setFromSchedule(true);
+        v.getAdditionalInfos().add(info);
+
         for (Document doc:docs) {
             v.addDay(parseDay(doc, colorProvider, scheduleData));
         }
