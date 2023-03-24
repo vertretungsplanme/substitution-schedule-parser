@@ -109,7 +109,7 @@ public class IndiwareParser extends BaseParser {
         final AdditionalInfo info = new AdditionalInfo();
         info.setTitle("Achtung");
         info.setText("Für diese Schule können wir den Vertretungsplan aufgrund Beschränkungen seitens des " +
-                "Herstellers von Indiware stundenplan24.de nur noch alle 2 Stunden aktualisieren. Push-Benachrichtigungen werden " +
+                "Herstellers von Indiware stundenplan24.de nur noch jede Stunde aktualisieren. Push-Benachrichtigungen werden " +
                 "dementsprechend auch nur verspätet ankommen. Bitte achte auf das oben angegebene " +
                 "Aktualisierungsdatum!");
         info.setFromSchedule(true);
