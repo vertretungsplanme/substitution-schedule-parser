@@ -52,6 +52,7 @@ class ParserUtils {
             "dd.M.",
             "dd.MM.yy EEEE",
             "dd.MM.yyyy EEEE",
+            "dd/MM/yyyy EEEE",
             "dd.MM EEEE",
             "EEEE, dd.MM.yy",
             "EEEE, dd.MM.yyyy",
