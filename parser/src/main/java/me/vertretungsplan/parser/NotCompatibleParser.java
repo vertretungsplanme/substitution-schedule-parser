@@ -53,14 +53,24 @@ public class NotCompatibleParser extends BaseParser {
             appName = "DSBmobile";
         } else if (scheduleData.getApi().equals("webuntis")) {
             appName = "Untis Mobile";
+        } else if (scheduleData.getApi().equals("not-desired")) {
+            appName = "not-desired";
         }
-        today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
-                "abgerufen werden. " +
-                (appName != null ? "Als Alternative kannst du vorerst die offizielle " +
-                        "App \"" + appName + "\" nutzen. " : "") +
-                "Falls Sie eine Lehrkraft oder Schulleiter/-in an der Schule sind, melden Sie sich " +
-                "bitte unter info@vertretungsplan.me bei uns, um herauszufinden, wie der Plan wieder in die App " +
-                "aufgenommen werden kann.");
+        if (appName == "not-desired") {
+            today.addMessage("Auf Wunsch der Schulleitung wurde der Vertretungsplan dieser Schule aus der App " +
+                    "entfernt. Bei Fragen wenden Sie sich bitte direkt an die Schulleitung. " +
+                    "Lehrkraft und Schulleiter/-in können sich unter info@vertretungsplan.me bei uns melden, " +
+                    "um den Plan wieder in die App aufzunehmen.");
+        } else {
+            today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
+                    "abgerufen werden. " +
+                    (appName != null ? "Als Alternative kannst du vorerst die offizielle " +
+                            "App \"" + appName + "\" nutzen. " : "") +
+                    "Falls Sie eine Lehrkraft oder Schulleiter/-in an der Schule sind, melden Sie sich " +
+                    "bitte unter info@vertretungsplan.me bei uns, um herauszufinden, wie der Plan wieder in die App " +
+                    "aufgenommen werden kann.");
+        }
+
 
         v.addDay(today);
 

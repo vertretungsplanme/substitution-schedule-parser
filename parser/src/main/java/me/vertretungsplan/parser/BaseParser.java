@@ -166,6 +166,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "not-compatible":
                 parser = new NotCompatibleParser(data, cookieProvider);
                 break;
+            case "not-desired":
+                parser = new NotCompatibleParser(data, cookieProvider);
+                break;
             case "svplan":
                 parser = new SVPlanParser(data, cookieProvider);
                 break;
@@ -198,6 +201,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 break;
             case "schooljoomla":
                 parser = new SchoolJoomlaParser(data, cookieProvider);
+                break;
+            case "webuntis":
+                parser = new NotCompatibleParser(data, cookieProvider);
                 break;
         }
         return parser;
