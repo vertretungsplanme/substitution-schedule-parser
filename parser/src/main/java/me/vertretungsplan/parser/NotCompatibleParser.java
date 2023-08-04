@@ -59,7 +59,7 @@ public class NotCompatibleParser extends BaseParser {
         if (appName == "not-desired") {
             today.addMessage("Auf Wunsch der Schulleitung wurde der Vertretungsplan dieser Schule aus der App " +
                     "entfernt. Bei Fragen wenden Sie sich bitte direkt an die Schulleitung. " +
-                    "Lehrkraft und Schulleiter/-in können sich unter info@vertretungsplan.me bei uns melden, " +
+                    "Lehrkräfte und Schulleiter/-innen können sich unter info@vertretungsplan.me bei uns melden, " +
                     "um den Plan wieder in die App aufzunehmen.");
         } else {
             today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
