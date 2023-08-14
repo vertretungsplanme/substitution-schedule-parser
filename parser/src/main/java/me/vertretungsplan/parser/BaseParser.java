@@ -205,6 +205,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "webuntis":
                 parser = new NotCompatibleParser(data, cookieProvider);
                 break;
+            case "vpo":
+                parser = new VPOParser(data, cookieProvider);
+                break;
         }
         return parser;
     }
