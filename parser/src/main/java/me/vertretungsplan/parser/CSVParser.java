@@ -133,8 +133,8 @@ public class CSVParser extends BaseParser {
                 }
             } else {
                 new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-                String additionaResponse = httpGet(additionalUrl);
-                schedule = parseCSVAdditionalInfos(additionaResponse, schedule);
+                String additionalResponse = httpGet(additionalUrl);
+                schedule = parseCSVAdditionalInfos(additionalResponse, schedule);
             }
         }
 
