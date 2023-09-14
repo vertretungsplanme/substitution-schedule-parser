@@ -69,10 +69,10 @@ import java.util.regex.Matcher;
  * <dt><code>classesUrl</code> (String, optional)</dt>
  * <dd>The URL of an additional CSV file containing the classes, one per line</dd>
  *
- * <dt><code>additionaUrl</code> (String, optional)</dt>
- * <dd>The URL of an additional CSV file containing the additional info. need additionaColumns</dd>
+ * <dt><code>additionalUrl</code> (String, optional)</dt>
+ * <dd>The URL of an additional CSV file containing the additional info. need additionalColumns</dd>
  *
- * <dt><code>additionaColumns</code> (String, optional)</dt>
+ * <dt><code>additionalColumns</code> (String, optional)</dt>
  * <dd>The order of columns used in the additional info CSV file. Entries can be: <code>"title", "text"</code></dd>
  *
  * <dt><code>classRegex</code> (String, optional)</dt>
@@ -92,8 +92,8 @@ public class CSVParser extends BaseParser {
     private static final String PARAM_SKIP_LINES = "skipLines";
     private static final String PARAM_COLUMNS = "columns";
     private static final String PARAM_WEBSITE = "website";
-    private static final String PARAM_ADDITIONAL_INFO_URL = "additionaUrl";
-    private static final String PARAM_ADDITIONAL_INFO_COLUMNS = "additionaColumns";
+    private static final String PARAM_ADDITIONAL_INFO_URL = "additionalUrl";
+    private static final String PARAM_ADDITIONAL_INFO_COLUMNS = "additionalColumns";
     private static final String PARAM_CLASSES_URL = "classesUrl";
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_URL = "url";
@@ -111,12 +111,12 @@ public class CSVParser extends BaseParser {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
         if (data.has(PARAM_ADDITIONAL_INFO_URL) && data.has(PARAM_ADDITIONAL_INFO_COLUMNS)) {
-            String additionaUrl = data.getString(PARAM_ADDITIONAL_INFO_URL);
-            if (additionaUrl.startsWith("webdav")) {
+            String additionalUrl = data.getString(PARAM_ADDITIONAL_INFO_URL);
+            if (additionalUrl.startsWith("webdav")) {
                 UserPasswordCredential credential = (UserPasswordCredential) this.credential;
                 try {
                     Sardine client = getWebdavClient(credential);
-                    String httpUrl = additionaUrl.replaceFirst("webdav", "http");
+                    String httpUrl = additionalUrl.replaceFirst("webdav", "http");
                     List<DavResource> files = client.list(httpUrl);
                     for (DavResource file : files) {
                         if (!file.isDirectory() && !file.getName().startsWith(".")) {
@@ -133,7 +133,7 @@ public class CSVParser extends BaseParser {
                 }
             } else {
                 new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-                String additionaResponse = httpGet(additionaUrl);
+                String additionaResponse = httpGet(additionalUrl);
                 schedule = parseCSVAdditionalInfos(additionaResponse, schedule);
             }
         }
