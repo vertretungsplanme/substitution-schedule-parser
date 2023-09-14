@@ -11,6 +11,7 @@ package me.vertretungsplan.parser;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
@@ -68,6 +69,12 @@ import java.util.regex.Matcher;
  * <dt><code>classesUrl</code> (String, optional)</dt>
  * <dd>The URL of an additional CSV file containing the classes, one per line</dd>
  *
+ * <dt><code>additionaUrl</code> (String, optional)</dt>
+ * <dd>The URL of an additional CSV file containing the additional info. need additionaColumns</dd>
+ *
+ * <dt><code>additionaColumns</code> (String, optional)</dt>
+ * <dd>The order of columns used in the additional info CSV file. Entries can be: <code>"title", "text"</code></dd>
+ *
  * <dt><code>classRegex</code> (String, optional)</dt>
  * <dd>RegEx to modify the classes set on the schedule (in {@link #getSubstitutionSchedule()}, not
  * {@link #getAllClasses()}. The RegEx is matched against the class using {@link Matcher#find()}. If the RegEx
@@ -85,6 +92,8 @@ public class CSVParser extends BaseParser {
     private static final String PARAM_SKIP_LINES = "skipLines";
     private static final String PARAM_COLUMNS = "columns";
     private static final String PARAM_WEBSITE = "website";
+    private static final String PARAM_ADDITIONAL_INFO_URL = "additionaUrl";
+    private static final String PARAM_ADDITIONAL_INFO_COLUMNS = "additionaColumns";
     private static final String PARAM_CLASSES_URL = "classesUrl";
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_URL = "url";
@@ -99,8 +108,37 @@ public class CSVParser extends BaseParser {
     @Override
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
-        String url = data.getString(PARAM_URL);
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
+
+        if (data.has(PARAM_ADDITIONAL_INFO_URL) && data.has(PARAM_ADDITIONAL_INFO_COLUMNS)) {
+            String additionaUrl = data.getString(PARAM_ADDITIONAL_INFO_URL);
+            if (additionaUrl.startsWith("webdav")) {
+                UserPasswordCredential credential = (UserPasswordCredential) this.credential;
+                try {
+                    Sardine client = getWebdavClient(credential);
+                    String httpUrl = additionaUrl.replaceFirst("webdav", "http");
+                    List<DavResource> files = client.list(httpUrl);
+                    for (DavResource file : files) {
+                        if (!file.isDirectory() && !file.getName().startsWith(".")) {
+                            LocalDateTime modified = new LocalDateTime(file.getModified());
+                            if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
+                                schedule.setLastChange(modified);
+                            }
+                            InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
+                            schedule = parseCSVAdditionalInfos(IOUtils.toString(stream, "UTF-8"), schedule);
+                        }
+                    }
+                } catch (GeneralSecurityException | URISyntaxException e) {
+                    throw new IOException(e);
+                }
+            } else {
+                new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
+                String additionaResponse = httpGet(additionaUrl);
+                schedule = parseCSVAdditionalInfos(additionaResponse, schedule);
+            }
+        }
+
+        String url = data.getString(PARAM_URL);
 
         if (url.startsWith("webdav")) {
             UserPasswordCredential credential = (UserPasswordCredential) this.credential;
@@ -127,6 +165,51 @@ public class CSVParser extends BaseParser {
             String response = httpGet(url);
             return parseCSV(response, schedule);
         }
+    }
+
+    @NotNull
+    SubstitutionSchedule parseCSVAdditionalInfos(String response, SubstitutionSchedule schedule)
+            throws JSONException, IOException, CredentialInvalidException {
+        String[] lines = response.split("\n");
+
+        String separator = data.getString(PARAM_SEPARATOR);
+        String quote = data.optString(PARAM_QUOTE, "\"");
+        String regex = separator + "(?=([^" + quote + "]*\"[^" + quote + "]*" + quote + ")" + "*[^" + quote + "]*$)";
+        JSONArray columnsArray = data.getJSONArray(PARAM_ADDITIONAL_INFO_COLUMNS);
+        for (int i = data.optInt(PARAM_SKIP_LINES, 0); i < lines.length; i++) {
+            String[] columns = lines[i].split(regex);
+            AdditionalInfo info = new AdditionalInfo();
+
+            int j = 0;
+            for (String column:columns) {
+                // ignore blank columns after last valid column
+                if (j >= columnsArray.length() && column.trim().isEmpty()) continue;
+
+                // remove quotes
+                if (column.startsWith(quote) && column.endsWith(quote)) {
+                    column = column.substring(quote.length(), column.length() - quote.length());
+                }
+
+                String type = columnsArray.getString(j);
+                switch (type) {
+                    case "title":
+                        info.setTitle(column);
+                        break;
+                    case "text":
+                        info.setText(column);
+                        break;
+                    case "ignore":
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown column type: " + type);
+                }
+                j++;
+            }
+            if (info.getText() != null && !info.getText().trim().equals("")) {
+                schedule.getAdditionalInfos().add(info);
+            }
+        }
+        return schedule;
     }
 
     @NotNull
