@@ -206,6 +206,7 @@ public class CSVParser extends BaseParser {
                 j++;
             }
             if (info.getText() != null && !info.getText().trim().equals("")) {
+                info.setFromSchedule(true);
                 schedule.getAdditionalInfos().add(info);
             }
         }
