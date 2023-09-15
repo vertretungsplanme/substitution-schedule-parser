@@ -109,6 +109,32 @@ public class CSVParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
+        String url = data.getString(PARAM_URL);
+
+        if (url.startsWith("webdav")) {
+            UserPasswordCredential credential = (UserPasswordCredential) this.credential;
+            try {
+                Sardine client = getWebdavClient(credential);
+                String httpUrl = url.replaceFirst("webdav", "http");
+                List<DavResource> files = client.list(httpUrl);
+                for (DavResource file : files) {
+                    if (!file.isDirectory() && !file.getName().startsWith(".")) {
+                        LocalDateTime modified = new LocalDateTime(file.getModified());
+                        if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
+                            schedule.setLastChange(modified);
+                        }
+                        InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
+                        parseCSV(IOUtils.toString(stream, "UTF-8"), schedule);
+                    }
+                }
+            } catch (GeneralSecurityException | URISyntaxException e) {
+                throw new IOException(e);
+            }
+        } else {
+            new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
+            String response = httpGet(url);
+            schedule = parseCSV(response, schedule);
+        }
 
         if (data.has(PARAM_ADDITIONAL_INFO_URL) && data.has(PARAM_ADDITIONAL_INFO_COLUMNS)) {
             String additionalUrl = data.getString(PARAM_ADDITIONAL_INFO_URL);
@@ -138,33 +164,7 @@ public class CSVParser extends BaseParser {
             }
         }
 
-        String url = data.getString(PARAM_URL);
-
-        if (url.startsWith("webdav")) {
-            UserPasswordCredential credential = (UserPasswordCredential) this.credential;
-            try {
-                Sardine client = getWebdavClient(credential);
-                String httpUrl = url.replaceFirst("webdav", "http");
-                List<DavResource> files = client.list(httpUrl);
-                for (DavResource file : files) {
-                    if (!file.isDirectory() && !file.getName().startsWith(".")) {
-                        LocalDateTime modified = new LocalDateTime(file.getModified());
-                        if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
-                            schedule.setLastChange(modified);
-                        }
-                        InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
-                        parseCSV(IOUtils.toString(stream, "UTF-8"), schedule);
-                    }
-                }
-                return schedule;
-            } catch (GeneralSecurityException | URISyntaxException e) {
-                throw new IOException(e);
-            }
-        } else {
-            new LoginHandler(scheduleData, credential, cookieProvider).handleLogin(executor, cookieStore);
-            String response = httpGet(url);
-            return parseCSV(response, schedule);
-        }
+        return schedule;
     }
 
     @NotNull
@@ -206,8 +206,17 @@ public class CSVParser extends BaseParser {
                 j++;
             }
             if (info.getText() != null && !info.getText().trim().equals("")) {
-                info.setFromSchedule(true);
-                schedule.getAdditionalInfos().add(info);
+                Boolean isDayMessage = false;
+                for (SubstitutionScheduleDay day : schedule.getDays()) {
+                    if (day.getDate().equals(ParserUtils.parseDate(info.getTitle()))) {
+                        day.addMessage(info.getText());
+                        isDayMessage = true;
+                    }
+                }
+                if (!isDayMessage) {
+                    info.setFromSchedule(true);
+                    schedule.getAdditionalInfos().add(info);
+                }
             }
         }
         return schedule;
