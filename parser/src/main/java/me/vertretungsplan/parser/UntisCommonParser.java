@@ -508,7 +508,7 @@ public abstract class UntisCommonParser extends BaseParser {
             } else {
                 affectedClasses = new ArrayList<>();
 
-                if (allClasses.contains(klassen)) {
+                if (allClasses != null && allClasses.contains(klassen)) {
                     affectedClasses.add(klassen);
                 } else if (klassen.matches("([\\d]{1,2}[a-zA-Z]+)+")) {
                     // we have something like 8ab9abc -> 8a, 8b, 9a, 9b, 9c
@@ -517,7 +517,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     while (matcher.find()) {
                         String base = matcher.group(1);
                         for (char letter : matcher.group(2).toCharArray()) {
-                            if (allClasses.contains(base + letter)) {
+                            if (allClasses != null && allClasses.contains(base + letter)) {
                                 affectedClasses.add(base + letter);
                             }
                         }
@@ -529,7 +529,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     if (matcher.find()) {
                         String base = matcher.group(1);
                         for (char number : matcher.group(2).toCharArray()) {
-                            if (allClasses.contains(base + "-" + number)) {
+                            if (allClasses != null && allClasses.contains(base + "-" + number)) {
                                 affectedClasses.add(base + "-" + number);
                             }
                         }
@@ -538,18 +538,20 @@ public abstract class UntisCommonParser extends BaseParser {
                     }
                 } else {
                     // fallback solution for backwards compatibility
-                    for (String klasse : allClasses) {
-                        StringBuilder regex = new StringBuilder();
-                        for (char character : klasse.toCharArray()) {
-                            if (character == '?') {
-                                regex.append("\\?");
-                            } else {
-                                regex.append(character);
+                    if (allClasses != null) {
+                        for (String klasse : allClasses) {
+                            StringBuilder regex = new StringBuilder();
+                            for (char character : klasse.toCharArray()) {
+                                if (character == '?') {
+                                    regex.append("\\?");
+                                } else {
+                                    regex.append(character);
+                                }
+                                regex.append(".*");
                             }
-                            regex.append(".*");
-                        }
-                        if (klassen.matches(regex.toString())) {
-                            affectedClasses.add(klasse);
+                            if (klassen.matches(regex.toString())) {
+                                affectedClasses.add(klasse);
+                            }
                         }
                     }
                 }
