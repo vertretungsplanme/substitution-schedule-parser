@@ -231,7 +231,7 @@ public class VPOParser extends BaseParser {
             teachersHashMap = new HashMap<>();
             for (int i = 0; i < teachers.length(); i++) {
                 JSONObject teacher = teachers.getJSONObject(i);
-                teachersHashMap.put(teacher.getString("id"), teacher.getString("name"));
+                teachersHashMap.put(Integer.toString(teacher.getInt("id")), teacher.getString("name"));
             }
         }
 
