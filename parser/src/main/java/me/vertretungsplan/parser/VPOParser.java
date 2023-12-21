@@ -55,7 +55,7 @@ public class VPOParser extends BaseParser {
     private static final String PARAM_JWT_KEY = "jwt_key";
 
     /**
-     * URL of given IPHIS instance
+     * URL of given VPO instance
      */
     private String api;
 
@@ -113,7 +113,7 @@ public class VPOParser extends BaseParser {
             substitutionSchedule.setTeachers(getAllTeachers());
             substitutionSchedule.setWebsite(website);
 
-            parseIphis(substitutionSchedule, changes, grades, teachers, messages);
+            parseVPO(substitutionSchedule, changes, grades, teachers, messages);
         }
         return substitutionSchedule;
     }
@@ -137,7 +137,7 @@ public class VPOParser extends BaseParser {
             e.printStackTrace();
         }
 
-        httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
+
         final String httpResponse = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
         final JSONObject token;
         try {
@@ -211,7 +211,7 @@ public class VPOParser extends BaseParser {
         }
     }
 
-    void parseIphis(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray grades,
+    void parseVPO(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray grades,
                     JSONArray teachers, JSONArray messages) throws IOException, JSONException {
         if (changes == null) {
             return;
@@ -222,7 +222,7 @@ public class VPOParser extends BaseParser {
             coursesHashMap = new HashMap<>();
             for (int i = 0; i < grades.length(); i++) {
                 JSONObject grade = grades.getJSONObject(i);
-                coursesHashMap.put(grade.getString("id"), grade.getString("name"));
+                coursesHashMap.put(Integer.toString(grade.getInt("id")), grade.getString("name"));
             }
         }
         // Link teacher IDs to their names
