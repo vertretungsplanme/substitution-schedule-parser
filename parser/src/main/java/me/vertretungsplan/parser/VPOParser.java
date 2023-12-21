@@ -13,7 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.*;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.objects.credential.PasswordCredential;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * <dd>The key used for signing the JWT</dd>
  * </dl>
  *
- * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
+ * You have to use a {@link me.vertretungsplan.objects.authentication.PasswordAuthenticationData} because all
  * schedules on VPO are protected by a login.
  */
 public class VPOParser extends BaseParser {
@@ -92,6 +92,7 @@ public class VPOParser extends BaseParser {
         try {
             api = "https://" + data.getString(PARAM_URL) + "/app";
             jwt_key = data.getString(PARAM_JWT_KEY);
+            website = "https://" + data.getString(PARAM_URL);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -125,13 +126,11 @@ public class VPOParser extends BaseParser {
     }
 
     private Boolean login() throws CredentialInvalidException, IOException {
-        final UserPasswordCredential userPasswordCredential = (UserPasswordCredential) credential;
-        final String username = userPasswordCredential.getUsername();
-        final String password = userPasswordCredential.getPassword();
+        final PasswordCredential PasswordCredential = (PasswordCredential) credential;
+        final String password = PasswordCredential.getPassword();
 
         JSONObject payload = new JSONObject();
         try {
-            payload.put("user", username);
             payload.put("type", scheduleData.getType());
             payload.put("password", password);
         } catch (JSONException e) {
@@ -143,15 +142,7 @@ public class VPOParser extends BaseParser {
         final JSONObject token;
         try {
             token = new JSONObject(httpResponse);
-
-            final String key = Base64.encodeBase64String(jwt_key.getBytes());
-            final Claims jwtToken = Jwts.parser().setSigningKey(key)
-                    .parseClaimsJws(token.getString("token")).getBody();
-            assert jwtToken.getSubject().equals("vertretungsplan.app");
-
-            authToken = token.getString("token");
-            website = jwtToken.getIssuer();
-            lastUpdate = new LocalDateTime(token.getLong("lastUpdate") * 1000);
+            authToken = token.getString("access_token");
         } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }
@@ -168,7 +159,7 @@ public class VPOParser extends BaseParser {
         // Date (or alias of date) when the changes end
         final String endBy = LocalDate.now().plusWeeks(1).toString();
 
-        final String url = api + "/changes/" + startBy + "/" + endBy;
+        final String url = api + "/changes"; //" + startBy + "/" + endBy;
         return getJSONArray(url);
     }
 
@@ -197,7 +188,7 @@ public class VPOParser extends BaseParser {
      */
     private void getTeachers() throws IOException, CredentialInvalidException {
         if (teachers == null) {
-            final String url = api + "/teacher";
+            final String url = api + "/tk/teachers";
             teachers = getJSONArray(url);
         }
     }
@@ -208,7 +199,6 @@ public class VPOParser extends BaseParser {
             headers.put("Authorization", "Bearer " + authToken);
             headers.put("Content-Type", "application/json");
             headers.put("Accept", "application/json");
-
             final String httpResponse = httpGet(url, "UTF-8", headers);
             return new JSONArray(httpResponse);
         } catch (HttpResponseException httpResponseException) {
@@ -267,7 +257,8 @@ public class VPOParser extends BaseParser {
         substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
-            final LocalDate substitutionDate = new LocalDate(change.getString("date"));
+            // final LocalDate substitutionDate = new LocalDate(change.getString("date"));
+            final LocalDate substitutionDate = new LocalDate();
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
