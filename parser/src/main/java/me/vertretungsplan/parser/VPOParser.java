@@ -188,7 +188,7 @@ public class VPOParser extends BaseParser {
      */
     private void getTeachers() throws IOException, CredentialInvalidException {
         if (teachers == null) {
-            final String url = api + "/tk/teachers";
+            final String url = api + "/teachers";
             teachers = getJSONArray(url);
         }
     }
