@@ -257,8 +257,7 @@ public class VPOParser extends BaseParser {
         substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
-            // final LocalDate substitutionDate = new LocalDate(change.getString("date"));
-            final LocalDate substitutionDate = new LocalDate();
+            final LocalDate substitutionDate = new LocalDate(change.getString("date"));
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
