@@ -322,7 +322,11 @@ public class VPOParser extends BaseParser {
         }
 
         // Set color
-        substitution.setColor(colorProvider.getColor(type));
+        if (change.getString("color") != null) {
+            substitution.setColor(change.getString("color"));
+        } else {
+            substitution.setColor(colorProvider.getColor(type));
+        }
         // Set covering teacher
         final String[] coveringTeacherIds = getSQLArray(change.getString("id_person_verantwortlich"));
         if (coveringTeacherIds.length > 0) {
