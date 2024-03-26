@@ -566,9 +566,9 @@ public class Substitution implements Cloneable {
     public String toString(SubstitutionSchedule.Type type) {
         switch (type) {
             case STUDENT:
-                return lesson + " " + classes.toString() + " " + getType() + " " + getText();
+                return lesson + " " + getColor() + " " + classes.toString() + " " + getType() + " " + getText();
             case TEACHER:
-                return lesson + " " + getPreviousAndCurrentTeacherText() + " " + getType() + " " + getTeacherText() +
+                return lesson + " " + getColor() + " " + getPreviousAndCurrentTeacherText() + " " + getType() + " " + getTeacherText() +
                         " (" +
                         (substitutionFrom != null ? substitutionFrom : "") + "/" +
                         (teacherTo != null ? teacherTo : "") + ")";
