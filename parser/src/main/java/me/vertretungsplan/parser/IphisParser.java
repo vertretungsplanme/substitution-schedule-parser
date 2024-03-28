@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.paour.comparator.NaturalOrderComparator;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -430,6 +432,7 @@ public class IphisParser extends BaseParser {
             final JSONObject grade = grades.getJSONObject(i);
             classesList.add(grade.getString("name"));
         }
+        Collections.sort(classesList, new NaturalOrderComparator());
         return classesList;
     }
 

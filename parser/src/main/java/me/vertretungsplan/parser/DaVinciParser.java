@@ -26,6 +26,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import com.paour.comparator.NaturalOrderComparator;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -476,6 +478,7 @@ public class DaVinciParser extends BaseParser {
             for (Element li : elems) {
                 classes.add(li.text());
             }
+            Collections.sort(classes, new NaturalOrderComparator());
             return classes;
         } else {
             return getClassesFromJson();

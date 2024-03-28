@@ -23,6 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.paour.comparator.NaturalOrderComparator;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -297,7 +299,7 @@ public class LegionBoardParser extends BaseParser {
 				classes.add(course.getString("name"));
 			}
 		}
-		Collections.sort(classes);
+		Collections.sort(classes, new NaturalOrderComparator());
 		return classes;
 	}
 

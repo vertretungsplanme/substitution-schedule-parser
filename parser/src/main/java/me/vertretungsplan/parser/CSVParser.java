@@ -10,6 +10,8 @@ package me.vertretungsplan.parser;
 
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
+import com.paour.comparator.NaturalOrderComparator;
+
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.Substitution;
@@ -30,6 +32,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -342,6 +345,7 @@ public class CSVParser extends BaseParser {
             for (String string:response.split("\n")) {
                 classes.add(string.trim());
             }
+            Collections.sort(classes, new NaturalOrderComparator());
             return classes;
         } else {
             return getClassesFromJson();
