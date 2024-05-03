@@ -350,12 +350,13 @@ public class VPOParser extends BaseParser {
             if (teachersHashMap == null) {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
-            for (String coveringTeacherId : coveringTeacherIds) {
-                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
-                    coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
+            final HashSet<String> teachers = new HashSet<>();
+            for (String teacherId : teacherIds) {
+                if (!teacherId.toLowerCase().equals("null") && teachersHashMap.get(teacherId) != null) {
+                    teachers.add(teachersHashMap.get(teacherId));
                 }
             }
-            substitution.setPreviousTeachers(coveringTeachers);
+            substitution.setPreviousTeachers(teachers);
         }
 
         //Set room
