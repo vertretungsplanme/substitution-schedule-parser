@@ -113,7 +113,7 @@ public class VPOParser extends BaseParser {
 
             substitutionSchedule.setClasses(getAllClasses());
             substitutionSchedule.setTeachers(getAllTeachers());
-            substitutionSchedule.setWebsite(website);
+            substitutionSchedule.setWebsite(website + "/loginPasswordOnly");
 
             parseVPO(substitutionSchedule, changes, grades, teachers, messages);
         }
