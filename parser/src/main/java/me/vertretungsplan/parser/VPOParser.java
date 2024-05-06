@@ -243,7 +243,7 @@ public class VPOParser extends BaseParser {
         for (int i = 0; i < messages.length(); i++) {
             JSONObject message = messages.getJSONObject(i);
             AdditionalInfo info = new AdditionalInfo();
-            info.setHasInformation(message.getBoolean("notification"));
+            info.setHasInformation(false);
             info.setTitle(message.getString("title").trim());
             info.setText(message.getString("message").trim());
             info.setFromSchedule(true);
