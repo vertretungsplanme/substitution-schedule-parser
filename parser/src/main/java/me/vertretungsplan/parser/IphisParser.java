@@ -60,6 +60,7 @@ public class IphisParser extends BaseParser {
     private static final String PARAM_URL = "url";
     private static final String PARAM_JWT_KEY = "jwt_key";
     private static final String PARAM_KUERZEL = "kuerzel";
+    private static final String PARAM_IS_PERSONAL = "isPersonal";
 
     /**
      * URL of given IPHIS instance
@@ -70,8 +71,12 @@ public class IphisParser extends BaseParser {
      * Shortcode for school
      */
     private String kuerzel;
+
     /** */
     private String jwt_key;
+
+    /** */
+    private Boolean isPersonal;
 
     /**  */
     private String website;
@@ -104,6 +109,11 @@ public class IphisParser extends BaseParser {
             api = "https://" + data.getString(PARAM_URL) + "/remote/vertretungsplan/ssp";
             kuerzel = data.getString(PARAM_KUERZEL);
             jwt_key = data.getString(PARAM_JWT_KEY);
+            if (data.has(PARAM_IS_PERSONAL)) {
+                isPersonal = data.getBoolean(PARAM_IS_PERSONAL);
+            } else {
+                isPersonal = false;
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -447,5 +457,10 @@ public class IphisParser extends BaseParser {
             teachersList.add(teacher.getString("name"));
         }
         return teachersList;
+    }
+
+    @Override
+    public boolean isPersonal() {
+        return isPersonal;
     }
 }

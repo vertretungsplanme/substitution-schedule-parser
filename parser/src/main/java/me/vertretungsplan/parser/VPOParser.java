@@ -55,6 +55,7 @@ public class VPOParser extends BaseParser {
 
     private static final String PARAM_URL = "url";
     private static final String PARAM_JWT_KEY = "jwt_key";
+    private static final String PARAM_IS_PERSONAL = "isPersonal";
 
     /**
      * URL of given VPO instance
@@ -63,6 +64,9 @@ public class VPOParser extends BaseParser {
 
     /** */
     private String jwt_key;
+
+    /** */
+    private Boolean isPersonal;
 
     /**  */
     private String website;
@@ -95,6 +99,11 @@ public class VPOParser extends BaseParser {
             api = "https://" + data.getString(PARAM_URL) + "/app";
             jwt_key = data.getString(PARAM_JWT_KEY);
             website = "https://" + data.getString(PARAM_URL);
+            if (data.has(PARAM_IS_PERSONAL)) {
+                isPersonal = data.getBoolean(PARAM_IS_PERSONAL);
+            } else {
+                isPersonal = false;
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -431,5 +440,10 @@ public class VPOParser extends BaseParser {
             teachersList.add(teacher.getString("name"));
         }
         return teachersList;
+    }
+
+    @Override
+    public boolean isPersonal() {
+        return isPersonal;
     }
 }
