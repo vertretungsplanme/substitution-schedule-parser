@@ -105,7 +105,7 @@ public class Substitution implements Cloneable {
 
     /**
      * Get the lesson which this substitution is for.
-     *
+     * <p>
      * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons.
      *
@@ -117,7 +117,7 @@ public class Substitution implements Cloneable {
 
     /**
      * Set the lesson which this substitution is for.
-     *
+     * <p>
      * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons. Required.
      *
@@ -190,7 +190,7 @@ public class Substitution implements Cloneable {
      * @return the teacher
      */
     public String getTeacher() {
-        return teachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(teachers) : null;
+        return !teachers.isEmpty() ? SubstitutionTextUtils.joinTeachers(teachers) : null;
     }
 
     /**
@@ -231,7 +231,7 @@ public class Substitution implements Cloneable {
      * @return the previous teacher
      */
     public String getPreviousTeacher() {
-        return previousTeachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
+        return !previousTeachers.isEmpty() ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
     }
 
     /**

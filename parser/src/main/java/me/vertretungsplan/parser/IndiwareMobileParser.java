@@ -83,7 +83,7 @@ public class IndiwareMobileParser extends BaseParser {
                 lastException = e;
             }
         }
-        if (docs.size() == 0 && lastException != null) {
+        if (docs.isEmpty() && lastException != null) {
             throw lastException;
         }
 
@@ -121,7 +121,7 @@ public class IndiwareMobileParser extends BaseParser {
             HashSet<String> classes = new HashSet<>();
             classes.add(className);
             for (Element lesson:klasse.select("Pl > Std")) {
-                if (lesson.select("If:not(:empty), Le[LeAe], Ra[RaAe], Fa[FaAe]").size() == 0) {
+                if (lesson.select("If:not(:empty), Le[LeAe], Ra[RaAe], Fa[FaAe]").isEmpty()) {
                     continue;
                 }
 

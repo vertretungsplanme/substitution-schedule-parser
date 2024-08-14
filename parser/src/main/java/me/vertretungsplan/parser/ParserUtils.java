@@ -121,7 +121,7 @@ class ParserUtils {
     }
 
     private static synchronized void reinitIfNeeded() {
-        if (dateFormatters.size() == 0 || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
+        if (dateFormatters.isEmpty() || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
             init();
         }
     }

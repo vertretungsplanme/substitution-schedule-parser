@@ -39,7 +39,6 @@ Below you find the currently supported substitution schedule softwares and the c
 * svPlan ([example](http://bls.infoboard-schleswig.de/dav/schueler1.html)) `"svplan"`
 * DaVinci ([example](http://hochtaunusschule.de/Vertretungsplan/)) `"davinci"`
 * ESchool ([example](http://eschool.topackt.com/?wp=d7406384445ce1fc9409bc90f95ccef5&go=vplan&content=x1)) `"eschool"`
-* [LegionBoard](https://legionboard.dorfbrunnen.eu/) `"legionboard"`
 * Indiware
   * XML export ([example](https://francisceum.de/vertretung/mo.xml)) `"indiware"`
   * XML export converted to HTML ([example](http://v-plan.gymnasium-nossen.de/v_plan_komplett/vplan_sch_html.html)) `"indiware"`

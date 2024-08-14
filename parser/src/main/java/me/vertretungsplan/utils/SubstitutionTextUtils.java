@@ -233,7 +233,7 @@ public class SubstitutionTextUtils {
     static boolean hasData(String string) {
         if (string != null) {
             String s = string.replaceAll("\\s", "");
-            return !(s.equals("") || s.equals("---"));
+            return !(s.isEmpty() || s.equals("---"));
         } else {
             return false;
         }

@@ -11,17 +11,12 @@ package me.vertretungsplan.parser;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;

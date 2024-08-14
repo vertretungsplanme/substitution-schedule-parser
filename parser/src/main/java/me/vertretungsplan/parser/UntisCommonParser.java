@@ -125,11 +125,11 @@ public abstract class UntisCommonParser extends BaseParser {
             }
         }
 
-        if (doc.select("table.mon_head").size() > 0) {
+        if (!doc.select("table.mon_head").isEmpty()) {
             Element monHead = doc.select("table.mon_head").first();
             lastChange = findLastChangeFromMonHeadTable(monHead);
         } else if (lastChangeLeft) {
-            final String bodyHtml = doc.select("body").size() > 0 ? doc.select("body").html() : doc.html();
+            final String bodyHtml = !doc.select("body").isEmpty() ? doc.select("body").html() : doc.html();
             lastChange = bodyHtml.substring(0, bodyHtml.indexOf("<p>") - 1);
         } else {
             List<Node> childNodes;
@@ -154,7 +154,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     private static String findLastChangeFromMonHeadTable(Element monHead) {
-        if (monHead.select("td[align=right]").size() == 0) return null;
+        if (monHead.select("td[align=right]").isEmpty()) return null;
 
         String lastChange = null;
         Pattern pattern = Pattern.compile("\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d \\d\\d:\\d\\d");
@@ -206,7 +206,7 @@ public abstract class UntisCommonParser extends BaseParser {
         Elements headerRows = table.select("tr:has(th)");
 
         List<String> columnTitles = new ArrayList<>();
-        if (headerRows.size() > 0) {
+        if (!headerRows.isEmpty()) {
             Elements headers = headerRows.get(0).select("th");
             for (int i = 0; i < headers.size(); i++) {
                 StringBuilder builder = new StringBuilder();
@@ -214,7 +214,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 for (Element headerRow : headerRows) {
                     final String text = headerRow.select("th").get(i).text().replace("\u00a0", " ").trim();
                     if (first) {
-                        if (!text.equals("")) first = false;
+                        if (!text.isEmpty()) first = false;
                     } else {
                         builder.append(" ");
                     }
@@ -228,7 +228,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
         final JSONArray columnsJson = data.optJSONArray(PARAM_COLUMNS);
         List<String> columns = new ArrayList<>();
-        if (columnsJson != null && (columnTitles.size() == 0 || columnTitles.size() == columnsJson.length())) {
+        if (columnsJson != null && (columnTitles.isEmpty() || columnTitles.size() == columnsJson.length())) {
             for (int i = 0; i < columnsJson.length(); i++) columns.add(columnsJson.getString(i));
         } else {
             for (String title : columnTitles) {
@@ -278,7 +278,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 }
 
                 final Element previousLine = zeile.previousElementSibling();
-                if (isGroupMessage(zeile) && previousLine != null && previousLine.select(".inline_header").size() > 0) {
+                if (isGroupMessage(zeile) && previousLine != null && !previousLine.select(".inline_header").isEmpty()) {
                     addGroupMessage(day, getClassName(previousLine.text(), data), zeile);
                     continue;
                 }
@@ -414,7 +414,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     v.setSubject(course);
                 }
 
-                if (v.getLesson() == null || v.getLesson().equals("")) {
+                if (v.getLesson() == null || v.getLesson().isEmpty()) {
                     continue;
                 }
 
@@ -726,7 +726,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     v.setTeacher(teacherName);
                 }
 
-                if (v.getLesson() != null && !v.getLesson().equals("")) {
+                if (v.getLesson() != null && !v.getLesson().isEmpty()) {
                     day.addSubstitution(v);
                 }
 
@@ -751,7 +751,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private void autoDetectType(JSONObject data, Element zeile, Substitution v) {
         if (v.getType() == null) {
             if (data.optBoolean(PARAM_TYPE_AUTO_DETECTION, true)) {
-                if ((zeile.select("strike").size() > 0 &&
+                if ((!zeile.select("strike").isEmpty() &&
                         equalsOrNull(v.getSubject(), v.getPreviousSubject()) &&
                         equalsOrNull(v.getTeacher(), v.getPreviousTeacher()))
                         || (v.getSubject() == null && (v.getRoom() == null || v.getRoom().equals(v.getPreviousRoom()))
@@ -773,9 +773,9 @@ public abstract class UntisCommonParser extends BaseParser {
     static void handleTeacher(Substitution subst, Element cell, JSONObject data, boolean previousTeacher) {
         if (data.optBoolean(PARAM_EXCLUDE_TEACHERS)) return;
         cell = getContentElement(cell);
-        if (cell.select("s").size() > 0) {
+        if (!cell.select("s").isEmpty()) {
             subst.setPreviousTeachers(splitTeachers(cell.select("s").text(), data));
-            if (cell.ownText().length() > 0) {
+            if (!cell.ownText().isEmpty()) {
                 subst.setTeachers(splitTeachers(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""), data));
             }
         } else {
@@ -799,9 +799,9 @@ public abstract class UntisCommonParser extends BaseParser {
 
     static void handleRoom(Substitution subst, Element cell, boolean previousRoom) {
         cell = getContentElement(cell);
-        if (cell.select("s").size() > 0) {
+        if (!cell.select("s").isEmpty()) {
             subst.setPreviousRoom(cell.select("s").text());
-            if (cell.ownText().length() > 0) {
+            if (!cell.ownText().isEmpty()) {
                 subst.setRoom(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
             }
         } else {
@@ -822,9 +822,9 @@ public abstract class UntisCommonParser extends BaseParser {
 
     static void handleSubject(Substitution subst, Element cell, boolean previousSubject) {
         cell = getContentElement(cell);
-        if (cell.select("s").size() > 0) {
+        if (!cell.select("s").isEmpty()) {
             subst.setPreviousSubject(cell.select("s").text());
-            if (cell.ownText().length() > 0) {
+            if (!cell.ownText().isEmpty()) {
                 subst.setSubject(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
             }
         } else {
@@ -838,7 +838,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
     private boolean isEmpty(String text) {
         final String trim = text.replaceAll("\u00A0", "").trim();
-        return trim.equals("") || trim.equals("---") || trim.equals("+");
+        return trim.isEmpty() || trim.equals("---") || trim.equals("+");
     }
 
     /**
@@ -884,12 +884,12 @@ public abstract class UntisCommonParser extends BaseParser {
         }
 
         // NACHRICHTEN
-        if (doc.select("table.info").size() > 0) {
+        if (!doc.select("table.info").isEmpty()) {
             parseMessages(doc.select("table.info").first(), day);
         }
 
         // VERTRETUNGSPLAN
-        if (doc.select("table:has(tr.list)").size() > 0) {
+        if (!doc.select("table:has(tr.list)").isEmpty()) {
             parseSubstitutionScheduleTable(doc.select("table:has(tr.list)").first(), data, day, getAllClasses());
         }
 
@@ -912,10 +912,10 @@ public abstract class UntisCommonParser extends BaseParser {
     void parseDay(SubstitutionScheduleDay day, Element next, SubstitutionSchedule v, String klasse, List<String>
             allClasses) throws
             JSONException, CredentialInvalidException, IOException {
-        if (next.children().size() == 0) {
+        if (next.children().isEmpty()) {
             next = next.nextElementSibling();
         }
-        if (next.className().equals("subst") || next.select(".list").size() > 0
+        if (next.className().equals("subst") || !next.select(".list").isEmpty()
                 || next.text().contains("Vertretungen sind nicht freigegeben")
                 || next.text().contains("Keine Vertretungen")) {
             //Vertretungstabelle
@@ -941,10 +941,10 @@ public abstract class UntisCommonParser extends BaseParser {
                 Element next = doc.select(".mon_head").get(j).nextElementSibling();
                 if (next != null && next.tagName().equals("center")) {
                     doc2.body().appendChild(next.select(".mon_title").first().clone());
-                    if (next.select("table:has(tr.list)").size() > 0) {
+                    if (!next.select("table:has(tr.list)").isEmpty()) {
                         doc2.body().appendChild(next.select("table:has(tr.list)").first());
                     }
-                    if (next.select("table.info").size() > 0) {
+                    if (!next.select("table.info").isEmpty()) {
                         doc2.body().appendChild(next.select("table.info").first());
                     }
                 } else if (doc.select(".mon_title").size() - 1 >= j) {
@@ -982,11 +982,6 @@ public abstract class UntisCommonParser extends BaseParser {
     /**
      * Parses an Untis substitution table ({@link UntisSubstitutionParser}).
      *
-     * @param v
-     * @param lastChange
-     * @param doc
-     * @throws JSONException
-     * @throws CredentialInvalidException
      */
     protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc, String className)
             throws JSONException, CredentialInvalidException, IOException {

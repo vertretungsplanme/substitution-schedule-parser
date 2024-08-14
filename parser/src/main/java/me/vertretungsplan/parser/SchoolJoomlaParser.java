@@ -156,7 +156,7 @@ public class SchoolJoomlaParser extends BaseParser {
             }
 
             final JSONArray ticker = data.getJSONObject("vertretungsplan").getJSONArray("schuelernewsticker");
-            if (ticker.length() > 0) {
+            if (!ticker.isEmpty()) {
                 final StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < ticker.length(); i++) {
                     if (i > 0) builder.append("\n\n");
@@ -219,7 +219,7 @@ public class SchoolJoomlaParser extends BaseParser {
         final JSONObject data = new JSONObject(json);
 
         final int error = data.getInt("error");
-        if (error != 0 || data.getJSONArray("errors").length() > 0) {
+        if (error != 0 || !data.getJSONArray("errors").isEmpty()) {
             switch (error) {
                 case 12: // wrong teacher password
                 case 17: // wrong student password

@@ -120,24 +120,24 @@ public class TurboVertretungParser extends BaseParser {
             return;
         }
 
-        if (doc.select(".LehrerFrueher").size() > 0) {
+        if (!doc.select(".LehrerFrueher").isEmpty()) {
             day.addMessage(doc.select(".LehrerFrueherLabel").text() + "\n" + doc.select(".LehrerFrueher").text());
         }
-        if (doc.select(".LehrerVerplant").size() > 0) {
+        if (!doc.select(".LehrerVerplant").isEmpty()) {
             day.addMessage(doc.select(".LehrerVerplantLabel").text() + "\n" + doc.select(".LehrerVerplant").text());
         }
-        if (doc.select(".Abwesenheiten-Klassen").size() > 0) {
+        if (!doc.select(".Abwesenheiten-Klassen").isEmpty()) {
             day.addMessage(doc.select(".Abwesenheiten-KlassenLabel").text() + "\n" +
                     doc.select(".Abwesenheiten-Klassen").text());
         }
-        if (doc.select(".Abwesenheiten").size() > 0) {
+        if (!doc.select(".Abwesenheiten").isEmpty()) {
             day.addMessage(doc.select(".AbwesenheitenLabel").text() + "\n" +
                     doc.select(".Abwesenheiten").text());
         }
 
         Element table = doc.select("table").first();
         for (Element row : table.select("tr:has(td)")) {
-            if (row.select(".Klasseleer").size() > 0) continue;
+            if (!row.select(".Klasseleer").isEmpty()) continue;
 
             Substitution substitution = new Substitution();
             substitution.setLesson(row.select(query("Stunde")).text());

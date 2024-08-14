@@ -72,7 +72,6 @@ public class SubstitutionScheduleData {
      *     <li>{@code "davinci"}</li>
      *     <li>{@code "turbovertretung"}</li>
      *     <li>{@code "csv"}</li>
-     *     <li>{@code "legionboard"}</li>
      * </ul>
      *
      * @param api the type of parser to use
@@ -86,7 +85,7 @@ public class SubstitutionScheduleData {
      * {@link me.vertretungsplan.additionalinfo.BaseAdditionalInfoParser#getInstance(String)} to create a suitable
      * parser instance.
      *
-     * @return the set of additional info types
+     * @return the list of additional info types
      */
     public List<String> getAdditionalInfos() {
         return additionalInfos;

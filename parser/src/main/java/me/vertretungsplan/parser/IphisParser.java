@@ -336,7 +336,7 @@ public class IphisParser extends BaseParser {
             }
             final HashSet<String> classes = new HashSet<>();
             for (String classId : classIds) {
-                if (!classId.toLowerCase().equals("null")) {
+                if (!classId.equalsIgnoreCase("null")) {
                     if (gradesHashMap.containsKey(classId)) {
                         classes.add(gradesHashMap.get(classId));
                     } else {
@@ -348,7 +348,7 @@ public class IphisParser extends BaseParser {
         }
         // Set type
         final String type = change.getString("aenderungsgrund").trim();
-        if (!type.isEmpty() && !type.toLowerCase().equals("null")) {
+        if (!type.isEmpty() && !type.equalsIgnoreCase("null")) {
             substitution.setType(type);
         } else {
             substitution.setType("Vertretung");
@@ -364,7 +364,7 @@ public class IphisParser extends BaseParser {
                 throw new IOException("Change references a covering teacher but teachers are empty.");
             }
             for (String coveringTeacherId : coveringTeacherIds) {
-                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
+                if (!coveringTeacherId.equalsIgnoreCase("null") && teachersHashMap.get(coveringTeacherId) != null) {
                     coveringTeachers.add(teachersHashMap.get(coveringTeacherId));
                 }
             }
@@ -378,7 +378,7 @@ public class IphisParser extends BaseParser {
                 throw new IOException("Change references a teacher but teachers are empty.");
             }
             for (String teacherId : teacherIds) {
-                if (!teacherId.toLowerCase().equals("null") && teachersHashMap.get(teacherId) != null) {
+                if (!teacherId.equalsIgnoreCase("null") && teachersHashMap.get(teacherId) != null) {
                     teachers.add(teachersHashMap.get(teacherId));
                 }
             }
@@ -386,42 +386,42 @@ public class IphisParser extends BaseParser {
         }
 
         //Set room
-        if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
+        if (!change.optString("raum").isEmpty() && !change.optString("raum").equalsIgnoreCase("null")) {
             substitution.setRoom(change.optString("raum"));
         } else if (!change.optString("raum_orig").isEmpty() &&
-                !change.optString("raum_orig").toLowerCase().equals("null")) {
+                !change.optString("raum_orig").equalsIgnoreCase("null")) {
             substitution.setRoom(change.optString("raum_orig"));
         }
-        if (!change.optString("raum_orig").isEmpty() && !change.optString("raum_orig").toLowerCase().equals("null")) {
+        if (!change.optString("raum_orig").isEmpty() && !change.optString("raum_orig").equalsIgnoreCase("null")) {
             substitution.setPreviousRoom(change.optString("raum_orig"));
-        } else if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
+        } else if (!change.optString("raum").isEmpty() && !change.optString("raum").equalsIgnoreCase("null")) {
             substitution.setPreviousRoom(change.optString("raum"));
         }
         //Set subject
-        if (!change.optString("fach").isEmpty() && !change.optString("fach").toLowerCase().equals("null")) {
+        if (!change.optString("fach").isEmpty() && !change.optString("fach").equalsIgnoreCase("null")) {
             substitution.setSubject(change.optString("fach"));
         }
-        if (!change.optString("fach_orig").isEmpty() && !change.optString("fach_orig").toLowerCase().equals("null")) {
+        if (!change.optString("fach_orig").isEmpty() && !change.optString("fach_orig").equalsIgnoreCase("null")) {
             substitution.setPreviousSubject(change.optString("fach_orig"));
         }
 
         //Set description
         if (!change.getString("information").isEmpty() &&
-                !change.getString("information").toLowerCase().equals("null")) {
+                !change.getString("information").equalsIgnoreCase("null")) {
             substitution.setDesc(change.getString("information").trim());
         }
 
         final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
         final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
-        if (!startingHour.equals("") || !endingHour.equals("")) {
+        if (!startingHour.isEmpty() || !endingHour.isEmpty()) {
             String lesson = "";
-            if (!startingHour.equals("") && endingHour.equals("")) {
+            if (!startingHour.isEmpty() && endingHour.isEmpty()) {
                 lesson = "Ab " + startingHour;
             }
-            if (startingHour.equals("") && !endingHour.equals("")) {
+            if (startingHour.isEmpty() && !endingHour.isEmpty()) {
                 lesson = "Bis " + endingHour;
             }
-            if (!startingHour.equals("") && !endingHour.equals("")) {
+            if (!startingHour.isEmpty() && !endingHour.isEmpty()) {
                 lesson = startingHour + " - " + endingHour;
             }
             if (startingHour.equals(endingHour)) {

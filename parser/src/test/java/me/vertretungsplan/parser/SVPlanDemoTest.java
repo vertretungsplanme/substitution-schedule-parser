@@ -131,7 +131,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         assertEquals(0, day.getMessages().size());
 
         for (Substitution subst : day.getSubstitutions()) {
-            if (!subst.getSubject().equals("Profi")) assertTrue(subst.getClasses().size() >= 1);
+            if (!subst.getSubject().equals("Profi")) assertTrue(!subst.getClasses().isEmpty());
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
             assertNotEmpty(subst.getSubject());
@@ -157,7 +157,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
 
         for (Substitution subst : schedule2.getDays().get(0).getSubstitutions()) {
             if (subst.getSubject().equals("Netzw")) {
-                assertTrue(subst.getClasses().size() == 0);
+                assertTrue(subst.getClasses().isEmpty());
             } else {
                 assertTrue(subst.getClasses().size() == 1);
             }

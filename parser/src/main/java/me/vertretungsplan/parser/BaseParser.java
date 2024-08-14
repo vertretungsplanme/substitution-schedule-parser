@@ -184,9 +184,6 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "csv":
                 parser = new CSVParser(data, cookieProvider);
                 break;
-            case "legionboard":
-                parser = new LegionBoardParser(data, cookieProvider);
-                break;
             case "iphis":
                 parser = new IphisParser(data, cookieProvider);
                 break;
@@ -248,7 +245,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
         for (final TrustManager tm : tms) {
             if (tm instanceof X509TrustManager) {
-                return X509TrustManager.class.cast(tm);
+                return (X509TrustManager) tm;
             }
         }
         throw new IllegalStateException("Could not locate X509TrustManager!");
@@ -577,7 +574,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.localSource = localSource;
     }
 
-    private class CustomHostnameVerifier implements HostnameVerifier {
+    private static class CustomHostnameVerifier implements HostnameVerifier {
         private String host;
         private DefaultHostnameVerifier defaultHostnameVerifier;
 
@@ -596,7 +593,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return false;
     }
 
-    private class NoOpDebuggingDataHandler implements DebuggingDataHandler {
+    private static class NoOpDebuggingDataHandler implements DebuggingDataHandler {
         @Override public void columnTitles(List<String> columnTitles) {
 
         }

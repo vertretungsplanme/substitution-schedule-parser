@@ -8,13 +8,11 @@
 
 package me.vertretungsplan.parser;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.*;
 import me.vertretungsplan.objects.credential.PasswordCredential;
-import org.apache.commons.codec.binary.Base64;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
 import org.joda.time.LocalDate;
@@ -47,14 +45,13 @@ import java.util.regex.Pattern;
  * <dt><code>jwt_key</code> (String, required)</dt>
  * <dd>The key used for signing the JWT</dd>
  * </dl>
- *
+ * <p>
  * You have to use a {@link me.vertretungsplan.objects.authentication.PasswordAuthenticationData} because all
  * schedules on VPO are protected by a login.
  */
 public class VPOParser extends BaseParser {
 
     private static final String PARAM_URL = "url";
-    private static final String PARAM_JWT_KEY = "jwt_key";
     private static final String PARAM_IS_PERSONAL = "isPersonal";
 
     /**
@@ -62,13 +59,14 @@ public class VPOParser extends BaseParser {
      */
     private String api;
 
-    /** */
-    private String jwt_key;
-
-    /** */
+    /**
+     *
+     */
     private Boolean isPersonal;
 
-    /**  */
+    /**
+     *
+     */
     private String website;
 
     /**
@@ -97,7 +95,6 @@ public class VPOParser extends BaseParser {
         JSONObject data = scheduleData.getData();
         try {
             api = "https://" + data.getString(PARAM_URL) + "/app";
-            jwt_key = data.getString(PARAM_JWT_KEY);
             website = "https://" + data.getString(PARAM_URL);
             if (data.has(PARAM_IS_PERSONAL)) {
                 isPersonal = data.getBoolean(PARAM_IS_PERSONAL);
@@ -129,7 +126,8 @@ public class VPOParser extends BaseParser {
         return substitutionSchedule;
     }
 
-    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override
+    public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
         if (lastUpdate == null) {
             login();
         }
@@ -137,11 +135,20 @@ public class VPOParser extends BaseParser {
     }
 
     private Boolean login() throws CredentialInvalidException, IOException {
-        final PasswordCredential PasswordCredential = (PasswordCredential) credential;
-        final String password = PasswordCredential.getPassword();
+        String password = "";
+        String username = "";
+        if (credential.getClass() == PasswordCredential.class) {
+            final PasswordCredential PasswordCredential = (PasswordCredential) credential;
+            password = PasswordCredential.getPassword();
+        } else if (credential.getClass() == UserPasswordCredential.class) {
+            final UserPasswordCredential UserPasswordCredential = (UserPasswordCredential) credential;
+            password = UserPasswordCredential.getPassword();
+            username = UserPasswordCredential.getUsername();
+        }
 
         JSONObject payload = new JSONObject();
         try {
+            payload.put("user", username);
             payload.put("type", scheduleData.getType());
             payload.put("password", password);
         } catch (JSONException e) {
@@ -223,7 +230,7 @@ public class VPOParser extends BaseParser {
     }
 
     void parseVPO(SubstitutionSchedule substitutionSchedule, JSONArray changes, JSONArray grades,
-                    JSONArray teachers, JSONArray messages) throws IOException, JSONException {
+                  JSONArray teachers, JSONArray messages) throws IOException, JSONException {
         if (changes == null) {
             return;
         }
@@ -314,7 +321,7 @@ public class VPOParser extends BaseParser {
             }
             final HashSet<String> classes = new HashSet<>();
             for (String classId : classIds) {
-                if (!classId.toLowerCase().equals("null")) {
+                if (!classId.equalsIgnoreCase("null")) {
                     if (gradesHashMap.containsKey(classId)) {
                         classes.add(gradesHashMap.get(classId));
                     } else {
@@ -326,7 +333,7 @@ public class VPOParser extends BaseParser {
         }
         // Set type
         final String type = change.getString("aenderungsgrund").trim();
-        if (!type.isEmpty() && !type.toLowerCase().equals("null")) {
+        if (!type.isEmpty() && !type.equalsIgnoreCase("null")) {
             substitution.setType(type);
         } else {
             substitution.setType("Vertretung");
@@ -346,7 +353,7 @@ public class VPOParser extends BaseParser {
             }
             final HashSet<String> teachers = new HashSet<>();
             for (String coveringTeacherId : coveringTeacherIds) {
-                if (!coveringTeacherId.toLowerCase().equals("null") && teachersHashMap.get(coveringTeacherId) != null) {
+                if (!coveringTeacherId.equalsIgnoreCase("null") && teachersHashMap.get(coveringTeacherId) != null) {
                     teachers.add(teachersHashMap.get(coveringTeacherId));
                 }
             }
@@ -361,7 +368,7 @@ public class VPOParser extends BaseParser {
             }
             final HashSet<String> teachers = new HashSet<>();
             for (String teacherId : teacherIds) {
-                if (!teacherId.toLowerCase().equals("null") && teachersHashMap.get(teacherId) != null) {
+                if (!teacherId.equalsIgnoreCase("null") && teachersHashMap.get(teacherId) != null) {
                     teachers.add(teachersHashMap.get(teacherId));
                 }
             }
@@ -369,42 +376,42 @@ public class VPOParser extends BaseParser {
         }
 
         //Set room
-        if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
+        if (!change.optString("raum").isEmpty() && !change.optString("raum").equalsIgnoreCase("null")) {
             substitution.setRoom(change.optString("raum"));
         } else if (!change.optString("raum_orig").isEmpty() &&
-                !change.optString("raum_orig").toLowerCase().equals("null")) {
+                !change.optString("raum_orig").equalsIgnoreCase("null")) {
             substitution.setRoom(change.optString("raum_orig"));
         }
-        if (!change.optString("raum_orig").isEmpty() && !change.optString("raum_orig").toLowerCase().equals("null")) {
+        if (!change.optString("raum_orig").isEmpty() && !change.optString("raum_orig").equalsIgnoreCase("null")) {
             substitution.setPreviousRoom(change.optString("raum_orig"));
-        } else if (!change.optString("raum").isEmpty() && !change.optString("raum").toLowerCase().equals("null")) {
+        } else if (!change.optString("raum").isEmpty() && !change.optString("raum").equalsIgnoreCase("null")) {
             substitution.setPreviousRoom(change.optString("raum"));
         }
         //Set subject
-        if (!change.optString("fach").isEmpty() && !change.optString("fach").toLowerCase().equals("null")) {
+        if (!change.optString("fach").isEmpty() && !change.optString("fach").equalsIgnoreCase("null")) {
             substitution.setSubject(change.optString("fach"));
         }
-        if (!change.optString("fach_orig").isEmpty() && !change.optString("fach_orig").toLowerCase().equals("null")) {
+        if (!change.optString("fach_orig").isEmpty() && !change.optString("fach_orig").equalsIgnoreCase("null")) {
             substitution.setPreviousSubject(change.optString("fach_orig"));
         }
 
         //Set description
         if (!change.getString("information").isEmpty() &&
-                !change.getString("information").toLowerCase().equals("null")) {
+                !change.getString("information").equalsIgnoreCase("null")) {
             substitution.setDesc(change.getString("information").trim());
         }
 
         final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
         final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
-        if (!startingHour.equals("") || !endingHour.equals("")) {
+        if (!startingHour.isEmpty() || !endingHour.isEmpty()) {
             String lesson = "";
-            if (!startingHour.equals("") && endingHour.equals("")) {
+            if (!startingHour.isEmpty() && endingHour.isEmpty()) {
                 lesson = "Ab " + startingHour;
             }
-            if (startingHour.equals("") && !endingHour.equals("")) {
+            if (startingHour.isEmpty() && !endingHour.isEmpty()) {
                 lesson = "Bis " + endingHour;
             }
-            if (!startingHour.equals("") && !endingHour.equals("")) {
+            if (!startingHour.isEmpty() && !endingHour.isEmpty()) {
                 lesson = startingHour + " - " + endingHour;
             }
             if (startingHour.equals(endingHour)) {

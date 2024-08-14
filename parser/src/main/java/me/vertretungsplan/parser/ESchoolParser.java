@@ -86,7 +86,7 @@ public class ESchoolParser extends BaseParser {
         String url = BASE_URL + "?" + URLEncodedUtils.format(nvps, "UTF-8");
 
         Document doc = Jsoup.parse(httpGet(url, ENCODING));
-        if (doc.select("form[name=loginform]").size() > 0
+        if (!doc.select("form[name=loginform]").isEmpty()
                 && scheduleData.getAuthenticationData() instanceof PasswordAuthenticationData) {
             // Login required
             List<NameValuePair> formParams = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ESchoolParser extends BaseParser {
 
             // skip over table headers
             Element row = th.parent().nextElementSibling().nextElementSibling();
-            while (row != null && row.select("th").size() == 0) {
+            while (row != null && row.select("th").isEmpty()) {
                 Substitution subst = new Substitution();
                 subst.setLesson(lesson);
 
