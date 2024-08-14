@@ -207,7 +207,7 @@ public class ESchoolParser extends BaseParser {
     }
 
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException {
+    public List<String> getAllClasses() throws JSONException {
         return getClassesFromJson();
     }
 

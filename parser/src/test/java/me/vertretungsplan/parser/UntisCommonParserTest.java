@@ -17,35 +17,37 @@ import org.jsoup.nodes.Element;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class UntisCommonParserTest {
     @Test
-    public void testHandleRoomSingle() throws Exception {
+    public void testHandleRoomSingle() {
         Substitution subst = new Substitution();
         Element cell = Jsoup.parse("<table><td>224</td></table>")
                 .select("td").first();
 
         UntisCommonParser.handleRoom(subst, cell, false);
-        assertEquals(null, subst.getPreviousRoom());
+        assertNull(subst.getPreviousRoom());
         assertEquals("224", subst.getRoom());
     }
 
     @Test
-    public void testHandleRoomSinglePrevious() throws Exception {
+    public void testHandleRoomSinglePrevious() {
         Substitution subst = new Substitution();
         Element cell = Jsoup.parse("<table><td><s>264</s></td></table>")
                 .select("td").first();
 
         UntisCommonParser.handleRoom(subst, cell, false);
         assertEquals("264", subst.getPreviousRoom());
-        assertEquals(null, subst.getRoom());
+        assertNull(subst.getRoom());
     }
 
     @Test
-    public void testHandleRoomBoth() throws Exception {
+    public void testHandleRoomBoth() {
         Substitution subst = new Substitution();
         Element cell = Jsoup.parse("<table><td><s>248</s>?236</td></table>")
                 .select("td").first();
@@ -56,7 +58,7 @@ public class UntisCommonParserTest {
     }
 
     @Test
-    public void testHandleRoomBothSpan() throws Exception {
+    public void testHandleRoomBothSpan() {
         Substitution subst = new Substitution();
         Element cell = Jsoup.parse("<table><td><span style=\"color: #010101\"><s>248</s>?236</span></td></table>")
                 .select("td").first();
@@ -67,12 +69,12 @@ public class UntisCommonParserTest {
     }
 
     @Test
-    public void testHandleClasses() throws JSONException, CredentialInvalidException {
+    public void testHandleClasses() throws JSONException {
         JSONObject data = new JSONObject("{\"classesSeparated\": false}");
 
         Substitution subst = new Substitution();
         UntisCommonParser.handleClasses(data, subst, "11a", Arrays.asList("11a", "11b", "12a"));
-        assertEquals(new HashSet<>(Arrays.asList("11a")), subst.getClasses());
+        assertEquals(new HashSet<>(Collections.singletonList("11a")), subst.getClasses());
 
         subst = new Substitution();
         UntisCommonParser.handleClasses(data, subst, "1112", Arrays.asList("11", "12"));

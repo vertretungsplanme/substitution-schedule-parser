@@ -36,7 +36,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
     }
 
     @Override
-    public AdditionalInfo getAdditionalInfo() throws IOException {
+    public AdditionalInfo getAdditionalInfo() throws IOException, CloneNotSupportedException {
         AdditionalInfo info = new AdditionalInfo();
         info.setTitle(getTitle());
 
@@ -134,8 +134,9 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
                 events.add(item);
             }
         }
-        Collections.sort(events, new Comparator<Event>() {
-            @Override public int compare(Event o1, Event o2) {
+        events.sort(new Comparator<Event>() {
+            @Override
+            public int compare(Event o1, Event o2) {
                 return o1.startDate.compareTo(o2.startDate);
             }
         });
@@ -210,7 +211,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
         return timezone;
     }
 
-    private class Event implements Cloneable {
+    private static class Event implements Cloneable {
         public String summary;
         public String description;
         public String location;
@@ -221,8 +222,8 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
         public boolean endHasTime;
 
         @Override
-        protected Event clone() {
-            Event clone = new Event();
+        protected Event clone() throws CloneNotSupportedException {
+            Event clone = (Event) super.clone();
             clone.summary = this.summary;
             clone.description = this.description;
             clone.location = this.location;

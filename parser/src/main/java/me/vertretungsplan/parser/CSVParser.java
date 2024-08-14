@@ -100,7 +100,7 @@ public class CSVParser extends BaseParser {
     private static final String PARAM_CLASSES = "classes";
     private static final String PARAM_URL = "url";
     private static final String PARAM_QUOTE = "quote";
-    private JSONObject data;
+    private final JSONObject data;
 
     public CSVParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -129,7 +129,7 @@ public class CSVParser extends BaseParser {
                         parseCSV(IOUtils.toString(stream, StandardCharsets.UTF_8), schedule);
                     }
                 }
-            } catch (GeneralSecurityException | URISyntaxException e) {
+            } catch (GeneralSecurityException e) {
                 throw new IOException(e);
             }
         } else {
@@ -156,7 +156,7 @@ public class CSVParser extends BaseParser {
                             schedule = parseCSVAdditionalInfos(IOUtils.toString(stream, StandardCharsets.UTF_8), schedule);
                         }
                     }
-                } catch (GeneralSecurityException | URISyntaxException e) {
+                } catch (GeneralSecurityException e) {
                     throw new IOException(e);
                 }
             } else {
@@ -171,7 +171,7 @@ public class CSVParser extends BaseParser {
 
     @NotNull
     SubstitutionSchedule parseCSVAdditionalInfos(String response, SubstitutionSchedule schedule)
-            throws JSONException, IOException, CredentialInvalidException {
+            throws JSONException {
         String[] lines = response.split("\n");
 
         String separator = data.getString(PARAM_SEPARATOR);
@@ -208,7 +208,7 @@ public class CSVParser extends BaseParser {
                 j++;
             }
             if (info.getText() != null && !info.getText().trim().isEmpty()) {
-                Boolean isDayMessage = false;
+                boolean isDayMessage = false;
                 for (SubstitutionScheduleDay day : schedule.getDays()) {
                     if (day.getDate().equals(ParserUtils.parseDate(info.getTitle()))) {
                         day.addMessage(info.getText());
@@ -226,7 +226,7 @@ public class CSVParser extends BaseParser {
 
     @NotNull
     SubstitutionSchedule parseCSV(String response, SubstitutionSchedule schedule)
-            throws JSONException, IOException, CredentialInvalidException {
+            throws JSONException, IOException {
         String[] lines = response.split("\n");
 
         String separator = data.getString(PARAM_SEPARATOR);
@@ -344,7 +344,8 @@ public class CSVParser extends BaseParser {
             for (String string:response.split("\n")) {
                 classes.add(string.trim());
             }
-            Collections.sort(classes, new NaturalOrderComparator());
+            //noinspection unchecked
+            classes.sort(new NaturalOrderComparator());
             return classes;
         } else {
             return getClassesFromJson();

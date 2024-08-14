@@ -40,7 +40,7 @@ public class UntisInfoDemoTest extends BaseDemoTest {
     @Test
     public void demoTest() throws IOException, JSONException, CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-        parser.parseSubstitutionDays(schedule, "29.06.2017 12:10", doc, null, new ArrayList<String>());
+        parser.parseSubstitutionDays(schedule, "29.06.2017 12:10", doc, null, new ArrayList<>());
         assertEquals(2, schedule.getDays().size());
         if (schedule.getDays().get(0).getSubstitutions().size() == 31) {
             assertEquals(24, schedule.getDays().get(1).getSubstitutions().size());

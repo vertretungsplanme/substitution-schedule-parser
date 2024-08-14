@@ -58,7 +58,7 @@ public class SchoolJoomlaParser extends BaseParser {
     }
 
     @NotNull SubstitutionSchedule parse(JSONObject data)
-            throws JSONException, IOException, CredentialInvalidException {
+            throws JSONException, IOException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
         schedule.setLastChange(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseLocalDateTime(data.getString
                 ("lastupdate")));
@@ -252,7 +252,7 @@ public class SchoolJoomlaParser extends BaseParser {
         return classes;
     }
 
-    @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
+    @Override public List<String> getAllTeachers() {
         return new ArrayList<>();
     }
 }

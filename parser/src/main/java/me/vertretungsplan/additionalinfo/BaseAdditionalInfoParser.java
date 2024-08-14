@@ -102,7 +102,7 @@ public abstract class BaseAdditionalInfoParser {
         return parser;
     }
 
-    public abstract AdditionalInfo getAdditionalInfo() throws IOException;
+    public abstract AdditionalInfo getAdditionalInfo() throws IOException, CloneNotSupportedException;
 
     @SuppressWarnings("SameParameterValue")
     protected String httpGet(String url, String encoding) throws IOException {

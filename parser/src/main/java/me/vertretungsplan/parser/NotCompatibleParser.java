@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public class NotCompatibleParser extends BaseParser {
     private final SubstitutionScheduleData scheduleData;
@@ -32,8 +33,7 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override
-    public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
-            CredentialInvalidException {
+    public SubstitutionSchedule getSubstitutionSchedule() throws JSONException {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
         v.setLastChange(new LocalDateTime(2000, 1, 1, 0, 0));
         SubstitutionScheduleDay today = new SubstitutionScheduleDay();
@@ -49,14 +49,18 @@ public class NotCompatibleParser extends BaseParser {
         today.addSubstitution(subst);
 
         String appName = null;
-        if (scheduleData.getApi().equals("dsbmobile")) {
-            appName = "DSBmobile";
-        } else if (scheduleData.getApi().equals("webuntis")) {
-            appName = "Untis Mobile";
-        } else if (scheduleData.getApi().equals("not-desired")) {
-            appName = "not-desired";
+        switch (scheduleData.getApi()) {
+            case "dsbmobile":
+                appName = "DSBmobile";
+                break;
+            case "webuntis":
+                appName = "Untis Mobile";
+                break;
+            case "not-desired":
+                appName = "not-desired";
+                break;
         }
-        if (appName == "not-desired") {
+        if (Objects.equals(appName, "not-desired")) {
             today.addMessage("Auf Wunsch der Schulleitung wurde der Vertretungsplan dieser Schule aus der App " +
                     "entfernt. Bei Fragen wenden Sie sich bitte direkt an die Schulleitung. " +
                     "Lehrkräfte und Schulleiter/-innen können sich unter info@vertretungsplan.me bei uns melden, " +
@@ -75,12 +79,12 @@ public class NotCompatibleParser extends BaseParser {
         v.addDay(today);
 
         v.setClasses(getAllClasses());
-        v.setTeachers(new ArrayList<String>());
+        v.setTeachers(new ArrayList<>());
 
         return v;
     }
 
-    @Override public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
+    @Override public List<String> getAllClasses() throws JSONException {
         List<String> classes = getClassesFromJson();
         if (classes == null) {
             classes = new ArrayList<>();
@@ -89,11 +93,11 @@ public class NotCompatibleParser extends BaseParser {
         return classes;
     }
 
-    @Override public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
+    @Override public List<String> getAllTeachers() {
         return null;
     }
 
-    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override public LocalDateTime getLastChange() {
         return new LocalDateTime(2000, 1, 1, 0, 0);
     }
 
@@ -105,7 +109,4 @@ public class NotCompatibleParser extends BaseParser {
         return null;
     }
 
-    @Override public boolean isPersonal() {
-        return false;
-    }
 }

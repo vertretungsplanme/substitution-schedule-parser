@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ColumnTypeDetector {
-    private HashMap<String, String> columns;
+    private final HashMap<String, String> columns;
 
     public ColumnTypeDetector() throws IOException, JSONException {
         columns = new HashMap<>();

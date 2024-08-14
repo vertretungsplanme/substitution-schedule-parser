@@ -23,13 +23,11 @@ import static org.junit.Assert.assertEquals;
 
 public class SchoolJoomlaDemoTest extends BaseDemoTest {
     private String jsonAllData;
-    private String jsonConfig;
     private SchoolJoomlaParser parser;
 
     @Before
     public void setUp() throws JSONException {
         jsonAllData = readResource("/schooljoomla/allData.json");
-        jsonConfig = readResource("/schooljoomla/configuration.json");
 
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject("{\"baseurl\":\"http://test\"}"));

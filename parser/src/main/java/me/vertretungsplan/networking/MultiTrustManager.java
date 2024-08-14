@@ -72,6 +72,6 @@ public class MultiTrustManager implements X509TrustManager
         for (X509TrustManager trustManager : trustManagers) {
             certificates.addAll(Arrays.asList(trustManager.getAcceptedIssuers()));
         }
-        return certificates.toArray(new X509Certificate[certificates.size()]);
+        return certificates.toArray(new X509Certificate[0]);
     }
 }

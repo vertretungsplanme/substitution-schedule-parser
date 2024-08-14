@@ -96,7 +96,7 @@ public class ColorProvider {
         for (String string : GRAY_VALUES) defaultColorMap.put(string.toLowerCase(), colorNames.get("gray"));
     }
 
-    private HashMap<String, String> colorMap = new HashMap<>();
+    private final HashMap<String, String> colorMap = new HashMap<>();
     private String defaultColor = colorNames.get("purple");
 
     ColorProvider(SubstitutionScheduleData data) {

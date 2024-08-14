@@ -13,20 +13,17 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.json.JSONException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
 public class IndiwareMobileDemoTest extends BaseDemoTest {
 
     @Test
-    public void demoTest() throws IOException, JSONException {
+    public void demoTest() {
         Document doc = Jsoup.parse(readResource("/indiware-mobile/indiware-mobile.xml"), "", Parser.xmlParser());
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setType(SubstitutionSchedule.Type.STUDENT);

@@ -40,11 +40,10 @@ public interface SubstitutionScheduleParser {
      *
      * @return the time when the substitution schedule was last changed
      * @throws IOException                Connection or parsing error
-     * @throws JSONException              Error with the JSON configuration
      * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
      *                                    not correct
      */
-    LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException;
+    LocalDateTime getLastChange() throws IOException, CredentialInvalidException;
 
     void setCredential(Credential credential);
 

@@ -70,7 +70,7 @@ public class IndiwareParser extends BaseParser {
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_EMBEDDED_CONTENT_SELECTOR = "embeddedContentSelector";
     private static final String PARAM_SPLIT_TEACHERS = "splitTeachers";
-    protected JSONObject data;
+    protected final JSONObject data;
 
     private static final int MAX_DAYS = 7;
 
@@ -230,9 +230,9 @@ public class IndiwareParser extends BaseParser {
         Elements aktionen();
     }
 
-    private class XMLDataSource implements DataSource {
-        private Element vp;
-        private Element kopf;
+    private static class XMLDataSource implements DataSource {
+        private final Element vp;
+        private final Element kopf;
 
         public XMLDataSource(Element doc) {
             vp = doc.select("vp").first();
@@ -272,8 +272,8 @@ public class IndiwareParser extends BaseParser {
         }
     }
 
-    private class HTMLDataSource implements DataSource {
-        private Element doc;
+    private static class HTMLDataSource implements DataSource {
+        private final Element doc;
 
         public HTMLDataSource(Element doc) {
             this.doc = doc;
@@ -578,12 +578,12 @@ public class IndiwareParser extends BaseParser {
     }
 
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException {
+    public List<String> getAllClasses() throws JSONException {
         return getClassesFromJson();
     }
 
     @Override
-    public List<String> getAllTeachers() throws IOException, JSONException {
+    public List<String> getAllTeachers() {
         return null;
     }
 

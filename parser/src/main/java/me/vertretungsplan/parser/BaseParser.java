@@ -71,13 +71,13 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     static final String CLASS_RANGES_RANGE_FORMAT = "rangeFormat";
     static final String CLASS_RANGES_SINGLE_FORMAT = "singleFormat";
 
-    protected SubstitutionScheduleData scheduleData;
+    protected final SubstitutionScheduleData scheduleData;
     protected Executor executor;
     protected Credential credential;
-    protected CookieStore cookieStore;
-    protected ColorProvider colorProvider;
-    protected CookieProvider cookieProvider;
-    protected UniversalDetector encodingDetector;
+    protected final CookieStore cookieStore;
+    protected final ColorProvider colorProvider;
+    protected final CookieProvider cookieProvider;
+    protected final UniversalDetector encodingDetector;
     protected DebuggingDataHandler debuggingDataHandler;
     protected Sardine sardine;
     private Path localSource;
@@ -225,7 +225,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return sardine;
     }
 
-    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override public LocalDateTime getLastChange() throws IOException, CredentialInvalidException {
         // default implementation returns null
         return null;
     }
@@ -575,8 +575,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     private static class CustomHostnameVerifier implements HostnameVerifier {
-        private String host;
-        private DefaultHostnameVerifier defaultHostnameVerifier;
+        private final String host;
+        private final DefaultHostnameVerifier defaultHostnameVerifier;
 
         public CustomHostnameVerifier(String host) {
             this.host = host;

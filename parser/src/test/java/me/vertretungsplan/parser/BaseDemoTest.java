@@ -11,8 +11,7 @@ package me.vertretungsplan.parser;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BaseDemoTest {
     /**
@@ -53,11 +52,11 @@ public class BaseDemoTest {
     }
 
     protected static void assertNullOrNotEmpty(String value) {
-        if (value != null) assertTrue(!value.isEmpty());
+        if (value != null) assertFalse(value.isEmpty());
     }
 
     protected static void assertNotEmpty(String value) {
         assertNotNull(value);
-        assertTrue(!value.isEmpty());
+        assertFalse(value.isEmpty());
     }
 }

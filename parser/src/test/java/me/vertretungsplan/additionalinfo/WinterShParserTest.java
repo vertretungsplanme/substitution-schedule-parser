@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class WinterShParserTest extends BaseDemoTest {
     @Test
-    public void testNoInfo() throws Exception {
+    public void testNoInfo() {
         String xml = readResource("/winter-sh/no-info.xml");
         AdditionalInfo info = WinterShParser.handleXML(xml);
         assertFalse(info.hasInformation());

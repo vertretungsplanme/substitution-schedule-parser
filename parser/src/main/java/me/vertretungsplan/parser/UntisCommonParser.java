@@ -202,7 +202,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private void parseSubstitutionScheduleTable(Element table, JSONObject data,
                                                 SubstitutionScheduleDay day, String defaultClass, List<String>
                                                         allClasses, boolean untisSubst)
-            throws JSONException, CredentialInvalidException, IOException {
+            throws JSONException, IOException {
         Elements headerRows = table.select("tr:has(th)");
 
         List<String> columnTitles = new ArrayList<>();
@@ -447,7 +447,7 @@ public abstract class UntisCommonParser extends BaseParser {
     }
 
     static void handleClasses(JSONObject data, Substitution v, String klassen, List<String> allClasses)
-            throws JSONException, CredentialInvalidException {
+            throws JSONException {
         List<String> affectedClasses;
 
         if (data.has(PARAM_ALL_CLASSES_COURSES)) {
@@ -568,7 +568,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
     private void parseWithExtraLine(JSONObject data, SubstitutionScheduleDay day, List<String> columns, Element element,
                                     String className, String teacherName) {
-        Element zeile = null;
+        Element zeile;
         try {
             zeile = element.parent().nextElementSibling();
             if (zeile.select("td") == null) {

@@ -15,7 +15,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DiffTest {
     @Test
@@ -27,7 +27,7 @@ public class DiffTest {
         s1.setSubject("Entfall");
         s1.setPreviousSubject("SPA");
         s1.setTeachers(new HashSet<>(Arrays.asList(new String[]{"KW", "ER"})));
-        s1.setPreviousTeachers(new HashSet<String>());
+        s1.setPreviousTeachers(new HashSet<>());
         s1.setColor("#F44336");
         s1.setDesc("fällt aus");
 
@@ -38,11 +38,11 @@ public class DiffTest {
         s2.setSubject("Entfall");
         s2.setPreviousSubject("SPA");
         s2.setTeachers(new HashSet<>(Arrays.asList(new String[]{"KW", "ER"})));
-        s2.setPreviousTeachers(new HashSet<String>());
+        s2.setPreviousTeachers(new HashSet<>());
         s2.setColor("#F44336");
         s2.setDesc("fällt aus");
 
-        assertTrue(s1.equals(s2));
+        assertEquals(s1, s2);
 
         SubstitutionScheduleDay d1 = new SubstitutionScheduleDay();
         d1.addSubstitution(s1);
@@ -50,6 +50,6 @@ public class DiffTest {
         d2.addSubstitution(s2);
 
         SubstitutionScheduleDayDiff dayDiff = SubstitutionScheduleDayDiff.compare(d1, d2);
-        assertTrue(!dayDiff.isNotEmpty());
+        assertFalse(dayDiff.isNotEmpty());
     }
 }

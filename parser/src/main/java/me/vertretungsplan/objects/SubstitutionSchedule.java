@@ -30,8 +30,8 @@ public class SubstitutionSchedule implements Cloneable {
     private LocalDateTime lastChange;
     private String lastChangeString;
     private String website;
-    private List<SubstitutionScheduleDay> days;
-    private List<AdditionalInfo> additionalInfos;
+    private final List<SubstitutionScheduleDay> days;
+    private final List<AdditionalInfo> additionalInfos;
     private List<String> classes;
     private List<String> teachers;
 
@@ -242,7 +242,7 @@ public class SubstitutionSchedule implements Cloneable {
             lastChange = newDay.getLastChange();
         }
         addOrMergeDay(newDay);
-        Collections.sort(days, new Comparator<SubstitutionScheduleDay>() {
+        days.sort(new Comparator<SubstitutionScheduleDay>() {
             @Override
             public int compare(SubstitutionScheduleDay a, SubstitutionScheduleDay b) {
                 if (a.getDate() != null && b.getDate() != null) {
