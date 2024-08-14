@@ -118,7 +118,7 @@ public class UntisInfoParser extends UntisCommonParser {
         }
     }
 
-    private String getNavbarDoc() throws JSONException, IOException, CredentialInvalidException {
+    private String getNavbarDoc() throws IOException, CredentialInvalidException {
         if (navbarDoc == null) {
             String navbarUrl = baseUrl + "/frames/navbar.htm";
             navbarDoc = httpGet(navbarUrl, data.optString(PARAM_ENCODING, null));
@@ -330,7 +330,7 @@ public class UntisInfoParser extends UntisCommonParser {
     }
 
     private int getRowspan(Element cell) {
-        return cell.hasAttr("rowspan") ? Integer.valueOf(cell.attr("rowspan")) : 1;
+        return cell.hasAttr("rowspan") ? Integer.parseInt(cell.attr("rowspan")) : 1;
     }
 
     private String getTimetableLesson(Element cell, int row, Map<Integer, String> lessons) {

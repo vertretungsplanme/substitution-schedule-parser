@@ -6,5 +6,5 @@ mainClassName = "me.vertretungsplan.sample.Sample"
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
-    compile project(':parser')
+    implementation project(':parser')
 }

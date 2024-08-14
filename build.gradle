@@ -1,11 +1,11 @@
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 }
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3'
@@ -16,8 +16,10 @@ buildscript {
 // turn off Java 8's doclint (causes problems with HTML5 markup in Javadoc)
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
+        tasks.withType(Javadoc).tap {
+            configureEach {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
         }
     }
 }
@@ -38,9 +40,9 @@ nexusStaging {
     password = nexusPassword
 }
 
-task uploadAndReleaseParser {
+tasks.register('uploadAndReleaseParser') {
     // uploads the parser to Maven Central and releases from staging repository into maven central repo
     dependsOn ':parser:publish'
     dependsOn 'closeAndReleaseRepository'
-    tasks.findByName('closeAndReleaseRepository').mustRunAfter ':parser:publish'
+    mustRunAfter ':parser:publish'
 }

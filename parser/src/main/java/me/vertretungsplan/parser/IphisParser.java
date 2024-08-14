@@ -18,6 +18,7 @@ import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
@@ -51,7 +52,7 @@ import java.util.regex.Pattern;
  * <dt><code>jwt_key</code> (String, required)</dt>
  * <dd>The key used for signing the JWT</dd>
  * </dl>
- *
+ * <p>
  * You have to use a {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData} because all
  * schedules on IPHIS are protected by a login.
  */
@@ -72,13 +73,19 @@ public class IphisParser extends BaseParser {
      */
     private String kuerzel;
 
-    /** */
+    /**
+     *
+     */
     private String jwt_key;
 
-    /** */
+    /**
+     *
+     */
     private Boolean isPersonal;
 
-    /**  */
+    /**
+     *
+     */
     private String website;
 
     /**
@@ -139,7 +146,8 @@ public class IphisParser extends BaseParser {
         return substitutionSchedule;
     }
 
-    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override
+    public LocalDateTime getLastChange() throws IOException, CredentialInvalidException {
         if (lastUpdate == null) {
             login();
         }
@@ -159,6 +167,7 @@ public class IphisParser extends BaseParser {
             payload.put("password", password);
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
 
         httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
@@ -198,7 +207,7 @@ public class IphisParser extends BaseParser {
     /**
      * Returns a JSONArray with all messages.
      */
-    private void getMessages() throws IOException, JSONException, CredentialInvalidException {
+    private void getMessages() throws IOException, CredentialInvalidException {
         if (messages == null) {
             final String url = api + "/nachrichten";
             messages = getJSONArray(url);
@@ -208,7 +217,7 @@ public class IphisParser extends BaseParser {
     /**
      * Returns a JSONArray with all grades.
      */
-    private void getGrades() throws IOException, JSONException, CredentialInvalidException {
+    private void getGrades() throws IOException, CredentialInvalidException {
         if (grades == null) {
             final String url = api + "/klassen";
             grades = getJSONArray(url);
@@ -414,26 +423,32 @@ public class IphisParser extends BaseParser {
         final String startingHour = change.getString("zeit_von").replaceFirst("^0+(?!$)", "");
         final String endingHour = change.getString("zeit_bis").replaceFirst("^0+(?!$)", "");
         if (!startingHour.isEmpty() || !endingHour.isEmpty()) {
-            String lesson = "";
-            if (!startingHour.isEmpty() && endingHour.isEmpty()) {
-                lesson = "Ab " + startingHour;
-            }
-            if (startingHour.isEmpty() && !endingHour.isEmpty()) {
-                lesson = "Bis " + endingHour;
-            }
-            if (!startingHour.isEmpty() && !endingHour.isEmpty()) {
-                lesson = startingHour + " - " + endingHour;
-            }
-            if (startingHour.equals(endingHour)) {
-                lesson = startingHour;
-            }
+            String lesson = getLessonSubstitutionString(startingHour, endingHour);
             substitution.setLesson(lesson);
         }
         return substitution;
     }
 
+    @NotNull
+    private static String getLessonSubstitutionString(String startingHour, String endingHour) {
+        String lesson = "";
+        if (!startingHour.isEmpty() && endingHour.isEmpty()) {
+            lesson = "Ab " + startingHour;
+        }
+        if (startingHour.isEmpty() && !endingHour.isEmpty()) {
+            lesson = "Bis " + endingHour;
+        }
+        if (!startingHour.isEmpty() && !endingHour.isEmpty()) {
+            lesson = startingHour + " - " + endingHour;
+        }
+        if (startingHour.equals(endingHour)) {
+            lesson = startingHour;
+        }
+        return lesson;
+    }
+
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
+    public List<String> getAllClasses() throws JSONException {
         final List<String> classesList = new ArrayList<>();
         if (grades == null) {
             return null;
@@ -442,12 +457,13 @@ public class IphisParser extends BaseParser {
             final JSONObject grade = grades.getJSONObject(i);
             classesList.add(grade.getString("name"));
         }
-        Collections.sort(classesList, new NaturalOrderComparator());
+        //noinspection unchecked
+        classesList.sort(new NaturalOrderComparator());
         return classesList;
     }
 
     @Override
-    public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
+    public List<String> getAllTeachers() throws JSONException {
         final List<String> teachersList = new ArrayList<>();
         if (teachers == null) {
             return null;

@@ -83,18 +83,17 @@ public class DaVinciParser extends BaseParser {
         super(scheduleData, cookieProvider);
     }
 
-    static void parseDaVinciTable(Element table, SubstitutionSchedule v, ColorProvider colorProvider)
-            throws IOException {
+    static void parseDaVinciTable(Element table, SubstitutionSchedule v, ColorProvider colorProvider) {
         parseDaVinciTable(table, v, null, null, colorProvider);
     }
 
     static void parseDaVinciTable(Element table, SubstitutionSchedule v, SubstitutionScheduleDay day, ColorProvider
-            colorProvider) throws IOException {
+            colorProvider) {
         parseDaVinciTable(table, v, null, day, colorProvider);
     }
 
     static void parseDaVinciTable(Element table, SubstitutionSchedule v, String klasse, SubstitutionScheduleDay day,
-                                  ColorProvider colorProvider) throws IOException {
+                                  ColorProvider colorProvider) {
         boolean skipRow = false;
         List<String> headers = new ArrayList<>();
         for (Element header : table.select("thead tr th")) {
@@ -364,8 +363,7 @@ public class DaVinciParser extends BaseParser {
         }
     }
 
-    @NotNull
-    static void parsePage(Element doc, SubstitutionSchedule schedule, ColorProvider colorProvider) throws IOException {
+    static void parsePage(Element doc, SubstitutionSchedule schedule, ColorProvider colorProvider) {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         Element titleElem;
@@ -478,7 +476,8 @@ public class DaVinciParser extends BaseParser {
             for (Element li : elems) {
                 classes.add(li.text());
             }
-            Collections.sort(classes, new NaturalOrderComparator());
+            //noinspection unchecked
+            classes.sort(new NaturalOrderComparator());
             return classes;
         } else {
             return getClassesFromJson();

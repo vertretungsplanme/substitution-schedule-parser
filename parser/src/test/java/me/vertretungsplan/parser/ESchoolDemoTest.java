@@ -31,7 +31,7 @@ public class ESchoolDemoTest extends BaseDemoTest {
     private ESchoolParser parser;
 
     @Before
-    public void setUp() throws JSONException {
+    public void setUp() {
         html = readResource("/eschool/eschool.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
@@ -51,7 +51,7 @@ public class ESchoolDemoTest extends BaseDemoTest {
         assertEquals(0, day.getMessages().size());
 
         for (Substitution subst : day.getSubstitutions()) {
-            assertTrue(subst.getClasses().size() == 1);
+            assertEquals(1, subst.getClasses().size());
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
             assertNotEmpty(subst.getSubject());

@@ -52,7 +52,7 @@ import java.util.*;
 public class TurboVertretungParser extends BaseParser {
     private static final String PARAM_URLS = "urls";
     private static final String PARAM_ENCODING = "encoding";
-    private JSONObject data;
+    private final JSONObject data;
 
     public TurboVertretungParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -172,7 +172,7 @@ public class TurboVertretungParser extends BaseParser {
     }
 
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException {
+    public List<String> getAllClasses() throws JSONException {
         return getClassesFromJson();
     }
 

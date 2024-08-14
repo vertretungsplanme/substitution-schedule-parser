@@ -10,7 +10,6 @@ package me.vertretungsplan.objects.authentication;
 
 import me.vertretungsplan.objects.credential.Credential;
 import me.vertretungsplan.objects.credential.PasswordCredential;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PasswordAuthenticationData implements AuthenticationData {
@@ -20,7 +19,7 @@ public class PasswordAuthenticationData implements AuthenticationData {
     }
 
     @Override
-    public JSONObject getData() throws JSONException {
+    public JSONObject getData() {
         return null;
     }
 }

@@ -22,8 +22,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class UntisLastChangeTest {
 
-    private Document doc;
-    private String date;
+    private final Document doc;
+    private final String date;
 
     public UntisLastChangeTest(Document doc, String description, String date) {
         this.doc = doc;
@@ -65,7 +65,7 @@ public class UntisLastChangeTest {
     }
 
     @Test
-    public void testFindLastChange() throws Exception {
+    public void testFindLastChange() {
         assertEquals(date, UntisCommonParser.findLastChange(doc, null));
     }
 }

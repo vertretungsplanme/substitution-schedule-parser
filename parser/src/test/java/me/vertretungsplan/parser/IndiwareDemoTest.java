@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class IndiwareDemoTest extends BaseDemoTest {
     private IndiwareParser parser;
@@ -31,7 +32,7 @@ public class IndiwareDemoTest extends BaseDemoTest {
     private String html;
 
     @Before
-    public void setUp() throws JSONException {
+    public void setUp() {
         xml = readResource("/indiware/indiware.xml");
         html = readResource("/indiware/indiware.html");
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
@@ -116,7 +117,7 @@ public class IndiwareDemoTest extends BaseDemoTest {
         assertEquals("1234", subst.getRoom());
         assertEquals("Mat", subst.getPreviousSubject());
         assertEquals("Mül", subst.getPreviousTeacher());
-        assertEquals(null, subst.getDesc());
+        assertNull(subst.getDesc());
         assertEquals("Vertretung", subst.getType());
     }
 }

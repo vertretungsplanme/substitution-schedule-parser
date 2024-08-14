@@ -166,7 +166,7 @@ public class IndiwareTest {
     public void testClassAndCourse() throws JSONException {
         IndiwareParser.ClassAndCourse cac = new IndiwareParser.ClassAndCourse("5a,5b", null);
         assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);
-        assertEquals(null, cac.course);
+        assertNull(cac.course);
 
         cac = new IndiwareParser.ClassAndCourse("5a,5b/ Deu1", null);
         assertEquals(new HashSet<>(Arrays.asList("5a", "5b")), cac.classes);

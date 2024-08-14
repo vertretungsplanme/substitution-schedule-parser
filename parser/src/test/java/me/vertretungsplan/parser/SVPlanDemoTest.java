@@ -25,8 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SVPlanDemoTest extends BaseDemoTest {
     private String html1;
@@ -103,7 +102,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         assertEquals("Sprechtag Frau Fildebrandt (Klasse 9).", day.getMessages().get(0));
 
         for (Substitution subst : day.getSubstitutions()) {
-            assertTrue(subst.getClasses().size() == 1);
+            assertEquals(1, subst.getClasses().size());
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
             assertNotEmpty(subst.getSubject());
@@ -131,7 +130,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         assertEquals(0, day.getMessages().size());
 
         for (Substitution subst : day.getSubstitutions()) {
-            if (!subst.getSubject().equals("Profi")) assertTrue(!subst.getClasses().isEmpty());
+            if (!subst.getSubject().equals("Profi")) assertFalse(!subst.getClasses().isEmpty());
             assertNotEmpty(subst.getLesson());
             assertNullOrNotEmpty(subst.getPreviousSubject());
             assertNotEmpty(subst.getSubject());
@@ -150,7 +149,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
         for (Substitution subst : schedule.getDays().get(0).getSubstitutions()) {
-            assertTrue(subst.getClasses().size() == 1);
+            assertEquals(1, subst.getClasses().size());
         }
 
         SubstitutionSchedule schedule2 = parserWithoutRepeat.parseSVPlanSchedule(docs);
@@ -159,7 +158,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
             if (subst.getSubject().equals("Netzw")) {
                 assertTrue(subst.getClasses().isEmpty());
             } else {
-                assertTrue(subst.getClasses().size() == 1);
+                assertEquals(1, subst.getClasses().size());
             }
         }
     }

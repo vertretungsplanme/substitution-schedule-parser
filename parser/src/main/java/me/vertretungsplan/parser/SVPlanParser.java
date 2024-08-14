@@ -82,7 +82,7 @@ public class SVPlanParser extends BaseParser {
     private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
     private static final String PARAM_REPEAT_CLASS = "repeatClass";
     private static final String PARAM_FORCE_ALL_PAGES = "forceAllPages";
-    private JSONObject data;
+    private final JSONObject data;
 
     public SVPlanParser(SubstitutionScheduleData scheduleData, CookieProvider cookieProvider) {
         super(scheduleData, cookieProvider);
@@ -396,8 +396,7 @@ public class SVPlanParser extends BaseParser {
         }
     }
 
-    private void loadUrl(String url, String encoding, List<Document> docs)
-            throws IOException, CredentialInvalidException {
+    private void loadUrl(String url, String encoding, List<Document> docs) {
 
     }
 

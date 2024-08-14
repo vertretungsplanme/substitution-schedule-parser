@@ -27,7 +27,7 @@ public class SubstitutionScheduleDay implements Cloneable {
     private LocalDateTime lastChange;
     private String lastChangeString;
     private Set<Substitution> substitutions;
-    private List<String> messages;
+    private final List<String> messages;
     private String comment;
 
     public SubstitutionScheduleDay() {
@@ -326,8 +326,9 @@ public class SubstitutionScheduleDay implements Cloneable {
         }
 
         List<Substitution> sortedSubstitutions = new ArrayList<>(substitutions);
-        Collections.sort(sortedSubstitutions, new Comparator<Substitution>() {
-            @Override public int compare(Substitution o1, Substitution o2) {
+        sortedSubstitutions.sort(new Comparator<Substitution>() {
+            @Override
+            public int compare(Substitution o1, Substitution o2) {
                 return new NaturalOrderComparator().compare(o1.getLesson(), o2.getLesson());
             }
         });

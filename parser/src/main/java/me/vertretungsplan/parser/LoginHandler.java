@@ -131,9 +131,9 @@ public class LoginHandler {
     private static final String PARAM_CHECK_TEXT = "checkText";
     private static final String PARAM_ENCODING = "encoding";
     private static final String PARAM_HIDRIVE_SHARE_ID = "hidrive_share_id";
-    private SubstitutionScheduleData scheduleData;
-    private Credential auth;
-    private CookieProvider cookieProvider;
+    private final SubstitutionScheduleData scheduleData;
+    private final Credential auth;
+    private final CookieProvider cookieProvider;
 
     LoginHandler(SubstitutionScheduleData scheduleData, Credential auth,
                  @Nullable CookieProvider cookieProvider) {

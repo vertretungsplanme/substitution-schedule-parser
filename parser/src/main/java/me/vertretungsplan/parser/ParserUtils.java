@@ -31,9 +31,9 @@ import java.util.regex.Pattern;
 
 class ParserUtils {
 
-    private static List<DateTimeFormatter> dateTimeFormatters = new ArrayList<>();
-    private static List<DateTimeFormatter> dateFormatters = new ArrayList<>();
-    private static String[] dateFormats = new String[]{
+    private static final List<DateTimeFormatter> dateTimeFormatters = new ArrayList<>();
+    private static final List<DateTimeFormatter> dateFormatters = new ArrayList<>();
+    private static final String[] dateFormats = new String[]{
             "dd.M.yy EEEE",
             "dd.M.yyyy EEEE",
             "dd.M. EEEE",
@@ -87,18 +87,18 @@ class ParserUtils {
             "EEEE, d. MMMM yy",
             "EEEE, d. MMMM yyyy"
     };
-    private static String[] separators = new String[]{
+    private static final String[] separators = new String[]{
             " ",
             ", ",
             " 'um' "
     };
-    private static String[] timeFormats = new String[]{
+    private static final String[] timeFormats = new String[]{
             "HH:mm",
             "HH:mm 'Uhr'",
             "(HH:mm 'Uhr')",
             "HH:mm:ss"
     };
-    private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
+    private static final String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
 
     @TestOnly
     static synchronized void init() {
@@ -311,7 +311,8 @@ class ParserUtils {
                 String regex = data.getString("classes");
                 Generex generex = new Generex(regex);
                 final List<String> classes = generex.getAllMatchedStrings();
-                Collections.sort(classes, new NaturalOrderComparator());
+                //noinspection unchecked
+                classes.sort(new NaturalOrderComparator());
                 return classes;
             } else {
                 return null;

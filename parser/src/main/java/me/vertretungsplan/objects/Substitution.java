@@ -314,7 +314,7 @@ public class Substitution implements Cloneable {
             String appendSubstitutionFrom = "Verlegt von " + getSubstitutionFrom();
             if (desc == null) {
                 return appendSubstitutionFrom;
-            } else if (desc.indexOf(appendSubstitutionFrom) == -1) {
+            } else if (!desc.contains(appendSubstitutionFrom)) {
                 return desc + "\n" + appendSubstitutionFrom;
             } else {
                 return desc;
@@ -401,7 +401,6 @@ public class Substitution implements Cloneable {
      * @param o the substitution (or other object) to compare
      * @return boolean indicating whether all fields of the two substitutions, excluding the classes, are equal
      */
-    @SuppressWarnings("NegatedConditionalExpression")
     public boolean equalsExcludingType(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -429,7 +428,6 @@ public class Substitution implements Cloneable {
      * @param o the substitution (or other object) to compare
      * @return boolean indicating whether all fields of the two substitutions, excluding the classes, are equal
      */
-    @SuppressWarnings("NegatedConditionalExpression")
     public boolean equalsExcludingClasses(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -458,7 +456,6 @@ public class Substitution implements Cloneable {
      * @param o the substitution (or other object) to compare
      * @return boolean indicating whether all fields of the two substitutions, excluding the teachers, are equal
      */
-    @SuppressWarnings("NegatedConditionalExpression")
     public boolean equalsExcludingTeachers(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -488,7 +485,6 @@ public class Substitution implements Cloneable {
      * @return boolean indicating whether all fields of the two substitutions, excluding the previous teachers, are
      * equal
      */
-    @SuppressWarnings("NegatedConditionalExpression")
     public boolean equalsExcludingPreviousTeachers(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

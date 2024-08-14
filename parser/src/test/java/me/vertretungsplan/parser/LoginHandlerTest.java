@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 public class LoginHandlerTest {
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT);
+    public final WireMockRule wireMockRule = new WireMockRule(Options.DYNAMIC_PORT);
 
     private SubstitutionScheduleData dataBasic;
     private SubstitutionScheduleData dataBasicUrl;

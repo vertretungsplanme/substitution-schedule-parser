@@ -111,7 +111,7 @@ public class SubstitutionTextUtils {
 
     public static String joinClasses(Set<String> classes) {
         List<String> list = new ArrayList<>(classes);
-        Collections.sort(list, new NaturalOrderComparator());
+        list.sort(new NaturalOrderComparator());
         StringBuilder builder = new StringBuilder();
         boolean first = true;
         String beginning = null;

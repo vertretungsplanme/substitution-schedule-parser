@@ -127,7 +127,7 @@ public class VPOParser extends BaseParser {
     }
 
     @Override
-    public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    public LocalDateTime getLastChange() throws IOException, CredentialInvalidException {
         if (lastUpdate == null) {
             login();
         }
@@ -154,7 +154,6 @@ public class VPOParser extends BaseParser {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
         final String httpResponse = httpPost(api + "/login", "UTF-8", payload.toString(), ContentType.APPLICATION_JSON);
         final JSONObject token;
@@ -184,7 +183,7 @@ public class VPOParser extends BaseParser {
     /**
      * Returns a JSONArray with all messages.
      */
-    private void getMessages() throws IOException, JSONException, CredentialInvalidException {
+    private void getMessages() throws IOException, CredentialInvalidException {
         if (messages == null) {
             final String url = api + "/messages";
             messages = getJSONArray(url);
@@ -194,7 +193,7 @@ public class VPOParser extends BaseParser {
     /**
      * Returns a JSONArray with all grades.
      */
-    private void getGrades() throws IOException, JSONException, CredentialInvalidException {
+    private void getGrades() throws IOException, CredentialInvalidException {
         if (grades == null) {
             final String url = api + "/grades";
             grades = getJSONArray(url);
@@ -423,7 +422,7 @@ public class VPOParser extends BaseParser {
     }
 
     @Override
-    public List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException {
+    public List<String> getAllClasses() throws JSONException {
         final List<String> classesList = new ArrayList<>();
         if (grades == null) {
             return null;
@@ -432,12 +431,12 @@ public class VPOParser extends BaseParser {
             final JSONObject grade = grades.getJSONObject(i);
             classesList.add(grade.getString("name"));
         }
-        Collections.sort(classesList, new NaturalOrderComparator());
+        classesList.sort(new NaturalOrderComparator());
         return classesList;
     }
 
     @Override
-    public List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException {
+    public List<String> getAllTeachers() throws JSONException {
         final List<String> teachersList = new ArrayList<>();
         if (teachers == null) {
             return null;

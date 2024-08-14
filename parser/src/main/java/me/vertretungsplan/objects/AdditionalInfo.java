@@ -10,6 +10,8 @@ package me.vertretungsplan.objects;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Represents an additional information on the substitution schedule. AdditionalInfos are not related to a
  * specific day on the schedule (such as miscellaneous news the school might provide in DSBmobile and similar
@@ -83,7 +85,6 @@ public class AdditionalInfo {
 		this.hasInformation = hasInformation;
 	}
 
-	@SuppressWarnings("NegatedConditionalExpression")
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -92,8 +93,8 @@ public class AdditionalInfo {
 		AdditionalInfo that = (AdditionalInfo) o;
 
 		if (hasInformation != that.hasInformation) return false;
-		if (title != null ? !title.equals(that.title) : that.title != null) return false;
-		return !(text != null ? !text.equals(that.text) : that.text != null);
+		if (!Objects.equals(title, that.title)) return false;
+		return !(!Objects.equals(text, that.text));
 
 	}
 
