@@ -273,7 +273,7 @@ public class SVPlanParser extends BaseParser {
                 Element h2 = svp.select("h2:contains(Mitteilungen)").first();
                 Element sibling = h2.nextElementSibling();
                 while (sibling != null && sibling.tagName().equals("p")) {
-                    for (String nachricht : TextNode.createFromEncoded(sibling.html(), null).getWholeText()
+                    for (String nachricht : TextNode.createFromEncoded(sibling.html()).getWholeText()
                             .split("<br />\\s*<br />")) {
                         if (hasData(nachricht)) day.addMessage(nachricht);
                     }
@@ -281,7 +281,7 @@ public class SVPlanParser extends BaseParser {
                 }
             } else if (!svp.select(".Mitteilungen").isEmpty()) {
                 for (Element p : svp.select(".Mitteilungen")) {
-                    for (String nachricht : TextNode.createFromEncoded(p.html(), null).getWholeText()
+                    for (String nachricht : TextNode.createFromEncoded(p.html()).getWholeText()
                             .split("<br />\\s*<br />")) {
                         if (hasData(nachricht)) day.addMessage(nachricht);
                     }
