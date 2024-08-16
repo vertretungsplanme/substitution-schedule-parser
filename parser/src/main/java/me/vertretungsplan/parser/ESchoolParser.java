@@ -109,7 +109,7 @@ public class ESchoolParser extends BaseParser {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
 
         String infoString = doc.select("#Content table").first().select("td").get(1).ownText();
-        Pattern pattern = Pattern.compile("Letzte Aktualisierung:\u00a0(\\d{2}.\\d{2}.\\d{4} - \\d{2}:\\d{2})");
+        Pattern pattern = Pattern.compile("Letzte Aktualisierung:\\s*(\\d{2}.\\d{2}.\\d{4} - \\d{2}:\\d{2}),");
         Matcher matcher = pattern.matcher(infoString);
         if (matcher.find()) {
             LocalDateTime lastChange = DateTimeFormat.forPattern("dd.MM.yyyy - HH:mm")
