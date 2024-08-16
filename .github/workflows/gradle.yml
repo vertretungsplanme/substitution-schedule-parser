@@ -14,7 +14,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build and test:
 
     runs-on: ubuntu-latest
     permissions:
@@ -33,8 +33,14 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
+    - name: Check with Gradle Wrapper
+      run: ./gradlew check
+
     - name: Build with Gradle Wrapper
       run: ./gradlew build
+
+    - name: Check with Gradle Wrapper
+      run: ./gradlew test
 
   dependency-submission:
 
