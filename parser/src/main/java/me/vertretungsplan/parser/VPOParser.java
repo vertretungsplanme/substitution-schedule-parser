@@ -162,6 +162,7 @@ public class VPOParser extends BaseParser {
             token = new JSONObject(httpResponse);
             authToken = token.getString("access_token");
         } catch (SignatureException | JSONException e) {
+            e.printStackTrace();
             throw new CredentialInvalidException();
         }
 
