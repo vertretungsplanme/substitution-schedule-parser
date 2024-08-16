@@ -162,7 +162,6 @@ public class VPOParser extends BaseParser {
             token = new JSONObject(httpResponse);
             authToken = token.getString("access_token");
         } catch (SignatureException | JSONException e) {
-            e.printStackTrace();
             throw new CredentialInvalidException();
         }
 
@@ -241,7 +240,7 @@ public class VPOParser extends BaseParser {
             coursesHashMap = new HashMap<>();
             for (int i = 0; i < grades.length(); i++) {
                 JSONObject grade = grades.getJSONObject(i);
-                coursesHashMap.put(Integer.toString(grade.getInt("id")), grade.getString("name"));
+                coursesHashMap.put(grade.get("id").toString(), grade.getString("name"));
             }
         }
         // Link teacher IDs to their names
@@ -250,7 +249,7 @@ public class VPOParser extends BaseParser {
             teachersHashMap = new HashMap<>();
             for (int i = 0; i < teachers.length(); i++) {
                 JSONObject teacher = teachers.getJSONObject(i);
-                teachersHashMap.put(Integer.toString(teacher.getInt("id")), teacher.getString("name"));
+                teachersHashMap.put(teacher.get("id").toString(), teacher.getString("name"));
             }
         }
 
@@ -259,12 +258,15 @@ public class VPOParser extends BaseParser {
 
         for (int i = 0; i < messages.length(); i++) {
             JSONObject message = messages.getJSONObject(i);
-            AdditionalInfo info = new AdditionalInfo();
-            info.setHasInformation(false);
-            info.setTitle(message.getString("title").trim());
-            info.setText(message.getString("message").trim());
-            info.setFromSchedule(true);
-            infos.add(info);
+
+            if (!message.has("date")) {
+                AdditionalInfo info = new AdditionalInfo();
+                info.setHasInformation(false);
+                info.setTitle(message.getString("title").trim());
+                info.setText(message.getString("message").trim());
+                info.setFromSchedule(true);
+                infos.add(info);
+            }
         }
 
         substitutionSchedule.getAdditionalInfos().addAll(infos);
@@ -280,6 +282,18 @@ public class VPOParser extends BaseParser {
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
+                for (int m = 0; i < messages.length(); m++) {
+                    JSONObject message = messages.getJSONObject(m);
+
+                    if (message.has("date")) {
+                        final LocalDate messageDate = new LocalDate(message.getString("date"));
+                        if (messageDate.isEqual(currentDate)) {
+                            substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
+                        }
+                    }
+                }
+
+
                 if (!substitutionScheduleDay.getSubstitutions().isEmpty()
                         || !substitutionScheduleDay.getMessages().isEmpty()) {
                     substitutionSchedule.addDay(substitutionScheduleDay);
@@ -289,13 +303,9 @@ public class VPOParser extends BaseParser {
                 currentDate = substitutionDate;
             }
 
-            if (change.getInt("id") > 0) {
-                final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
+            final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 
-                substitutionScheduleDay.addSubstitution(substitution);
-            } else if (!change.optString("message").isEmpty()) {
-                substitutionScheduleDay.addMessage(change.optString("message"));
-            }
+            substitutionScheduleDay.addSubstitution(substitution);
         }
         substitutionSchedule.addDay(substitutionScheduleDay);
     }
