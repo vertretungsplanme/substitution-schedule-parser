@@ -14,7 +14,7 @@ compileTestJava.options.encoding = 'UTF-8'
 dependencies {
     compile 'joda-time:joda-time:2.8.1'
     compile 'org.jsoup:jsoup:1.9.2'
-    compile 'org.apache.httpcomponents:fluent-hc:4.5.3'
+    compile 'org.apache.httpcomponents:fluent-hc:4.5.14'
     compile 'org.apache.httpcomponents:httpmime:4.5.3'
     compile 'org.json:json:20090211'
     compile 'org.apache.commons:commons-lang3:3.4'
