@@ -855,7 +855,7 @@ public abstract class UntisCommonParser extends BaseParser {
             String info = "";
             for (Element b : spalten) {
                 info += "\n"
-                        + TextNode.createFromEncoded(b.html())
+                        + TextNode.createFromEncoded(b.html(), null)
                         .getWholeText();
             }
             info = info.substring(1); // remove first \n
