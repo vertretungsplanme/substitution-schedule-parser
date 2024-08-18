@@ -100,7 +100,7 @@ public class DaVinciParser extends BaseParser {
         for (Element header : table.select("thead tr th")) {
             headers.add(header.text());
         }
-        if (headers.isEmpty()) {
+        if (headers.size() == 0) {
             skipRow = true;
             for (Element header : table.select(" tr:first-child td")) {
                 headers.add(header.text());
@@ -321,13 +321,13 @@ public class DaVinciParser extends BaseParser {
     static List<String> getDayUrls(String url, Document doc)
             throws IOException {
         List<String> dayUrls = new ArrayList<>();
-        if (!doc.select("ul.classes").isEmpty()) {
+        if (doc.select("ul.classes").size() > 0) {
             // List of classes
             Elements classes = doc.select("ul.classes li a");
             for (Element klasse : classes) {
                 dayUrls.add(new URL(new URL(url), klasse.attr("href")).toString());
             }
-        } else if (!doc.select("ul.month").isEmpty()) {
+        } else if (doc.select("ul.month").size() > 0) {
             // List of days in calendar view
             Elements days = doc.select("ul.month li input[onclick]");
             for (Element day : days) {
@@ -335,13 +335,13 @@ public class DaVinciParser extends BaseParser {
                 if (urlFromOnclick == null) continue;
                 dayUrls.add(new URL(new URL(url), urlFromOnclick).toString());
             }
-        } else if (!doc.select("ul.day-index").isEmpty()) {
+        } else if (doc.select("ul.day-index").size() > 0) {
             // List of days in list view
             Elements days = doc.select("ul.day-index li a");
             for (Element day : days) {
                 dayUrls.add(new URL(new URL(url), day.attr("href")).toString());
             }
-        } else if (!doc.select("table td[align=left] a").isEmpty()) {
+        } else if (doc.select("table td[align=left] a").size() > 0) {
             // Table of classes (DaVinci 5)
             Elements classes = doc.select("table td[align=left] a");
             for (Element klasse : classes) {
@@ -369,7 +369,7 @@ public class DaVinciParser extends BaseParser {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         Element titleElem;
-        if (!doc.select("h1.list-table-caption").isEmpty()) {
+        if (doc.select("h1.list-table-caption").size() > 0) {
             titleElem = doc.select("h1.list-table-caption").first();
         } else {
             // DaVinci 5
@@ -454,7 +454,7 @@ public class DaVinciParser extends BaseParser {
             }
         }
 
-        if (!doc.select(".list-table").isEmpty() || !doc.select(".callout").text().contains("Es liegen keine")) {
+        if (doc.select(".list-table").size() > 0 || !doc.select(".callout").text().contains("Es liegen keine")) {
             Element table = doc.select(".list-table, table").first();
             parseDaVinciTable(table, schedule, klasse, day, colorProvider);
         }
@@ -471,7 +471,7 @@ public class DaVinciParser extends BaseParser {
             Document doc = Jsoup.parse(httpGet(scheduleData.getData().getString("classesSource"), ENCODING));
             List<String> classes = new ArrayList<>();
             Elements elems = doc.select("li.Class");
-            if (elems.isEmpty()) {
+            if (elems.size() == 0) {
                 // daVinci 5
                 elems = doc.select("td[align=left] a");
             }

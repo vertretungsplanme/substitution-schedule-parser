@@ -190,7 +190,7 @@ public class Substitution implements Cloneable {
      * @return the teacher
      */
     public String getTeacher() {
-        return !teachers.isEmpty() ? SubstitutionTextUtils.joinTeachers(teachers) : null;
+        return teachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(teachers) : null;
     }
 
     /**
@@ -231,7 +231,7 @@ public class Substitution implements Cloneable {
      * @return the previous teacher
      */
     public String getPreviousTeacher() {
-        return !previousTeachers.isEmpty() ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
+        return previousTeachers.size() > 0 ? SubstitutionTextUtils.joinTeachers(previousTeachers) : null;
     }
 
     /**

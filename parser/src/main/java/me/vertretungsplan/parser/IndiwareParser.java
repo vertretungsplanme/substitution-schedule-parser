@@ -186,7 +186,7 @@ public class IndiwareParser extends BaseParser {
         if (html && data.has(PARAM_EMBEDDED_CONTENT_SELECTOR)) {
             String selector = data.getString(PARAM_EMBEDDED_CONTENT_SELECTOR);
             Elements elems = doc.select(selector);
-            if (elems.isEmpty()) throw new IOException("No elements found using " + selector);
+            if (elems.size() == 0) throw new IOException("No elements found using " + selector);
             for (Element elem : elems) {
                 v.addDay(parseIndiwareDay(elem, true));
             }
@@ -340,7 +340,7 @@ public class IndiwareParser extends BaseParser {
         day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
                 .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
 
-        if (!ds.kopfinfos().isEmpty()) {
+        if (ds.kopfinfos().size() > 0) {
             for (Element kopfinfo : ds.kopfinfos()) {
                 String title = html ? kopfinfo.select("th").text() : kopfinfoTitle(kopfinfo.tagName()) + ":";
 
@@ -420,7 +420,7 @@ public class IndiwareParser extends BaseParser {
                     case "fach":
                         String subject = subjectAndCourse(course, value);
                         if (html ? columnTypes.contains("vfach") :
-                                !aktion.getElementsByTag("vfach").isEmpty()) {
+                                aktion.getElementsByTag("vfach").size() > 0) {
                             substitution.setPreviousSubject(subject);
                         } else {
                             substitution.setSubject(subject);
@@ -434,7 +434,7 @@ public class IndiwareParser extends BaseParser {
                             value = bracesMatcher.group(1);
                             substitution.setPreviousTeachers(splitTeachers(value, splitTeachers));
                         } else if (html ? columnTypes.contains("vlehrer") :
-                                !aktion.getElementsByTag("vlehrer").isEmpty()) {
+                                aktion.getElementsByTag("vlehrer").size() > 0) {
                             substitution.setPreviousTeachers(splitTeachers(value, splitTeachers));
                         } else {
                             substitution.setTeachers(splitTeachers(value, splitTeachers));

@@ -161,15 +161,15 @@ public class SVPlanParser extends BaseParser {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
 
         for (Document doc : docs) {
-            if (!doc.select(".svp, .scheduler").isEmpty()) {
+            if (doc.select(".svp, .scheduler").size() > 0) {
                 for (Element svp : doc.select(".svp, .scheduler")) {
                     parseSvPlanDay(v, svp, doc);
                 }
-            } else if (!doc.select(".Trennlinie").isEmpty()) {
+            } else if (doc.select(".Trennlinie").size() > 0) {
                 Element div = new Element(Tag.valueOf("div"), "");
                 for (Node node : doc.body().childNodesCopy()) {
                     if (node instanceof Element && ((Element) node).hasClass("Trennlinie")
-                            && !div.select("table").isEmpty()) {
+                            && div.select("table").size() > 0) {
                         parseSvPlanDay(v, div, doc);
                         div = new Element(Tag.valueOf("div"), "");
                     } else {
@@ -189,18 +189,18 @@ public class SVPlanParser extends BaseParser {
 
     private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException, JSONException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-        if ((!svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").isEmpty() || doc.title()
+        if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
                 .startsWith("Vertretungsplan für "))) {
             setDate(svp, doc, day);
             final Elements tables = svp.select(".svp-tabelle, table:has(.Klasse)");
-            if (!tables.isEmpty()) {
+            if (tables.size() > 0) {
                 Iterator<Element> iter = tables.iterator();
                 while (iter.hasNext()) {
                     Element table = iter.next();
                     Element sibling = table.previousElementSibling();
                     if (!table.hasClass("svp-tabelle") &&
-                            table.select("> tbody > tr > td.Klasse").isEmpty() &&
-                            table.select("> tbody > tr > td.KlasseNeu").isEmpty()
+                            table.select("> tbody > tr > td.Klasse").size() == 0 &&
+                            table.select("> tbody > tr > td.KlasseNeu").size() == 0
                             || sibling != null && sibling.hasClass("AufsichtTitel")) {
                         iter.remove();
                     }
@@ -210,8 +210,8 @@ public class SVPlanParser extends BaseParser {
                 String lastLesson = "";
                 String lastClass = "";
                 for (Element row : rows) {
-                    if ((!doc.select(".svp-header").isEmpty() && row.hasClass("svp-header"))
-                            || !row.select("th").isEmpty() || row.text().trim().isEmpty()) {
+                    if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
+                            || row.select("th").size() > 0 || row.text().trim().equals("")) {
                         continue;
                     }
 
@@ -262,26 +262,26 @@ public class SVPlanParser extends BaseParser {
                     day.addSubstitution(substitution);
                 }
             }
-            if (!svp.select(".LehrerVerplant").isEmpty()) {
+            if (svp.select(".LehrerVerplant").size() > 0) {
                 day.addMessage("<b>Verplante Lehrer:</b> " + svp.select(".LehrerVerplant").text());
             }
-            if (!svp.select(".Abwesenheiten").isEmpty()) {
+            if (svp.select(".Abwesenheiten").size() > 0) {
                 day.addMessage("<b>Abwesenheiten:</b> " + svp.select(".Abwesenheiten").text());
             }
 
-            if (!svp.select("h2:contains(Mitteilungen)").isEmpty()) {
+            if (svp.select("h2:contains(Mitteilungen)").size() > 0) {
                 Element h2 = svp.select("h2:contains(Mitteilungen)").first();
                 Element sibling = h2.nextElementSibling();
                 while (sibling != null && sibling.tagName().equals("p")) {
-                    for (String nachricht : TextNode.createFromEncoded(sibling.html()).getWholeText()
+                    for (String nachricht : TextNode.createFromEncoded(sibling.html(), null).getWholeText()
                             .split("<br />\\s*<br />")) {
                         if (hasData(nachricht)) day.addMessage(nachricht);
                     }
                     sibling = sibling.nextElementSibling();
                 }
-            } else if (!svp.select(".Mitteilungen").isEmpty()) {
+            } else if (svp.select(".Mitteilungen").size() > 0) {
                 for (Element p : svp.select(".Mitteilungen")) {
-                    for (String nachricht : TextNode.createFromEncoded(p.html()).getWholeText()
+                    for (String nachricht : TextNode.createFromEncoded(p.html(), null).getWholeText()
                             .split("<br />\\s*<br />")) {
                         if (hasData(nachricht)) day.addMessage(nachricht);
                     }
@@ -289,11 +289,11 @@ public class SVPlanParser extends BaseParser {
             }
 
             Elements aufsichtTable = svp.select(".svp-pausenaufsicht, .AufsichtTitel + table");
-            if (!aufsichtTable.isEmpty()) {
+            if (aufsichtTable.size() > 0) {
                 Elements rows = aufsichtTable.select("tr");
                 String lastTime = "";
                 for (Element row : rows) {
-                    if (row.hasClass("svp-aufs-header") || row.select("td").isEmpty()) continue;
+                    if (row.hasClass("svp-aufs-header") || row.select("td").size() == 0) continue;
                     Substitution substitution = new Substitution();
                     substitution.setType("Pausenaufsicht");
                     substitution.setColor(colorProvider.getColor("Pausenaufsicht"));
@@ -373,7 +373,7 @@ public class SVPlanParser extends BaseParser {
 
     private void setDate(Element svp, Document doc, SubstitutionScheduleDay day) {
         String date = "Unbekanntes Datum";
-        if (!svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").isEmpty()) {
+        if (svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0) {
             date = svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").first().text();
         } else if (doc.title().startsWith("Vertretungsplan für ")) {
             date = doc.title().substring("Vertretungsplan für ".length());
@@ -388,7 +388,7 @@ public class SVPlanParser extends BaseParser {
 
         day.setDateString(date);
         day.setDate(ParserUtils.parseDate(date));
-        if (!svp.select(".svp-uploaddatum, .Stand").isEmpty()) {
+        if (svp.select(".svp-uploaddatum, .Stand").size() > 0) {
             String lastChange = svp.select(".svp-uploaddatum, .Stand").text().replace("Aktualisierung: ", "")
                     .replace("Stand: ", "");
             day.setLastChangeString(lastChange);
@@ -411,6 +411,6 @@ public class SVPlanParser extends BaseParser {
     }
 
     private boolean hasData(String text) {
-        return !text.trim().isEmpty() && !text.trim().equals("---");
+        return !text.trim().equals("") && !text.trim().equals("---");
     }
 }
