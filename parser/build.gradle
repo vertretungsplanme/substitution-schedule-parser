@@ -12,7 +12,7 @@ compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
 dependencies {
-    compile 'joda-time:joda-time:2.8.1'
+    compile 'joda-time:joda-time:2.12.7'
     compile 'org.jsoup:jsoup:1.9.2'
     compile 'org.apache.httpcomponents:fluent-hc:4.5.3'
     compile 'org.apache.httpcomponents:httpmime:4.5.3'
