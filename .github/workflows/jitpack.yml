@@ -1,0 +1,13 @@
+name: Trigger jitpack.io build
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  trigger_jitpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jitpack Build
+        run: curl "https://jitpack.io/com/github/vertretungsplanme/substitution-schedule-parser/${GITHUB_SHA:0:10}/build.log"
+
