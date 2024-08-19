@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
  * <code>LoginHandler</code> supports authentication using HTTP POST (using
  * <code>application/x-www-form-urlencoded</code>), HTTP Basic Auth, NTLM or a fixed (username and) password.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in a JSON Object under <code>login</code> in
  * {@link SubstitutionScheduleData#setData(JSONObject)} to configure the login:
  *
@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
  * <dd>The type of login. Can be one of <code>"post", "basic, "ntlm" or "fixed"</code></dd>
  * </dl>
  *
- * <h5>Parameters for HTTP POST (<code>"post"</code>)</h5>
+ * <h2>Parameters for HTTP POST (<code>"post"</code>)</h2>
  * <dl>
  * <dt><code>url</code> (String, required)</dt>
  * <dd>The URL that the HTTP POST data is sent to.</dd>
@@ -101,20 +101,19 @@ import java.util.regex.Pattern;
  * <dd>Whether to use <code>multipart/form-data</code> instead of <code>application/x-www-form-urlencoded</code>.</dd>
  * </dl>
  *
- * <h5>Parameters for HTTP Basic Auth (<code>"basic"</code>) and NTLM (<code>"ntlm"</code>)</h5>
+ * <h2>Parameters for HTTP Basic Auth (<code>"basic"</code>) and NTLM (<code>"ntlm"</code>)</h2>
  * <dl>
  * <dt><code>url</code> (String, optional)</dt>
  * <dd>A URL that is opened after the login to check if it was successful. If the server responds with a status
  * code that is not <code>200</code>, the credential is considered invalid.</dd>
  * </dl>
  *
- * <h5>Parameters for fixed login (<code>"fixed"</code>)</h5>
+ * <h2>Parameters for fixed login (<code>"fixed"</code>)</h2>
  * <dl>
  * <dt><code>login</code> (String, required, only for
  * {@link me.vertretungsplan.objects.authentication.UserPasswordAuthenticationData})</dt>
  * <dd>The fixed username checked against the supplied one.</dd>
  *
- * <dl>
  * <dt><code>password</code> (String, required)</dt>
  * <dd>The fixed password checked against the supplied one.</dd>
  * </dl>

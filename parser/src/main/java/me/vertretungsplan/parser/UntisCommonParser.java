@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * Contains common code used by {@link UntisInfoParser}, {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser}
  * and {@link UntisSubstitutionParser}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} in addition to the
  * parameters specified in the documentation of the parser itself.
  *
@@ -981,12 +981,6 @@ public abstract class UntisCommonParser extends BaseParser {
 
     /**
      * Parses an Untis substitution table ({@link UntisSubstitutionParser}).
-     *
-     * @param v
-     * @param lastChange
-     * @param doc
-     * @throws JSONException
-     * @throws CredentialInvalidException
      */
     protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc, String className)
             throws JSONException, CredentialInvalidException, IOException {

@@ -38,7 +38,7 @@ import java.util.List;
  * <p>
  * This parser can be accessed using <code>"indiware-mobile"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>

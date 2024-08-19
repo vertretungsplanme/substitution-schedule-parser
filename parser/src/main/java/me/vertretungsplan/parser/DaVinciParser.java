@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * <p>
  * This parser can be accessed using <code>"davinci"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>
@@ -60,7 +60,6 @@ import java.util.regex.Pattern;
  *
  * <dt><code>website</code> (String, recommended)</dt>
  * <dd>The URL of a website where the substitution schedule can be seen online</dd>
- * </dl>
  *
  * <dt><code>embeddedContentSelector</code> (String, optional)</dt>
  * <dd>When the DaVinci schedule is embedded in another HTML file using server-side code, you can use this to

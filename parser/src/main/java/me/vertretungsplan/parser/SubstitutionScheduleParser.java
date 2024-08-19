@@ -58,4 +58,6 @@ public interface SubstitutionScheduleParser {
      * @return whether this parser returns personal schedules
      */
     boolean isPersonal();
+
+    void setDebuggingDataHandler(DebuggingDataHandler handler);
 }

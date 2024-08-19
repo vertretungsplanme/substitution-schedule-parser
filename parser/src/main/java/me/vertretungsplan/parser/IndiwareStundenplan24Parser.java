@@ -34,14 +34,13 @@ import java.util.List;
  * <p>
  * This parser can be accessed using <code>"stundenplan24"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>
  * <dt><code>schoolNumber</code> (String, required if <code>baseurl</code> not specified)</dt>
  * <dd>The 8-digit school number used to access the schedule. It can be found in the URL.</dd>
  *
- * <dl>
  * <dt><code>baseurl</code> (String, required if <code>schoolNumber</code> not specified)</dt>
  * <dd>Schedule hosted on a custom URL. The URL normally ends with "/vplan" (without slash at the end).</dd>
  *

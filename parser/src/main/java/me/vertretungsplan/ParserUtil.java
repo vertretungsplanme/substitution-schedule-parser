@@ -27,6 +27,13 @@ import java.io.IOException;
 public class ParserUtil {
     /**
      * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
+     *
+     * @param data       A <code>SubstitutionScheduleData</code> instance containing information about the schedule you
+     *                   want to parse.
+     * @return The parsed substitution schedule.
+     * @throws JSONException              When there's an error with your JSON configuration
+     * @throws CredentialInvalidException When the <code>Credential</code> you supplied was invalid
+     * @throws IOException                When there was another error while loading or parsing the schedule
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data)
             throws CredentialInvalidException, IOException, JSONException {
@@ -35,6 +42,16 @@ public class ParserUtil {
 
     /**
      * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
+     *
+     * @param data       A <code>SubstitutionScheduleData</code> instance containing information about the schedule you
+     *                   want to parse.
+     * @param cp         An optional <code>CookieProvider</code> implementation. This can be used if you want to reuse
+     *                   session cookies the next time you load the schedule. If you don't need it, pass
+     *                   <code>null</code>.
+     * @return The parsed substitution schedule.
+     * @throws JSONException              When there's an error with your JSON configuration
+     * @throws CredentialInvalidException When the <code>Credential</code> you supplied was invalid
+     * @throws IOException                When there was another error while loading or parsing the schedule
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, CookieProvider cp)
             throws CredentialInvalidException, IOException, JSONException {
@@ -43,6 +60,15 @@ public class ParserUtil {
 
     /**
      * @see #parseSubstitutionSchedule(SubstitutionScheduleData, Credential, CookieProvider, DebuggingDataHandler)
+     *
+     * @param data       A <code>SubstitutionScheduleData</code> instance containing information about the schedule you
+     *                   want to parse.
+     * @param credential A <code>Credential</code> subclass for authentication. If the schedule requires no
+     *                   authentication, use <code>null</code>.
+     * @return The parsed substitution schedule.
+     * @throws JSONException              When there's an error with your JSON configuration
+     * @throws CredentialInvalidException When the <code>Credential</code> you supplied was invalid
+     * @throws IOException                When there was another error while loading or parsing the schedule
      */
     public static SubstitutionSchedule parseSubstitutionSchedule(SubstitutionScheduleData data, Credential credential)
             throws CredentialInvalidException, IOException, JSONException {
@@ -71,9 +97,9 @@ public class ParserUtil {
             throws JSONException, CredentialInvalidException, IOException {
         SubstitutionScheduleParser parser = BaseParser.getInstance(data, cp);
         if (credential != null) parser.setCredential(credential);
-        if (handler != null) ((BaseParser) parser).setDebuggingDataHandler(handler);
+        if (handler != null) parser.setDebuggingDataHandler(handler);
         SubstitutionSchedule schedule = parser.getSubstitutionSchedule();
-        for (String a:data.getAdditionalInfos()) {
+        for (String a : data.getAdditionalInfos()) {
             BaseAdditionalInfoParser aParser = BaseAdditionalInfoParser.getInstance(a);
             schedule.addAdditionalInfo(aParser.getAdditionalInfo());
         }

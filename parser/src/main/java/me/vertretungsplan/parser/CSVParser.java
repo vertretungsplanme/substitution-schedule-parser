@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
  * <p>
  * This parser can be accessed using <code>"csv"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>

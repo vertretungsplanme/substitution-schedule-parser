@@ -1,4 +1,5 @@
 rootProject.name = 'substitution-schedule-parser'
 
-include 'parser', 'sample'
-
+//include 'parser', 'sample'
+include 'parser'
+include 'sample'

@@ -32,7 +32,7 @@ import java.util.List;
  * This parser can be accessed using <code>"untis-info-headless"</code> for
  * {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h4>Configuration parameters</h4>
+ * <h1>Configuration parameters</h1>
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>

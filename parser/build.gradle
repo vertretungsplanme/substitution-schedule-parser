@@ -1,55 +1,46 @@
-group 'me.vertretungsplan'
-version '1.0.0-beta356'
-
-apply plugin: 'java'
-apply plugin: 'jacoco'
-apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
+plugins {
+    id 'maven-publish'
+    id 'java' apply true
+    id 'jacoco' apply true
+    id 'com.github.kt3k.coveralls' version '2.6.3'
+    id 'pl.allegro.tech.build.axion-release' version '1.14.5'
+}
 
 sourceCompatibility = 1.7
+group 'me.vertretungsplan'
+version = scmVersion.version
+
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
 dependencies {
-    compile 'joda-time:joda-time:2.8.1'
-    compile 'org.jsoup:jsoup:1.9.2'
-    compile 'org.apache.httpcomponents:fluent-hc:4.5.3'
-    compile 'org.apache.httpcomponents:httpmime:4.5.3'
-    compile 'org.json:json:20090211'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'org.jetbrains:annotations:13.0'
-    compile 'commons-io:commons-io:2.5'
-    compile 'com.github.mifmif:generex:1.0.2'
-    compile 'net.sf.biweekly:biweekly:0.6.1'
-    compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.56'
-    compile 'io.jsonwebtoken:jjwt:0.7.0'
-    compile 'com.github.lookfirst:sardine:5.8'
-    testCompile 'junit:junit:4.11'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.24.0'
-    testCompile 'com.google.jimfs:jimfs:1.1'
+    implementation 'joda-time:joda-time:2.8.1'
+    implementation 'org.jsoup:jsoup:1.9.2'
+    implementation 'org.apache.httpcomponents:fluent-hc:4.5.3'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.3'
+    implementation 'org.json:json:20090211'
+    implementation 'org.apache.commons:commons-lang3:3.4'
+    implementation 'org.jetbrains:annotations:13.0'
+    implementation 'commons-io:commons-io:2.5'
+    implementation 'com.github.mifmif:generex:1.0.2'
+    implementation 'net.sf.biweekly:biweekly:0.6.1'
+    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.56'
+    implementation 'io.jsonwebtoken:jjwt:0.7.0'
+    implementation 'com.github.lookfirst:sardine:5.8'
+
+    implementation 'org.slf4j:slf4j-api:2.0.16'
+
+    testImplementation 'junit:junit:4.11'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.24.0'
+    testImplementation 'com.google.jimfs:jimfs:1.1'
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled = true // coveralls plugin depends on xml format report
-        html.enabled = true
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: ['com/paour/comparator/**', 'name/fraser/neil/plaintext/**'])
-        }))
-    }
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+tasks.register('javadocJar', Jar) {
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
+tasks.register('sourcesJar', Jar) {
     from sourceSets.main.allSource
 }
 
@@ -57,86 +48,24 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-
-Properties properties = new Properties()
-if (project.rootProject.file('local.properties').exists()) {
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-}
-String ossrhUsername = properties.getProperty("mavenCentral.user")
-String ossrhPassword = properties.getProperty("mavenCentral.apikey")
-String signingPassword = properties.getProperty("signing.password")
-String signingKeyFile = properties.getProperty("signing.keyFile")
-
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            artifactId 'parser'
+        library(MavenPublication) {
             from components.java
-
-            pom {
-                name = 'Substitution schedule parser library'
-                description = "Java library for parsing schools' substitution schedules. Supports multiple different systems mainly used in the German-speaking countries."
-                url = 'https://github.com/johan12345/substitution-schedule-parser'
-
-                scm {
-                    connection = 'scm:git:hhttps://github.com/johan12345/substitution-schedule-parser.git'
-                    developerConnection = 'scm:git:https://github.com/johan12345/substitution-schedule-parser.git'
-                    url = 'https://github.com/johan12345/substitution-schedule-parser'
-                }
-
-                licenses {
-                    license {
-                        name = 'Mozilla Public License Version 2.0'
-                        url = 'https://www.mozilla.org/media/MPL/2.0/index.txt'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'johan12345'
-                        name = 'Johan von Forstner'
-                        email = 'info@vertretungsplan.app'
-                    }
-                }
-            }
-
-            artifact(sourcesJar) {
-                classifier = 'sources'
-            }
-            artifact(javadocJar) {
-                classifier = 'javadoc'
-            }
         }
     }
     repositories {
         maven {
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/vertretungsplanme/substitution-schedule-parser"
             credentials {
-                username = ossrhUsername
-                password = ossrhPassword
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
 
-signing {
-    required { gradle.taskGraph.hasTask(":parser:publishMavenJavaPublicationToMavenRepository") }
-    if (signingKeyFile != null) {
-        def file = project.parent.file(signingKeyFile)
-        if (file.exists()) {
-            useInMemoryPgpKeys(file.text, signingPassword)
-        }
-    }
-    sign publishing.publications.mavenJava
-}
-
-model {
-    tasks.generatePomFileForMavenJavaPublication {
-        destination = file("$buildDir/generated-pom.xml")
-    }
-}
 
 test {
     maxHeapSize = "1g"

@@ -108,7 +108,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    @NotNull private SSLConnectionSocketFactory getSslConnectionSocketFactory(SubstitutionScheduleData scheduleData)
+    @NotNull
+    private SSLConnectionSocketFactory getSslConnectionSocketFactory(SubstitutionScheduleData scheduleData)
             throws IOException, GeneralSecurityException, JSONException {
         KeyStore ks = loadKeyStore();
         MultiTrustManager multiTrustManager = new MultiTrustManager();
@@ -139,7 +140,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
      * Create an appropriate parser for a given school. Automatically uses the appropriate subclass depending on
      * {@link SubstitutionScheduleData#getApi()}.
      *
-     * @param data a {@link SubstitutionScheduleData} object containing information about the substitution schedule
+     * @param data           a {@link SubstitutionScheduleData} object containing information about the substitution schedule
+     * @param cookieProvider a {@link CookieProvider} implementation to provide cookies
+     *                       (can be <code>null</code> if not needed)
      * @return a {@link BaseParser} subclass able to parse the given schedule.
      */
     public static BaseParser getInstance(SubstitutionScheduleData data, @Nullable CookieProvider cookieProvider) {
@@ -214,7 +217,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         if (sardine == null) {
             final SSLConnectionSocketFactory sslsf = getSslConnectionSocketFactory(scheduleData);
             sardine = new SardineImpl() {
-                @Override protected ConnectionSocketFactory createDefaultSecureSocketFactory() {
+                @Override
+                protected ConnectionSocketFactory createDefaultSecureSocketFactory() {
                     return sslsf;
                 }
             };
@@ -225,7 +229,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return sardine;
     }
 
-    @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
+    @Override
+    public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
         // default implementation returns null
         return null;
     }
@@ -293,8 +298,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
      * Get a list of all available classes.
      *
      * @return a list of all available classes (also those not currently affected by the substitution schedule)
-     * @throws IOException Connection or parsing error
-     * @throws JSONException Error with the JSON configuration
+     * @throws IOException                Connection or parsing error
+     * @throws JSONException              Error with the JSON configuration
+     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
+     *                                    not correct
      */
     public abstract List<String> getAllClasses() throws IOException, JSONException, CredentialInvalidException;
 
@@ -302,8 +309,10 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
      * Get a list of all available teachers. Can also be <code>null</code>.
      *
      * @return a list of all available teachers (also those not currently affected by the substitution schedule)
-     * @throws IOException   Connection or parsing error
-     * @throws JSONException Error with the JSON configuration
+     * @throws IOException                Connection or parsing error
+     * @throws JSONException              Error with the JSON configuration
+     * @throws CredentialInvalidException the supplied credential ({@link BaseParser#setCredential(Credential)} is
+     *                                    not correct
      */
     @SuppressWarnings("SameReturnValue")
     public abstract List<String> getAllTeachers() throws IOException, JSONException, CredentialInvalidException;
@@ -356,7 +365,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    @Nullable private String executeRequest(String encoding, Request request)
+    @Nullable
+    private String executeRequest(String encoding, Request request)
             throws IOException, CredentialInvalidException {
         try {
             byte[] bytes = executor.execute(request).returnContent().asBytes();
@@ -370,7 +380,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
     }
 
-    @NotNull private String getEncoding(String defaultEncoding, byte[] bytes) {
+    @NotNull
+    private String getEncoding(String defaultEncoding, byte[] bytes) {
         encodingDetector.handleData(bytes, 0, bytes.length);
         encodingDetector.dataEnd();
         String encoding = encodingDetector.getDetectedCharset();
@@ -510,7 +521,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
         StringBuilder regex = new StringBuilder();
         int i = 0;
-        for (char c: rangeFormat.toCharArray()) {
+        for (char c : rangeFormat.toCharArray()) {
             switch (c) {
                 case 'g':
                     if (gradePos == -1) {
@@ -540,7 +551,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         Pattern pattern = Pattern.compile(regex.toString());
 
         Set<String> processedClasses = new HashSet<>();
-        for (String klasse:classes) {
+        for (String klasse : classes) {
             Matcher matcher = pattern.matcher(klasse);
             if (matcher.matches()) {
                 String grade = matcher.group(gradePos);
@@ -548,7 +559,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                 String maxClass = matcher.group(maxClassPos);
 
                 StringBuilder rangeRegex = new StringBuilder();
-                for (char c: singleFormat.toCharArray()) {
+                for (char c : singleFormat.toCharArray()) {
                     switch (c) {
                         case 'g':
                             rangeRegex.append(grade);
@@ -583,7 +594,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             this.defaultHostnameVerifier = new DefaultHostnameVerifier();
         }
 
-        @Override public boolean verify(String s, SSLSession sslSession) {
+        @Override
+        public boolean verify(String s, SSLSession sslSession) {
             return defaultHostnameVerifier.verify(host, sslSession) |
                     defaultHostnameVerifier.verify(this.host, sslSession);
         }
@@ -594,7 +606,8 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     private class NoOpDebuggingDataHandler implements DebuggingDataHandler {
-        @Override public void columnTitles(List<String> columnTitles) {
+        @Override
+        public void columnTitles(List<String> columnTitles) {
 
         }
     }
