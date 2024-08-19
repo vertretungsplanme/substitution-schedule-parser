@@ -78,17 +78,17 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
         Elements dayElems = doc.select("#vertretung > p > b, #vertretung > b");
 
         Elements frames = doc.select("frame[src*=w00]");
-        if (dayElems.isEmpty() && !frames.isEmpty()) {
+        if (dayElems.size() == 0 && frames.size() > 0) {
             // doc is embedded in frame
             doc = Jsoup.parse(httpGet(frames.get(0).absUrl("src"), data.optString(PARAM_ENCODING, null)));
             dayElems = doc.select("#vertretung > p > b, #vertretung > b");
-        } else if (dayElems.isEmpty()) {
+        } else if (dayElems.size() == 0) {
             // seen at GHS Berlin, different kinds of center > font > center ... stacked (sometimes within #vertretung)
             dayElems = doc.select("center > font > p > b");
         }
 
         final List<String> allClasses = getAllClasses();
-        if (!dayElems.isEmpty()) {
+        if (dayElems.size() > 0) {
             // untis-info days
             for (Element dayElem : dayElems) {
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();
@@ -106,7 +106,7 @@ public class UntisInfoHeadlessParser extends UntisCommonParser {
                 }
                 parseDay(day, next, v, null, allClasses);
             }
-        } else if (!doc.select("tr:has(td[align=center]):gt(0)").isEmpty()) {
+        } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
             // untis-subst table
             parseSubstitutionTable(v, null, doc);
         }

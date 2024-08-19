@@ -117,7 +117,7 @@ public class UntisMonitorParser extends UntisCommonParser {
             }
         }
         if (lastException != null &&
-                (docs.isEmpty() || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES))) {
+                (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES))) {
             throw lastException;
         }
 
@@ -130,13 +130,13 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.title().contains("Untis") || doc.html().contains("<!--<title>Untis")) {
                 SubstitutionScheduleDay day = parseMonitorDay(doc, scheduleData.getData());
                 v.addDay(day);
-            } else if (docs.isEmpty() || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
+            } else if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
                 // error
                 throw new IOException("Seems like there is no Untis schedule here");
             }
 
             if (scheduleData.getData().has(PARAM_LAST_CHANGE_SELECTOR)
-                    && !doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).isEmpty()) {
+                    && doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).size() > 0) {
                 String text = doc.select(scheduleData.getData().getString(PARAM_LAST_CHANGE_SELECTOR)).first().text();
                 String lastChange;
                 Pattern pattern = Pattern.compile("\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d,? \\d\\d:\\d\\d");
@@ -183,10 +183,10 @@ public class UntisMonitorParser extends UntisCommonParser {
         Document doc = Jsoup.parse(html);
         doc.setBaseUri(url);
 
-        if (doc.select(".mon_title").isEmpty()) {
+        if (doc.select(".mon_title").size() == 0) {
             // We have a problem - there seems to be no substitution schedule. Maybe it is hiding
             // inside a frame?
-            if (!doc.select("frameset frame[name").isEmpty()) {
+            if (doc.select("frameset frame[name").size() > 0) {
                 for (Element frame : doc.select("frameset frame")) {
                     if (frame.attr("src").matches(".*subst_\\d\\d\\d.html?") && recursionDepth < MAX_RECURSION_DEPTH) {
                         String frameUrl = frame.absUrl("src");
@@ -196,7 +196,7 @@ public class UntisMonitorParser extends UntisCommonParser {
             } else if (doc.text().contains("registriert")) {
                 throw new CredentialInvalidException();
             } else {
-                if ((docs.isEmpty() || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) &&
+                if ((docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) &&
                         !doc.select(".alert-danger").text().contains("Kein Inhalt verfügbar")) {
                     // ignore if first page was loaded and redirect didn't work,
                     // or on IServ with message "Kein Inhalt verfügbar"
@@ -207,7 +207,7 @@ public class UntisMonitorParser extends UntisCommonParser {
         } else {
             findSubDocs(docs, html, doc);
 
-            if (following && !doc.select("meta[http-equiv=refresh]").isEmpty()) {
+            if (following && doc.select("meta[http-equiv=refresh]").size() > 0) {
                 Element meta = doc.select("meta[http-equiv=refresh]").first();
                 String attr = meta.attr("content").toLowerCase();
                 String redirectUrl = attr.substring(attr.indexOf("url=") + 4);

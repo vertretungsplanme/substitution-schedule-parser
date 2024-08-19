@@ -245,7 +245,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
 
         for (final TrustManager tm : tms) {
             if (tm instanceof X509TrustManager) {
-                return (X509TrustManager) tm;
+                return X509TrustManager.class.cast(tm);
             }
         }
         throw new IllegalStateException("Could not locate X509TrustManager!");
@@ -574,7 +574,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         this.localSource = localSource;
     }
 
-    private static class CustomHostnameVerifier implements HostnameVerifier {
+    private class CustomHostnameVerifier implements HostnameVerifier {
         private String host;
         private DefaultHostnameVerifier defaultHostnameVerifier;
 
@@ -593,7 +593,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return false;
     }
 
-    private static class NoOpDebuggingDataHandler implements DebuggingDataHandler {
+    private class NoOpDebuggingDataHandler implements DebuggingDataHandler {
         @Override public void columnTitles(List<String> columnTitles) {
 
         }

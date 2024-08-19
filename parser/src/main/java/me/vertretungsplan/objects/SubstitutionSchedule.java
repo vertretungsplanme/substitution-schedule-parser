@@ -454,11 +454,11 @@ public class SubstitutionSchedule implements Cloneable {
         builder.append("website: ").append(website).append("\n");
 
         if (classes != null) {
-            builder.append("classes: ").append(classes).append("\n");
+            builder.append("classes: ").append(classes.toString()).append("\n");
         }
 
         if (teachers != null) {
-            builder.append("teachers: ").append(teachers).append("\n");
+            builder.append("teachers: ").append(teachers.toString()).append("\n");
         }
 
         builder.append("\n\n");
