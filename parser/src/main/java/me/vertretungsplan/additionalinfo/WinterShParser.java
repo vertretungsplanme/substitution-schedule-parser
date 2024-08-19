@@ -38,7 +38,12 @@ public class WinterShParser extends BaseAdditionalInfoParser {
 		info.setTitle(TITLE);
 		Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
 		doc.outputSettings(new Document.OutputSettings().prettyPrint(false));
-		String text = doc.select("item description").first().html().replace("\r\n", "<br>").trim();
+		String text = "";
+		try {
+			text = doc.select("item description").first().html().replace("\r\n", "<br>").trim();
+		} catch (Exception e) {
+			// ignore exception
+		}
 		if (text.startsWith("Zurzeit gibt es keine Hinweise auf witterungsbedingten Unterrichtsausfall.")
 				|| text.startsWith("Aktuell gibt es keine Hinweise auf witterungsbedingten Unterrichtsausfall.")) {
 			info.setHasInformation(false);
