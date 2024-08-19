@@ -7,5 +7,5 @@ compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     implementation project(':parser')
-    implementation 'org.json:json:20090211'
+    implementation 'org.json:json:20231013'
 }
