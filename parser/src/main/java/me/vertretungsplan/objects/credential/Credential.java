@@ -16,7 +16,7 @@ public interface Credential {
      * This can be used to differentiate between two credentials or to allow a user to authenticate to an application
      * which uses this parser. <b>It should not be used by {@link me.vertretungsplan.parser.SubstitutionScheduleParser}
      * implementations, especially not if they depend on a specific hashing algorithm.</b>
-     * <p>
+     *
      * For two Credential objects a and b, the following relation should apply:
      * a.getHash().equals(b.getHash()) if and only if a.getLoginData().equals(b.getLoginData())
      *

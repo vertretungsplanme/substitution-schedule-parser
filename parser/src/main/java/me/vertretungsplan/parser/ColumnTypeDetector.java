@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +26,7 @@ public class ColumnTypeDetector {
     public ColumnTypeDetector() throws IOException, JSONException {
         columns = new HashMap<>();
         InputStream is = getClass().getClassLoader().getResourceAsStream("column_headers.json");
-        String content = IOUtils.toString(is, StandardCharsets.UTF_8);
+        String content = IOUtils.toString(is, "UTF-8");
         JSONObject json = new JSONObject(content);
         for (Iterator it = json.keys(); it.hasNext(); ) {
             String type = (String) it.next();

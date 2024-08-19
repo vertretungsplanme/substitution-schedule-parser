@@ -105,7 +105,7 @@ public class Substitution implements Cloneable {
 
     /**
      * Get the lesson which this substitution is for.
-     * <p>
+     *
      * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons.
      *
@@ -117,7 +117,7 @@ public class Substitution implements Cloneable {
 
     /**
      * Set the lesson which this substitution is for.
-     * <p>
+     *
      * Keep it short, the recommended format is e.g. "1" for single lessons and "5-6" for multiple lessons. But some
      * schools use different ways to name their lessons. Required.
      *

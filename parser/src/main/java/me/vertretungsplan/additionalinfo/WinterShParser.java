@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * Parser information about cancellation of classes caused by snow or other extreme weather conditions provided as an
  * RSS feed by the Ministry of Education of Schleswig-Holstein, Germany.
- * Same as <a href="http://www.schleswig-holstein.de/DE/Landesregierung/III/Service/winterhotline/Winterhotline.html">...</a>
+ * Same as http://www.schleswig-holstein.de/DE/Landesregierung/III/Service/winterhotline/Winterhotline.html
  * Can be used for all public and vocational schools in Schleswig-Holstein.
  */
 public class WinterShParser extends BaseAdditionalInfoParser {

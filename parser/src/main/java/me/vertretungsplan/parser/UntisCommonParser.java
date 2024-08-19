@@ -214,7 +214,7 @@ public abstract class UntisCommonParser extends BaseParser {
                 for (Element headerRow : headerRows) {
                     final String text = headerRow.select("th").get(i).text().replace("\u00a0", " ").trim();
                     if (first) {
-                        if (!text.isEmpty()) first = false;
+                        if (!text.equals("")) first = false;
                     } else {
                         builder.append(" ");
                     }
@@ -414,7 +414,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     v.setSubject(course);
                 }
 
-                if (v.getLesson() == null || v.getLesson().isEmpty()) {
+                if (v.getLesson() == null || v.getLesson().equals("")) {
                     continue;
                 }
 
@@ -726,7 +726,7 @@ public abstract class UntisCommonParser extends BaseParser {
                     v.setTeacher(teacherName);
                 }
 
-                if (v.getLesson() != null && !v.getLesson().isEmpty()) {
+                if (v.getLesson() != null && !v.getLesson().equals("")) {
                     day.addSubstitution(v);
                 }
 
@@ -838,7 +838,7 @@ public abstract class UntisCommonParser extends BaseParser {
 
     private boolean isEmpty(String text) {
         final String trim = text.replaceAll("\u00A0", "").trim();
-        return trim.isEmpty() || trim.equals("---") || trim.equals("+");
+        return trim.equals("") || trim.equals("---") || trim.equals("+");
     }
 
     /**
@@ -866,7 +866,7 @@ public abstract class UntisCommonParser extends BaseParser {
     SubstitutionScheduleDay parseMonitorDay(Element doc, JSONObject data) throws
             JSONException, CredentialInvalidException, IOException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
-        String date = Objects.requireNonNull(doc.select(".mon_title").first()).text().replaceAll(" \\(Seite \\d+ / \\d+\\)", "");
+        String date = doc.select(".mon_title").first().text().replaceAll(" \\(Seite \\d+ / \\d+\\)", "");
         day.setDateString(date);
         day.setDate(ParserUtils.parseDate(date));
 
@@ -982,6 +982,11 @@ public abstract class UntisCommonParser extends BaseParser {
     /**
      * Parses an Untis substitution table ({@link UntisSubstitutionParser}).
      *
+     * @param v
+     * @param lastChange
+     * @param doc
+     * @throws JSONException
+     * @throws CredentialInvalidException
      */
     protected void parseSubstitutionTable(SubstitutionSchedule v, String lastChange, Document doc, String className)
             throws JSONException, CredentialInvalidException, IOException {

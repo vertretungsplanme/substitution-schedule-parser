@@ -85,7 +85,7 @@ public class SubstitutionScheduleData {
      * {@link me.vertretungsplan.additionalinfo.BaseAdditionalInfoParser#getInstance(String)} to create a suitable
      * parser instance.
      *
-     * @return the list of additional info types
+     * @return the set of additional info types
      */
     public List<String> getAdditionalInfos() {
         return additionalInfos;

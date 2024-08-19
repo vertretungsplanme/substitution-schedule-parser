@@ -23,7 +23,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DaVinciDemoTest extends BaseDemoTest {
     private static final String EXAMPLE_URL = "http://example.com";
@@ -77,7 +78,7 @@ public class DaVinciDemoTest extends BaseDemoTest {
 
     private void checkSubstitutions(SubstitutionScheduleDay day) {
         for (Substitution subst : day.getSubstitutions()) {
-            assertFalse(subst.getClasses().isEmpty());
+            assertTrue(subst.getClasses().size() > 0);
             assertNotEmpty(subst.getLesson());
             assertNotEmpty(subst.getPreviousSubject());
             assertNullOrNotEmpty(subst.getSubject());
@@ -100,7 +101,7 @@ public class DaVinciDemoTest extends BaseDemoTest {
         List<String> urls = DaVinciParser.getDayUrls(EXAMPLE_URL, Jsoup.parse(htmlDayIndex));
         assertEquals(7, urls.size());
         for (int i = 0; i < urls.size(); i++) {
-            assertEquals(EXAMPLE_URL + "/V_DC_00" + (i + 1) + ".html", urls.get(i));
+            assertEquals(EXAMPLE_URL + "/V_DC_00" + String.valueOf(i + 1) + ".html", urls.get(i));
         }
     }
 

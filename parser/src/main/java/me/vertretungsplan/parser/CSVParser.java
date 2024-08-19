@@ -31,9 +31,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 /**
@@ -126,7 +127,7 @@ public class CSVParser extends BaseParser {
                             schedule.setLastChange(modified);
                         }
                         InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
-                        parseCSV(IOUtils.toString(stream, StandardCharsets.UTF_8), schedule);
+                        parseCSV(IOUtils.toString(stream, "UTF-8"), schedule);
                     }
                 }
             } catch (GeneralSecurityException | URISyntaxException e) {
@@ -153,7 +154,7 @@ public class CSVParser extends BaseParser {
                                 schedule.setLastChange(modified);
                             }
                             InputStream stream = client.get(new URI(httpUrl).resolve(file.getHref()).toString());
-                            schedule = parseCSVAdditionalInfos(IOUtils.toString(stream, StandardCharsets.UTF_8), schedule);
+                            schedule = parseCSVAdditionalInfos(IOUtils.toString(stream, "UTF-8"), schedule);
                         }
                     }
                 } catch (GeneralSecurityException | URISyntaxException e) {
@@ -207,7 +208,7 @@ public class CSVParser extends BaseParser {
                 }
                 j++;
             }
-            if (info.getText() != null && !info.getText().trim().isEmpty()) {
+            if (info.getText() != null && !info.getText().trim().equals("")) {
                 Boolean isDayMessage = false;
                 for (SubstitutionScheduleDay day : schedule.getDays()) {
                     if (day.getDate().equals(ParserUtils.parseDate(info.getTitle()))) {

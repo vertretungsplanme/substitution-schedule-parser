@@ -325,7 +325,7 @@ public class LoginHandler {
                             Element iframe = doc.select("iframe").first();
                             if (iframe == null) throw new CredentialInvalidException();
                             String url = iframe.absUrl("src");
-                            if (url != null && !url.isEmpty()) {
+                            if (url != null && !url.equals("")) {
                                 executor.execute(Request.Get(url)).discardContent();
                             }
                         }

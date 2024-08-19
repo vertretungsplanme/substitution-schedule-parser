@@ -127,7 +127,7 @@ public class SubstitutionTextUtilsTest {
     private boolean bothOrNoneEmpty(@Strings(values = {"", "Fach"}) String subject1,
                                     @Strings(values = {"", "Fach", "Fach2"})
                                             String subject2) {
-        return subject1.isEmpty() && subject2.isEmpty() || !subject1.isEmpty() && !subject2.isEmpty();
+        return subject1.equals("") && subject2.equals("") || !subject1.equals("") && !subject2.equals("");
     }
 
     @Retention(RetentionPolicy.RUNTIME)

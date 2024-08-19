@@ -60,9 +60,3 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
-  trigger_jitpack:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Jitpack Build
-        run: curl "https://jitpack.io/com/github/vertretungsplanme/substitution-schedule-parser/${GITHUB_SHA:0:10}/build.log"

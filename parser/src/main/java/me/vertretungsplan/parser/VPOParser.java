@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
  * <dt><code>jwt_key</code> (String, required)</dt>
  * <dd>The key used for signing the JWT</dd>
  * </dl>
- * <p>
+ *
  * You have to use a {@link me.vertretungsplan.objects.authentication.PasswordAuthenticationData} because all
  * schedules on VPO are protected by a login.
  */

@@ -9,7 +9,6 @@
 package me.vertretungsplan.parser;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -23,7 +22,11 @@ public class BaseDemoTest {
      */
     private static String convertStreamToString(InputStream is) throws IOException {
         BufferedReader reader;
-        reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        try {
+            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        } catch (UnsupportedEncodingException e1) {
+            reader = new BufferedReader(new InputStreamReader(is));
+        }
         StringBuilder sb = new StringBuilder();
 
         String line;

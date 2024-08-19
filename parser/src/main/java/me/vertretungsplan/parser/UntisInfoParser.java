@@ -355,7 +355,7 @@ public class UntisInfoParser extends UntisCommonParser {
             cellFormat, ColorProvider colorProvider)
             throws JSONException {
         List<Substitution> substitutions = new ArrayList<>();
-        if (cell.text().trim().isEmpty()) {
+        if (cell.text().trim().equals("")) {
             return substitutions;
         }
 
@@ -383,7 +383,7 @@ public class UntisInfoParser extends UntisCommonParser {
 
                     try {
                         Element td = tr.select("td").get(col + course * cellFormat.getJSONArray(0).length());
-                        if (!td.select("font[color=#FF0000]").isEmpty()) {
+                        if (td.select("font[color=#FF0000]").size() > 0) {
                             isChange = true;
                         }
 
@@ -449,7 +449,7 @@ public class UntisInfoParser extends UntisCommonParser {
             allClasses)
             throws JSONException, CredentialInvalidException, IOException {
         Elements days = doc.select("#vertretung > p > b, #vertretung > b, p:has(a[href^=#]) > b");
-        if (!days.isEmpty()) {
+        if (days.size() > 0) {
             for (Element dayElem : days) {
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
@@ -468,7 +468,7 @@ public class UntisInfoParser extends UntisCommonParser {
                 }
                 parseDay(day, next, v, klasse, allClasses);
             }
-        } else if (!doc.select("tr:has(td[align=center]):gt(0)").isEmpty()) {
+        } else if (doc.select("tr:has(td[align=center]):gt(0)").size() > 0) {
             parseSubstitutionTable(v, null, doc);
             v.setLastChangeString(lastChange);
             v.setLastChange(ParserUtils.parseDateTime(lastChange));
