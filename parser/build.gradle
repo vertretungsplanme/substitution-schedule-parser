@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.json:json:20090211'
     implementation 'org.apache.commons:commons-lang3:3.4'
     implementation 'org.jetbrains:annotations:13.0'
-    implementation 'commons-io:commons-io:2.5'
+    implementation 'commons-io:commons-io:2.7'
     implementation 'com.github.mifmif:generex:1.0.2'
     implementation 'net.sf.biweekly:biweekly:0.6.1'
     implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
