@@ -21,6 +21,8 @@ import me.vertretungsplan.additionalinfo.evsschwalmstadt.EvsSchwalmstadtIcalPars
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenIcalParser;
 import me.vertretungsplan.additionalinfo.gymholthausenhattingen.GymHolthausenRSSParser;
 import me.vertretungsplan.additionalinfo.kantschulefalkensee.KantschuleFalkenseeRSSParser;
+import me.vertretungsplan.additionalinfo.karlsruheparzivalzentrum.KarlsruheParzivalzentrumEventParser;
+import me.vertretungsplan.additionalinfo.karlsruheparzivalzentrum.KarlsruheParzivalzentrumRSSParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigIcalParser;
 import me.vertretungsplan.additionalinfo.lsschleswig.LsSchleswigRSSParser;
 import me.vertretungsplan.objects.AdditionalInfo;
@@ -98,6 +100,12 @@ public abstract class BaseAdditionalInfoParser {
             case "bmrtrier-rss":
                 parser = new BmrTrierRSSParser();
                 break;
+            case "karlsruhe-parzivalzentrum-events":
+                parser = new KarlsruheParzivalzentrumEventParser();
+                break; 
+            case "karlsruhe-parzivalzentrum-rss":
+                parser = new KarlsruheParzivalzentrumRSSParser();
+                break; 
         }
         return parser;
     }
