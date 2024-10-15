@@ -24,7 +24,7 @@ dependencies {
     compile 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
     compile 'org.bouncycastle:bcprov-jdk15on:1.56'
     compile 'io.jsonwebtoken:jjwt:0.7.0'
-    compile 'com.github.lookfirst:sardine:5.8'
+    compile 'com.github.lookfirst:sardine:5.12'
     testCompile 'junit:junit:4.11'
     testCompile 'com.github.tomakehurst:wiremock-jre8:2.24.0'
     testCompile 'com.google.jimfs:jimfs:1.1'
