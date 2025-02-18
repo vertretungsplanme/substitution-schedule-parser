@@ -131,6 +131,19 @@ public abstract class UntisCommonParser extends BaseParser {
         } else if (lastChangeLeft) {
             final String bodyHtml = doc.select("body").size() > 0 ? doc.select("body").html() : doc.html();
             lastChange = bodyHtml.substring(0, bodyHtml.indexOf("<p>") - 1);
+            if (lastChange.length() > 100) { // probably something went wrong
+                Elements paragraphs = doc.select("body p");
+                for (Element p : paragraphs) {
+                    String pHtml = p.outerHtml();
+                    int indexOfP = bodyHtml.indexOf(pHtml);
+                    int indexOfStand = bodyHtml.indexOf("Stand:");
+                    if (indexOfP > indexOfStand) {
+                        String beforeParagraph = bodyHtml.substring(indexOfStand, indexOfP - 1);
+                        System.out.println(beforeParagraph);
+                        return beforeParagraph;
+                    }
+                }
+            }
         } else {
             List<Node> childNodes;
             if (doc instanceof Document) {
