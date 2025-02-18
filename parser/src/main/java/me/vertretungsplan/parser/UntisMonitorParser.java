@@ -127,7 +127,7 @@ public class UntisMonitorParser extends UntisCommonParser {
                     SubstitutionScheduleDay day = parseMonitorDay(part, scheduleData.getData());
                     v.addDay(day);
                 }
-            } else if (doc.title().contains("Untis") || doc.html().contains("<!--<title>Untis")) {
+            } else if (doc.title().contains("Untis") || doc.html().contains("<title>Untis")) {
                 SubstitutionScheduleDay day = parseMonitorDay(doc, scheduleData.getData());
                 v.addDay(day);
             } else if (docs.size() == 0 || scheduleData.getData().optBoolean(PARAM_FORCE_ALL_PAGES)) {
