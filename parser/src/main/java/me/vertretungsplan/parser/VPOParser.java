@@ -282,18 +282,6 @@ public class VPOParser extends BaseParser {
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
-                for (int m = 0; i < messages.length(); m++) {
-                    JSONObject message = messages.getJSONObject(m);
-
-                    if (message.has("date")) {
-                        final LocalDate messageDate = new LocalDate(message.getString("date"));
-                        if (messageDate.isEqual(currentDate)) {
-                            substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
-                        }
-                    }
-                }
-
-
                 if (!substitutionScheduleDay.getSubstitutions().isEmpty()
                         || !substitutionScheduleDay.getMessages().isEmpty()) {
                     substitutionSchedule.addDay(substitutionScheduleDay);
@@ -306,6 +294,17 @@ public class VPOParser extends BaseParser {
             final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 
             substitutionScheduleDay.addSubstitution(substitution);
+
+            for (int m = 0; i < messages.length(); m++) {
+                JSONObject message = messages.getJSONObject(m);
+
+                if (message.has("date")) {
+                    final LocalDate messageDate = new LocalDate(message.getString("date"));
+                    if (messageDate.isEqual(currentDate)) {
+                        substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
+                    }
+                }
+            }
         }
         substitutionSchedule.addDay(substitutionScheduleDay);
     }
