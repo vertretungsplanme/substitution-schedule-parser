@@ -267,7 +267,8 @@ public class VPOParser extends BaseParser {
                 infos.add(info);
             } else {
                 SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
-                substitutionScheduleDay.setDateString(message.getString("date"));
+                final LocalDate messageDate = new LocalDate(message.getString("date"));
+                substitutionScheduleDay.setDate(messageDate);
                 substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
                 substitutionSchedule.addDay(substitutionScheduleDay);
             }
