@@ -294,15 +294,14 @@ public class VPOParser extends BaseParser {
             final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 
             substitutionScheduleDay.addSubstitution(substitution);
+        }
+        for (int m = 0; m < messages.length(); m++) {
+            JSONObject message = messages.getJSONObject(m);
 
-            for (int m = 0; i < messages.length(); m++) {
-                JSONObject message = messages.getJSONObject(m);
-
-                if (message.has("date")) {
-                    final LocalDate messageDate = new LocalDate(message.getString("date"));
-                    if (messageDate.isEqual(currentDate)) {
-                        substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
-                    }
+            if (message.has("date")) {
+                final LocalDate messageDate = new LocalDate(message.getString("date"));
+                if (messageDate.isEqual(currentDate)) {
+                    substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
                 }
             }
         }
