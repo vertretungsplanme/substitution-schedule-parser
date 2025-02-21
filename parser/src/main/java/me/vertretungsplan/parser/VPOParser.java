@@ -266,6 +266,11 @@ public class VPOParser extends BaseParser {
                 info.setText(message.getString("message").trim());
                 info.setFromSchedule(true);
                 infos.add(info);
+            } else {
+                SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+                substitutionScheduleDay.setDateString(message.getString("date"));
+                substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
+                substitutionSchedule.addDay(substitutionScheduleDay);
             }
         }
 
@@ -273,39 +278,18 @@ public class VPOParser extends BaseParser {
         substitutionSchedule.setLastChange(lastUpdate);
 
         // Add changes to SubstitutionSchedule
-        LocalDate currentDate = LocalDate.now();
-        SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
-        substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
             final LocalDate substitutionDate = new LocalDate(change.getString("date"));
 
-            // If starting date of change does not equal date of SubstitutionScheduleDay
-            if (!substitutionDate.isEqual(currentDate)) {
-                if (!substitutionScheduleDay.getSubstitutions().isEmpty()
-                        || !substitutionScheduleDay.getMessages().isEmpty()) {
-                    substitutionSchedule.addDay(substitutionScheduleDay);
-                }
-                substitutionScheduleDay = new SubstitutionScheduleDay();
-                substitutionScheduleDay.setDate(substitutionDate);
-                currentDate = substitutionDate;
-            }
+            SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+            substitutionScheduleDay.setDate(substitutionDate);
 
             final Substitution substitution = getSubstitution(change, coursesHashMap, teachersHashMap);
 
             substitutionScheduleDay.addSubstitution(substitution);
+            substitutionSchedule.addDay(substitutionScheduleDay);
         }
-        for (int m = 0; m < messages.length(); m++) {
-            JSONObject message = messages.getJSONObject(m);
-
-            if (message.has("date")) {
-                final LocalDate messageDate = new LocalDate(message.getString("date"));
-                if (messageDate.isEqual(currentDate)) {
-                    substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
-                }
-            }
-        }
-        substitutionSchedule.addDay(substitutionScheduleDay);
     }
 
     private String[] getSQLArray(String data) {
