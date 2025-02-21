@@ -255,7 +255,6 @@ public class VPOParser extends BaseParser {
 
         // Add Messages
         List<AdditionalInfo> infos = new ArrayList<>(messages.length());
-
         for (int i = 0; i < messages.length(); i++) {
             JSONObject message = messages.getJSONObject(i);
 
@@ -273,8 +272,9 @@ public class VPOParser extends BaseParser {
                 substitutionSchedule.addDay(substitutionScheduleDay);
             }
         }
-
         substitutionSchedule.getAdditionalInfos().addAll(infos);
+
+        // Add LastChange
         substitutionSchedule.setLastChange(lastUpdate);
 
         // Add changes to SubstitutionSchedule
