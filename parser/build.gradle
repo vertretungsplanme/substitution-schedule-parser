@@ -6,7 +6,8 @@ apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-sourceCompatibility = 1.7
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 

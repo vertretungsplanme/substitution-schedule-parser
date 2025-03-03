@@ -1,6 +1,7 @@
 apply plugin: 'application'
 
-sourceCompatibility = 1.7
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 mainClassName = "me.vertretungsplan.sample.Sample"
 compileJava.options.encoding = 'UTF-8'
