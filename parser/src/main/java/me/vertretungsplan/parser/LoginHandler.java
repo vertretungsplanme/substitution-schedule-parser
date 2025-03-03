@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
  * <code>LoginHandler</code> supports authentication using HTTP POST (using
  * <code>application/x-www-form-urlencoded</code>), HTTP Basic Auth, NTLM or a fixed (username and) password.
  *
- * <h1>Configuration parameters</h1>
+ * # Configuration parameters
  * These parameters can be supplied in a JSON Object under <code>login</code> in
  * {@link SubstitutionScheduleData#setData(JSONObject)} to configure the login:
  *

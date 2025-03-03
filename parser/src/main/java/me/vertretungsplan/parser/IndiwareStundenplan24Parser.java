@@ -34,7 +34,7 @@ import java.util.List;
  * <p>
  * This parser can be accessed using <code>"stundenplan24"</code> for {@link SubstitutionScheduleData#setApi(String)}.
  *
- * <h1>Configuration parameters</h1>
+ * # Configuration parameters
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} to configure the parser:
  *
  * <dl>

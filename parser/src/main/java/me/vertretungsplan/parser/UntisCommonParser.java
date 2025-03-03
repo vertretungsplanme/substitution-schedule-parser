@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * Contains common code used by {@link UntisInfoParser}, {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser}
  * and {@link UntisSubstitutionParser}.
  *
- * <h1>Configuration parameters</h1>
+ * # Configuration parameters
  * These parameters can be supplied in {@link SubstitutionScheduleData#setData(JSONObject)} in addition to the
  * parameters specified in the documentation of the parser itself.
  *
