@@ -208,6 +208,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "vpo":
                 parser = new VPOParser(data, cookieProvider);
                 break;
+            case "tkplanung":
+                parser = new TKPlanungParser(data, cookieProvider);
+                break;
         }
         return parser;
     }
