@@ -72,10 +72,6 @@ public class TKPlanungParser extends BaseParser {
         
         final String url = api + "/substitutions";
         JSONObject substitutions = (JSONObject) getJSON(url);
-        String absentTeachers = substitutions.getString("absentTeachers");
-        System.out.println("abwensende lehrer: " + absentTeachers);
-        String info = substitutions.getString("info");
-        System.out.println("infos: " + info);
         JSONArray changes = (JSONArray) substitutions.getJSONArray("changes");
         
         // Add changes to SubstitutionSchedule
@@ -95,7 +91,9 @@ public class TKPlanungParser extends BaseParser {
             substitution.setPreviousTeachers(jsonArrayToSet(change.getJSONArray("originalTeacherNames")));
 
             substitution.setLesson(change.getString("subject"));
-            substitution.setPreviousSubject(change.getString("originalSubject"));
+            if (!change.optString("originalSubject").isEmpty()) {
+                substitution.setPreviousSubject(change.optString("originalSubject"));
+            }            
 
             substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("roomNames")));
             substitution.setPreviousRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
@@ -123,14 +121,25 @@ public class TKPlanungParser extends BaseParser {
             additionalInfo.setFromSchedule(true);
             infos.add(additionalInfo);
         }
-        // Add absentTeachersInfo
-        AdditionalInfo absentTeachersInfo = new AdditionalInfo();
-        absentTeachersInfo.setHasInformation(true);
-        absentTeachersInfo.setTitle("Abwesende Lehrer");
-        absentTeachersInfo.setText(absentTeachers);
-        absentTeachersInfo.setFromSchedule(true);
-        infos.add(absentTeachersInfo);
-
+        // Add AdditionalInfo absentTeachers
+        if (!substitutions.optString("absentTeachers").isEmpty()) {
+            AdditionalInfo absentTeachersInfo = new AdditionalInfo();
+            absentTeachersInfo.setHasInformation(true);
+            absentTeachersInfo.setTitle("Abwesende Lehrer");
+            absentTeachersInfo.setText(substitutions.optString("absentTeachers"));
+            absentTeachersInfo.setFromSchedule(true);
+            infos.add(absentTeachersInfo);
+        }
+        // Add AdditionalInfo info
+        if (!substitutions.optString("info").isEmpty()) {
+            AdditionalInfo absentTeachersInfo = new AdditionalInfo();
+            absentTeachersInfo.setHasInformation(true);
+            absentTeachersInfo.setTitle("Infos");
+            absentTeachersInfo.setText(substitutions.optString("info"));
+            absentTeachersInfo.setFromSchedule(true);
+            infos.add(absentTeachersInfo);
+        }
+        
         substitutionSchedule.getAdditionalInfos().addAll(infos);
 
         substitutionSchedule.setClasses(getAllClasses());
