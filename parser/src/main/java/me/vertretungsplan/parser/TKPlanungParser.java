@@ -116,13 +116,21 @@ public class TKPlanungParser extends BaseParser {
         List<AdditionalInfo> infos = new ArrayList<>(messages.length());
         for (int i = 0; i < messages.length(); i++) {
             JSONObject message = messages.getJSONObject(i);
-            AdditionalInfo aInfo = new AdditionalInfo();
-            aInfo.setHasInformation(message.getBoolean("sendNotification"));
-            aInfo.setTitle(message.getString("title").trim());
-            aInfo.setText(message.getString("message").trim());
-            aInfo.setFromSchedule(true);
-            infos.add(aInfo);
+            AdditionalInfo additionalInfo = new AdditionalInfo();
+            additionalInfo.setHasInformation(message.getBoolean("sendNotification"));
+            additionalInfo.setTitle(message.getString("title").trim());
+            additionalInfo.setText(message.getString("message").trim());
+            additionalInfo.setFromSchedule(true);
+            infos.add(additionalInfo);
         }
+        // Add absentTeachersInfo
+        AdditionalInfo absentTeachersInfo = new AdditionalInfo();
+        absentTeachersInfo.setHasInformation(true);
+        absentTeachersInfo.setTitle("Abwesende Lehrer");
+        absentTeachersInfo.setText(absentTeachers);
+        absentTeachersInfo.setFromSchedule(true);
+        infos.add(absentTeachersInfo);
+
         substitutionSchedule.getAdditionalInfos().addAll(infos);
 
         substitutionSchedule.setClasses(getAllClasses());
