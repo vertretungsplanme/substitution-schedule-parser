@@ -85,7 +85,9 @@ public class TKPlanungParser extends BaseParser {
 
             substitution.setClasses(jsonArrayToSet(change.getJSONArray("classNames")));
 
-            substitution.setType(change.getString("substitutionType"));
+            String type = change.getString("substitutionType");
+            substitution.setType(type);
+            substitution.setColor(colorProvider.getColor(type));
 
             substitution.setTeachers(jsonArrayToSet(change.getJSONArray("coveringTeacherNames")));
             substitution.setPreviousTeachers(jsonArrayToSet(change.getJSONArray("originalTeacherNames")));
