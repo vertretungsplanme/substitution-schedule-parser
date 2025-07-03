@@ -38,15 +38,15 @@ public class ColorProvider {
 
     private static final HashMap<String, String> colorNames = new HashMap<>();
     // *** Default color values ***
-    private static final String[] RED_VALUES = {"Entfall", "EVA", "Entf.", "Entf", "Fällt aus!", "Fällt aus",
-            "entfällt", "Freistunde", "Klasse frei", "Selbstlernen", "HA", "selb.Arb.", "Aufgabe", "Aufgaben",
-            "selbst.", "Frei", "Ausfall", "Stillarbeit", "Absenz", "-> Entfall", "Freisetzung",
-            "selbstständiges Arbeiten", "Ausfallstunde",
-            "Eigenverantw. Arbeiten", "fällt aus.", "Entfällt - Verlegung"};
+    private static final String[] RED_VALUES = {"Entfall", "Entf.", "Entf", "Fällt aus!", "Fällt aus",
+            "entfällt", "Freistunde", "Klasse frei", "HA",
+            "Frei", "Ausfall", "Absenz", "-> Entfall", "Freisetzung",
+            "Ausfallstunde", "fällt aus.", "Entfällt - Verlegung", "Abgesagt"};
     private static final String[] BLUE_VALUES = {"Vertretung", "Sondereins.", "Sondereinsatz", "Statt-Vertretung",
-            "Betreuung", "V", "VTR", "Vertr."};
-    private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung",
-            "Unterricht geändert", "Unterrichtstausch", "geändert", "statt", "Stundentausch", "Verlegt"};
+            "Betreuung", "V", "VTR", "Vertr.", "Vertreten",
+            "selbst.", "Selbstlernen", "selb.Arb.", "Aufgabe", "Aufgaben", "Stillarbeit", "EVA", "Eigenverantw. Arbeiten", "selbstständiges Arbeiten", "Arbeitsauftrag"};
+    private static final String[] YELLOW_VALUES = {"Tausch", "Verlegung", "Zusammenlegung", "Zusammengelegt",
+            "Unterricht geändert", "Unterrichtstausch", "geändert", "statt", "Stundentausch", "Verlegt", "Verschoben"};
     private static final String[] GREEN_VALUES =
             {"Raum", "KLA", "Raum-Vtr.", "Raumtausch", "Raumverlegung", "Raumänderung", "R. Änd.", "Raum beachten",
                     "Raum-Vertr.", "Raumwechsel"};
