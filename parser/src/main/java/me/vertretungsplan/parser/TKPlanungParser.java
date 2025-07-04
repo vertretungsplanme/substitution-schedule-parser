@@ -98,8 +98,12 @@ public class TKPlanungParser extends BaseParser {
                 substitution.setPreviousSubject(change.optString("originalSubject"));
             }            
 
-            substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("roomNames")));
-            substitution.setPreviousRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
+            if (type.equals("Abgesagt")) {
+                substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
+            } else {
+                substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("roomNames")));
+                substitution.setPreviousRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
+            }
 
             //String start = change.getString("startTime").substring(0, 5);
             //String end = change.getString("endTime").substring(0, 5);
