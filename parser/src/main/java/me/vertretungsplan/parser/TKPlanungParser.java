@@ -122,17 +122,19 @@ public class TKPlanungParser extends BaseParser {
             infos.add(additionalInfo);
         }
         // Add AdditionalInfo absentTeachers
-        JSONArray absentTeachersDays = (JSONArray) substitutions.getJSONArray("absentTeachers");
-        for (int i = 0; i < absentTeachersDays.length(); i++) {
-            JSONObject absentTeachersDay = absentTeachersDays.getJSONObject(i);
-            String absentTeachersDate = absentTeachersDay.getString("date");
-            String absentTeachersMessage = absentTeachersDay.getString("message");
-            if (!absentTeachersMessage.isBlank()) {
-                substitutionScheduleDay = new SubstitutionScheduleDay();
-                LocalDate substitutionDate = new LocalDate(absentTeachersDate);
-                substitutionScheduleDay.setDate(substitutionDate);
-                substitutionScheduleDay.addMessage("Abwesend: " + absentTeachersMessage);
-                substitutionSchedule.addDay(substitutionScheduleDay);
+        JSONArray absentTeachersDays = (JSONArray) substitutions.optJSONArray("absentTeachers");
+            if (absentTeachersDays != null) {
+            for (int i = 0; i < absentTeachersDays.length(); i++) {
+                JSONObject absentTeachersDay = absentTeachersDays.getJSONObject(i);
+                String absentTeachersDate = absentTeachersDay.getString("date");
+                String absentTeachersMessage = absentTeachersDay.getString("message");
+                if (!absentTeachersMessage.isBlank()) {
+                    substitutionScheduleDay = new SubstitutionScheduleDay();
+                    LocalDate substitutionDate = new LocalDate(absentTeachersDate);
+                    substitutionScheduleDay.setDate(substitutionDate);
+                    substitutionScheduleDay.addMessage("Abwesend: " + absentTeachersMessage);
+                    substitutionSchedule.addDay(substitutionScheduleDay);
+                }
             }
         }
         // Add AdditionalInfo info
