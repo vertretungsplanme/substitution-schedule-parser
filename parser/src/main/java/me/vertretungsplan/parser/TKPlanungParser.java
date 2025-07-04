@@ -75,7 +75,7 @@ public class TKPlanungParser extends BaseParser {
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
         for (int i = 0; i < changes.length(); i++) {
             JSONObject change = changes.getJSONObject(i);
-            LocalDate substitutionDate = new LocalDate(change.getString("date").substring(0, 10));
+            LocalDate substitutionDate = new LocalDate(change.getString("date"));
             substitutionScheduleDay.setDate(substitutionDate);
 
             Substitution substitution = new Substitution();
@@ -122,25 +122,33 @@ public class TKPlanungParser extends BaseParser {
             infos.add(additionalInfo);
         }
         // Add AdditionalInfo absentTeachers
-        if (!substitutions.optString("absentTeachers").isEmpty()) {
-            AdditionalInfo absentTeachersInfo = new AdditionalInfo();
-            absentTeachersInfo.setHasInformation(true);
-            absentTeachersInfo.setTitle("Abwesende Lehrer");
-            absentTeachersInfo.setText(substitutions.optString("absentTeachers"));
-            absentTeachersInfo.setFromSchedule(true);
-            infos.add(absentTeachersInfo);
+        JSONArray absentTeachersDays = (JSONArray) substitutions.getJSONArray("absentTeachers");
+        for (int i = 0; i < absentTeachersDays.length(); i++) {
+            JSONObject absentTeachersDay = absentTeachersDays.getJSONObject(i);
+            String absentTeachersDate = absentTeachersDay.getString("date");
+            String absentTeachersMessage = absentTeachersDay.getString("message");
+            if (!absentTeachersMessage.isBlank()) {
+                substitutionScheduleDay = new SubstitutionScheduleDay();
+                LocalDate substitutionDate = new LocalDate(absentTeachersDate);
+                substitutionScheduleDay.setDate(substitutionDate);
+                substitutionScheduleDay.addMessage("Abwesend: " + absentTeachersMessage);
+                substitutionSchedule.addDay(substitutionScheduleDay);
+            }
         }
         // Add AdditionalInfo info
-        if (!substitutions.optString("info").isEmpty()) {
-            AdditionalInfo absentTeachersInfo = new AdditionalInfo();
-            absentTeachersInfo.setHasInformation(true);
-            absentTeachersInfo.setTitle("Infos");
-            absentTeachersInfo.setText(substitutions.optString("info"));
-            absentTeachersInfo.setFromSchedule(true);
-            infos.add(absentTeachersInfo);
+        JSONArray infoDays = (JSONArray) substitutions.getJSONArray("info");
+        for (int i = 0; i < infoDays.length(); i++) {
+            JSONObject infoDay = infoDays.getJSONObject(i);
+            String infoDate = infoDay.getString("date");
+            String infoMessage = infoDay.getString("message");
+            if (!infoMessage.isBlank()) {
+                substitutionScheduleDay = new SubstitutionScheduleDay();
+                LocalDate substitutionDate = new LocalDate(infoDate);
+                substitutionScheduleDay.setDate(substitutionDate);
+                substitutionScheduleDay.addMessage(infoMessage);
+                substitutionSchedule.addDay(substitutionScheduleDay);
+            }
         }
-        
-        substitutionSchedule.getAdditionalInfos().addAll(infos);
 
         substitutionSchedule.setClasses(getAllClasses());
         substitutionSchedule.setTeachers(getAllTeachers());
