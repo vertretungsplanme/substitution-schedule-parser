@@ -121,6 +121,7 @@ public class TKPlanungParser extends BaseParser {
             additionalInfo.setFromSchedule(true);
             infos.add(additionalInfo);
         }
+        substitutionSchedule.getAdditionalInfos().addAll(infos);
         // Add AdditionalInfo absentTeachers
         JSONArray absentTeachersDays = (JSONArray) substitutions.optJSONArray("absentTeachers");
             if (absentTeachersDays != null) {
