@@ -55,12 +55,17 @@ public class NotCompatibleParser extends BaseParser {
             appName = "Untis Mobile";
         } else if (scheduleData.getApi().equals("not-desired")) {
             appName = "not-desired";
+        } else if (scheduleData.getApi().equals("new-tkplanung")) {
+            appName = "new-tkplanung";
         }
         if (appName == "not-desired") {
             today.addMessage("Auf Wunsch der Schulleitung wurde der Vertretungsplan dieser Schule aus der App " +
                     "entfernt. Bei Fragen wenden Sie sich bitte direkt an die Schulleitung. " +
                     "Lehrkräfte und Schulleiter/-innen können sich unter info@vertretungsplan.me bei uns melden, " +
                     "um den Plan wieder in die App aufzunehmen.");
+        } else if (appName == "new-tkplanung"){
+            today.addMessage("Auf grund eines Software umstellung must du den neuen Plan in der App auswählen. " +
+                    "Diesen Plan kannst du löschen.");
         } else {
             today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
                     "abgerufen werden. " +

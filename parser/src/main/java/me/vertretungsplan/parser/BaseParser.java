@@ -169,6 +169,9 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
             case "not-compatible":
                 parser = new NotCompatibleParser(data, cookieProvider);
                 break;
+            case "new-tkplanung":
+                parser = new NotCompatibleParser(data, cookieProvider);
+                break;
             case "not-desired":
                 parser = new NotCompatibleParser(data, cookieProvider);
                 break;
