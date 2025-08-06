@@ -68,7 +68,7 @@ public class TKPlanungParser extends BaseParser {
         getMessages();
         
         final String url = api + "/substitutions";
-        JSONArray changes = (JSONArray) getJSON(url);
+        JSONArray changes = getJSON(url);
         
         // Add changes to SubstitutionSchedule
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
@@ -143,7 +143,7 @@ public class TKPlanungParser extends BaseParser {
     private void getMessages() throws IOException, JSONException, CredentialInvalidException {
         if (messages == null) {
             final String url = api + "/notification";
-            messages = (JSONArray) getJSON(url);
+            messages = getJSON(url);
         }
     }
 
@@ -153,7 +153,7 @@ public class TKPlanungParser extends BaseParser {
     private void getGrades() throws IOException, JSONException, CredentialInvalidException {
         if (grades == null) {
             final String url = api + "/classes";
-            grades = (JSONArray) getJSON(url);
+            grades = getJSON(url);
         }
     }
 
@@ -163,7 +163,7 @@ public class TKPlanungParser extends BaseParser {
     private void getTeachers() throws IOException, CredentialInvalidException {
         if (teachers == null) {
             final String url = api + "/teachers";
-            teachers = (JSONArray) getJSON(url);
+            teachers = getJSON(url);
         }
     }
 
@@ -186,7 +186,7 @@ public class TKPlanungParser extends BaseParser {
         return builder.toString();
     }
 
-    private Object getJSON(String url) throws IOException, CredentialInvalidException {
+    private JSONArray getJSON(String url) throws IOException, CredentialInvalidException {
         try {
             final UserPasswordCredential userPasswordCredential = (UserPasswordCredential) credential;
             final String username = userPasswordCredential.getUsername();
@@ -204,11 +204,7 @@ public class TKPlanungParser extends BaseParser {
             headers.put("Authorization", authHeader); 
 
             final String httpResponse = httpGet(url, "UTF-8", headers);
-            try {
-                return new JSONArray(httpResponse);
-            } catch (JSONException e) {
-                return new JSONObject(httpResponse);
-            }
+            return new JSONArray(httpResponse);
         } catch (HttpResponseException httpResponseException) {
             if (httpResponseException.getStatusCode() == 404) {
                 return null;
