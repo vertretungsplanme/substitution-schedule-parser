@@ -68,8 +68,7 @@ public class TKPlanungParser extends BaseParser {
         getMessages();
         
         final String url = api + "/substitutions";
-        JSONObject substitutions = (JSONObject) getJSON(url);
-        JSONArray changes = (JSONArray) substitutions.getJSONArray("changes");
+        JSONArray changes = (JSONArray) getJSON(url);
         
         // Add changes to SubstitutionSchedule
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
@@ -130,36 +129,6 @@ public class TKPlanungParser extends BaseParser {
             infos.add(additionalInfo);
         }
         substitutionSchedule.getAdditionalInfos().addAll(infos);
-        // Add AdditionalInfo absentTeachers
-        JSONArray absentTeachersDays = (JSONArray) substitutions.optJSONArray("absentTeachers");
-            if (absentTeachersDays != null) {
-            for (int i = 0; i < absentTeachersDays.length(); i++) {
-                JSONObject absentTeachersDay = absentTeachersDays.getJSONObject(i);
-                String absentTeachersDate = absentTeachersDay.getString("date");
-                String absentTeachersMessage = absentTeachersDay.getString("message");
-                if (!absentTeachersMessage.isBlank()) {
-                    substitutionScheduleDay = new SubstitutionScheduleDay();
-                    LocalDate substitutionDate = new LocalDate(absentTeachersDate);
-                    substitutionScheduleDay.setDate(substitutionDate);
-                    substitutionScheduleDay.addMessage("Abwesend: " + absentTeachersMessage);
-                    substitutionSchedule.addDay(substitutionScheduleDay);
-                }
-            }
-        }
-        // Add AdditionalInfo info
-        JSONArray infoDays = (JSONArray) substitutions.getJSONArray("info");
-        for (int i = 0; i < infoDays.length(); i++) {
-            JSONObject infoDay = infoDays.getJSONObject(i);
-            String infoDate = infoDay.getString("date");
-            String infoMessage = infoDay.getString("message");
-            if (!infoMessage.isBlank()) {
-                substitutionScheduleDay = new SubstitutionScheduleDay();
-                LocalDate substitutionDate = new LocalDate(infoDate);
-                substitutionScheduleDay.setDate(substitutionDate);
-                substitutionScheduleDay.addMessage(infoMessage);
-                substitutionSchedule.addDay(substitutionScheduleDay);
-            }
-        }
 
         substitutionSchedule.setClasses(getAllClasses());
         substitutionSchedule.setTeachers(getAllTeachers());
