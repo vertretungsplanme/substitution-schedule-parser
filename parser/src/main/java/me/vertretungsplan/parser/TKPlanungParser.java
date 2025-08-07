@@ -94,7 +94,7 @@ public class TKPlanungParser extends BaseParser {
             substitution.setPreviousTeachers(jsonArrayToSet(change.getJSONArray("originalTeacherNames")));
 
             substitution.setSubject(change.getString("subject"));
-            if (!change.optString("originalSubject").isEmpty()) {
+            if (!change.optString("originalSubject").isEmpty() && change.optString("originalSubject") != "null") {
                 substitution.setPreviousSubject(change.optString("originalSubject"));
             }            
 
