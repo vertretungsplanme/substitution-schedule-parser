@@ -4,6 +4,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.*;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.ObjectUtils.Null;
 import org.apache.http.client.HttpResponseException;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -120,16 +121,25 @@ public class TKPlanungParser extends BaseParser {
         // Add Messages
         for (int i = 0; i < notifications.length(); i++) {
             JSONObject notification = notifications.getJSONObject(i);
-            LocalDate substitutionDate = new LocalDate(notification.getString("date"));
-            SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
-            substitutionScheduleDay.setDate(substitutionDate);
-            String message = notification.getString("message").trim();
-            String title = notification.getString("title").trim();
-            if (title != "") {
-                message = "<b>" + title + "</b>: " + message;
+            if (notification.has("date") && !notification.isNull("date") && !notification.getString("date").trim().isEmpty()) {
+                LocalDate substitutionDate = new LocalDate(notification.getString("date"));
+                SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+                substitutionScheduleDay.setDate(substitutionDate);
+                String message = notification.getString("message").trim();
+                String title = notification.getString("title").trim();
+                if (title != "") {
+                    message = "<b>" + title + "</b>: " + message;
+                }
+                substitutionScheduleDay.addMessage(message);
+                substitutionSchedule.addDay(substitutionScheduleDay);
+            } else {
+                AdditionalInfo additionalInfo = new AdditionalInfo();
+                additionalInfo.setTitle(notification.getString("title").trim());
+                additionalInfo.setText(notification.getString("message").trim());
+                additionalInfo.setHasInformation(notification.getBoolean("sendNotification"));
+                additionalInfo.setFromSchedule(true);
+                substitutionSchedule.getAdditionalInfos().add(additionalInfo);
             }
-            substitutionScheduleDay.addMessage(message);
-            substitutionSchedule.addDay(substitutionScheduleDay);
         }
 
         substitutionSchedule.setClasses(getAllClasses());
