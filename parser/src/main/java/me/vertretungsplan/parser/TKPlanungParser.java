@@ -39,9 +39,9 @@ public class TKPlanungParser extends BaseParser {
      */
     private JSONArray teachers;
     /**
-     * array of messages retrieved from the api
+     * array of notifications retrieved from the api
      */
-    private JSONArray messages;
+    private JSONArray notifications;
     /**
      * hold the lastUpdate Date
      */
@@ -65,14 +65,14 @@ public class TKPlanungParser extends BaseParser {
 
         getGrades();
         getTeachers();
-        getMessages();
+        getNotifications();
         
         final String url = api + "/substitutions";
         JSONArray changes = getJSON(url);
         
         // Add changes to SubstitutionSchedule
-        SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
         for (int i = 0; i < changes.length(); i++) {
+            SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
             JSONObject change = changes.getJSONObject(i);
             LocalDate substitutionDate = new LocalDate(change.getString("date"));
             substitutionScheduleDay.setDate(substitutionDate);
@@ -118,17 +118,19 @@ public class TKPlanungParser extends BaseParser {
         }
 
         // Add Messages
-        List<AdditionalInfo> infos = new ArrayList<>(messages.length());
-        for (int i = 0; i < messages.length(); i++) {
-            JSONObject message = messages.getJSONObject(i);
-            AdditionalInfo additionalInfo = new AdditionalInfo();
-            additionalInfo.setHasInformation(message.getBoolean("sendNotification"));
-            additionalInfo.setTitle(message.getString("title").trim());
-            additionalInfo.setText(message.getString("message").trim());
-            additionalInfo.setFromSchedule(true);
-            infos.add(additionalInfo);
+        for (int i = 0; i < notifications.length(); i++) {
+            JSONObject notification = notifications.getJSONObject(i);
+            LocalDate substitutionDate = new LocalDate(notification.getString("date"));
+            SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
+            substitutionScheduleDay.setDate(substitutionDate);
+            String message = notification.getString("message").trim();
+            String title = notification.getString("title").trim();
+            if (title != "") {
+                message = "<b>" + title + "</b>: " + message;
+            }
+            substitutionScheduleDay.addMessage(message);
+            substitutionSchedule.addDay(substitutionScheduleDay);
         }
-        substitutionSchedule.getAdditionalInfos().addAll(infos);
 
         substitutionSchedule.setClasses(getAllClasses());
         substitutionSchedule.setTeachers(getAllTeachers());
@@ -138,12 +140,12 @@ public class TKPlanungParser extends BaseParser {
     }
 
     /**
-     * Returns a JSONArray with all messages.
+     * Returns a JSONArray with all notifications.
      */
-    private void getMessages() throws IOException, JSONException, CredentialInvalidException {
-        if (messages == null) {
+    private void getNotifications() throws IOException, JSONException, CredentialInvalidException {
+        if (notifications == null) {
             final String url = api + "/notification";
-            messages = getJSON(url);
+            notifications = getJSON(url);
         }
     }
 
