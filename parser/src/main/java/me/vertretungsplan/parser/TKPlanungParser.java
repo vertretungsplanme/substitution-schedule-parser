@@ -110,7 +110,7 @@ public class TKPlanungParser extends BaseParser {
             //substitution.setLesson(start + " - " + end);
             substitution.setLesson(change.getString("lesson"));
 
-            if (!change.optString("description").isEmpty()) {
+            if (!change.optString("description").isEmpty() && change.optString("description") != "null") {
                 substitution.setDesc(change.optString("description"));
             }
 
@@ -121,7 +121,7 @@ public class TKPlanungParser extends BaseParser {
         // Add Messages
         for (int i = 0; i < notifications.length(); i++) {
             JSONObject notification = notifications.getJSONObject(i);
-            if (notification.has("date") && !notification.isNull("date") && !notification.getString("date").trim().isEmpty()) {
+            if (notification.has("date") && !notification.isNull("date") && !notification.getString("date").trim().isEmpty() && notification.optString("description") != "null") {
                 LocalDate substitutionDate = new LocalDate(notification.getString("date"));
                 SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
                 substitutionScheduleDay.setDate(substitutionDate);
