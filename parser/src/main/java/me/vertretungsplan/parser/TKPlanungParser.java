@@ -239,19 +239,21 @@ public class TKPlanungParser extends BaseParser {
             throws IOException, CredentialInvalidException {
         try {
             HttpResponse httpResponse = executor.execute(request).returnResponse();
-            try {
-                if (httpResponse.containsHeader("last-modified")) {
-                    String lastModified = httpResponse.getHeaders("last-modified")[0].getValue();
-                    DateTimeFormatter fmt = DateTimeFormat
-                        .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                        .withLocale(Locale.GERMAN)
-                        .withZoneUTC();
-                    DateTime utcDateTime = fmt.parseDateTime(lastModified);
-                    DateTime berlinDateTime = utcDateTime.withZone(DateTimeZone.forID("Europe/Berlin"));
-                    lastUpdate = berlinDateTime.toLocalDateTime();
+            if (lastUpdate == null) {
+                try {
+                    if (httpResponse.containsHeader("last-modified")) {
+                        String lastModified = httpResponse.getHeaders("last-modified")[0].getValue();
+                        DateTimeFormatter fmt = DateTimeFormat
+                            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                            .withLocale(Locale.GERMAN)
+                            .withZoneUTC();
+                        DateTime utcDateTime = fmt.parseDateTime(lastModified);
+                        DateTime berlinDateTime = utcDateTime.withZone(DateTimeZone.forID("Europe/Berlin"));
+                        lastUpdate = berlinDateTime.toLocalDateTime();
+                    }
+                }  catch (Exception e) {
+                    // ignore
                 }
-            }  catch (Exception e) {
-                // ignore
             }
             byte[] bytes = EntityUtils.toByteArray(httpResponse.getEntity());
             encoding = getEncoding(encoding, bytes);
