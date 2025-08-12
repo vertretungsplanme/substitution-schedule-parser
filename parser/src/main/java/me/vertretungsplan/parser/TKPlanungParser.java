@@ -4,13 +4,19 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.*;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.ObjectUtils.Null;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.fluent.Request;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -144,6 +150,7 @@ public class TKPlanungParser extends BaseParser {
 
         substitutionSchedule.setClasses(getAllClasses());
         substitutionSchedule.setTeachers(getAllTeachers());
+        substitutionSchedule.setLastChange(lastUpdate);
         substitutionSchedule.setWebsite(website);
 
         return substitutionSchedule;
@@ -224,6 +231,36 @@ public class TKPlanungParser extends BaseParser {
             throw httpResponseException;
         } catch (JSONException e) {
             throw new IOException(e);
+        }
+    }
+
+    @Override
+    protected String executeRequest(String encoding, Request request)
+            throws IOException, CredentialInvalidException {
+        try {
+            HttpResponse httpResponse = executor.execute(request).returnResponse();
+            try {
+                if (httpResponse.containsHeader("last-modified")) {
+                    String lastModified = httpResponse.getHeaders("last-modified")[0].getValue();
+                    DateTimeFormatter fmt = DateTimeFormat
+                        .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                        .withLocale(Locale.GERMAN)
+                        .withZoneUTC();
+                    DateTime utcDateTime = fmt.parseDateTime(lastModified);
+                    DateTime berlinDateTime = utcDateTime.withZone(DateTimeZone.forID("Europe/Berlin"));
+                    lastUpdate = berlinDateTime.toLocalDateTime();
+                }
+            }  catch (Exception e) {
+                // ignore
+            }
+            byte[] bytes = EntityUtils.toByteArray(httpResponse.getEntity());
+            encoding = getEncoding(encoding, bytes);
+            return new String(bytes, encoding);
+        } catch (HttpResponseException e) {
+            handleHttpResponseException(e);
+            return null;
+        } finally {
+            encodingDetector.reset();
         }
     }
 

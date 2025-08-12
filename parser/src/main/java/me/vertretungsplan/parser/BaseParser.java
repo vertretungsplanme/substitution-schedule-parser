@@ -372,7 +372,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     @Nullable
-    private String executeRequest(String encoding, Request request)
+    protected String executeRequest(String encoding, Request request)
             throws IOException, CredentialInvalidException {
         try {
             byte[] bytes = executor.execute(request).returnContent().asBytes();
@@ -387,7 +387,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     }
 
     @NotNull
-    private String getEncoding(String defaultEncoding, byte[] bytes) {
+    protected String getEncoding(String defaultEncoding, byte[] bytes) {
         encodingDetector.handleData(bytes, 0, bytes.length);
         encodingDetector.dataEnd();
         String encoding = encodingDetector.getDetectedCharset();
@@ -439,7 +439,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return executeRequest(encoding, request);
     }
 
-    private void handleHttpResponseException(HttpResponseException e)
+    protected void handleHttpResponseException(HttpResponseException e)
             throws CredentialInvalidException, HttpResponseException {
         if (e.getStatusCode() == 401 || e.getStatusCode() == 403) {
             throw new CredentialInvalidException();
