@@ -239,6 +239,10 @@ public class TKPlanungParser extends BaseParser {
             throws IOException, CredentialInvalidException {
         try {
             HttpResponse httpResponse = executor.execute(request).returnResponse();
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode == 401 || statusCode == 403) {
+                throw new CredentialInvalidException();
+            }
             if (lastUpdate == null) {
                 try {
                     if (httpResponse.containsHeader("last-modified")) {
