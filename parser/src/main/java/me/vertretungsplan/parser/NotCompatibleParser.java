@@ -64,7 +64,7 @@ public class NotCompatibleParser extends BaseParser {
                     "Lehrkräfte und Schulleiter/-innen können sich unter info@vertretungsplan.me bei uns melden, " +
                     "um den Plan wieder in die App aufzunehmen.");
         } else if (appName == "new-tkplanung"){
-            today.addMessage("Auf grund eines Software umstellung must du den neuen Plan in der App auswählen. " +
+            today.addMessage("Aufgrund einer Software-Umstellung musst du den neuen Plan in der App auswählen. " +
                     "Diesen Plan kannst du löschen.");
         } else {
             today.addMessage("Aus technischen Gründen kann der Vertretungsplan dieser Schule mit dieser App nicht mehr " +
