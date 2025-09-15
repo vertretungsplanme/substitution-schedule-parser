@@ -16,6 +16,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.paour.comparator.NaturalOrderComparator;
+
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -280,6 +283,7 @@ public class TKPlanungParser extends BaseParser {
             final JSONObject grade = grades.getJSONObject(i);
             classesList.add(grade.getString("name"));
         }
+        Collections.sort(classesList, new NaturalOrderComparator());
         return classesList;
     }
 
