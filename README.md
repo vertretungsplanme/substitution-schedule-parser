@@ -1,7 +1,7 @@
 # substitution-schedule-parser
 [![Build Status](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser.svg?branch=master)](https://travis-ci.org/vertretungsplanme/substitution-schedule-parser)
 [![Coverage Status](https://img.shields.io/codecov/c/github/vertretungsplanme/substitution-schedule-parser.svg)](https://codecov.io/gh/vertretungsplanme/substitution-schedule-parser)
-[![Download](https://vertretungsplan.app/img/vertretungsplan_icon_color.svg)](https://vertretungsplan.app/download/)
+[Download](https://vertretungsplan.app/download/)
 [![Javadocs](https://www.javadoc.io/badge/me.vertretungsplan/parser.svg)](https://www.javadoc.io/doc/me.vertretungsplan/parser)
 
 <img src="https://vertretungsplan.app/img/vertretungsplan_icon_color.svg" alt="vertretungsplan.me Logo" width="128"/>
