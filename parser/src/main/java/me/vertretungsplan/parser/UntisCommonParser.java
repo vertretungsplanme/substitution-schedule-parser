@@ -8,24 +8,34 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.*;
+import org.jsoup.nodes.Comment;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 /**
  * Contains common code used by {@link UntisInfoParser}, {@link UntisInfoHeadlessParser}, {@link UntisMonitorParser}
@@ -98,6 +108,7 @@ public abstract class UntisCommonParser extends BaseParser {
     private static final String PARAM_MERGE_WITH_DIFFERENT_TYPE = "mergeWithDifferentType";
     private static final String PARAM_ALL_CLASSES_COURSES = "allClassesCourses";
     private static final String PARAM_EXCLUDE_TEACHERS = "excludeTeachers";
+    private static final String PARAM_IF_COURSE_EXIST_DO_NOT_OVERWRITE_PREVIOS_SUBJECT = "ifCourseExistDoNotOverwritePreviosSubject";
 
     private static ColumnTypeDetector detector;
 
@@ -237,6 +248,8 @@ public abstract class UntisCommonParser extends BaseParser {
             }
         }
 
+        boolean ifCourseExistDoNotOverwritePreviosSubject = scheduleData.getData().optBoolean(PARAM_IF_COURSE_EXIST_DO_NOT_OVERWRITE_PREVIOS_SUBJECT, false);
+
         debuggingDataHandler.columnTitles(columnTitles);
 
         final JSONArray columnsJson = data.optJSONArray(PARAM_COLUMNS);
@@ -345,7 +358,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setLesson(text);
                             break;
                         case "subject":
-                            handleSubject(v, spalte, false);
+                            handleSubject(v, spalte, false, !(course != null && ifCourseExistDoNotOverwritePreviosSubject));
                             if (course != null) {
                                 v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
@@ -359,7 +372,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "previousSubject":
-                            handleSubject(v, spalte, true);
+                            handleSubject(v, spalte, true, !(course != null && ifCourseExistDoNotOverwritePreviosSubject));
                             break;
                         case "type":
                             v.setType(text);
@@ -581,6 +594,8 @@ public abstract class UntisCommonParser extends BaseParser {
 
     private void parseWithExtraLine(JSONObject data, SubstitutionScheduleDay day, List<String> columns, Element element,
                                     String className, String teacherName) {
+        boolean ifCourseExistDoNotOverwritePreviosSubject = scheduleData.getData().optBoolean(PARAM_IF_COURSE_EXIST_DO_NOT_OVERWRITE_PREVIOS_SUBJECT, false);
+
         Element zeile = null;
         try {
             zeile = element.parent().nextElementSibling();
@@ -644,7 +659,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             v.setLesson(text);
                             break;
                         case "subject":
-                            handleSubject(v, spalte, false);
+                            handleSubject(v, spalte, false, !(course != null && ifCourseExistDoNotOverwritePreviosSubject));
                             if (course != null) {
                                 v.setSubject((v.getSubject() != null ? v.getSubject() + " " : "") + course);
                                 course = null;
@@ -658,7 +673,7 @@ public abstract class UntisCommonParser extends BaseParser {
                             }
                             break;
                         case "previousSubject":
-                            handleSubject(v, spalte, true);
+                            handleSubject(v, spalte, true, !(course != null && ifCourseExistDoNotOverwritePreviosSubject));
                             break;
                         case "type":
                             v.setType(text);
@@ -833,15 +848,23 @@ public abstract class UntisCommonParser extends BaseParser {
         return cell;
     }
 
-    static void handleSubject(Substitution subst, Element cell, boolean previousSubject) {
+    static void handleSubject(Substitution subst, Element cell, boolean previousSubject) {       
+        handleSubject( subst, cell, previousSubject,true);
+    }
+
+    static void handleSubject(Substitution subst, Element cell, boolean previousSubject, boolean overwiritePreviousSubject) {       
         cell = getContentElement(cell);
         if (cell.select("s").size() > 0) {
-            subst.setPreviousSubject(cell.select("s").text());
+            if (overwiritePreviousSubject){
+                subst.setPreviousSubject(cell.select("s").text());
+            } else {
+                subst.setSubject(cell.select("s").text());
+            }
             if (cell.ownText().length() > 0) {
                 subst.setSubject(cell.ownText().replaceFirst("^\\?", "").replaceFirst("→", ""));
             }
         } else {
-            if (previousSubject) {
+            if (previousSubject && overwiritePreviousSubject) {
                 subst.setPreviousSubject(cell.text());
             } else {
                 subst.setSubject(cell.text());
