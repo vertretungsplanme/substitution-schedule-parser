@@ -192,7 +192,30 @@ public class SVPlanParser extends BaseParser {
         if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
                 .startsWith("Vertretungsplan für "))) {
             setDate(svp, doc, day);
-            final Elements tables = svp.select(".svp-tabelle, table:has(.Klasse)");
+            // First try to find tables with CSS classes (original svPlan format)
+            Elements tables = svp.select(".svp-tabelle, table:has(.Klasse)");
+            
+            // If no tables with CSS classes found, try to find tables with th headers
+            // (fallback for tables without CSS classes like holstenschule.de)
+            if (tables.size() == 0) {
+                Elements allTables = svp.select("table");
+                for (Element table : allTables) {
+                    Elements headers = table.select("th");
+                    // Check if table has headers that look like a substitution schedule
+                    boolean hasScheduleHeaders = false;
+                    for (Element header : headers) {
+                        String headerText = header.text().trim();
+                        if (headerText.matches("(?i)(Std\\.?|Stunde|Klasse|Fach|Lehrer|Vertretung|Raum|Bemerkung|Anmerkung)")) {
+                            hasScheduleHeaders = true;
+                            break;
+                        }
+                    }
+                    if (hasScheduleHeaders) {
+                        tables.add(table);
+                    }
+                }
+            }
+            
             if (tables.size() > 0) {
                 Iterator<Element> iter = tables.iterator();
                 while (iter.hasNext()) {
@@ -202,64 +225,36 @@ public class SVPlanParser extends BaseParser {
                             table.select("> tbody > tr > td.Klasse").size() == 0 &&
                             table.select("> tbody > tr > td.KlasseNeu").size() == 0
                             || sibling != null && sibling.hasClass("AufsichtTitel")) {
-                        iter.remove();
+                        // Only remove if it doesn't have th headers (to keep tables without CSS classes)
+                        Elements headers = table.select("th");
+                        boolean hasScheduleHeaders = false;
+                        for (Element header : headers) {
+                            String headerText = header.text().trim();
+                            if (headerText.matches("(?i)(Std\\.?|Stunde|Klasse|Fach|Lehrer|Vertretung|Raum|Bemerkung|Anmerkung)")) {
+                                hasScheduleHeaders = true;
+                                break;
+                            }
+                        }
+                        if (!hasScheduleHeaders) {
+                            iter.remove();
+                        }
                     }
                 }
 
-                Elements rows = tables.select("tr");
-                String lastLesson = "";
-                String lastClass = "";
-                for (Element row : rows) {
-                    if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
-                            || row.select("th").size() > 0 || row.text().trim().equals("")) {
-                        continue;
+                // Check if tables use CSS classes or header-based parsing
+                boolean useHeaderBasedParsing = false;
+                for (Element table : tables) {
+                    Elements rowsWithClass = table.select("tr td[class*='svp-'], tr td[class*='Stunde'], tr td[class*='Klasse']");
+                    if (rowsWithClass.size() == 0) {
+                        useHeaderBasedParsing = true;
+                        break;
                     }
+                }
 
-                    Substitution substitution = new Substitution();
-
-                    for (Element column : row.select("td")) {
-                        String type = column.className();
-                        if (!hasData(column.text())) {
-                            if ((type.startsWith("svp-stunde") || type.startsWith("Stunde")) && hasData(lastLesson)) {
-                                substitution.setLesson(lastLesson);
-                            } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
-                                    && hasData(lastClass) && data.optBoolean(PARAM_REPEAT_CLASS, true)) {
-                                substitution.getClasses().addAll(getClasses(lastClass));
-                            }
-                            continue;
-                        }
-                        if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
-                            substitution.setLesson(column.text());
-                            lastLesson = column.text();
-                        } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
-                            substitution.getClasses().addAll(getClasses(column.text()));
-                            lastClass = column.text();
-                        } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
-                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
-                                substitution.setPreviousTeacher(column.text());
-                            }
-                        } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
-                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
-                                substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
-                            }
-                        } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
-                            substitution.setSubject(column.text());
-                        } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
-                            substitution.setDesc(column.text());
-                            String recognizedType = recognizeType(column.text());
-                            substitution.setType(recognizedType);
-                            substitution.setColor(colorProvider.getColor(recognizedType));
-                        } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
-                            substitution.setRoom(column.text());
-                        }
-                    }
-
-                    if (substitution.getType() == null) {
-                        substitution.setType("Vertretung");
-                        substitution.setColor(colorProvider.getColor("Vertretung"));
-                    }
-
-                    day.addSubstitution(substitution);
+                if (useHeaderBasedParsing) {
+                    parseTableByHeaders(tables, day);
+                } else {
+                    parseTableByClasses(tables, doc, day);
                 }
             }
             if (svp.select(".LehrerVerplant").size() > 0) {
@@ -267,6 +262,10 @@ public class SVPlanParser extends BaseParser {
             }
             if (svp.select(".Abwesenheiten").size() > 0) {
                 day.addMessage("<b>Abwesenheiten:</b> " + svp.select(".Abwesenheiten").text());
+            }
+            // Support for "Abwesenheiten-Lehrer" format (used by some schools)
+            if (svp.select(".Abwesenheiten-Lehrer").size() > 0) {
+                day.addMessage("<b>Abwesenheiten-Lehrer:</b> " + svp.select(".Abwesenheiten-Lehrer").text());
             }
 
             if (svp.select("h2:contains(Mitteilungen)").size() > 0) {
@@ -330,6 +329,166 @@ public class SVPlanParser extends BaseParser {
             v.addDay(day);
         } else {
             throw new IOException("keine SVPlan-Tabelle gefunden");
+        }
+    }
+
+    private void parseTableByClasses(Elements tables, Document doc, SubstitutionScheduleDay day) throws JSONException {
+        Elements rows = tables.select("tr");
+        String lastLesson = "";
+        String lastClass = "";
+        for (Element row : rows) {
+            if ((doc.select(".svp-header").size() > 0 && row.hasClass("svp-header"))
+                    || row.select("th").size() > 0 || row.text().trim().equals("")) {
+                continue;
+            }
+
+            Substitution substitution = new Substitution();
+
+            for (Element column : row.select("td")) {
+                String type = column.className();
+                if (!hasData(column.text())) {
+                    if ((type.startsWith("svp-stunde") || type.startsWith("Stunde")) && hasData(lastLesson)) {
+                        substitution.setLesson(lastLesson);
+                    } else if ((type.startsWith("svp-klasse") || type.startsWith("Klasse"))
+                            && hasData(lastClass) && data.optBoolean(PARAM_REPEAT_CLASS, true)) {
+                        substitution.getClasses().addAll(getClasses(lastClass));
+                    }
+                    continue;
+                }
+                if (type.startsWith("svp-stunde") || type.startsWith("Stunde")) {
+                    substitution.setLesson(column.text());
+                    lastLesson = column.text();
+                } else if (type.startsWith("svp-klasse") || type.startsWith("Klasse")) {
+                    substitution.getClasses().addAll(getClasses(column.text()));
+                    lastClass = column.text();
+                } else if (type.startsWith("svp-esfehlt") || type.startsWith("Lehrer")) {
+                    if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                        substitution.setPreviousTeacher(column.text());
+                    }
+                } else if (type.startsWith("svp-esvertritt") || type.startsWith("Vertretung")) {
+                    if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                        substitution.setTeacher(column.text().replaceAll(" \\+$", ""));
+                    }
+                } else if (type.startsWith("svp-fach") || type.startsWith("Fach")) {
+                    substitution.setSubject(column.text());
+                } else if (type.startsWith("svp-bemerkung") || type.startsWith("Anmerkung")) {
+                    substitution.setDesc(column.text());
+                    String recognizedType = recognizeType(column.text());
+                    substitution.setType(recognizedType);
+                    substitution.setColor(colorProvider.getColor(recognizedType));
+                } else if (type.startsWith("svp-raum") || type.startsWith("Raum")) {
+                    substitution.setRoom(column.text());
+                }
+            }
+
+            if (substitution.getType() == null) {
+                substitution.setType("Vertretung");
+                substitution.setColor(colorProvider.getColor("Vertretung"));
+            }
+
+            day.addSubstitution(substitution);
+        }
+    }
+
+    private void parseTableByHeaders(Elements tables, SubstitutionScheduleDay day) throws IOException, JSONException {
+        ColumnTypeDetector detector = new ColumnTypeDetector();
+        
+        for (Element table : tables) {
+            // Read header row to determine column types
+            Elements headerRows = table.select("tr:has(th)");
+            if (headerRows.size() == 0) {
+                continue;
+            }
+            
+            List<String> columnTypes = new ArrayList<>();
+            Elements headers = headerRows.first().select("th");
+            List<String> headerTexts = new ArrayList<>();
+            
+            for (Element header : headers) {
+                String headerText = header.text().trim();
+                headerTexts.add(headerText);
+                String type = detector.getColumnType(headerText, headerTexts);
+                if (type != null && !type.equals("ignore")) {
+                    columnTypes.add(type);
+                } else {
+                    columnTypes.add(null);
+                }
+            }
+            
+            // Parse data rows
+            Elements rows = table.select("tr:not(:has(th))");
+            String lastLesson = "";
+            String lastClass = "";
+            
+            for (Element row : rows) {
+                if (row.text().trim().equals("")) {
+                    continue;
+                }
+                
+                Elements columns = row.select("td");
+                if (columns.size() == 0) {
+                    continue;
+                }
+                
+                Substitution substitution = new Substitution();
+                
+                for (int i = 0; i < columns.size() && i < columnTypes.size(); i++) {
+                    Element column = columns.get(i);
+                    String columnType = columnTypes.get(i);
+                    String text = column.text().trim();
+                    
+                    if (columnType == null || !hasData(text)) {
+                        // Handle empty cells with repeat logic
+                        if (columnType != null && columnType.equals("lesson") && hasData(lastLesson)) {
+                            substitution.setLesson(lastLesson);
+                        } else if (columnType != null && columnType.equals("class") && hasData(lastClass) 
+                                && data.optBoolean(PARAM_REPEAT_CLASS, true)) {
+                            substitution.getClasses().addAll(getClasses(lastClass));
+                        }
+                        continue;
+                    }
+                    
+                    switch (columnType) {
+                        case "lesson":
+                            substitution.setLesson(text);
+                            lastLesson = text;
+                            break;
+                        case "class":
+                            substitution.getClasses().addAll(getClasses(text));
+                            lastClass = text;
+                            break;
+                        case "previousTeacher":
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setPreviousTeacher(text);
+                            }
+                            break;
+                        case "teacher":
+                            if (!data.optBoolean(PARAM_EXCLUDE_TEACHERS)) {
+                                substitution.setTeacher(text.replaceAll(" \\+$", ""));
+                            }
+                            break;
+                        case "subject":
+                            substitution.setSubject(text);
+                            break;
+                        case "desc":
+                            substitution.setDesc(text);
+                            String recognizedType = recognizeType(text);
+                            substitution.setType(recognizedType);
+                            substitution.setColor(colorProvider.getColor(recognizedType));
+                            break;
+                        case "room":
+                            substitution.setRoom(text);
+                            break;
+                    }
+                }
+                
+                if (substitution.getType() == null) {
+                    substitution.setType("Vertretung");
+                    substitution.setColor(colorProvider.getColor("Vertretung"));
+                }
+                
+                day.addSubstitution(substitution);
+            }
         }
     }
 
