@@ -190,7 +190,8 @@ public class SVPlanParser extends BaseParser {
     private void parseSvPlanDay(SubstitutionSchedule v, Element svp, Document doc) throws IOException, JSONException {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
         if ((svp.select(".svp-plandatum-heute, .svp-plandatum-morgen, .Titel").size() > 0 || doc.title()
-                .startsWith("Vertretungsplan für "))) {
+                .startsWith("Vertretungsplan für ") || doc.title()
+                .startsWith("Vertretungsplan f&uuml;r "))) {
             setDate(svp, doc, day);
             // First try to find tables with CSS classes (original svPlan format)
             Elements tables = svp.select(".svp-tabelle, table:has(.Klasse)");
