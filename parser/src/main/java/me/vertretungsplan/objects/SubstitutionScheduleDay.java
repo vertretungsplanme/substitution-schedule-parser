@@ -8,14 +8,21 @@
 
 package me.vertretungsplan.objects;
 
-import com.paour.comparator.NaturalOrderComparator;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 
-import java.util.*;
+import com.paour.comparator.NaturalOrderComparator;
 
 /**
  * Represents one day on the the {@link SubstitutionSchedule} and contains the corresponding substitutions and messages.
@@ -317,7 +324,8 @@ public class SubstitutionScheduleDay implements Cloneable {
     public String toString(SubstitutionSchedule.Type type) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(getDateString()).append("\n");
+        builder.append("DateString: ").append(getDateString()).append("\n");
+        builder.append("Date: ").append(getDate()).append("\n");
         if (getComment() != null) builder.append(getComment()).append("\n");
         builder.append("----------------------\n\n");
 
