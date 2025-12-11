@@ -1,12 +1,20 @@
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.*;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -19,10 +27,13 @@ import org.json.JSONObject;
 
 import com.paour.comparator.NaturalOrderComparator;
 
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.util.*;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 
 public class TKPlanungParser extends BaseParser {
     private static final String PARAM_URL = "url";
@@ -93,7 +104,7 @@ public class TKPlanungParser extends BaseParser {
             substitution.setType(type);
             substitution.setColor(colorProvider.getColor(type));
 
-            if (type.equals("Zusammengelegt") || type.equals("Abgesagt")) {
+            if (type.equals("Zusammengelegt") || type.equals("Fällt aus")) {
                 substitution.setClasses(jsonArrayToSet(change.getJSONArray("originalClassNames")));
             } else {
                 substitution.setClasses(jsonArrayToSet(change.getJSONArray("classNames")));
@@ -107,7 +118,7 @@ public class TKPlanungParser extends BaseParser {
                 substitution.setPreviousSubject(change.optString("originalSubject"));
             }            
 
-            if (type.equals("Abgesagt")) {
+            if (type.equals("Fällt aus")) {
                 substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
             } else {
                 substitution.setRoom(jsonArrayToPlainString(change.getJSONArray("roomNames")));
