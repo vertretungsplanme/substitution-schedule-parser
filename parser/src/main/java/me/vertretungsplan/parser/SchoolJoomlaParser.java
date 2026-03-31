@@ -14,8 +14,7 @@ import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
 import me.vertretungsplan.utils.SubstitutionTextUtils;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +23,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for substitution schedules in HTML format served using SchoolJoomla.
@@ -60,8 +62,10 @@ public class SchoolJoomlaParser extends BaseParser {
     @NotNull SubstitutionSchedule parse(JSONObject data)
             throws JSONException, IOException, CredentialInvalidException {
         SubstitutionSchedule schedule = SubstitutionSchedule.fromData(scheduleData);
-        schedule.setLastChange(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseLocalDateTime(data.getString
-                ("lastupdate")));
+        schedule.setLastChange(LocalDateTime.parse(
+            data.getString("lastupdate"),
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        ));
 
         if (scheduleData.getType() == SubstitutionSchedule.Type.STUDENT) {
             JSONObject substs = data.getJSONObject("vertretungsplan").getJSONObject("schuelervertretungen");
@@ -70,7 +74,7 @@ public class SchoolJoomlaParser extends BaseParser {
                 String dateStr = (String) datesIter.next();
                 if (dateStr.equals("elementscount")) continue;
 
-                LocalDate date = DateTimeFormat.forPattern("yyyy-MM-dd").parseLocalDate(dateStr);
+                LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
                 SubstitutionScheduleDay day = new SubstitutionScheduleDay();
                 day.setDate(date);

@@ -8,25 +8,25 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class SVPlanDemoTest extends BaseDemoTest {
     private String html1;
@@ -61,12 +61,12 @@ public class SVPlanDemoTest extends BaseDemoTest {
         docs.add(Jsoup.parse(html1));
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
-        assertEquals(new LocalDateTime(2016, 9, 2, 11, 10), schedule.getLastChange());
+        assertEquals(LocalDateTime.of(2016, 9, 2, 11, 10), schedule.getLastChange());
         assertEquals(5, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
 
-        assertEquals(new LocalDate(2016, 9, 2), day.getDate());
+        assertEquals(LocalDate.of(2016, 9, 2), day.getDate());
         assertEquals(16, day.getSubstitutions().size());
         assertEquals(1, day.getMessages().size());
         assertEquals("Ordnungsdienst:9BR<br>", day.getMessages().get(0));
@@ -92,12 +92,12 @@ public class SVPlanDemoTest extends BaseDemoTest {
         docs.add(Jsoup.parse(html2));
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
-        assertEquals(new LocalDateTime(2016, 11, 6, 19, 36, 18), schedule.getLastChange());
+        assertEquals(LocalDateTime.of(2016, 11, 6, 19, 36, 18), schedule.getLastChange());
         assertEquals(1, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
 
-        assertEquals(new LocalDate(2016, 11, 7), day.getDate());
+        assertEquals(LocalDate.of(2016, 11, 7), day.getDate());
         assertEquals(19, day.getSubstitutions().size());
         assertEquals(1, day.getMessages().size());
         assertEquals("Sprechtag Frau Fildebrandt (Klasse 9).", day.getMessages().get(0));
@@ -121,12 +121,12 @@ public class SVPlanDemoTest extends BaseDemoTest {
         docs.add(Jsoup.parse(html3));
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
-        assertEquals(new LocalDateTime(2017, 5, 2, 7, 19), schedule.getLastChange());
+        assertEquals(LocalDateTime.of(2017, 5, 2, 7, 19), schedule.getLastChange());
         assertEquals(1, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
 
-        assertEquals(new LocalDate(2017, 5, 2), day.getDate());
+        assertEquals(LocalDate.of(2017, 5, 2), day.getDate());
         assertEquals(32, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
 
@@ -170,7 +170,7 @@ public class SVPlanDemoTest extends BaseDemoTest {
         docs.add(Jsoup.parse(html5));
         SubstitutionSchedule schedule = parser.parseSVPlanSchedule(docs);
 
-        assertEquals(new LocalDate(2019, 3, 28), schedule.getDays().get(0).getDate());
-        assertEquals(new LocalDate(2019, 3, 29), schedule.getDays().get(1).getDate());
+        assertEquals(LocalDate.of(2019, 3, 28), schedule.getDays().get(0).getDate());
+        assertEquals(LocalDate.of(2019, 3, 29), schedule.getDays().get(1).getDate());
     }
 }

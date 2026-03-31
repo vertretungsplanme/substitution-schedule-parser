@@ -17,7 +17,6 @@ import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +30,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;;
 
 /**
  * Parser for substitution schedules in XML or HTML format created by the <a href="http://indiware.de/">Indiware</a>
@@ -331,14 +333,16 @@ public class IndiwareParser extends BaseParser {
         Matcher matcher = datePattern.matcher(ds.titel().text());
         if (!matcher.find()) throw new IOException("malformed date: " + ds.titel().text());
         String date = matcher.group();
-        day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
-                .withLocale(Locale.GERMAN).parseLocalDate(date));
+        day.setDate(LocalDate.parse(date, 
+            DateTimeFormatter.ofPattern("EEEE, dd. MMMM yyyy")
+                .withLocale(Locale.GERMAN)));
 
         matcher = lastChangePattern.matcher(ds.datum().text());
         if (!matcher.find()) throw new IOException("malformed date: " + ds.datum().text());
         String lastChange = matcher.group();
-        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
-                .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
+        day.setLastChange(LocalDateTime.parse(lastChange,
+            DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
+                .withLocale(Locale.GERMAN)));
 
         if (ds.kopfinfos().size() > 0) {
             for (Element kopfinfo : ds.kopfinfos()) {

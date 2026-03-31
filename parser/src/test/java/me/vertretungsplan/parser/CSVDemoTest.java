@@ -8,22 +8,22 @@
 
 package me.vertretungsplan.parser;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+
 import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
 
 public class CSVDemoTest extends BaseDemoTest {
     private String csv;
@@ -53,8 +53,8 @@ public class CSVDemoTest extends BaseDemoTest {
         assertEquals(2, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2016, 9, 5), day.getDate());
-        assertEquals(new LocalDateTime(2016, 9, 2, 8, 16), day.getLastChange());
+        assertEquals(LocalDate.of(2016, 9, 5), day.getDate());
+        assertEquals(LocalDateTime.of(2016, 9, 2, 8, 16), day.getLastChange());
         assertEquals(1, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
 

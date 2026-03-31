@@ -8,23 +8,23 @@
 
 package me.vertretungsplan.parser;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class DaVinciDemoTest extends BaseDemoTest {
     private static final String EXAMPLE_URL = "http://example.com";
@@ -54,8 +54,8 @@ public class DaVinciDemoTest extends BaseDemoTest {
         SubstitutionSchedule schedule = new SubstitutionSchedule();
         DaVinciParser.parsePage(Jsoup.parse(htmlSingle), schedule, parser.colorProvider);
         SubstitutionScheduleDay day = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2016, 9, 5), day.getDate());
-        assertEquals(new LocalDateTime(2016, 9, 2, 13, 32), day.getLastChange());
+        assertEquals(LocalDate.of(2016, 9, 5), day.getDate());
+        assertEquals(LocalDateTime.of(2016, 9, 2, 13, 32), day.getLastChange());
         assertEquals(23, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
 
@@ -67,10 +67,10 @@ public class DaVinciDemoTest extends BaseDemoTest {
         SubstitutionSchedule schedule = new SubstitutionSchedule();
         DaVinciParser.parsePage(Jsoup.parse(htmlSingleDaVinci5), schedule, parser.colorProvider);
         assertEquals(3, schedule.getDays().size());
-        assertEquals(new LocalDateTime(2017, 1, 17, 7, 32), schedule.getLastChange());
+        assertEquals(LocalDateTime.of(2017, 1, 17, 7, 32), schedule.getLastChange());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2017, 1, 17), day.getDate());
+        assertEquals(LocalDate.of(2017, 1, 17), day.getDate());
         assertEquals(2, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
         checkSubstitutions(day);

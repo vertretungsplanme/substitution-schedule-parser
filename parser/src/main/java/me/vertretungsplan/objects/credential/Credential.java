@@ -8,7 +8,7 @@
 
 package me.vertretungsplan.objects.credential;
 
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 public interface Credential {
     /**
@@ -46,7 +46,7 @@ public interface Credential {
      * @return The last time this credential was checked. Not necessary for any
      * {@link me.vertretungsplan.parser.SubstitutionScheduleParser} implementations.
      */
-    DateTime getLastCheck();
+    LocalDateTime getLastCheck();
 
     /**
      * Set the last time this credential was checked. Useful if your application saves credentials and checks them
@@ -54,7 +54,7 @@ public interface Credential {
      *
      * @param lastCheck last time this credential was checked
      */
-    void setLastCheck(DateTime lastCheck);
+    void setLastCheck(LocalDateTime lastCheck);
 
     String getId();
 }

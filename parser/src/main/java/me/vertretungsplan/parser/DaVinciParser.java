@@ -14,9 +14,6 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +30,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://davinci.stueber.de/">DaVinci</a>
@@ -418,8 +418,10 @@ public class DaVinciParser extends BaseParser {
             Pattern pattern = Pattern.compile("(\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}) \\|");
             Matcher matcher = pattern.matcher(lastChange);
             if (matcher.find()) {
-                LocalDateTime lastChangeTime =
-                        DateTimeFormat.forPattern("dd-MM-yyyy HH:mm").parseLocalDateTime(matcher.group(1));
+                LocalDateTime lastChangeTime = LocalDateTime.parse(
+                    matcher.group(1),
+                    DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")
+                );
                 if (day != null) {
                     day.setLastChange(lastChangeTime);
                 } else {
@@ -429,8 +431,10 @@ public class DaVinciParser extends BaseParser {
                 Pattern pattern2 = Pattern.compile("(\\d{2}.\\d{2}.\\d{4} \\| \\d+:\\d{2})");
                 Matcher matcher2 = pattern2.matcher(lastChange);
                 if (matcher2.find()) {
-                    LocalDateTime lastChangeTime =
-                            DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(matcher2.group(1));
+                    LocalDateTime lastChangeTime = LocalDateTime.parse(
+                        matcher2.group(1), 
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy | HH:mm")
+                    );
                     if (day != null) {
                         day.setLastChange(lastChangeTime);
                     } else {
@@ -444,7 +448,7 @@ public class DaVinciParser extends BaseParser {
             Matcher matcher = pattern.matcher(doc.html());
             if (matcher.find()) {
                 String str = matcher.group(1);
-                LocalDateTime date = DateTimeFormat.forPattern("dd.MM.yyyy | HH:mm").parseLocalDateTime(str);
+                LocalDateTime date = LocalDateTime.parse(str, DateTimeFormatter.ofPattern("dd.MM.yyyy | HH:mm"));
                 if (day != null) {
                     day.setLastChange(date);
                 } else {

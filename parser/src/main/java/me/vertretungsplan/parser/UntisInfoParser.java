@@ -15,8 +15,6 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +27,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for substitution schedules in HTML format created by the <a href="http://untis.de/">Untis</a> software
@@ -266,7 +266,7 @@ public class UntisInfoParser extends UntisCommonParser {
     private void parseTimetable(SubstitutionSchedule v, String lastChange, Document doc, String klasse, String
             weekName) throws JSONException {
         v.setLastChange(ParserUtils.parseDateTime(lastChange));
-        LocalDate weekStart = DateTimeFormat.forPattern("d.M.yyyy").parseLocalDate(weekName);
+        LocalDate weekStart = LocalDate.parse(weekName, DateTimeFormatter.ofPattern("d.M.yyyy"));
 
         Element table = doc.select("table").first();
 

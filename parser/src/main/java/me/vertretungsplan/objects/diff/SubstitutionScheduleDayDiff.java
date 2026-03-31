@@ -8,12 +8,16 @@
 
 package me.vertretungsplan.objects.diff;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-
-import java.util.*;
 
 /**
  * Represents the difference between two {@link SubstitutionScheduleDay}s.

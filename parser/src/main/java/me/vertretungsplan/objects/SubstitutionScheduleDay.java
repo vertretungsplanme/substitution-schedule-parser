@@ -19,8 +19,8 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.Nullable;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.paour.comparator.NaturalOrderComparator;
 
@@ -69,7 +69,7 @@ public class SubstitutionScheduleDay implements Cloneable {
      */
     public String getDateString() {
         if (date != null) {
-            return SubstitutionSchedule.DAY_DATE_FORMAT.print(date);
+            return SubstitutionSchedule.DAY_DATE_FORMAT.format(date);
         } else if (dateString != null) {
             return dateString;
         } else {
@@ -120,7 +120,7 @@ public class SubstitutionScheduleDay implements Cloneable {
     @Nullable
     public String getLastChangeString() {
         if (lastChange != null) {
-            return SubstitutionSchedule.LAST_CHANGE_DATE_FORMAT.print(lastChange);
+            return SubstitutionSchedule.LAST_CHANGE_DATE_FORMAT.format(lastChange);
         } else if (lastChangeString != null) {
             return lastChangeString;
         } else {

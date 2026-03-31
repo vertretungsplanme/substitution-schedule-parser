@@ -14,17 +14,19 @@ import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,54 +108,63 @@ class ParserUtils {
         dateFormatters.clear();
         dateTimeFormatters.clear();
 
+        int currentYear = Year.now().getValue();
+        Locale german = Locale.GERMAN;
+
         for (String date : dateFormats) {
-            dateFormatters.add(DateTimeFormat.forPattern(date)
-                    .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+            dateFormatters.add(new DateTimeFormatterBuilder()
+                    .appendPattern(date)
+                    .parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear)
+                    .toFormatter(german));
+            
             for (String time : timeFormats) {
                 for (String separator : separators) {
                     dateTimeFormats[i] = date + separator + time;
-                    dateTimeFormatters.add(DateTimeFormat.forPattern(dateTimeFormats[i])
-                            .withLocale(Locale.GERMAN).withDefaultYear(DateTime.now().getYear()));
+                    dateTimeFormatters.add(new DateTimeFormatterBuilder()
+                            .appendPattern(dateTimeFormats[i])
+                            .parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear)
+                            .toFormatter(german));
                     i++;
                 }
             }
         }
     }
 
-    private static synchronized void reinitIfNeeded() {
-        if (dateFormatters.size() == 0 || dateFormatters.get(0).getDefaultYear() != DateTime.now().getYear()) {
-            init();
-        }
-    }
-
     static LocalDateTime parseDateTime(String string) {
         if (string == null) return null;
-        reinitIfNeeded();
 
         string = string.replace("Stand:", "").replace("Import:", "").trim();
         int i = 0;
         for (DateTimeFormatter f : dateTimeFormatters) {
             try {
-                LocalDateTime dt = f.parseLocalDateTime(string);
+                LocalDateTime dt = LocalDateTime.parse(string, f);
                 if (dateTimeFormats[i].contains("yyyy")) {
                     return dt;
                 } else {
-                    Duration currentYearDifference = abs(new Duration(DateTime.now(), dt.toDateTime()));
-                    Duration lastYearDifference = abs(new Duration(DateTime.now(), dt.minusYears(1).toDateTime()));
-                    Duration nextYearDifference = abs(new Duration(DateTime.now(), dt.plusYears(1).toDateTime()));
-                    if (lastYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
-                                .parseLocalDateTime(string);
-                    } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateTimeFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
-                                .parseLocalDateTime(string);
+                    LocalDateTime now = LocalDateTime.now();
+                    Duration currentYearDifference = abs(Duration.between(now, dt));
+                    Duration lastYearDifference = abs(Duration.between(now, dt.minusYears(1)));
+                    Duration nextYearDifference = abs(Duration.between(now, dt.plusYears(1)));
+                    
+                    if (lastYearDifference.compareTo(currentYearDifference) < 0) {
+                        // Last year is closer
+                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
+                                .appendPattern(dateTimeFormats[i])
+                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() - 1)
+                                .toFormatter(Locale.GERMAN);
+                        return LocalDateTime.parse(string, adjustedFormatter);
+                    } else if (nextYearDifference.compareTo(currentYearDifference) < 0) {
+                        // Next year is closer
+                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
+                                .appendPattern(dateTimeFormats[i])
+                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() + 1)
+                                .toFormatter(Locale.GERMAN);
+                        return LocalDateTime.parse(string, adjustedFormatter);
                     } else {
                         return dt;
                     }
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (DateTimeParseException e) {
                 // Does not match this format, try the next one
             }
             i++;
@@ -163,17 +174,11 @@ class ParserUtils {
     }
 
     private static Duration abs(Duration duration) {
-        Duration nothing = new Duration(0);
-        if (duration.isShorterThan(nothing)) {
-            return duration.negated();
-        } else {
-            return duration;
-        }
+        return duration.isNegative() ? duration.negated() : duration;
     }
 
     static LocalDate parseDate(String string) {
         if (string == null) return null;
-        reinitIfNeeded();
 
         string = string
                 .replace("Stand:", "")
@@ -185,28 +190,34 @@ class ParserUtils {
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
             try {
-                LocalDate d = f.parseLocalDate(string);
+                LocalDate d = LocalDate.parse(string, f);
                 if (dateFormats[i].contains("yyyy")) {
                     return d;
                 } else {
-                    Duration currentYearDifference = abs(new Duration(DateTime.now(), d.toDateTimeAtCurrentTime()));
-                    Duration lastYearDifference =
-                            abs(new Duration(DateTime.now(), d.minusYears(1).toDateTimeAtCurrentTime()));
-                    Duration nextYearDifference =
-                            abs(new Duration(DateTime.now(), d.plusYears(1).toDateTimeAtCurrentTime()));
-                    if (lastYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() - 1)
-                                .parseLocalDate(string);
-                    } else if (nextYearDifference.isShorterThan(currentYearDifference)) {
-                        return DateTimeFormat.forPattern(dateFormats[i])
-                                .withLocale(Locale.GERMAN).withDefaultYear(f.getDefaultYear() + 1)
-                                .parseLocalDate(string);
+                    LocalDate now = LocalDate.now();
+                    long currentYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d));
+                    long lastYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d.minusYears(1)));
+                    long nextYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d.plusYears(1)));
+                    
+                    if (lastYearDifference < currentYearDifference) {
+                        // Last year is closer
+                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
+                                .appendPattern(dateFormats[i])
+                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() - 1)
+                                .toFormatter(Locale.GERMAN);
+                        return LocalDate.parse(string, adjustedFormatter);
+                    } else if (nextYearDifference < currentYearDifference) {
+                        // Next year is closer
+                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
+                                .appendPattern(dateTimeFormats[i])
+                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() + 1)
+                                .toFormatter(Locale.GERMAN);
+                        return LocalDate.parse(string, adjustedFormatter);
                     } else {
                         return d;
                     }
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (DateTimeParseException e) {
                 // Does not match this format, try the next one
             }
             i++;
@@ -262,7 +273,6 @@ class ParserUtils {
             }
         }
 
-
         return url;
     }
 
@@ -272,9 +282,10 @@ class ParserUtils {
         Matcher matcher = dateFormatPattern.matcher(url);
         if (matcher.find()) {
             String pattern = matcher.group(1);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             for (int j = 0; j < 7; j++) {
                 LocalDate date = LocalDate.now().plusDays(j);
-                String dateStr = DateTimeFormat.forPattern(pattern).print(date);
+                String dateStr = date.format(formatter);
                 String urlWithDate = matcher.replaceFirst(dateStr);
                 urls.add(urlWithDate);
             }

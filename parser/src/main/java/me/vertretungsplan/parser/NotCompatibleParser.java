@@ -14,8 +14,8 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.Credential;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -35,9 +35,9 @@ public class NotCompatibleParser extends BaseParser {
     public SubstitutionSchedule getSubstitutionSchedule() throws IOException, JSONException,
             CredentialInvalidException {
         SubstitutionSchedule v = SubstitutionSchedule.fromData(scheduleData);
-        v.setLastChange(new LocalDateTime(2000, 1, 1, 0, 0));
+        v.setLastChange(LocalDateTime.of(2000, 1, 1, 0, 0));
         SubstitutionScheduleDay today = new SubstitutionScheduleDay();
-        today.setDate(new LocalDate(2999, 1, 1));
+        today.setDate(LocalDate.of(2999, 1, 1));
 
         Substitution subst = new Substitution();
         subst.setLesson("0");
@@ -99,7 +99,7 @@ public class NotCompatibleParser extends BaseParser {
     }
 
     @Override public LocalDateTime getLastChange() throws IOException, JSONException, CredentialInvalidException {
-        return new LocalDateTime(2000, 1, 1, 0, 0);
+        return LocalDateTime.of(2000, 1, 1, 0, 0);
     }
 
     @Override public void setCredential(Credential credential) {

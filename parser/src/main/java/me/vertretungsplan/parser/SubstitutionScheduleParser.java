@@ -12,7 +12,7 @@ import me.vertretungsplan.exception.CredentialInvalidException;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.Credential;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import org.json.JSONException;
 
 import java.io.IOException;

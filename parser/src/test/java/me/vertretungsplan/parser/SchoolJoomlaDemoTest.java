@@ -8,18 +8,18 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import org.joda.time.LocalDateTime;
+import java.io.IOException;
+import java.time.LocalDateTime;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
 
 public class SchoolJoomlaDemoTest extends BaseDemoTest {
     private String jsonAllData;
@@ -41,7 +41,7 @@ public class SchoolJoomlaDemoTest extends BaseDemoTest {
     @Test
     public void demoTest() throws IOException, JSONException, CredentialInvalidException {
         SubstitutionSchedule schedule = parser.parse(new JSONObject(jsonAllData));
-        assertEquals(new LocalDateTime("2018-08-30T14:00:53.000"), schedule.getLastChange());
+        assertEquals(LocalDateTime.parse("2018-08-30T14:00:53.000"), schedule.getLastChange());
         assertEquals(2, schedule.getDays().size());
     }
 }

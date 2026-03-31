@@ -1,6 +1,11 @@
 package me.vertretungsplan.parser;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,12 +20,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,7 +94,7 @@ public class TKPlanungParser extends BaseParser {
         for (int i = 0; i < changes.length(); i++) {
             SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
             JSONObject change = changes.getJSONObject(i);
-            LocalDate substitutionDate = new LocalDate(change.getString("date"));
+            LocalDate substitutionDate = LocalDate.parse(change.getString("date"));
             substitutionScheduleDay.setDate(substitutionDate);
 
             Substitution substitution = new Substitution();
@@ -142,7 +141,7 @@ public class TKPlanungParser extends BaseParser {
         for (int i = 0; i < notifications.length(); i++) {
             JSONObject notification = notifications.getJSONObject(i);
             if (notification.has("date") && !notification.isNull("date") && !notification.getString("date").trim().isEmpty() && notification.optString("description") != "null") {
-                LocalDate substitutionDate = new LocalDate(notification.getString("date"));
+                LocalDate substitutionDate = LocalDate.parse(notification.getString("date"));
                 SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
                 substitutionScheduleDay.setDate(substitutionDate);
                 String message = notification.getString("message").trim();
@@ -261,15 +260,15 @@ public class TKPlanungParser extends BaseParser {
                 try {
                     if (httpResponse.containsHeader("last-modified")) {
                         String lastModified = httpResponse.getHeaders("last-modified")[0].getValue();
-                        DateTimeFormatter fmt = DateTimeFormat
-                            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                            .withLocale(Locale.GERMAN)
-                            .withZoneUTC();
-                        DateTime utcDateTime = fmt.parseDateTime(lastModified);
-                        DateTime berlinDateTime = utcDateTime.withZone(DateTimeZone.forID("Europe/Berlin"));
+                        DateTimeFormatter fmt = DateTimeFormatter
+                            .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+                            .withLocale(Locale.GERMAN);
+                        ZonedDateTime utcDateTime = ZonedDateTime.parse(lastModified, fmt);
+                        ZonedDateTime berlinDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Europe/Berlin"));
                         lastUpdate = berlinDateTime.toLocalDateTime();
                     }
                 }  catch (Exception e) {
+                    System.out.println(e);
                     // ignore
                 }
             }
