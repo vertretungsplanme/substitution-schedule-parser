@@ -9,7 +9,7 @@
 package me.vertretungsplan.objects.credential;
 
 import org.apache.commons.codec.binary.Base64;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +19,7 @@ public abstract class BaseCredential implements Credential {
     private String schoolId;
     private String scheduleId;
     private boolean valid = true;
-    private DateTime lastCheck;
+    private LocalDateTime lastCheck;
 
     @Override
     public String getSchoolId() {
@@ -56,11 +56,11 @@ public abstract class BaseCredential implements Credential {
     }
 
     @Override
-    public DateTime getLastCheck() {
+    public LocalDateTime getLastCheck() {
         return lastCheck;
     }
 
-    public void setLastCheck(DateTime lastCheck) {
+    public void setLastCheck(LocalDateTime lastCheck) {
         this.lastCheck = lastCheck;
     }
 

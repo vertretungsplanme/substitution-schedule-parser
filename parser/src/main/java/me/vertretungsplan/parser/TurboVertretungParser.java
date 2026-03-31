@@ -14,7 +14,6 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +23,8 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for substitution schedules in HTML format created by the Turbo-Vertretung software.
@@ -110,7 +111,7 @@ public class TurboVertretungParser extends BaseParser {
         SubstitutionScheduleDay day = new SubstitutionScheduleDay();
 
         String date = doc.select(".Titel").text().replaceFirst("Vertretungsplan( für)? ", "");
-        day.setDate(DateTimeFormat.forPattern("EEEE, d. MMMM yyyy").withLocale(Locale.GERMAN).parseLocalDate(date));
+        day.setDate(LocalDate.parse(date, DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy").withLocale(Locale.GERMAN)));
 
         String lastChange = doc.select(".Stand").text();
         day.setLastChange(ParserUtils.parseDateTime(lastChange));

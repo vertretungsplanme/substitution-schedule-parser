@@ -8,23 +8,31 @@
 
 package me.vertretungsplan.objects;
 
-import com.paour.comparator.NaturalOrderComparator;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
-import java.util.*;
+import com.paour.comparator.NaturalOrderComparator;
 
 /**
  * Represents a school's substitution schedule
  */
 public class SubstitutionSchedule implements Cloneable {
-    static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormat.forPattern("EEEE, dd.MM.yyyy").withLocale(
-            Locale.GERMAN);
-    static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm").withLocale(
-            Locale.GERMAN);
+    static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy", Locale.GERMAN);
+    static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", Locale.GERMAN);
+
 
     private Type type;
     private LocalDateTime lastChange;
@@ -172,6 +180,15 @@ public class SubstitutionSchedule implements Cloneable {
         this.lastChange = lastChange;
     }
 
+    public void setLastChange(Instant lastChange) {
+        this.lastChange = lastChange.atZone(ZoneId.of("Europe/Berlin"))
+            .toLocalDateTime();
+    }
+
+    public void setLastChange(Date lastChange) {
+        this.setLastChange(lastChange.toInstant());
+    }
+
     /**
      * Get the date and time where this schedule was last updated as a string representation
      *
@@ -181,7 +198,7 @@ public class SubstitutionSchedule implements Cloneable {
         if (lastChangeString != null) {
             return lastChangeString;
         } else if (lastChange != null) {
-            return LAST_CHANGE_DATE_FORMAT.print(lastChange);
+            return LAST_CHANGE_DATE_FORMAT.format(lastChange);
         } else {
             return null;
         }

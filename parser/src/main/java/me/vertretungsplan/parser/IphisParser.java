@@ -9,27 +9,39 @@
 
 package me.vertretungsplan.parser;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.*;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.paour.comparator.NaturalOrderComparator;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 
 /**
  * Parser for substitution schedules from IPHIS.
@@ -174,7 +186,7 @@ public class IphisParser extends BaseParser {
 
             authToken = token.getString("token");
             website = jwtToken.getIssuer();
-            lastUpdate = new LocalDateTime(token.getLong("stand") * 1000);
+            lastUpdate = LocalDateTime.ofInstant(Instant.ofEpochMilli(token.getLong("stand") * 1000), ZoneId.of("Europe/Berlin"));
         } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }
@@ -290,7 +302,7 @@ public class IphisParser extends BaseParser {
         substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
-            final LocalDate substitutionDate = new LocalDate(change.getString("datum"));
+            final LocalDate substitutionDate = LocalDate.parse(change.getString("datum"));
 
             // If starting date of change does not equal date of SubstitutionScheduleDay
             if (!substitutionDate.isEqual(currentDate)) {
