@@ -180,13 +180,13 @@ public class SubstitutionSchedule implements Cloneable {
         this.lastChange = lastChange;
     }
 
-    public void setLastChange(Instant lastChange) {
+    public void setLastChangeFromInstant(Instant lastChange) {
         this.lastChange = lastChange.atZone(ZoneId.of("Europe/Berlin"))
             .toLocalDateTime();
     }
 
-    public void setLastChange(Date lastChange) {
-        this.setLastChange(lastChange.toInstant());
+    public void setLastChangeFromDate(Date lastChange) {
+        this.setLastChangeFromInstant(lastChange.toInstant());
     }
 
     /**
