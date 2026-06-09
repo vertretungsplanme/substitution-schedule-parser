@@ -8,15 +8,31 @@
 
 package me.vertretungsplan.parser;
 
-import com.github.sardine.Sardine;
-import com.github.sardine.impl.SardineImpl;
-import com.mifmif.common.regex.Generex;
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.networking.MultiTrustManager;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.credential.Credential;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
@@ -40,22 +56,21 @@ import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.mozilla.universalchardet.UniversalDetector;
 
-import javax.net.ssl.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.github.sardine.Sardine;
+import com.github.sardine.impl.SardineImpl;
+import com.mifmif.common.regex.Generex;
+
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.networking.MultiTrustManager;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.credential.Credential;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 
 /**
  * Base class for {@link SubstitutionScheduleParser} implementations.
@@ -66,6 +81,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
     private static final String PARAM_SSL_VERIFY_HOSTNAME = "sslVerifyHostname";
     static final String PARAM_CLASS_RANGES = "classRanges";
     static final String PARAM_HEADERS = "headers";
+    static final String PARAM_FOLLOWING_HTTP_EQUIV_REFRESH = "FollowingHttpEquivRefresh";
     static final String CLASS_RANGES_CLASS_REGEX = "classRegex";
     static final String CLASS_RANGES_GRADE_REGEX = "gradeRegex";
     static final String CLASS_RANGES_RANGE_FORMAT = "rangeFormat";
@@ -346,8 +362,13 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         return httpGet(url, encoding, null);
     }
 
+    protected String httpGet(String url, String encoding, Map<String, String> headers) throws IOException, CredentialInvalidException {
+        boolean following = scheduleData.getData().optBoolean(PARAM_FOLLOWING_HTTP_EQUIV_REFRESH);
+        return httpGet(url, encoding, headers, following);
+    }
+
     protected String httpGet(String url, String encoding,
-                             Map<String, String> headers) throws IOException, CredentialInvalidException {
+                             Map<String, String> headers, boolean following) throws IOException, CredentialInvalidException {
         if (url.startsWith("local://")) {
             Path file = localSource.resolve(url.substring("local://".length()));
             byte[] bytes = Files.readAllBytes(file);
@@ -367,17 +388,32 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
                     request.addHeader(key, jsonHeaders.optString(key));
                 }
             }
-            return executeRequest(encoding, request);
+            return executeRequest(encoding, request, following);
         }
     }
 
     @Nullable
     protected String executeRequest(String encoding, Request request)
             throws IOException, CredentialInvalidException {
+        boolean following = scheduleData.getData().optBoolean(PARAM_FOLLOWING_HTTP_EQUIV_REFRESH);
+        return executeRequest(encoding, request, following);
+    }
+
+    @Nullable
+    protected String executeRequest(String encoding, Request request, boolean following)
+            throws IOException, CredentialInvalidException {
         try {
             byte[] bytes = executor.execute(request).returnContent().asBytes();
             encoding = getEncoding(encoding, bytes);
-            return new String(bytes, encoding);
+            String html = new String(bytes, encoding);
+            Document doc = Jsoup.parse(html);
+            if (following && !doc.select("meta[http-equiv=refresh]").isEmpty()) {
+                Element meta = doc.select("meta[http-equiv=refresh]").first();
+                String attr = meta.attr("content");
+                String redirectUrl = attr.substring(attr.indexOf("url=") + 4);
+                return httpGet(redirectUrl, encoding);
+            }
+            return html;
         } catch (HttpResponseException e) {
             handleHttpResponseException(e);
             return null;
