@@ -147,7 +147,7 @@ public abstract class BaseParser implements SubstitutionScheduleParser {
         }
         return new SSLConnectionSocketFactory(
                 sslContext,
-                new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"},
+                new String[]{"TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3"},
                 null,
                 hostnameVerifier);
     }
