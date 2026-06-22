@@ -125,9 +125,6 @@ public class TKPlanungParser extends BaseParser {
                 substitution.setPreviousRoom(jsonArrayToPlainString(change.getJSONArray("originalRoomNames")));
             }
 
-            //String start = change.getString("startTime").substring(0, 5);
-            //String end = change.getString("endTime").substring(0, 5);
-            //substitution.setLesson(start + " - " + end);
             substitution.setLesson(change.getString("lesson"));
 
             if (!change.optString("description").isEmpty() && change.optString("description") != "null") {
@@ -136,6 +133,15 @@ public class TKPlanungParser extends BaseParser {
 
             substitutionScheduleDay.addSubstitution(substitution);
             substitutionSchedule.addDay(substitutionScheduleDay);
+        }
+
+        // Add Today
+        LocalDate now = new LocalDate();
+        int dow = now.getDayOfWeek();
+        if (dow != 6 && dow != 7) {
+            SubstitutionScheduleDay today = new SubstitutionScheduleDay();
+            today.setDate(now);
+            substitutionSchedule.addDay(today);
         }
 
         // Add Messages
@@ -147,7 +153,7 @@ public class TKPlanungParser extends BaseParser {
                 substitutionScheduleDay.setDate(substitutionDate);
                 String message = notification.getString("message").trim();
                 String title = notification.getString("title").trim();
-                if (title != "") {
+                if (!title.isBlank()) {
                     message = "<b>" + title + "</b>: " + message;
                 }
                 substitutionScheduleDay.addMessage(message);
