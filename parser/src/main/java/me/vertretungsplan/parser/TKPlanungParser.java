@@ -1,6 +1,7 @@
 package me.vertretungsplan.parser;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -135,9 +136,9 @@ public class TKPlanungParser extends BaseParser {
         }
 
         // Add Today
-        LocalDate now = new LocalDate();
-        int dow = now.getDayOfWeek();
-        if (dow != 6 && dow != 7) {
+        LocalDate now = LocalDate.now();
+        DayOfWeek dayOfWeek = now.getDayOfWeek();
+        if (dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY) {
             SubstitutionScheduleDay today = new SubstitutionScheduleDay();
             today.setDate(now);
             substitutionSchedule.addDay(today);
