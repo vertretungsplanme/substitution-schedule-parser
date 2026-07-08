@@ -9,18 +9,29 @@
 
 package me.vertretungsplan.sample;
 
-import me.vertretungsplan.ParserUtil;
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.authentication.NoAuthenticationData;
-import org.json.JSONException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import me.vertretungsplan.ParserUtil;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.authentication.AuthenticationData;
+import me.vertretungsplan.objects.authentication.NoAuthenticationData;
+import me.vertretungsplan.objects.credential.Credential;
+import me.vertretungsplan.objects.credential.PasswordCredential;
+import me.vertretungsplan.objects.credential.SchoolNumberPasswordCredential;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
 
 public class Sample {
-    public static void main(String[] args) throws JSONException, IOException, CredentialInvalidException {
+    public static void main(String[] args) throws Exception {
+        schoolsFromJson();
+
         SubstitutionScheduleData data = new SubstitutionScheduleData();
         data.setType(SubstitutionSchedule.Type.STUDENT);
         data.setApi("untis-monitor");
@@ -57,5 +68,109 @@ public class Sample {
         data.getAdditionalInfos().add("winter-sh");
         SubstitutionSchedule schedule = ParserUtil.parseSubstitutionSchedule(data);
         System.out.println(schedule);
+    }
+
+    private static void schoolsFromJson() throws Exception {
+        String schoolsJsonPath = "/vertretungsplan.schools.json";
+        String credentialsJsonPath = "/vertretungsplan.credentials.json";
+
+        // get schools from json
+        InputStream inputStreamSchools = Sample.class.getResourceAsStream(schoolsJsonPath);
+        if (inputStreamSchools == null) {
+            throw new IOException("Datei nicht gefunden: " + schoolsJsonPath);
+        }
+        String jsonSchoolsString = new String(inputStreamSchools.readAllBytes(), StandardCharsets.UTF_8);
+        JSONArray schools =  new JSONArray(jsonSchoolsString);
+
+        // get credentails from json
+        InputStream inputStreamCredentials = Sample.class.getResourceAsStream(credentialsJsonPath);
+        if (inputStreamCredentials == null) {
+            throw new IOException("Datei nicht gefunden: " + credentialsJsonPath);
+        }
+        String jsonCredentialsString = new String(inputStreamCredentials.readAllBytes(), StandardCharsets.UTF_8);
+        JSONArray credentials =  new JSONArray(jsonCredentialsString);
+
+        Map<String, JSONObject> credentialsMap = new HashMap<>();
+        for (int i = 0; i < credentials.length(); i++) {
+            JSONObject credential = credentials.getJSONObject(i);
+            if (credential.getBoolean("valid")) {
+                String schoolId = credential.getString("schoolId");
+                String scheduleId = credential.getString("scheduleId");
+                String key = schoolId + "_" + scheduleId;
+                if (!credentialsMap.containsKey(key)) {
+                    credentialsMap.put(key,credential);
+                }
+            }
+        }
+
+        // loop over schools
+        for (int i = 0; i < schools.length(); i++) {
+            JSONObject school = schools.getJSONObject(i);
+            String schoolId = school.getString("_id");
+            String schoolName = school.getString("name");
+            JSONArray schedules = school.getJSONArray("schedules");
+
+            // loop over schedules
+            for (int j = 0; j < schedules.length(); j++) {
+                JSONObject schedule = schedules.getJSONObject(j);
+                String visibility = schedule.getString("visibility");
+
+                if ("EVERYONE".equals(visibility)) {
+                    String api = schedule.getString("api");
+                    String type = schedule.getString("type");
+                    String schduleId = schedule.getString("id");
+                    String key = schoolId + "_" + schduleId;
+                    String authClass = schedule.getJSONObject("authenticationData").getString("@class");
+                    String className = "me.vertretungsplan.objects.authentication" + authClass;
+
+                    System.out.println(schoolId + " " + schoolName + " " + api + " " + type + " " + authClass);
+                    SubstitutionScheduleData data = new SubstitutionScheduleData();
+
+                    data.setType(SubstitutionSchedule.Type.valueOf(type));
+                    data.setApi(api);
+
+                    Class<?> clazz;
+                    clazz = Class.forName(className);
+                    data.setAuthenticationData((AuthenticationData) clazz.getDeclaredConstructor().newInstance());
+
+                    JSONObject dataJson = schedule.getJSONObject("data");
+                    data.setData(dataJson);
+
+                    try {
+                        SubstitutionSchedule scheduleResult;
+                        if (".NoAuthenticationData".equals(authClass)) {
+                            scheduleResult = ParserUtil.parseSubstitutionSchedule(data);
+                        } else {
+                            Credential cred;
+                            if (!credentialsMap.containsKey(key)) {
+                                System.out.println("no cred found");
+                                throw new Exception("no cred found");
+                            }
+                            JSONObject credJson = credentialsMap.get(key);
+                            if (null == authClass) {
+                                System.out.println("authClass is null");
+                                throw new Exception("authClass is null");
+                            } else switch (authClass) {
+                                case ".PasswordAuthenticationData" -> cred = new PasswordCredential(credJson.getString("password"));
+                                case ".UserPasswordAuthenticationData" -> cred = new UserPasswordCredential(credJson.getString("password"), credJson.getString("username"));
+                                case ".SchoolNumberPasswordAuthenticationData" -> {
+                                    String schoolNumber = schedule.getJSONObject("authenticationData").getString("schoolNumber");
+                                    cred = new SchoolNumberPasswordCredential(schoolNumber);
+                                }
+                                default -> {
+                                    System.out.println("authClass is " + authClass);
+                                    cred = new UserPasswordCredential(credJson.getString("password"), credJson.getString("username"));
+                                }
+                            }
+                            scheduleResult = ParserUtil.parseSubstitutionSchedule(data, cred);
+                        }
+                        System.out.println(scheduleResult);   
+                    } catch (Exception e) {
+                        System.out.println("skip Schedule Error");
+                    }
+                }
+            }
+            System.out.println();
+        }
     }
 }
