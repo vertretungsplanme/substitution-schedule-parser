@@ -8,16 +8,6 @@
 
 package me.vertretungsplan.parser;
 
-import com.mifmif.common.regex.Generex;
-import com.paour.comparator.NaturalOrderComparator;
-import org.apache.http.client.fluent.Request;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.TestOnly;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -26,10 +16,26 @@ import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.http.client.fluent.Request;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.mifmif.common.regex.Generex;
+import com.paour.comparator.NaturalOrderComparator;
 
 class ParserUtils {
 
@@ -101,6 +107,7 @@ class ParserUtils {
             "HH:mm:ss"
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
+    private static int initializedYear = -1;
 
     @TestOnly
     static synchronized void init() {
@@ -109,29 +116,43 @@ class ParserUtils {
         dateTimeFormatters.clear();
 
         int currentYear = Year.now().getValue();
+        initializedYear = currentYear;
         Locale german = Locale.GERMAN;
 
         for (String date : dateFormats) {
-            dateFormatters.add(new DateTimeFormatterBuilder()
-                    .appendPattern(date)
-                    .parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear)
-                    .toFormatter(german));
-            
+            DateTimeFormatterBuilder dateBuilder = new DateTimeFormatterBuilder().appendPattern(date);
+
+            if (!date.contains("yyyy") && !date.contains("yy")) {
+                    dateBuilder.parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear);
+            }
+
+            dateFormatters.add(dateBuilder.toFormatter(german));
+
             for (String time : timeFormats) {
                 for (String separator : separators) {
                     dateTimeFormats[i] = date + separator + time;
-                    dateTimeFormatters.add(new DateTimeFormatterBuilder()
-                            .appendPattern(dateTimeFormats[i])
-                            .parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear)
-                            .toFormatter(german));
+
+                    DateTimeFormatterBuilder dtBuilder = new DateTimeFormatterBuilder().appendPattern(dateTimeFormats[i]);
+                    if (!dateTimeFormats[i].contains("yyyy") && !dateTimeFormats[i].contains("yy")) {
+                        dtBuilder.parseDefaulting(ChronoField.YEAR, currentYear);
+                    }
+
+                    dateTimeFormatters.add(dtBuilder.toFormatter(german));
                     i++;
                 }
             }
         }
     }
 
+    private static synchronized void reinitIfNeeded() {
+        if (dateFormatters.isEmpty() || initializedYear != Year.now().getValue()) {
+            init();
+        }
+    }
+
     static LocalDateTime parseDateTime(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
 
         string = string.replace("Stand:", "").replace("Import:", "").trim();
         int i = 0;
@@ -179,6 +200,7 @@ class ParserUtils {
 
     static LocalDate parseDate(String string) {
         if (string == null) return null;
+        reinitIfNeeded();
 
         string = string
                 .replace("Stand:", "")

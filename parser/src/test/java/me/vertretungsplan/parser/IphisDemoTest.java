@@ -8,23 +8,23 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class IphisDemoTest extends BaseDemoTest {
     private IphisParser parser;
@@ -48,9 +48,6 @@ public class IphisDemoTest extends BaseDemoTest {
         LocalDate fixedDate = LocalDate.of(2017, 9, 29);
         Instant fixedInstant = fixedDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         fixedClock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
-        
-        // Übergebe die fixierte Clock an den Parser (siehe unten)
-        parser.setClock(fixedClock);
     }
 
     @Test
