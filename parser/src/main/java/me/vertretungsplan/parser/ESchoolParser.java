@@ -8,14 +8,16 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import me.vertretungsplan.objects.authentication.NoAuthenticationData;
-import me.vertretungsplan.objects.authentication.PasswordAuthenticationData;
-import me.vertretungsplan.objects.credential.PasswordCredential;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -28,15 +30,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.authentication.NoAuthenticationData;
+import me.vertretungsplan.objects.authentication.PasswordAuthenticationData;
+import me.vertretungsplan.objects.credential.PasswordCredential;
 
 /**
  * Parser for substitution schedules served by eSchool (eschool.topackt.com). Supports both
@@ -114,7 +115,7 @@ public class ESchoolParser extends BaseParser {
         if (matcher.find()) {
             LocalDateTime lastChange = LocalDateTime.parse(
                     matcher.group(1),
-                    DateTimeFormatter.ofPattern("dd.MM.yyyy - HH:mm")
+                    DateTimeFormatter.ofPattern("dd.MM.yyyy - H:mm")
             );
             schedule.setLastChange(lastChange);
         }
