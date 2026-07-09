@@ -31,7 +31,7 @@ import com.paour.comparator.NaturalOrderComparator;
  */
 public class SubstitutionSchedule implements Cloneable {
     static final DateTimeFormatter DAY_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy", Locale.GERMAN);
-    static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm", Locale.GERMAN);
+    static final DateTimeFormatter LAST_CHANGE_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm", Locale.GERMAN);
 
 
     private Type type;
