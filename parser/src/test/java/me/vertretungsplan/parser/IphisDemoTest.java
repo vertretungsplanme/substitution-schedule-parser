@@ -9,15 +9,11 @@
 package me.vertretungsplan.parser;
 
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +28,6 @@ public class IphisDemoTest extends BaseDemoTest {
     private JSONArray teachers;
     private JSONArray courses;
     private JSONArray messages;
-    private Clock fixedClock;
 
     @Before
     public void setUp() throws JSONException {
@@ -43,11 +38,6 @@ public class IphisDemoTest extends BaseDemoTest {
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new IphisParser(scheduleData, null);
-        
-        // Fixiere die Zeit auf 2017-09-29 00:00:00
-        LocalDate fixedDate = LocalDate.of(2017, 9, 29);
-        Instant fixedInstant = fixedDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        fixedClock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
     }
 
     @Test
@@ -58,10 +48,5 @@ public class IphisDemoTest extends BaseDemoTest {
         SubstitutionScheduleDay firstDay = schedule.getDays().get(0);
         assertEquals(LocalDate.of(2017, 9, 29), firstDay.getDate());
         assertEquals(4, firstDay.getSubstitutions().size());
-    }
-
-    @After
-    public void tearDown() {
-        // Nichts mehr zu tun, da wir keine globale Zeit mehr setzen
     }
 }

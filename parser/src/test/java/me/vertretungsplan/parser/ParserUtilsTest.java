@@ -22,8 +22,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class ParserUtilsTest {
-    static Clock clock = Clock.systemDefaultZone();
-
     @Test
     public void testNewYear() {
         // 24.12.2015
