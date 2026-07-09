@@ -9,6 +9,7 @@
 package me.vertretungsplan.parser;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,6 +110,7 @@ class ParserUtils {
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
     private static int initializedYear = -1;
+    static Clock clock = Clock.systemDefaultZone();
 
     @TestOnly
     static synchronized void init() {
@@ -115,16 +118,11 @@ class ParserUtils {
         dateFormatters.clear();
         dateTimeFormatters.clear();
 
-        int currentYear = Year.now().getValue();
-        initializedYear = currentYear;
+        initializedYear = Year.now(clock).getValue();
         Locale german = Locale.GERMAN;
 
         for (String date : dateFormats) {
             DateTimeFormatterBuilder dateBuilder = new DateTimeFormatterBuilder().appendPattern(date);
-
-            if (!date.contains("yyyy") && !date.contains("yy")) {
-                    dateBuilder.parseDefaulting(java.time.temporal.ChronoField.YEAR, currentYear);
-            }
 
             dateFormatters.add(dateBuilder.toFormatter(german));
 
@@ -133,9 +131,6 @@ class ParserUtils {
                     dateTimeFormats[i] = date + separator + time;
 
                     DateTimeFormatterBuilder dtBuilder = new DateTimeFormatterBuilder().appendPattern(dateTimeFormats[i]);
-                    if (!dateTimeFormats[i].contains("yyyy") && !dateTimeFormats[i].contains("yy")) {
-                        dtBuilder.parseDefaulting(ChronoField.YEAR, currentYear);
-                    }
 
                     dateTimeFormatters.add(dtBuilder.toFormatter(german));
                     i++;
@@ -158,31 +153,34 @@ class ParserUtils {
         int i = 0;
         for (DateTimeFormatter f : dateTimeFormatters) {
             try {
-                LocalDateTime dt = LocalDateTime.parse(string, f);
-                if (dateTimeFormats[i].contains("yyyy")) {
-                    return dt;
+                TemporalAccessor parsed = f.parse(string);
+                if (dateTimeFormats[i].contains("yyyy") || dateTimeFormats[i].contains("yy")) {
+                    return LocalDateTime.from(parsed);
                 } else {
-                    LocalDateTime now = LocalDateTime.now();
-                    Duration currentYearDifference = abs(Duration.between(now, dt));
-                    Duration lastYearDifference = abs(Duration.between(now, dt.minusYears(1)));
-                    Duration nextYearDifference = abs(Duration.between(now, dt.plusYears(1)));
-                    
+                    int day    = parsed.get(ChronoField.DAY_OF_MONTH);
+                    int month  = parsed.get(ChronoField.MONTH_OF_YEAR);
+                    int hour   = parsed.get(ChronoField.HOUR_OF_DAY);
+                    int minute = parsed.get(ChronoField.MINUTE_OF_HOUR);
+                    int second = parsed.isSupported(ChronoField.SECOND_OF_MINUTE) 
+                                ? parsed.get(ChronoField.SECOND_OF_MINUTE) 
+                                : 0;
+
+                    LocalDateTime now = LocalDateTime.now(clock);
+
+                    LocalDateTime currentYear = LocalDateTime.of(now.getYear(),     month, day, hour, minute, second);
+                    LocalDateTime lastYear    = LocalDateTime.of(now.getYear() - 1, month, day, hour, minute, second);
+                    LocalDateTime nextYear    = LocalDateTime.of(now.getYear() + 1, month, day, hour, minute, second);
+
+                    Duration currentYearDifference = abs(Duration.between(now, currentYear));
+                    Duration lastYearDifference    = abs(Duration.between(now, lastYear));
+                    Duration nextYearDifference    = abs(Duration.between(now, nextYear));
+
                     if (lastYearDifference.compareTo(currentYearDifference) < 0) {
-                        // Last year is closer
-                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
-                                .appendPattern(dateTimeFormats[i])
-                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() - 1)
-                                .toFormatter(Locale.GERMAN);
-                        return LocalDateTime.parse(string, adjustedFormatter);
+                        return lastYear;
                     } else if (nextYearDifference.compareTo(currentYearDifference) < 0) {
-                        // Next year is closer
-                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
-                                .appendPattern(dateTimeFormats[i])
-                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() + 1)
-                                .toFormatter(Locale.GERMAN);
-                        return LocalDateTime.parse(string, adjustedFormatter);
+                        return nextYear;
                     } else {
-                        return dt;
+                        return currentYear;
                     }
                 }
             } catch (DateTimeParseException e) {
@@ -212,31 +210,29 @@ class ParserUtils {
         int i = 0;
         for (DateTimeFormatter f : dateFormatters) {
             try {
-                LocalDate d = LocalDate.parse(string, f);
-                if (dateFormats[i].contains("yyyy")) {
-                    return d;
+                TemporalAccessor parsed = f.parse(string);
+                if (dateFormats[i].contains("yyyy") || dateFormats[i].contains("yy")) {
+                    return LocalDate.from(parsed);
                 } else {
-                    LocalDate now = LocalDate.now();
-                    long currentYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d));
-                    long lastYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d.minusYears(1)));
-                    long nextYearDifference = Math.abs(ChronoUnit.DAYS.between(now, d.plusYears(1)));
+                    int day   = parsed.get(ChronoField.DAY_OF_MONTH);
+                    int month = parsed.get(ChronoField.MONTH_OF_YEAR);
+                    
+                    LocalDate now = LocalDate.now(clock);
+                    
+                    LocalDate currentYear = LocalDate.of(now.getYear(),     month, day);
+                    LocalDate lastYear    = LocalDate.of(now.getYear() - 1, month, day);
+                    LocalDate nextYear    = LocalDate.of(now.getYear() + 1, month, day);
+                    
+                    long currentYearDifference = Math.abs(ChronoUnit.DAYS.between(now, currentYear));
+                    long lastYearDifference    = Math.abs(ChronoUnit.DAYS.between(now, lastYear));
+                    long nextYearDifference    = Math.abs(ChronoUnit.DAYS.between(now, nextYear));
                     
                     if (lastYearDifference < currentYearDifference) {
-                        // Last year is closer
-                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
-                                .appendPattern(dateFormats[i])
-                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() - 1)
-                                .toFormatter(Locale.GERMAN);
-                        return LocalDate.parse(string, adjustedFormatter);
+                        return lastYear;
                     } else if (nextYearDifference < currentYearDifference) {
-                        // Next year is closer
-                        DateTimeFormatter adjustedFormatter = new DateTimeFormatterBuilder()
-                                .appendPattern(dateTimeFormats[i])
-                                .parseDefaulting(java.time.temporal.ChronoField.YEAR, Year.now().getValue() + 1)
-                                .toFormatter(Locale.GERMAN);
-                        return LocalDate.parse(string, adjustedFormatter);
+                        return nextYear;
                     } else {
-                        return d;
+                        return currentYear;
                     }
                 }
             } catch (DateTimeParseException e) {
@@ -306,7 +302,7 @@ class ParserUtils {
             String pattern = matcher.group(1);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             for (int j = 0; j < 7; j++) {
-                LocalDate date = LocalDate.now().plusDays(j);
+                LocalDate date = LocalDate.now(clock).plusDays(j);
                 String dateStr = date.format(formatter);
                 String urlWithDate = matcher.replaceFirst(dateStr);
                 urls.add(urlWithDate);
