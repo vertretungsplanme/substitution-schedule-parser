@@ -439,7 +439,7 @@ public class DaVinciParser extends BaseParser {
                 if (matcher2.find()) {
                     LocalDateTime lastChangeTime = LocalDateTime.parse(
                         matcher2.group(1), 
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy | H:mm")
+                        DateTimeFormatter.ofPattern("d.M.yyyy | H:mm")
                     );
                     if (day != null) {
                         day.setLastChange(lastChangeTime);
@@ -454,7 +454,7 @@ public class DaVinciParser extends BaseParser {
             Matcher matcher = pattern.matcher(doc.html());
             if (matcher.find()) {
                 String str = matcher.group(1);
-                LocalDateTime date = LocalDateTime.parse(str, DateTimeFormatter.ofPattern("dd.MM.yyyy | H:mm"));
+                LocalDateTime date = LocalDateTime.parse(str, DateTimeFormatter.ofPattern("d.M.yyyy | H:mm"));
                 if (day != null) {
                     day.setLastChange(date);
                 } else {

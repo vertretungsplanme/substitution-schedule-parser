@@ -115,7 +115,7 @@ public class ESchoolParser extends BaseParser {
         if (matcher.find()) {
             LocalDateTime lastChange = LocalDateTime.parse(
                     matcher.group(1),
-                    DateTimeFormatter.ofPattern("dd.MM.yyyy - H:mm")
+                    DateTimeFormatter.ofPattern("d.M.yyyy - H:mm")
             );
             schedule.setLastChange(lastChange);
         }

@@ -342,14 +342,14 @@ public class IndiwareParser extends BaseParser {
         if (!matcher.find()) throw new IOException("malformed date: " + ds.titel().text());
         String date = matcher.group();
         day.setDate(LocalDate.parse(date, 
-            DateTimeFormatter.ofPattern("EEEE, dd. MMMM yyyy")
+            DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy")
                 .withLocale(Locale.GERMAN)));
 
         matcher = lastChangePattern.matcher(ds.datum().text());
         if (!matcher.find()) throw new IOException("malformed date: " + ds.datum().text());
         String lastChange = matcher.group();
         day.setLastChange(LocalDateTime.parse(lastChange,
-            DateTimeFormatter.ofPattern("dd.MM.yyyy, H:mm")
+            DateTimeFormatter.ofPattern("d.M.yyyy, H:mm")
                 .withLocale(Locale.GERMAN)));
 
         if (ds.kopfinfos().size() > 0) {
