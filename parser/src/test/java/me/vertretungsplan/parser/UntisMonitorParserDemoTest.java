@@ -8,21 +8,21 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class UntisMonitorParserDemoTest extends BaseDemoTest {
 
@@ -43,8 +43,8 @@ public class UntisMonitorParserDemoTest extends BaseDemoTest {
                 "        ]}"));
         final UntisMonitorParser parser = new UntisMonitorParser(data, null);
         SubstitutionScheduleDay day = parser.parseMonitorDay(doc, data.getData());
-        assertEquals(new LocalDate(2018, 1, 1), day.getDate());
-        assertEquals(new LocalDateTime(2018, 1, 1, 8, 42), day.getLastChange());
+        assertEquals(LocalDate.of(2018, 1, 1), day.getDate());
+        assertEquals(LocalDateTime.of(2018, 1, 1, 8, 42), day.getLastChange());
         assertEquals(14, day.getSubstitutions().size());
         assertEquals(4, day.getMessages().size());
         assertEquals("<b>Pakaski:</b> Das ist ein Tagestext nur für Lehrer Pakaski", day.getMessages().get(3));

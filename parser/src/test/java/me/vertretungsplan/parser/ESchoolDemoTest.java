@@ -8,22 +8,22 @@
 
 package me.vertretungsplan.parser;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+
 import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ESchoolDemoTest extends BaseDemoTest {
     private String html;
@@ -41,12 +41,12 @@ public class ESchoolDemoTest extends BaseDemoTest {
     @Test
     public void demoTest() throws IOException, JSONException {
         SubstitutionSchedule schedule = parser.parseESchoolSchedule(Jsoup.parse(html));
-        assertEquals(new LocalDateTime(2016, 9, 4, 14, 53), schedule.getLastChange());
+        assertEquals(LocalDateTime.of(2016, 9, 4, 14, 53), schedule.getLastChange());
         assertEquals(1, schedule.getDays().size());
 
         SubstitutionScheduleDay day = schedule.getDays().get(0);
 
-        assertEquals(new LocalDate(2016, 9, 5), day.getDate());
+        assertEquals(LocalDate.of(2016, 9, 5), day.getDate());
         assertEquals(6, day.getSubstitutions().size());
         assertEquals(0, day.getMessages().size());
 

@@ -16,8 +16,6 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -31,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for the mobile version of substitution schedules created with the <a href="http://indiware.de/">Indiware</a>
@@ -70,7 +70,7 @@ public class IndiwareMobileParser extends BaseParser {
         HttpResponseException lastException = null;
         for (int i = 0; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
-            String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
+            String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String filePrefix = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER ? "PlanLe" : "PlanKl";
             String url = baseurl + "mobdaten/" + filePrefix + dateStr + "" + ".xml?_=" + System.currentTimeMillis();
             try {
@@ -181,7 +181,7 @@ public class IndiwareMobileParser extends BaseParser {
         HttpResponseException lastException = null;
         for (int i = -4; i < MAX_DAYS; i++) {
             LocalDate date = LocalDate.now().plusDays(i);
-            String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
+            String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String url = baseurl + "mobdaten/" + filePrefix + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {
                 String xml = httpGet(url, "UTF-8");

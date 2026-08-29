@@ -8,21 +8,19 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDate;
+import java.io.IOException;
+import java.time.LocalDate;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class IphisDemoTest extends BaseDemoTest {
     private IphisParser parser;
@@ -40,7 +38,6 @@ public class IphisDemoTest extends BaseDemoTest {
         SubstitutionScheduleData scheduleData = new SubstitutionScheduleData();
         scheduleData.setData(new JSONObject());
         parser = new IphisParser(scheduleData, null);
-        DateTimeUtils.setCurrentMillisFixed(new LocalDate(2017, 9, 29).toDateTimeAtStartOfDay().getMillis());
     }
 
     @Test
@@ -49,12 +46,7 @@ public class IphisDemoTest extends BaseDemoTest {
         parser.parseIphis(schedule, changes, courses, teachers, messages);
         assertEquals(2, schedule.getDays().size());
         SubstitutionScheduleDay firstDay = schedule.getDays().get(0);
-        assertEquals(new LocalDate(2017, 9, 29), firstDay.getDate());
+        assertEquals(LocalDate.of(2017, 9, 29), firstDay.getDate());
         assertEquals(4, firstDay.getSubstitutions().size());
-    }
-
-    @After
-    public void tearDown() {
-        DateTimeUtils.setCurrentMillisSystem();
     }
 }

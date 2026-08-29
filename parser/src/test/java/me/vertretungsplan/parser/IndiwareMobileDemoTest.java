@@ -8,20 +8,20 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.json.JSONException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class IndiwareMobileDemoTest extends BaseDemoTest {
 
@@ -32,8 +32,8 @@ public class IndiwareMobileDemoTest extends BaseDemoTest {
         scheduleData.setType(SubstitutionSchedule.Type.STUDENT);
         SubstitutionScheduleDay day = IndiwareMobileParser.parseDay(doc, new ColorProvider(), scheduleData);
 
-        assertEquals(new LocalDate(2017, 6, 21), day.getDate());
-        assertEquals(new LocalDateTime(2017, 6, 20, 10, 28), day.getLastChange());
+        assertEquals(LocalDate.of(2017, 6, 21), day.getDate());
+        assertEquals(LocalDateTime.of(2017, 6, 20, 10, 28), day.getLastChange());
         assertEquals(192, day.getSubstitutions().size());
     }
 }

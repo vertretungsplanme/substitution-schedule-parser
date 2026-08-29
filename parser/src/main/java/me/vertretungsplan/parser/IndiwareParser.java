@@ -8,16 +8,23 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.AdditionalInfo;
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,10 +34,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+;
 
 /**
  * Parser for substitution schedules in XML or HTML format created by the <a href="http://indiware.de/">Indiware</a>
@@ -331,14 +341,16 @@ public class IndiwareParser extends BaseParser {
         Matcher matcher = datePattern.matcher(ds.titel().text());
         if (!matcher.find()) throw new IOException("malformed date: " + ds.titel().text());
         String date = matcher.group();
-        day.setDate(DateTimeFormat.forPattern("EEEE, dd. MMMM yyyy")
-                .withLocale(Locale.GERMAN).parseLocalDate(date));
+        day.setDate(LocalDate.parse(date, 
+            DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy")
+                .withLocale(Locale.GERMAN)));
 
         matcher = lastChangePattern.matcher(ds.datum().text());
         if (!matcher.find()) throw new IOException("malformed date: " + ds.datum().text());
         String lastChange = matcher.group();
-        day.setLastChange(DateTimeFormat.forPattern("dd.MM.yyyy, HH:mm")
-                .withLocale(Locale.GERMAN).parseLocalDateTime(lastChange));
+        day.setLastChange(LocalDateTime.parse(lastChange,
+            DateTimeFormatter.ofPattern("d.M.yyyy, H:mm")
+                .withLocale(Locale.GERMAN)));
 
         if (ds.kopfinfos().size() > 0) {
             for (Element kopfinfo : ds.kopfinfos()) {
