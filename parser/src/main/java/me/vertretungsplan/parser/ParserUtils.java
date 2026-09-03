@@ -8,8 +8,15 @@
 
 package me.vertretungsplan.parser;
 
-import com.mifmif.common.regex.Generex;
-import com.paour.comparator.NaturalOrderComparator;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.client.fluent.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,10 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.mifmif.common.regex.Generex;
+import com.paour.comparator.NaturalOrderComparator;
 
 class ParserUtils {
 
@@ -308,7 +313,12 @@ class ParserUtils {
                 }
                 return classes;
             } else if (data.get("classes") instanceof String) {
-                String regex = data.getString("classes");
+                String regex = data.getString("classes")
+                    .replace("\\", "\\\\")
+                    .replace(".", "\\.")
+                    .replace("+", "\\+")
+                    .replace("?", "\\?")
+                    .replace("*", "\\*");
                 Generex generex = new Generex(regex);
                 final List<String> classes = generex.getAllMatchedStrings();
                 Collections.sort(classes, new NaturalOrderComparator());

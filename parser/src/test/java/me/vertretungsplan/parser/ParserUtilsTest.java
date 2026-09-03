@@ -8,17 +8,16 @@
 
 package me.vertretungsplan.parser;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.joda.time.DateTimeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class ParserUtilsTest {
     @Test
@@ -60,6 +59,60 @@ public class ParserUtilsTest {
 
         List<String> classes = ParserUtils.getClassesFromJson(data);
         assertEquals(Arrays.asList("05A", "05B", "05C"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithDots() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", ".0[5-6][A-C]");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList(".05A", ".05B", ".05C", ".06A", ".06B", ".06C"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithDotsAndSpace() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", "Kl. 0[5-6][A-C]");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList("Kl. 05A", "Kl. 05B", "Kl. 05C", "Kl. 06A", "Kl. 06B", "Kl. 06C"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithStar() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", "0[5-6][A-C]*");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList("05A*", "05B*", "05C*", "06A*", "06B*", "06C*"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithPlus() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", "0[5-6][A-C]+");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList("05A+", "05B+", "05C+", "06A+", "06B+", "06C+"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithQuation() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", "0[5-6][A-C]?");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList("05A?", "05B?", "05C?", "06A?", "06B?", "06C?"), classes);
+    }
+
+    @Test
+    public void testGetClassesRegexWithBackslash() throws JSONException {
+        final JSONObject data = new JSONObject();
+        data.put("classes", "0[5-6]\\[A-C]");
+
+        List<String> classes = ParserUtils.getClassesFromJson(data);
+        assertEquals(Arrays.asList("05\\A", "05\\B", "05\\C", "06\\A", "06\\B", "06\\C"), classes);
     }
 
     @After
