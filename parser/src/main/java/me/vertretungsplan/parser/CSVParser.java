@@ -191,7 +191,7 @@ public class CSVParser extends BaseParser {
             int j = 0;
             for (String column:columns) {
                 // ignore blank columns after last valid column
-                if (j >= columnsArray.length() && column.trim().isEmpty()) continue;
+                if (j >= columnsArray.length() && column.trim().replace(quote, "").isEmpty()) continue;
 
                 // remove quotes
                 if (column.startsWith(quote) && column.endsWith(quote)) {
@@ -247,7 +247,7 @@ public class CSVParser extends BaseParser {
             int j = 0;
             for (String column:columns) {
                 // ignore blank columns after last valid column
-                if (j >= columnsArray.length() && column.trim().isEmpty()) continue;
+                if (j >= columnsArray.length() && column.trim().replace(quote, "").isEmpty()) continue;
 
                 // remove quotes
                 if (column.startsWith(quote) && column.endsWith(quote)) {

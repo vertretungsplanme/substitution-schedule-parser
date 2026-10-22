@@ -337,7 +337,12 @@ class ParserUtils {
                 }
                 return classes;
             } else if (data.get("classes") instanceof String) {
-                String regex = data.getString("classes");
+                String regex = data.getString("classes")
+                    .replace("\\", "\\\\")
+                    .replace(".", "\\.")
+                    .replace("+", "\\+")
+                    .replace("?", "\\?")
+                    .replace("*", "\\*");
                 Generex generex = new Generex(regex);
                 final List<String> classes = generex.getAllMatchedStrings();
                 Collections.sort(classes, new NaturalOrderComparator());

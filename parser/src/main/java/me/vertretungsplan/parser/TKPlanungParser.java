@@ -255,7 +255,7 @@ public class TKPlanungParser extends BaseParser {
     }
 
     @Override
-    protected String executeRequest(String encoding, Request request)
+    protected String executeRequest(String encoding, Request request, boolean following)
             throws IOException, CredentialInvalidException {
         try {
             HttpResponse httpResponse = executor.execute(request).returnResponse();

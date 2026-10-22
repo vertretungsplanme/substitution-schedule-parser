@@ -599,7 +599,7 @@ public abstract class UntisCommonParser extends BaseParser {
         Element zeile = null;
         try {
             zeile = element.parent().nextElementSibling();
-            if (zeile.select("td") == null) {
+            if (zeile != null && zeile.select("td") == null) {
                 zeile = zeile.nextElementSibling();
             }
             int skipLines = 0;
