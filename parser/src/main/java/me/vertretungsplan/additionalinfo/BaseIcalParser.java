@@ -9,6 +9,7 @@
 package me.vertretungsplan.additionalinfo;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -37,6 +38,11 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
     protected abstract String getIcalUrl();
     protected static final Locale LOCALE = Locale.GERMANY;
 
+    /**
+     * Clock used to determine "today". Package-private so tests can fix the time.
+     */
+    static Clock clock = Clock.system(TimeZones.BERLIN);
+
     protected String getTitle() {
         return "Termine";
     }
@@ -57,7 +63,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
             rawdata = pattern.matcher(rawdata).replaceAll("");
         }
 
-        Instant now = LocalDate.now()
+        Instant now = LocalDate.now(clock)
             .atStartOfDay(TimeZones.BERLIN)
             .toInstant();
         List<ICalendar> icals = Biweekly.parse(rawdata).all();

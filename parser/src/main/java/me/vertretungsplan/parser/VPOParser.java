@@ -37,6 +37,7 @@ import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.PasswordCredential;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Parser for substitution schedules from VPO.
@@ -183,9 +184,9 @@ public class VPOParser extends BaseParser {
      */
     private JSONArray getChanges() throws IOException, CredentialInvalidException {
         // Date (or alias of date) when the changes start
-        final String startBy = LocalDate.now().toString();
+        final String startBy = LocalDate.now(TimeZones.BERLIN).toString();
         // Date (or alias of date) when the changes end
-        final String endBy = LocalDate.now().plusWeeks(1).toString();
+        final String endBy = LocalDate.now(TimeZones.BERLIN).plusWeeks(1).toString();
 
         final String url = api + "/changes"; //" + startBy + "/" + endBy;
         return getJSONArray(url);

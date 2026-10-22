@@ -11,7 +11,6 @@ package me.vertretungsplan.parser;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,13 +22,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
+import me.vertretungsplan.utils.TimeZones;
+
 public class ParserUtilsTest {
     @Test
     public void testNewYear() {
         // 24.12.2015
         ParserUtils.clock = Clock.fixed(
             Instant.ofEpochMilli(1450911600000L), // 24.12.2015
-            ZoneId.systemDefault()
+            TimeZones.BERLIN
         );
         ParserUtils.init();
         
@@ -41,7 +42,7 @@ public class ParserUtilsTest {
         // 06.01.2016
         ParserUtils.clock = Clock.fixed(
             Instant.ofEpochMilli(1452034800000L), // 06.01.2016
-            ZoneId.systemDefault()
+            TimeZones.BERLIN
         );
         ParserUtils.init();
         
@@ -56,7 +57,7 @@ public class ParserUtilsTest {
         // 24.12.2015 (kein Schaltjahr)
         ParserUtils.clock = Clock.fixed(
             Instant.ofEpochMilli(1450911600000L), // 24.12.2015
-            ZoneId.systemDefault()
+            TimeZones.BERLIN
         );
         ParserUtils.init();
 
@@ -150,7 +151,7 @@ public class ParserUtilsTest {
 
     @After
     public void tearDown() {
-        ParserUtils.clock = Clock.systemDefaultZone();
+        ParserUtils.clock = Clock.system(TimeZones.BERLIN);
         ParserUtils.init();
     }
 }

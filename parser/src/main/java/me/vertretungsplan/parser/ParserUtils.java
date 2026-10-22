@@ -39,6 +39,8 @@ import org.json.JSONObject;
 import com.mifmif.common.regex.Generex;
 import com.paour.comparator.NaturalOrderComparator;
 
+import me.vertretungsplan.utils.TimeZones;
+
 class ParserUtils {
 
     private static List<DateTimeFormatter> dateTimeFormatters = new ArrayList<>();
@@ -110,7 +112,7 @@ class ParserUtils {
     };
     private static String[] dateTimeFormats = new String[dateFormats.length * timeFormats.length * separators.length];
     private static int initializedYear = -1;
-    static Clock clock = Clock.systemDefaultZone();
+    static Clock clock = Clock.system(TimeZones.BERLIN);
 
     @TestOnly
     static synchronized void init() {

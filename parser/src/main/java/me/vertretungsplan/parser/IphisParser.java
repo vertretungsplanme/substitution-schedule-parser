@@ -199,9 +199,9 @@ public class IphisParser extends BaseParser {
      */
     private JSONArray getChanges() throws IOException, CredentialInvalidException {
         // Date (or alias of date) when the changes start
-        final String startBy = LocalDate.now().toString();
+        final String startBy = LocalDate.now(TimeZones.BERLIN).toString();
         // Date (or alias of date) when the changes end
-        final String endBy = LocalDate.now().plusWeeks(1).toString();
+        final String endBy = LocalDate.now(TimeZones.BERLIN).plusWeeks(1).toString();
 
         final String url = api + "/vertretung/von/" + startBy + "/bis/" + endBy;
         return getJSONArray(url);
@@ -297,7 +297,7 @@ public class IphisParser extends BaseParser {
         substitutionSchedule.setLastChange(lastUpdate);
 
         // Add changes to SubstitutionSchedule
-        LocalDate currentDate = LocalDate.now();
+        LocalDate currentDate = LocalDate.now(TimeZones.BERLIN);
         SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
         substitutionScheduleDay.setDate(currentDate);
         for (int i = 0; i < changes.length(); i++) {

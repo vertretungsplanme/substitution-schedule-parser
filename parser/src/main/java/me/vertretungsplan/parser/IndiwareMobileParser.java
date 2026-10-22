@@ -14,6 +14,7 @@ import me.vertretungsplan.objects.Substitution;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.utils.TimeZones;
 import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -69,7 +70,7 @@ public class IndiwareMobileParser extends BaseParser {
 
         HttpResponseException lastException = null;
         for (int i = 0; i < MAX_DAYS; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
+            LocalDate date = LocalDate.now(TimeZones.BERLIN).plusDays(i);
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String filePrefix = scheduleData.getType() == SubstitutionSchedule.Type.TEACHER ? "PlanLe" : "PlanKl";
             String url = baseurl + "mobdaten/" + filePrefix + dateStr + "" + ".xml?_=" + System.currentTimeMillis();
@@ -180,7 +181,7 @@ public class IndiwareMobileParser extends BaseParser {
         String baseurl = data.getString(PARAM_BASEURL) + "/";
         HttpResponseException lastException = null;
         for (int i = -4; i < MAX_DAYS; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
+            LocalDate date = LocalDate.now(TimeZones.BERLIN).plusDays(i);
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String url = baseurl + "mobdaten/" + filePrefix + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {

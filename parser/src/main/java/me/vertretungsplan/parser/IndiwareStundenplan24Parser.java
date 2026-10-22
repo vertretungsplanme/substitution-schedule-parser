@@ -13,6 +13,7 @@ import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,7 +89,7 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < MAX_DAYS; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
+            LocalDate date = LocalDate.now(TimeZones.BERLIN).plusDays(i);
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String suffix = isTeacher ? "Le" : "Kl";
             String url = baseurl + "vdaten/Vplan" + suffix + dateStr + ".xml?_=" + System.currentTimeMillis();

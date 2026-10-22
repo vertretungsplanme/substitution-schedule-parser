@@ -136,7 +136,7 @@ public class TKPlanungParser extends BaseParser {
         }
 
         // Add Today
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.now(TimeZones.BERLIN);
         DayOfWeek dayOfWeek = now.getDayOfWeek();
         if (dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY) {
             SubstitutionScheduleDay today = new SubstitutionScheduleDay();
