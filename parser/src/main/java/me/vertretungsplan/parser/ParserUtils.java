@@ -10,13 +10,13 @@ package me.vertretungsplan.parser;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
@@ -140,7 +140,7 @@ class ParserUtils {
     }
 
     private static synchronized void reinitIfNeeded() {
-        if (dateFormatters.isEmpty() || initializedYear != Year.now().getValue()) {
+        if (dateFormatters.isEmpty() || initializedYear != Year.now(clock).getValue()) {
             init();
         }
     }
@@ -183,12 +183,13 @@ class ParserUtils {
                         return currentYear;
                     }
                 }
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeException e) {
                 // Does not match this format, try the next one
             }
             i++;
         }
         // Does not match any known format :(
+        System.out.println("Could not parse date and time: " + string);
         return null;
     }
 
@@ -235,12 +236,13 @@ class ParserUtils {
                         return currentYear;
                     }
                 }
-            } catch (DateTimeParseException e) {
+            } catch (DateTimeException e) {
                 // Does not match this format, try the next one
             }
             i++;
         }
         // Does not match any known format :(
+        System.out.println("Could not parse date: " + string);
         return null;
     }
 

@@ -10,6 +10,7 @@ package me.vertretungsplan.parser;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 public class ParserUtilsTest {
@@ -47,6 +49,25 @@ public class ParserUtilsTest {
         assertEquals(2015, ParserUtils.parseDate("31.12. Donnerstag").getYear());
         assertEquals(2016, ParserUtils.parseDateTime("1.1. Freitag 12:00").getYear());
         assertEquals(2015, ParserUtils.parseDateTime("31.12. Donnerstag 12:00").getYear());
+    }
+
+    @Test
+    public void testInvalidDates() {
+        // 24.12.2015 (kein Schaltjahr)
+        ParserUtils.clock = Clock.fixed(
+            Instant.ofEpochMilli(1450911600000L), // 24.12.2015
+            ZoneId.systemDefault()
+        );
+        ParserUtils.init();
+
+        // Ungültige Datumsangaben ohne Jahr dürfen nicht abstürzen, sondern werden übersprungen
+        assertNull(ParserUtils.parseDate("29.2. Freitag"));
+        assertNull(ParserUtils.parseDate("31.11. Freitag"));
+        assertNull(ParserUtils.parseDateTime("31.11. Freitag 12:00"));
+
+        // Gültige Angaben ohne Jahr werden weiterhin geparst
+        assertEquals(LocalDate.of(2016, 1, 1), ParserUtils.parseDate("1.1. Freitag"));
+        assertEquals(2016, ParserUtils.parseDateTime("1.1. Freitag 12:00").getYear());
     }
 
     @Test
