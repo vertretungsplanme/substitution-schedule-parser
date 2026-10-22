@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import biweekly.io.TimezoneAssignment;
 import biweekly.io.TimezoneInfo;
 import biweekly.util.com.google.ical.compat.javautil.DateIterator;
 import me.vertretungsplan.objects.AdditionalInfo;
+import me.vertretungsplan.utils.TimeZones;
 
 public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
     protected abstract String getIcalUrl();
@@ -58,7 +58,7 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
         }
 
         Instant now = LocalDate.now()
-            .atStartOfDay(ZoneId.of("Europe/Berlin"))
+            .atStartOfDay(TimeZones.BERLIN)
             .toInstant();
         List<ICalendar> icals = Biweekly.parse(rawdata).all();
 
@@ -76,13 +76,13 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
                     item.summary = event.getSummary().getValue();
                 }
                 if (event.getDateStart() != null) {
-                    item.startDate = LocalDateTime.ofInstant(event.getDateStart().getValue().toInstant(), ZoneId.of("Europe/Berlin"));
+                    item.startDate = LocalDateTime.ofInstant(event.getDateStart().getValue().toInstant(), TimeZones.BERLIN);
                     item.startHasTime = event.getDateStart().getValue().hasTime();
                 } else {
                     continue;
                 }
                 if (event.getDateEnd() != null) {
-                    item.endDate = LocalDateTime.ofInstant(event.getDateEnd().getValue().toInstant(), ZoneId.of("Europe/Berlin"));
+                    item.endDate = LocalDateTime.ofInstant(event.getDateEnd().getValue().toInstant(), TimeZones.BERLIN);
                     item.endHasTime = event.getDateEnd().getValue().hasTime();
                 }
                 if (event.getLocation() != null) {
@@ -94,10 +94,10 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
 
                 if (event.getRecurrenceRule() == null
                         && item.endDate != null
-                        && (item.endDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                        && (item.endDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                     continue;
                 } else if (event.getRecurrenceRule() == null
-                        && (item.startDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                        && (item.startDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                     continue;
                 }
                 if (event.getRecurrenceRule() != null
@@ -119,16 +119,16 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
                     while (iterator.hasNext()) {
                         Date date = iterator.next();
                         Event reccitem = item.clone();
-                        reccitem.startDate = LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("Europe/Berlin"));
+                        reccitem.startDate = LocalDateTime.ofInstant(date.toInstant(), TimeZones.BERLIN);
                         reccitem.endDate = reccitem.startDate.plus(duration);
 
                         if (item.startDate.equals(reccitem.startDate)) continue;
 
                         if (item.endDate != null
-                                && (item.endDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                                && (item.endDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                             continue;
                         } else if (item.endDate == null
-                                && (item.startDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                                && (item.startDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                             continue;
                         }
 
@@ -137,10 +137,10 @@ public abstract class BaseIcalParser extends BaseAdditionalInfoParser {
                 }
 
                 if (item.endDate != null
-                        && (item.endDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                        && (item.endDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                     continue;
                 } else if (item.endDate == null
-                        && (item.startDate.atZone(ZoneId.of("Europe/Berlin")).toInstant().isBefore(now))) {
+                        && (item.startDate.atZone(TimeZones.BERLIN).toInstant().isBefore(now))) {
                     continue;
                 }
 

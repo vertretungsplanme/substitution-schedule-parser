@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 
 public class TKPlanungParser extends BaseParser {
     private static final String PARAM_URL = "url";
@@ -271,7 +271,7 @@ public class TKPlanungParser extends BaseParser {
                             .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
                             .withLocale(Locale.GERMAN);
                         ZonedDateTime utcDateTime = ZonedDateTime.parse(lastModified, fmt);
-                        ZonedDateTime berlinDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("Europe/Berlin"));
+                        ZonedDateTime berlinDateTime = utcDateTime.withZoneSameInstant(TimeZones.BERLIN);
                         lastUpdate = berlinDateTime.toLocalDateTime();
                     }
                 }  catch (Exception e) {

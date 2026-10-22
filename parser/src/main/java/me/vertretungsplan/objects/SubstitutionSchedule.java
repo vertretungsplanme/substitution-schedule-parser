@@ -10,7 +10,6 @@ package me.vertretungsplan.objects;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +24,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.paour.comparator.NaturalOrderComparator;
+
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Represents a school's substitution schedule
@@ -181,7 +182,7 @@ public class SubstitutionSchedule implements Cloneable {
     }
 
     public void setLastChangeFromInstant(Instant lastChange) {
-        this.lastChange = lastChange.atZone(ZoneId.of("Europe/Berlin"))
+        this.lastChange = lastChange.atZone(TimeZones.BERLIN)
             .toLocalDateTime();
     }
 

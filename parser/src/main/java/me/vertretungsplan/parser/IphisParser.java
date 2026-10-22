@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +41,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Parser for substitution schedules from IPHIS.
@@ -186,7 +186,7 @@ public class IphisParser extends BaseParser {
 
             authToken = token.getString("token");
             website = jwtToken.getIssuer();
-            lastUpdate = LocalDateTime.ofInstant(Instant.ofEpochMilli(token.getLong("stand") * 1000), ZoneId.of("Europe/Berlin"));
+            lastUpdate = LocalDateTime.ofInstant(Instant.ofEpochMilli(token.getLong("stand") * 1000), TimeZones.BERLIN);
         } catch (SignatureException | JSONException e) {
             throw new CredentialInvalidException();
         }

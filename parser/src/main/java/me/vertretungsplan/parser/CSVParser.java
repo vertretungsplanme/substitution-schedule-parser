@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -39,6 +38,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Generic parser for substitution schedules in CSV format.
@@ -126,7 +126,7 @@ public class CSVParser extends BaseParser {
                 for (DavResource file : files) {
                     if (!file.isDirectory() && !file.getName().startsWith(".")) {
                         Date modDate = file.getModified();
-                        LocalDateTime modified = modDate.toInstant().atZone(ZoneId.of("Europe/Berlin")).toLocalDateTime();
+                        LocalDateTime modified = modDate.toInstant().atZone(TimeZones.BERLIN).toLocalDateTime();
                         if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
                             schedule.setLastChange(modified);
                         }
@@ -154,7 +154,7 @@ public class CSVParser extends BaseParser {
                     for (DavResource file : files) {
                         if (!file.isDirectory() && !file.getName().startsWith(".")) {
                             Date modDate = file.getModified();
-                            LocalDateTime modified = modDate.toInstant().atZone(ZoneId.of("Europe/Berlin")).toLocalDateTime();
+                            LocalDateTime modified = modDate.toInstant().atZone(TimeZones.BERLIN).toLocalDateTime();
                             if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
                                 schedule.setLastChange(modified);
                             }
