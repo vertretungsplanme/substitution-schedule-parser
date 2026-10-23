@@ -8,20 +8,20 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import me.vertretungsplan.objects.authentication.NoAuthenticationData;
-import me.vertretungsplan.objects.authentication.PasswordAuthenticationData;
-import me.vertretungsplan.objects.credential.PasswordCredential;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -30,13 +30,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.authentication.NoAuthenticationData;
+import me.vertretungsplan.objects.authentication.PasswordAuthenticationData;
+import me.vertretungsplan.objects.credential.PasswordCredential;
 
 /**
  * Parser for substitution schedules served by eSchool (eschool.topackt.com). Supports both
@@ -112,8 +113,10 @@ public class ESchoolParser extends BaseParser {
         Pattern pattern = Pattern.compile("Letzte Aktualisierung:\u00a0(\\d{2}.\\d{2}.\\d{4} - \\d{2}:\\d{2})");
         Matcher matcher = pattern.matcher(infoString);
         if (matcher.find()) {
-            LocalDateTime lastChange = DateTimeFormat.forPattern("dd.MM.yyyy - HH:mm")
-                    .parseLocalDateTime(matcher.group(1));
+            LocalDateTime lastChange = LocalDateTime.parse(
+                    matcher.group(1),
+                    DateTimeFormatter.ofPattern("d.M.yyyy - H:mm")
+            );
             schedule.setLastChange(lastChange);
         }
 

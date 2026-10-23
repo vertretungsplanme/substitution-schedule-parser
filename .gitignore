@@ -4,6 +4,8 @@ build/
 parser/bin/
 sample/bin/
 
+.DS_Store
+
 # Ignore Gradle GUI config
 gradle-app.setting
 

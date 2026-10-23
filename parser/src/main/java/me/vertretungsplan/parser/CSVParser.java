@@ -8,6 +8,25 @@
 
 package me.vertretungsplan.parser;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.fluent.Request;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.paour.comparator.NaturalOrderComparator;
@@ -19,21 +38,7 @@ import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.SubstitutionScheduleDay;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.fluent.Request;
-import org.jetbrains.annotations.NotNull;
-import org.joda.time.LocalDateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.util.*;
-import java.util.regex.Matcher;
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Generic parser for substitution schedules in CSV format.
@@ -120,7 +125,8 @@ public class CSVParser extends BaseParser {
                 List<DavResource> files = client.list(httpUrl);
                 for (DavResource file : files) {
                     if (!file.isDirectory() && !file.getName().startsWith(".")) {
-                        LocalDateTime modified = new LocalDateTime(file.getModified());
+                        Date modDate = file.getModified();
+                        LocalDateTime modified = modDate.toInstant().atZone(TimeZones.BERLIN).toLocalDateTime();
                         if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
                             schedule.setLastChange(modified);
                         }
@@ -147,7 +153,8 @@ public class CSVParser extends BaseParser {
                     List<DavResource> files = client.list(httpUrl);
                     for (DavResource file : files) {
                         if (!file.isDirectory() && !file.getName().startsWith(".")) {
-                            LocalDateTime modified = new LocalDateTime(file.getModified());
+                            Date modDate = file.getModified();
+                            LocalDateTime modified = modDate.toInstant().atZone(TimeZones.BERLIN).toLocalDateTime();
                             if (schedule.getLastChange() == null || schedule.getLastChange().isBefore(modified)) {
                                 schedule.setLastChange(modified);
                             }

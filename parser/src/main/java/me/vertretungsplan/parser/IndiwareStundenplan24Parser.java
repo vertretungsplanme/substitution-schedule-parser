@@ -13,9 +13,8 @@ import me.vertretungsplan.objects.AdditionalInfo;
 import me.vertretungsplan.objects.SubstitutionSchedule;
 import me.vertretungsplan.objects.SubstitutionScheduleData;
 import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 import org.apache.http.client.HttpResponseException;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -25,6 +24,8 @@ import org.jsoup.parser.Parser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Parser for substitution schedules in XML format created by the <a href="http://indiware.de/">Indiware</a>
@@ -88,8 +89,8 @@ public class IndiwareStundenplan24Parser extends IndiwareParser {
         List<Document> docs = new ArrayList<>();
 
         for (int i = 0; i < MAX_DAYS; i++) {
-            LocalDate date = LocalDate.now().plusDays(i);
-            String dateStr = DateTimeFormat.forPattern("yyyyMMdd").print(date);
+            LocalDate date = LocalDate.now(TimeZones.BERLIN).plusDays(i);
+            String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String suffix = isTeacher ? "Le" : "Kl";
             String url = baseurl + "vdaten/Vplan" + suffix + dateStr + ".xml?_=" + System.currentTimeMillis();
             try {

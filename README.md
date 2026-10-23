@@ -26,6 +26,28 @@ If you run into problems using this library, you can simply
 [report an issue](https://github.com/johan12345/substitution-schedule-parser/issues/new) and I will try to help you
 as soon as possible.
 
+### Breaking changes in 2.0
+Version 2.0 uses `java.time` instead of [Joda-Time](https://www.joda.org/joda-time/) for all public date and time
+values. The following signatures changed; they are both source and binary incompatible, so code calling them has to
+be adapted and `joda-time` is no longer pulled in transitively:
+
+| Method | Before 2.0 | Since 2.0 |
+| --- | --- | --- |
+| `SubstitutionScheduleParser.getLastChange()`, `SubstitutionSchedule.setLastChange`/`getLastChange`, `SubstitutionScheduleDay.setLastChange`/`getLastChange` | `org.joda.time.LocalDateTime` | `java.time.LocalDateTime` |
+| `SubstitutionScheduleDay.setDate`/`getDate`, `SubstitutionScheduleDayDiff.getDate`/`setDate` | `org.joda.time.LocalDate` | `java.time.LocalDate` |
+| `Credential.getLastCheck`/`setLastCheck`, `BaseCredential.getLastCheck`/`setLastCheck` | `org.joda.time.DateTime` | `java.time.LocalDateTime` |
+
+Migration hints:
+
+* `new org.joda.time.DateTime(millis)` → `LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), TimeZones.BERLIN)`
+* if your source provides a `java.util.Date`, use `SubstitutionSchedule.setLastChangeFromDate(date)` (or
+  `setLastChangeFromInstant(instant)`) instead of converting yourself
+* declare an explicit `joda-time` dependency if you relied on receiving it transitively through this library
+
+All instants and the notion of "today" are interpreted in `Europe/Berlin` (`TimeZones.BERLIN`), so results no longer
+depend on the time zone the JVM happens to run in. On other zones, date results can shift by up to one day compared
+to earlier versions.
+
 ## Supported substitution schedule software systems
 Below you find the currently supported substitution schedule softwares and the corresponding values for `SubstitutionScheduleData.setApi()`:
 

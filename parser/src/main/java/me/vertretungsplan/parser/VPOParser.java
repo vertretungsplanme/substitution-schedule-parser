@@ -8,25 +8,36 @@
 
 package me.vertretungsplan.parser;
 
-import io.jsonwebtoken.SignatureException;
-import me.vertretungsplan.exception.CredentialInvalidException;
-import me.vertretungsplan.objects.*;
-import me.vertretungsplan.objects.credential.PasswordCredential;
-import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.entity.ContentType;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.paour.comparator.NaturalOrderComparator;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import io.jsonwebtoken.SignatureException;
+import me.vertretungsplan.exception.CredentialInvalidException;
+import me.vertretungsplan.objects.AdditionalInfo;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
+import me.vertretungsplan.objects.credential.PasswordCredential;
+import me.vertretungsplan.objects.credential.UserPasswordCredential;
+import me.vertretungsplan.utils.TimeZones;
 
 /**
  * Parser for substitution schedules from VPO.
@@ -173,9 +184,9 @@ public class VPOParser extends BaseParser {
      */
     private JSONArray getChanges() throws IOException, CredentialInvalidException {
         // Date (or alias of date) when the changes start
-        final String startBy = LocalDate.now().toString();
+        final String startBy = LocalDate.now(TimeZones.BERLIN).toString();
         // Date (or alias of date) when the changes end
-        final String endBy = LocalDate.now().plusWeeks(1).toString();
+        final String endBy = LocalDate.now(TimeZones.BERLIN).plusWeeks(1).toString();
 
         final String url = api + "/changes"; //" + startBy + "/" + endBy;
         return getJSONArray(url);
@@ -267,7 +278,7 @@ public class VPOParser extends BaseParser {
                 infos.add(info);
             } else {
                 SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
-                final LocalDate messageDate = new LocalDate(message.getString("date"));
+                final LocalDate messageDate = LocalDate.parse(message.getString("date"));
                 substitutionScheduleDay.setDate(messageDate);
                 substitutionScheduleDay.addMessage("<b>" + message.optString("title") + "</b><br />" + message.optString("message"));
                 substitutionSchedule.addDay(substitutionScheduleDay);
@@ -281,7 +292,7 @@ public class VPOParser extends BaseParser {
         // Add changes to SubstitutionSchedule
         for (int i = 0; i < changes.length(); i++) {
             final JSONObject change = changes.getJSONObject(i);
-            final LocalDate substitutionDate = new LocalDate(change.getString("date"));
+            final LocalDate substitutionDate = LocalDate.parse(change.getString("date"));
 
             SubstitutionScheduleDay substitutionScheduleDay = new SubstitutionScheduleDay();
             substitutionScheduleDay.setDate(substitutionDate);

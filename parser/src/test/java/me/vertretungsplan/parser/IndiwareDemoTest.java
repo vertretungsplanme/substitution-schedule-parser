@@ -8,22 +8,22 @@
 
 package me.vertretungsplan.parser;
 
-import me.vertretungsplan.objects.Substitution;
-import me.vertretungsplan.objects.SubstitutionSchedule;
-import me.vertretungsplan.objects.SubstitutionScheduleData;
-import me.vertretungsplan.objects.SubstitutionScheduleDay;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
+import me.vertretungsplan.objects.Substitution;
+import me.vertretungsplan.objects.SubstitutionSchedule;
+import me.vertretungsplan.objects.SubstitutionScheduleData;
+import me.vertretungsplan.objects.SubstitutionScheduleDay;
 
 public class IndiwareDemoTest extends BaseDemoTest {
     private IndiwareParser parser;
@@ -65,8 +65,8 @@ public class IndiwareDemoTest extends BaseDemoTest {
         parser.parseIndiwarePage(schedule, html);
 
         assertEquals(2, schedule.getDays().size());
-        assertEquals(new LocalDate(2017, 3, 10), schedule.getDays().get(0).getDate());
-        assertEquals(new LocalDate(2017, 3, 13), schedule.getDays().get(1).getDate());
+        assertEquals(LocalDate.of(2017, 3, 10), schedule.getDays().get(0).getDate());
+        assertEquals(LocalDate.of(2017, 3, 13), schedule.getDays().get(1).getDate());
     }
 
     @Test
@@ -77,8 +77,8 @@ public class IndiwareDemoTest extends BaseDemoTest {
         parser.parseIndiwarePage(schedule, html);
 
         assertEquals(2, schedule.getDays().size());
-        assertEquals(new LocalDate(2017, 3, 10), schedule.getDays().get(0).getDate());
-        assertEquals(new LocalDate(2017, 3, 13), schedule.getDays().get(1).getDate());
+        assertEquals(LocalDate.of(2017, 3, 10), schedule.getDays().get(0).getDate());
+        assertEquals(LocalDate.of(2017, 3, 13), schedule.getDays().get(1).getDate());
     }
 
     @Test
@@ -89,8 +89,8 @@ public class IndiwareDemoTest extends BaseDemoTest {
         parser.parseIndiwarePage(schedule, xml);
 
         assertEquals(2, schedule.getDays().size());
-        assertEquals(new LocalDate(2019, 1, 14), schedule.getDays().get(0).getDate());
-        assertEquals(new LocalDate(2019, 1, 15), schedule.getDays().get(1).getDate());
+        assertEquals(LocalDate.of(2019, 1, 15), schedule.getDays().get(1).getDate());
+        assertEquals(LocalDate.of(2019, 1, 14), schedule.getDays().get(0).getDate());
     }
 
     @Test
@@ -102,8 +102,8 @@ public class IndiwareDemoTest extends BaseDemoTest {
     }
 
     private void verify(SubstitutionScheduleDay schedule) {
-        assertEquals(new LocalDate(2016, 8, 22), schedule.getDate());
-        assertEquals(new LocalDateTime(2016, 8, 19, 12, 50), schedule.getLastChange());
+        assertEquals(LocalDate.of(2016, 8, 22), schedule.getDate());
+        assertEquals(LocalDateTime.of(2016, 8, 19, 12, 50), schedule.getLastChange());
         assertEquals(2, schedule.getMessages().size());
         assertEquals("<b>Klassen mit Änderung:</b> bla", schedule.getMessages().get(0));
         assertEquals("Erste Zeile.<br>\nZweite Zeile", schedule.getMessages().get(1));
